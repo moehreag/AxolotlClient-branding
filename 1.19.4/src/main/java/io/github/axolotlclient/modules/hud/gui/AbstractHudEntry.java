@@ -52,6 +52,7 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	protected final BooleanOption enabled = DefaultOptions.getEnabled();
 	protected final DoubleOption scale = DefaultOptions.getScale(this);
+	protected final MinecraftClient client = MinecraftClient.getInstance();
 	private final DoubleOption x = DefaultOptions.getX(getDefaultX(), this);
 	private final DoubleOption y = DefaultOptions.getY(getDefaultY(), this);
 	@Setter
@@ -62,7 +63,6 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	protected int height;
 	@Setter
 	protected boolean hovered = false;
-	protected MinecraftClient client = MinecraftClient.getInstance();
 	private Rectangle trueBounds = null;
 	private Rectangle renderBounds = null;
 	private DrawPosition truePosition = null;

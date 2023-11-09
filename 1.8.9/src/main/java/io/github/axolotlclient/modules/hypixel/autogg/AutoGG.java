@@ -47,7 +47,12 @@ public class AutoGG implements AbstractHypixelMod {
 
 	@Getter
 	private static final AutoGG Instance = new AutoGG();
-
+	public final BooleanOption gg = new BooleanOption("printGG", false);
+	public final StringOption ggString = new StringOption("ggString", "gg");
+	public final BooleanOption gf = new BooleanOption("printGF", false);
+	public final StringOption gfString = new StringOption("gfString", "gf");
+	public final BooleanOption glhf = new BooleanOption("printGLHF", false);
+	public final StringOption glhfString = new StringOption("glhfString", "glhf");
 	private final OptionCategory category = new OptionCategory("autogg");
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final BooleanOption onHypixel = new BooleanOption("onHypixel", false);
@@ -58,12 +63,6 @@ public class AutoGG implements AbstractHypixelMod {
 	private final HashMap<String, List<String>> gfStrings = new HashMap<>();
 	private final HashMap<String, List<String>> glhfStrings = new HashMap<>();
 	private final HashMap<String, BooleanOption> serverMap = new HashMap<>();
-	public BooleanOption gg = new BooleanOption("printGG", false);
-	public StringOption ggString = new StringOption("ggString", "gg");
-	public BooleanOption gf = new BooleanOption("printGF", false);
-	public StringOption gfString = new StringOption("gfString", "gf");
-	public BooleanOption glhf = new BooleanOption("printGLHF", false);
-	public StringOption glhfString = new StringOption("glhfString", "glhf");
 	private long lastTime = 0;
 
 	@Override

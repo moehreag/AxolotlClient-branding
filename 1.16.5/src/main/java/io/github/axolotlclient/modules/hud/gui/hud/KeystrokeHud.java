@@ -293,8 +293,8 @@ public class KeystrokeHud extends TextHudEntry {
 
 		protected final KeyBinding key;
 		protected final KeystrokeRenderer render;
+		protected final Rectangle bounds;
 		private final int animTime = 100;
-		protected Rectangle bounds;
 		protected DrawPosition offset;
 		private float start = -1;
 		private boolean wasPressed = false;

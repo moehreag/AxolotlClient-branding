@@ -22,29 +22,31 @@
 
 package io.github.axolotlclient.modules.auth;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.*;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
-import com.mojang.blaze3d.texture.NativeImage;
+import com.mojang.util.UUIDTypeAdapter;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
 import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.util.Logger;
+import io.github.axolotlclient.util.ThreadExecuter;
+import io.github.axolotlclient.util.notifications.Notifications;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.multiplayer.report.ReportEnvironment;
 import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
 import net.minecraft.client.network.SocialInteractionsManager;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.toast.SystemToast;
+import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.util.PlayerKeyPairManager;
 import net.minecraft.client.util.Session;
 import net.minecraft.text.Text;
@@ -59,6 +61,10 @@ public class Auth extends Accounts implements Module {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", (x, y) -> client.setScreen(new AccountsScreen(client.currentScreen)));
 
+	private final Map<String, Identifier> textures = new HashMap<>();
+	private final Set<String> loadingTexture = new HashSet<>();
+	private final Map<String, GameProfile> profileCache = new WeakHashMap<>();
+
 	@Override
 	public void init() {
 		load();
@@ -70,7 +76,7 @@ public class Auth extends Accounts implements Module {
 				});
 			}
 		} else {
-			current = new MSAccount(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
+			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
 		}
 
 		OptionCategory category = new OptionCategory("auth");
@@ -84,14 +90,15 @@ public class Auth extends Accounts implements Module {
 	}
 
 	@Override
-	protected void login(MSAccount account) {
+	protected void login(Account account) {
 		if (client.world != null) {
 			return;
 		}
 
 		Runnable runnable = () -> {
 			try {
-				((MinecraftClientAccessor) client).setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(),
+				API.getInstance().shutdown();
+				((MinecraftClientAccessor) client).axolotlclient$setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(),
 					Optional.empty(), Optional.empty(),
 					Session.AccountType.MSA));
 				UserApiService service;
@@ -99,25 +106,26 @@ public class Auth extends Accounts implements Module {
 					service = UserApiService.OFFLINE;
 				} else {
 					service = ((YggdrasilMinecraftSessionService) MinecraftClient.getInstance().getSessionService()).getAuthenticationService().createUserApiService(client.getSession().getAccessToken());
+					API.getInstance().startup(account);
 				}
-				((MinecraftClientAccessor) client).setUserApiService(service);
-				((MinecraftClientAccessor) client).setSocialInteractionsManager(new SocialInteractionsManager(client, service));
-				((MinecraftClientAccessor) client).setPlayerKeyPairManager(PlayerKeyPairManager.create(service, client.getSession(), client.runDirectory.toPath()));
-				((MinecraftClientAccessor) client).setChatReportingContext(ChatReportingContext.create(ReportEnvironment.createLocal(), service));
+				((MinecraftClientAccessor) client).axolotlclient$setUserApiService(service);
+				((MinecraftClientAccessor) client).axolotlclient$setSocialInteractionsManager(new SocialInteractionsManager(client, service));
+				((MinecraftClientAccessor) client).axolotlclient$setPlayerKeyPairManager(PlayerKeyPairManager.create(service, client.getSession(), client.runDirectory.toPath()));
+				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(ChatReportingContext.create(ReportEnvironment.createLocal(), service));
 				save();
 				current = account;
-				client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.successful", (Object) current.getName())));
+				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.successful", (Object) current.getName()));
 			} catch (AuthenticationException e) {
 				e.printStackTrace();
-				client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.failed")));
+				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.failed"));
 			}
 		};
 
 		if (account.isExpired() && !account.isOffline()) {
-			client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", (Object) account.getName())));
+			Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", (Object) account.getName()));
 			account.refresh(auth, runnable);
 		} else {
-			runnable.run();
+			new Thread(runnable).start();
 		}
 	}
 
@@ -126,15 +134,49 @@ public class Auth extends Accounts implements Module {
 		return AxolotlClient.LOGGER;
 	}
 
-	public void loadSkinFile(Identifier skinId, MSAccount account) {
-		if (!account.isOffline() && MinecraftClient.getInstance().getTextureManager().getOrDefault(skinId, null) == null) {
-			try {
-				MinecraftClient.getInstance().getTextureManager().registerTexture(skinId,
-					new NativeImageBackedTexture(NativeImage.read(Files.newInputStream(getSkinFile(account).toPath()))));
-				AxolotlClient.LOGGER.debug("Loaded skin file for " + account.getName());
-			} catch (IOException e) {
-				AxolotlClient.LOGGER.warn("Couldn't load skin file for " + account.getName());
-			}
+	@Override
+	public void loadTextures(String uuid, String name) {
+		if (!textures.containsKey(uuid) && !loadingTexture.contains(uuid)) {
+			ThreadExecuter.scheduleTask(() -> {
+				loadingTexture.add(uuid);
+				GameProfile gameProfile;
+				if (profileCache.containsKey(uuid)) {
+					gameProfile = profileCache.get(uuid);
+				} else {
+					try {
+						UUID uUID = UUIDTypeAdapter.fromString(uuid);
+						gameProfile = new GameProfile(uUID, name);
+						gameProfile = client.getSessionService().fillProfileProperties(gameProfile, false);
+					} catch (IllegalArgumentException var2) {
+						gameProfile = new GameProfile(null, name);
+					}
+					profileCache.put(uuid, gameProfile);
+				}
+				client.getSkinProvider().loadSkin(gameProfile, ((type, id, tex) -> {
+					if (type == MinecraftProfileTexture.Type.SKIN) {
+						textures.put(uuid, id);
+						loadingTexture.remove(uuid);
+					}
+				}), false);
+			});
+		}
+	}
+
+	public Identifier getSkinTexture(Account account) {
+		return getSkinTexture(account.getUuid(), account.getName());
+	}
+
+	public Identifier getSkinTexture(String uuid, String name) {
+		loadTextures(uuid, name);
+		Identifier id;
+		if ((id = textures.get(uuid)) != null) {
+			return id;
+		}
+		try {
+			UUID uUID = UUIDTypeAdapter.fromString(uuid);
+			return DefaultSkinHelper.getTexture(uUID);
+		} catch (IllegalArgumentException ignored) {
+			return DefaultSkinHelper.getTexture();
 		}
 	}
 }

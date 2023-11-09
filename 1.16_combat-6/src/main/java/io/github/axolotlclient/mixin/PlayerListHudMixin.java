@@ -27,7 +27,7 @@ import java.util.List;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsGame;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
@@ -99,14 +99,14 @@ public abstract class PlayerListHudMixin {
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getWidth(Lnet/minecraft/text/StringVisitable;)I"))
 	public int axolotlclient$moveName(TextRenderer instance, StringVisitable text) {
-		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(axolotlclient$profile.getId()))
+		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$profile.getId().toString()))
 			return instance.getWidth(text) + 10;
 		return instance.getWidth(text);
 	}
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/Text;FFI)I"))
 	public int axolotlclient$moveName2(TextRenderer instance, MatrixStack matrices, Text text, float x, float y, int color) {
-		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(axolotlclient$profile.getId())) {
+		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$profile.getId().toString())) {
 			MinecraftClient.getInstance().getTextureManager().bindTexture(AxolotlClient.badgeIcon);
 			RenderSystem.color4f(1, 1, 1, 1);
 

@@ -25,7 +25,6 @@ package io.github.axolotlclient.mixin;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
-import io.github.axolotlclient.util.NetworkHelper;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.WorldLoadEvent;
 import net.fabricmc.loader.api.FabricLoader;
@@ -69,10 +68,7 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "stop", at = @At("HEAD"))
 	public void axolotlclient$stop(CallbackInfo ci) {
-		if (AxolotlClient.CONFIG.showBadges.get()) {
-			NetworkHelper.setOffline();
-		}
-		DiscordRPC.shutdown();
+		DiscordRPC.getInstance().shutdown();
 	}
 
 	@Inject(method = "openScreen", at = @At("HEAD"))

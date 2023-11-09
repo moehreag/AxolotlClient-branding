@@ -35,7 +35,7 @@ import net.minecraft.util.Identifier;
 
 public class PlayerCountHud extends SimpleTextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "playercounthud");
+	public static final Identifier ID = new Identifier("axolotlclient", "playercounthud");
 
 	@Override
 	public Identifier getId() {

@@ -28,6 +28,7 @@ import java.util.UUID;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsGame;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
@@ -68,7 +69,7 @@ public abstract class PlayerListHudMixin {
 	private GameProfile axolotlclient$profile;
 
 	@Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$nickHider(PlayerListEntry playerEntry, CallbackInfoReturnable<Text> cir) {
+	private void axolotlclient$nickHider(PlayerListEntry playerEntry, CallbackInfoReturnable<Text> cir) {
 		assert MinecraftClient.getInstance().player != null;
 		if (playerEntry.getProfile().equals(MinecraftClient.getInstance().player.getGameProfile())
 			&& NickHider.getInstance().hideOwnName.get()) {
@@ -87,24 +88,24 @@ public abstract class PlayerListHudMixin {
 	private MinecraftClient client;
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"))
-	public PlayerListEntry axolotlclient$getPlayer(PlayerListEntry playerEntry) {
+	private PlayerListEntry axolotlclient$getPlayer(PlayerListEntry playerEntry) {
 		axolotlclient$profile = playerEntry.getProfile();
 		return playerEntry;
 	}
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getWidth(Lnet/minecraft/text/StringVisitable;)I"))
-	public int axolotlclient$moveName(TextRenderer instance, StringVisitable text) {
-		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(axolotlclient$profile.getId()))
+	private int axolotlclient$moveName(TextRenderer instance, StringVisitable text) {
+		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$profile.getId().toString()))
 			return instance.getWidth(text) + 10;
 		return instance.getWidth(text);
 	}
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawShadowedText(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)I"))
 	public int axolotlclient$moveName2(GuiGraphics instance, TextRenderer renderer, Text text, int x, int y, int color) {
-		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(axolotlclient$profile.getId())) {
+		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$profile.getId().toString())) {
 			RenderSystem.setShaderColor(1, 1, 1, 1);
 
-			instance.drawTexture(AxolotlClient.badgeIcon, x, y, 8, 8, 0, 0, 8, 8, 8, 8);
+			instance.drawTexture(AxolotlClient.badgeIcon, (int) x, (int) y, 8, 8, 0, 0, 8, 8, 8, 8);
 
 			x += 9;
 		}
@@ -113,7 +114,7 @@ public abstract class PlayerListHudMixin {
 	}
 
 	@ModifyArg(method = "getPlayerName", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;applyGameModeFormatting(Lnet/minecraft/client/network/PlayerListEntry;Lnet/minecraft/text/MutableText;)Lnet/minecraft/text/Text;"), index = 1)
-	public MutableText axolotlclient$hideNames(MutableText name) {
+	private MutableText axolotlclient$hideNames(MutableText name) {
 		if (NickHider.getInstance().hideOwnName.get()) {
 			return Text.literal(NickHider.getInstance().hiddenNameSelf.get());
 		}
@@ -160,7 +161,7 @@ public abstract class PlayerListHudMixin {
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/PlayerFaceRenderer;draw(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/util/Identifier;IIIZZ)V"), index = 5)
 	private boolean axolotlclient$renderHatLayer(boolean drawHat) {
-		return Tablist.getInstance().alwaysShowHeadLayer.get() || drawHat;
+		return drawHat || Tablist.getInstance().alwaysShowHeadLayer.get();
 	}
 
 	@Inject(

@@ -32,7 +32,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
+import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
 import lombok.AllArgsConstructor;
 import net.minecraft.client.MinecraftClient;
@@ -45,7 +48,6 @@ import org.jetbrains.annotations.Nullable;
 public class ScreenshotUtils extends AbstractModule {
 
 	private static final ScreenshotUtils Instance = new ScreenshotUtils();
-	public final StringOption shareUrl = new StringOption("shareUrl", "https://bin.gart.sh");
 	private final OptionCategory category = new OptionCategory("screenshotUtils");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final List<Action> actions = Util.make(() -> {
@@ -79,7 +81,7 @@ public class ScreenshotUtils extends AbstractModule {
 				new Thread("Image Uploader") {
 					@Override
 					public void run() {
-						ImageShare.getInstance().uploadImage(shareUrl.get().trim(), file);
+						ImageShare.getInstance().uploadImage(file);
 					}
 				}.start();
 			})));
@@ -102,7 +104,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 	@Override
 	public void init() {
-		category.add(enabled, autoExec, shareUrl, new GenericOption("imageViewer", "openViewer", (m1, m2) -> {
+		category.add(enabled, autoExec, new GenericOption("imageViewer", "openViewer", (m1, m2) -> {
 			MinecraftClient.getInstance().openScreen(new ImageViewerScreen(MinecraftClient.getInstance().currentScreen));
 		}));
 

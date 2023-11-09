@@ -45,10 +45,11 @@ import net.minecraft.util.Identifier;
 public class ArmorHud extends TextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "armorhud");
+
+	protected final BooleanOption showProtLvl = new BooleanOption("showProtectionLevel", false);
 	private final ItemStack[] placeholderStacks = new ItemStack[]{new ItemStack(Items.IRON_BOOTS),
 		new ItemStack(Items.IRON_LEGGINGS), new ItemStack(Items.IRON_CHESTPLATE), new ItemStack(Items.IRON_HELMET),
 		new ItemStack(Items.IRON_SWORD)};
-	protected BooleanOption showProtLvl = new BooleanOption("showProtectionLevel", false);
 
 	public ArmorHud() {
 		super(20, 100, true);

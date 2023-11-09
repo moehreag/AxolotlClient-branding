@@ -9,7 +9,6 @@ remappedSrc/
 run/
 
 # Eclipse
->>>>>>> Stashed changes
 *.launch
 
 # idea
@@ -35,3 +34,9 @@ workspace/
 *.DS_Store
 src/main/resources/assets/minecraft/textures/entity/alex.png
 src/main/resources/assets/minecraft/textures/entity/steve.png
+
+# JFR
+*.jfr
+.profileconfig.json
+
+common/src/test

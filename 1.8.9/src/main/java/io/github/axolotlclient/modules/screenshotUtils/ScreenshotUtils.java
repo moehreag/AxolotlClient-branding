@@ -32,7 +32,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
+import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.Util;
@@ -46,7 +49,6 @@ import org.jetbrains.annotations.Nullable;
 public class ScreenshotUtils extends AbstractModule {
 
 	private static final ScreenshotUtils Instance = new ScreenshotUtils();
-	public final StringOption shareUrl = new StringOption("shareUrl", "https://bin.gart.sh");
 	private final OptionCategory category = new OptionCategory("screenshotUtils");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final GenericOption openViewer = new GenericOption("imageViewer", "openViewer", (m1, m2) -> {
@@ -100,7 +102,7 @@ public class ScreenshotUtils extends AbstractModule {
 				new Thread("Image Uploader") {
 					@Override
 					public void run() {
-						ImageShare.getInstance().uploadImage(shareUrl.get().trim(), file);
+						ImageShare.getInstance().uploadImage(file);
 					}
 				}.start();
 			})));
@@ -115,7 +117,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 		}), "off");
 
-		category.add(enabled, autoExec, shareUrl, openViewer);
+		category.add(enabled, autoExec, openViewer);
 
 		AxolotlClient.CONFIG.general.addSubCategory(category);
 	}

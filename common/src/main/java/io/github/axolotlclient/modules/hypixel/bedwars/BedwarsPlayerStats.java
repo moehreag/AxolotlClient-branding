@@ -25,12 +25,10 @@ package io.github.axolotlclient.modules.hypixel.bedwars;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import io.github.axolotlclient.modules.hypixel.BedwarsData;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @author DarkKronicle
@@ -99,53 +97,12 @@ public class BedwarsPlayerStats {
 		return random.nextFloat()*(bound - origin)+origin;
 	}
 
-	@Nullable
 	public static BedwarsPlayerStats fromAPI(String uuid) {
-		JsonElement rawStats = HypixelAbstractionLayer.getPlayerProperty(uuid, "stats");
-		if (rawStats == null || !rawStats.isJsonObject()) {
-			return null;
-		}
-		JsonObject stats = rawStats.getAsJsonObject();
-		JsonObject bedwars = getObjectSafe(stats, "Bedwars");
-		if (bedwars == null) {
-			return null;
-		}
-		int finalKills = getAsIntElse(bedwars, "final_kills_bedwars", 0);
-		int finalDeaths = getAsIntElse(bedwars, "final_deaths_bedwars", 0);
-		int bedsBroken = getAsIntElse(bedwars, "beds_broken_bedwars", 0);
-		int deaths = getAsIntElse(bedwars, "deaths_bedwars", 0);
-		int kills = getAsIntElse(bedwars, "kills_bedwars", 0);
-		int losses = getAsIntElse(bedwars, "losses_bedwars", 0);
-		int wins = getAsIntElse(bedwars, "wins_bedwars", 0);
-		int winstreak = getAsIntElse(bedwars, "winstreak", 0);
-		JsonObject achievements = HypixelAbstractionLayer.getPlayerProperty(uuid, "achievements");
-		int stars = 1;
-		if (achievements != null) {
-			stars = getAsIntElse(achievements, "bedwars_level", 1);
-		}
-		return new BedwarsPlayerStats(finalKills, finalDeaths, bedsBroken, deaths, kills, 0, 0, 0, 0, 0, losses, wins, winstreak, stars);
-	}
-
-	public static int getAsIntElse(JsonObject obj, String key, int other) {
-		if (obj.has(key)) {
-			try {
-				return obj.get(key).getAsInt();
-			} catch (NumberFormatException | UnsupportedOperationException | IllegalStateException e) {
-				// Not actually an int
-			}
-		}
-		return other;
-	}
-
-	public static JsonObject getObjectSafe(JsonObject object, String key) {
-		if (!object.has(key)) {
-			return null;
-		}
-		JsonElement el = object.get(key);
-		if (!el.isJsonObject()) {
-			return null;
-		}
-		return el.getAsJsonObject();
+		BedwarsData data = HypixelAbstractionLayer.getBedwarsData(uuid);
+		return new BedwarsPlayerStats(data.getFinalKills(), data.getFinalDeaths(), data.getBedsBroken(),
+			data.getDeaths(), data.getKills(), 0, 0, 0,
+			0, 0, data.getLosses(), data.getWins(), data.getWinstreak(),
+			HypixelAbstractionLayer.getBedwarsLevel(uuid));
 	}
 
 	public void addDeath() {

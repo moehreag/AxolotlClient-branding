@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsGame;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
@@ -84,7 +84,7 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getStringWidth(Ljava/lang/String;)I", ordinal = 0))
 	public int axolotlclient$moveName(TextRenderer instance, String text) {
-		if (AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(axolotlclient$playerListEntry.getProfile().getId()))
+		if (AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$playerListEntry.getProfile().getId().toString()))
 			return instance.getStringWidth(text) + 10;
 		return instance.getStringWidth(text);
 	}
@@ -94,7 +94,7 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 		float x = args.get(1);
 		float y = args.get(2);
 		if (AxolotlClient.CONFIG.showBadges.get()
-			&& AxolotlClient.isUsingClient(axolotlclient$playerListEntry.getProfile().getId())) {
+			&& User.getOnline(axolotlclient$playerListEntry.getProfile().getId().toString())) {
 			axolotlclient$client.getTextureManager().bindTexture(AxolotlClient.badgeIcon);
 			DrawableHelper.drawTexture((int) x, (int) y, 0, 0, 8, 8, 8, 8);
 			args.set(1, x + 10);
@@ -106,7 +106,7 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 		float x = args.get(1);
 		float y = args.get(2);
 		if (AxolotlClient.CONFIG.showBadges.get()
-			&& AxolotlClient.isUsingClient(axolotlclient$playerListEntry.getProfile().getId())) {
+			&& User.getOnline(axolotlclient$playerListEntry.getProfile().getId().toString())) {
 			axolotlclient$client.getTextureManager().bindTexture(AxolotlClient.badgeIcon);
 			DrawableHelper.drawTexture((int) x, (int) y, 0, 0, 8, 8, 8, 8);
 			args.set(1, x + 10);

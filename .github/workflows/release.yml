@@ -7,22 +7,28 @@ on:
 
 jobs:
   release:
-    if: "github.ref == 'refs/heads/multiversion'"
     name: "Tagged Release"
     runs-on: "ubuntu-latest"
 
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+
       - uses: gradle/wrapper-validation-action@v1
+
       - uses: actions/setup-java@v3
+        if: "github.ref == 'refs/tags/${{ steps.get-latest-tag.outputs.tag }}'"
         with:
           distribution: "temurin"
           java-version: 17
-          cache: 'gradle'
-      - name: Grant execute permission
-        run: chmod +x ./gradlew
+
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+          cache-read-only: true
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:

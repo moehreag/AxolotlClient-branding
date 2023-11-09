@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.util;
 
-public record UnsupportedMod(String name, UnsupportedReason... reason) {
+public record UnsupportedMod(String name, io.github.axolotlclient.util.UnsupportedMod.UnsupportedReason... reason) {
 
 	public enum UnsupportedReason {
 

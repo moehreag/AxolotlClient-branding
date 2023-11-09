@@ -25,122 +25,59 @@ package io.github.axolotlclient.modules.screenshotUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.nio.file.Files;
-import java.util.Base64;
+import java.io.IOException;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.util.NetworkHelper;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
-public class ImageShare {
+public class ImageShare extends ImageNetworking {
 
 	@Getter
 	private static final ImageShare Instance = new ImageShare();
-	private final String separator = ";";//"ⓢ¢€ⓢ¢";
 
 	private ImageShare() {
 	}
 
-	public void uploadImage(String url, File file) {
-		Util.sendChatMessage(new LiteralText(I18n.translate("imageUploadStarted")));
-		String downloadUrl = upload(url + "/api/stream", file);
-
-		if (downloadUrl.isEmpty()) {
-			Util.sendChatMessage(new LiteralText(I18n.translate("imageUploadFailure")));
-		} else {
-			Util.sendChatMessage(new LiteralText(I18n.translate("imageUploadSuccess") + " ")
-				.append(new LiteralText(url + "/" + downloadUrl)
-					.setStyle(new Style()
-						.setUnderline(true)
-						.setFormatting(Formatting.DARK_PURPLE)
-						.setClickEvent(new ScreenshotUtils.CustomClickEvent(null) {
-										   @Override
-										   public void doAction() {
-											   Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(url + "/" + downloadUrl), null);
+	public void uploadImage(File file) {
+		Util.sendChatMessage(new TranslatableText("imageUploadStarted"));
+		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
+			if (downloadUrl.isEmpty()) {
+				Util.sendChatMessage(new TranslatableText("imageUploadFailure"));
+			} else {
+				Util.sendChatMessage(new LiteralText(I18n.translate("imageUploadSuccess") + " ")
+					.append(new LiteralText(downloadUrl)
+						.setStyle(new Style()
+							.setUnderline(true)
+							.setFormatting(Formatting.DARK_PURPLE)
+							.setClickEvent(new ScreenshotUtils.CustomClickEvent(null) {
+											   @Override
+											   public void doAction() {
+												   Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(downloadUrl), null);
+											   }
 										   }
-									   }
-						)
-						.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(I18n.translate("clickToCopy")))))));
-		}
-
+							)
+							.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(I18n.translate("clickToCopy")))))));
+			}
+		});
 	}
 
-	private String upload(String url, File file) {
-
-		try (CloseableHttpClient client = createHttpClient()) {
-
-			AxolotlClient.LOGGER.info("Uploading image " + file.getName());
-
-			return ImageNetworking.upload(encodeB64(file), url, client, AxolotlClient.LOGGER);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return "";
-	}
-
-	private CloseableHttpClient createHttpClient() {
-		String modVer = FabricLoader.getInstance().getModContainer("axolotlclient").orElseThrow(RuntimeException::new).getMetadata().getVersion().getFriendlyString();
-		return HttpClients.custom().setUserAgent("AxolotlClient/" + modVer + " ImageShare").build();
-	}
-
-	private String encodeB64(File file) {
-		try {
-			return file.getName() + separator + Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
-		} catch (Exception ignored) {
-		}
-		;
-
-		return "Encoding failed!";
-	}
-
-	public ImageInstance downloadImage(String id) {
-		if (id.contains(ScreenshotUtils.getInstance().shareUrl.get() + "/api/")) {
-			return download(id);
-		} else if (id.contains(ScreenshotUtils.getInstance().shareUrl.get()) && !id.contains("api")) {
-			return downloadImage(id.substring(id.lastIndexOf("/") + 1));
-		} else if (id.startsWith("https://") && id.contains("api")) {
-			download(id);
-		}
-		return download(ScreenshotUtils.getInstance().shareUrl.get() + "/api/" + id);
-	}
-
-	private ImageInstance download(String url) {
-
-		if (!url.isEmpty()) {
-			JsonElement element = NetworkHelper.getRequest(url, createHttpClient());
-			if (element != null) {
-				JsonObject response = element.getAsJsonObject();
-				String content = response.get("content").getAsString();
-
-				return decodeB64(content);
+	public ImageInstance downloadImage(String url){
+		ImageData data = download(url);
+		if(!data.getName().isEmpty()) {
+			try {
+				return new ImageInstance(ImageIO.read(new ByteArrayInputStream(data.getData())), data.getName());
+			} catch (IOException ignored) {
 			}
 		}
-		return null;
-	}
-
-	private ImageInstance decodeB64(String data) {
-		try {
-			String[] info = data.split(separator);
-			byte[] bytes = Base64.getDecoder().decode(info[info.length - 1]);
-			return new ImageInstance(ImageIO.read(new ByteArrayInputStream(bytes)), info[0]);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		//Logger.warn("Not base64 data: "+data);
 		return null;
 	}
 }

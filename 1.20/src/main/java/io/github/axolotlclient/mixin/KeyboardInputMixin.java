@@ -29,7 +29,9 @@ import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.option.KeyBind;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardInput.class)
 public abstract class KeyboardInputMixin {
@@ -44,5 +46,10 @@ public abstract class KeyboardInputMixin {
 		ToggleSprintHud hud = (ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID);
 		return hud.isEnabled() && hud.getSneakToggled().get() && MinecraftClient.getInstance().currentScreen == null
 			|| instance.isPressed();
+	}
+
+	@Inject(method = "tick", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/option/KeyBind;isPressed()Z", ordinal = 5))
+	private void axolotlclient$sneak(boolean slowDown, float movementMultiplier, CallbackInfo ci) {
+
 	}
 }

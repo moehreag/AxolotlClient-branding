@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.modules.hypixel.skyblock;
 
-import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
 import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
@@ -36,7 +35,7 @@ public class Skyblock implements AbstractHypixelMod {
 	public final BooleanOption rotationLocked = new BooleanOption("rotationLocked", false);
 	private final OptionCategory category = new OptionCategory("skyblock");
 	private final KeyBindOption lock = new KeyBindOption("lockRotation",
-		InputUtil.KEY_P_CODE,
+		-1,
 		keyBinding -> rotationLocked.toggle());
 
 	@Override

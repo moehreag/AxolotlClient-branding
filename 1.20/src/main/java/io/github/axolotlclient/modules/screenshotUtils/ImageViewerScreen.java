@@ -81,11 +81,12 @@ public class ImageViewerScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, delta);
 
 		if (imageId != null) {
-			graphics.drawCenteredShadowedText(MinecraftClient.getInstance().textRenderer, imageName, width / 2, 25, -1);
+			graphics.drawCenteredShadowedText(client.textRenderer, imageName, width / 2, 25, -1);
 
 			int imageWidth = Math.min((int) ((height - 150) * imgAspectRatio), width - 150);
 			int imageHeight = (int) (imageWidth / imgAspectRatio);
 
+			RenderSystem.setShaderTexture(0, imageId);
 			graphics.drawTexture(imageId, width / 2 - imageWidth / 2, 50, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 
 			editButtons.keySet().forEach(buttonWidget -> {
@@ -103,7 +104,7 @@ public class ImageViewerScreen extends Screen {
 				buttonWidget.render(graphics, mouseX, mouseY, delta);
 			});
 		} else {
-			graphics.drawCenteredShadowedText(MinecraftClient.getInstance().textRenderer, Text.translatable("viewScreenshot"), width / 2, height / 4, -1);
+			graphics.drawCenteredShadowedText(client.textRenderer, Text.translatable("viewScreenshot"), width / 2, height / 4, -1);
 		}
 	}
 
@@ -133,8 +134,11 @@ public class ImageViewerScreen extends Screen {
 		}
 		addDrawableChild(urlBox);
 
+		setFocusedChild(urlBox);
+
 		addDrawableChild(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
 			20, 20, Text.translatable("download"), buttonWidget -> {
+			//Logger.info("Downloading image from "+urlBox.getText());
 			imageId = downloadImage(url = urlBox.getText());
 			clearAndInit();
 		}, Supplier::get) {

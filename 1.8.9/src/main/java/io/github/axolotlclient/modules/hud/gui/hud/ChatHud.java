@@ -45,13 +45,13 @@ import net.minecraft.util.math.MathHelper;
 
 public class ChatHud extends TextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "chathud");
-	public BooleanOption background = new BooleanOption("background", "chathud", true);
-	public ColorOption bgColor = new ColorOption("bgcolor", "#40000000");
+	public static final Identifier ID = new Identifier("axolotlclient", "chathud");
+	public final BooleanOption background = new BooleanOption("background", "chathud", true);
+	public final ColorOption bgColor = new ColorOption("bgcolor", "#40000000");
 
-	public IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
-	public ColorOption scrollbarColor = new ColorOption("scrollbarColor", "#70CCCCCC");
-	public IntegerOption lineSpacing = new IntegerOption("lineSpacing", 0, 0, 10);
+	public final IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
+	public final ColorOption scrollbarColor = new ColorOption("scrollbarColor", "#70CCCCCC");
+	public final IntegerOption lineSpacing = new IntegerOption("lineSpacing", 0, 0, 10);
 
 	public int ticks;
 	private int lastHeight;
@@ -247,9 +247,5 @@ public class ChatHud extends TextHudEntry {
 		options.add(scrollbarColor);
 		options.add(chatHistory);
 		return options;
-	}
-
-	private float getChatHeightUnfocused() {
-		return client.options.chatHeightUnfocused;
 	}
 }

@@ -77,7 +77,7 @@ public class MotionBlur extends AbstractModule {
 			}
 		}
 		if (currentBlur != getBlur() && shader != null) {
-			((ShaderEffectAccessor) shader).getPasses().forEach(shader -> {
+			((ShaderEffectAccessor) shader).axolotlclient$getPasses().forEach(shader -> {
 				GlUniform blendFactor = shader.getProgram().getUniformByName("BlendFactor");
 				if (blendFactor != null) {
 					blendFactor.setFloat(getBlur());

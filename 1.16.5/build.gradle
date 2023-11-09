@@ -1,11 +1,13 @@
 plugins {
 	id 'io.github.juuxel.loom-quiltflower' version '1.8.+'
-	id "fabric-loom" version "1.0.+"
+	id "fabric-loom" version "1.2.1"
 }
+
+apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_1165}"
-archivesBaseName = "AxolotlClient"
+base.archivesName = "AxolotlClient"
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -20,20 +22,30 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_1165}"
 	mappings "net.fabricmc:yarn:${project.mappings_1165}:v2"
 
-	modImplementation "net.fabricmc:fabric-loader:${fabric_loader}"
+	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader}"
 
 	modImplementation include("net.fabricmc.fabric-api:fabric-networking-api-v1:1.0.5+3cc0f0907d")
+	modImplementation("net.fabricmc.fabric-api:fabric-command-api-v1:1.1.3+3cc0f0907d")
+	modImplementation("net.fabricmc.fabric-api:fabric-lifecycle-events-v1:1.2.2+3cc0f0907d")
+	modImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.8+3cc0f0907d")
+	modImplementation("net.fabricmc.fabric-api:fabric-api-base:0.4.0+3cc0f0907d")
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+1.16") {
 		exclude group: "com.terraformersmc"
 	}
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+1.16"
+	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
-	modLocalRuntime modCompileOnlyApi("com.terraformersmc:modmenu:1.15.0")
+	modCompileOnlyApi("com.terraformersmc:modmenu:1.15.0")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 
-	implementation('com.github.JnCrMx:discord-game-sdk4j:v0.5.5')
+	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9"){
+		exclude group: 'org.apache.logging.log4j', module: "log4j-api"
+		exclude group: 'org.apache.logging.log4j', module: "log4j-core"
+	}
+	implementation include("org.slf4j:slf4j-api:1.7.36")
+	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
 }
 
 processResources {
@@ -83,9 +95,6 @@ modrinth {
 	gameVersions.set(["${project.minecraft_1165}"])
 	loaders.set(["fabric", "quilt"])
 	additionalFiles.set([remapSourcesJar])
-	dependencies {
-		required.version "IQ3UGSc2"
-	}
 
 	// Changelog fetching: Credit LambdAurora.
 	// https://github.com/LambdAurora/LambDynamicLights/blob/1ef85f486084873b5d97b8a08df72f57859a3295/build.gradle#L145

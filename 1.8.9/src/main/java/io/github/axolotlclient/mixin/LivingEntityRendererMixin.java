@@ -27,6 +27,7 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.freelook.Perspective;
 import io.github.axolotlclient.modules.hud.gui.hud.PlayerHud;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
+import io.github.axolotlclient.util.BadgeRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -79,9 +80,9 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity> extends 
 	@Inject(method = "method_10208(Lnet/minecraft/entity/LivingEntity;DDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Ljava/lang/String;III)I"))
 	public void axolotlclient$addBadge(LivingEntity livingEntity, double d, double e, double f, CallbackInfo ci) {
 		if (!NickHider.getInstance().hideOwnName.get() && livingEntity.equals(MinecraftClient.getInstance().player))
-			AxolotlClient.addBadge(livingEntity);
+			BadgeRenderer.renderNametagBadge(livingEntity);
 		else if (!NickHider.getInstance().hideOtherNames.get() && !livingEntity.equals(MinecraftClient.getInstance().player))
-			AxolotlClient.addBadge(livingEntity);
+			BadgeRenderer.renderNametagBadge(livingEntity);
 	}
 
 	@ModifyConstant(method = "method_10252", constant = @Constant(floatValue = 1.0f, ordinal = 0))

@@ -13,11 +13,12 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 17
-          cache: 'gradle'
-      - name: Grant execute permission
-        run: chmod +x ./gradlew
+
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+          cache-read-only: ${{ github.ref != 'refs/heads/multiversion' }}
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3

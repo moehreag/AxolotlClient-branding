@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BossBarHudMixin {
 
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$render(GuiGraphics graphics, CallbackInfo ci) {
+	private void axolotlclient$render(GuiGraphics graphics, CallbackInfo ci) {
 		BossBarHud hud = (BossBarHud) HudManager.getInstance().get(BossBarHud.ID);
 		if (hud != null && hud.isEnabled()) {
 			ci.cancel();

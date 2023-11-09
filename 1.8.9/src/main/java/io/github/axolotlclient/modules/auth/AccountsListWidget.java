@@ -44,7 +44,7 @@ public class AccountsListWidget extends EntryListWidget {
 		this.screen = screen;
 	}
 
-	public void setAccounts(List<MSAccount> accounts) {
+	public void setAccounts(List<Account> accounts) {
 		accounts.forEach(account -> entries.add(new Entry(screen, account)));
 	}
 
@@ -94,19 +94,15 @@ public class AccountsListWidget extends EntryListWidget {
 		private static final Identifier checkmark = new Identifier("axolotlclient", "textures/check.png");
 		private static final Identifier warningSign = new Identifier("axolotlclient", "textures/warning.png");
 
-		private final Identifier skin;
-
 		private final AccountsScreen screen;
-		private final MSAccount account;
+		private final Account account;
 		private final MinecraftClient client;
 		private long time;
 
-		public Entry(AccountsScreen screen, MSAccount account) {
+		public Entry(AccountsScreen screen, Account account) {
 			this.screen = screen;
 			this.account = account;
 			this.client = MinecraftClient.getInstance();
-			this.skin = new Identifier(Auth.getInstance().getSkinTextureId(account));
-			Auth.getInstance().loadSkinFile(skin, account);
 		}
 
 		@Override
@@ -121,19 +117,18 @@ public class AccountsListWidget extends EntryListWidget {
 			GlStateManager.color(1, 1, 1, 1);
 			if (Auth.getInstance().getCurrent().equals(account)) {
 				client.getTextureManager().bindTexture(checkmark);
-				drawTexture(x - 35, y + 1, 0, 0, 25, 25, 25, 25);
+				drawTexture(x - 35, y + 1, 0, 0, 32, 32, 32, 32);
 			} else if (account.isExpired()) {
 				client.getTextureManager().bindTexture(warningSign);
-				drawTexture(x - 35, y + 1, 0, 0, 25, 25, 25, 25);
+				drawTexture(x - 35, y + 1, 0, 0, 32, 32, 32, 32);
 			}
-			if (!account.isOffline()) {
-				GlStateManager.color(1, 1, 1, 1);
-				client.getTextureManager().bindTexture(skin);
-				GlStateManager.enableBlend();
-				drawTexture(x - 1, y - 1, 8, 8, 8, 8, 33, 33, 64, 64);
-				drawTexture(x - 1, y - 1, 40, 8, 8, 8, 33, 33, 64, 64);
-				GlStateManager.disableBlend();
-			}
+			GlStateManager.color(1, 1, 1, 1);
+			client.getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(account));
+			GlStateManager.enableBlend();
+			drawTexture(x - 1, y - 1, 8, 8, 8, 8, 33, 33, 64, 64);
+			drawTexture(x - 1, y - 1, 40, 8, 8, 8, 33, 33, 64, 64);
+			GlStateManager.disableBlend();
+
 		}
 
 		@Override
@@ -152,7 +147,7 @@ public class AccountsListWidget extends EntryListWidget {
 
 		}
 
-		public MSAccount getAccount() {
+		public Account getAccount() {
 			return account;
 		}
 	}

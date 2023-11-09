@@ -1,12 +1,13 @@
 plugins {
-	id 'java'
 	id 'io.github.juuxel.loom-quiltflower' version '1.8.+'
-	id "fabric-loom" version "1.0.+"
+	id "fabric-loom" version "1.2.1"
 }
+
+apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_18}"
-archivesBaseName = "AxolotlClient"
+base.archivesName = "AxolotlClient"
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -32,9 +33,8 @@ dependencies {
 	mappings "net.legacyfabric:yarn:${project.mappings_18}"
 
 	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader}"
-	modImplementation("net.fabricmc:dev-launch-injector:0.2.1+build.8")
 
-	modImplementation "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}"
+	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}")
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
@@ -46,7 +46,21 @@ dependencies {
 
 	modImplementation include("com.github.moehreag:search-in-resources:1.0.2")
 
-	implementation('com.github.JnCrMx:discord-game-sdk4j:v0.5.5')
+	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9") {
+		exclude group: 'org.apache.logging.log4j', module: "log4j-api"
+		exclude group: 'org.apache.logging.log4j', module: "log4j-core"
+	}
+	implementation include("org.slf4j:slf4j-api:1.7.36")
+	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+}
+
+configurations.configureEach {
+	resolutionStrategy {
+		dependencySubstitution {
+			substitute module('io.netty:netty-all:4.0.23.Final') using module('io.netty:netty-all:4.0.26.Final')
+		}
+		force 'io.netty:netty-all:4.0.26.Final'
+	}
 }
 
 processResources {

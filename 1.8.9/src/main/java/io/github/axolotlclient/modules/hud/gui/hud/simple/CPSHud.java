@@ -114,8 +114,8 @@ public class CPSHud extends SimpleTextHudEntry {
 
 	public static class ClickList {
 
-		public static ClickList LEFT = new ClickList();
-		public static ClickList RIGHT = new ClickList();
+		public static final ClickList LEFT = new ClickList();
+		public static final ClickList RIGHT = new ClickList();
 		private final List<Long> clicks;
 
 		public ClickList() {

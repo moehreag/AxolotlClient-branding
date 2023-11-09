@@ -24,7 +24,6 @@ package io.github.axolotlclient.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.config.AxolotlClientConfig;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.vanilla.*;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;

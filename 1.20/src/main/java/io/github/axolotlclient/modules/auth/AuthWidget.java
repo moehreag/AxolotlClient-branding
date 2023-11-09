@@ -30,26 +30,20 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class AuthWidget extends ButtonWidget {
-	private final Identifier skinId;
 
 	public AuthWidget() {
 		super(10, 10,
 			MinecraftClient.getInstance().textRenderer.getWidth(Auth.getInstance().getCurrent().getName()) + 28,
-			20, Text.of((!Auth.getInstance().getCurrent().isOffline() ? "    " : "") + Auth.getInstance().getCurrent().getName()), buttonWidget -> MinecraftClient.getInstance().setScreen(new AccountsScreen(MinecraftClient.getInstance().currentScreen)), DEFAULT_NARRATION);
-		skinId = new Identifier(Auth.getInstance().getSkinTextureId(Auth.getInstance().getCurrent()));
+			20, Text.of("    " + Auth.getInstance().getCurrent().getName()), buttonWidget -> MinecraftClient.getInstance().setScreen(new AccountsScreen(MinecraftClient.getInstance().currentScreen)), DEFAULT_NARRATION);
 	}
 
 	@Override
 	public void drawWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		if (!Auth.getInstance().getCurrent().isOffline()) {
-			Auth.getInstance().loadSkinFile(skinId, Auth.getInstance().getCurrent());
-		}
 		super.drawWidget(graphics, mouseX, mouseY, delta);
-		if (!Auth.getInstance().getCurrent().isOffline()) {
-			RenderSystem.enableBlend();
-			graphics.drawTexture(skinId, getX() + 1, getY() + 1, getHeight() - 2, getHeight() - 2, 8, 8, 8, 8, 64, 64);
-			graphics.drawTexture(skinId, getX() + 1, getY() + 1, getHeight() - 2, getHeight() - 2, 40, 8, 8, 8, 64, 64);
-			RenderSystem.disableBlend();
-		}
+		Identifier texture = Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent());
+		RenderSystem.enableBlend();
+		graphics.drawTexture(texture, getX() + 1, getY() + 1, getHeight() - 2, getHeight() - 2, 8, 8, 8, 8, 64, 64);
+		graphics.drawTexture(texture, getX() + 1, getY() + 1, getHeight() - 2, getHeight() - 2, 40, 8, 8, 8, 64, 64);
+		RenderSystem.disableBlend();
 	}
 }

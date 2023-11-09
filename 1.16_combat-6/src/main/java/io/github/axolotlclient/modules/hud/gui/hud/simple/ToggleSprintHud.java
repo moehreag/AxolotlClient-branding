@@ -78,20 +78,6 @@ public class ToggleSprintHud extends SimpleTextHudEntry {
 	}
 
 	@Override
-	public void init() {
-		//KeyBindingHelper.registerKeyBinding(sprintToggle);
-		//KeyBindingHelper.registerKeyBinding(sneakToggle);
-	}
-
-	@Override
-	public List<Option<?>> getSaveOptions() {
-		List<Option<?>> options = super.getSaveOptions();
-		options.add(sprintToggled);
-		options.add(sneakToggled);
-		return options;
-	}
-
-	@Override
 	public Identifier getId() {
 		return ID;
 	}
@@ -183,5 +169,13 @@ public class ToggleSprintHud extends SimpleTextHudEntry {
 	@Override
 	public String getPlaceholder() {
 		return randomPlaceholder.get() ? getRandomPlaceholder() : placeholder.get();
+	}
+
+	@Override
+	public List<Option<?>> getSaveOptions() {
+		List<Option<?>> options = super.getSaveOptions();
+		options.add(sprintToggled);
+		options.add(sneakToggled);
+		return options;
 	}
 }

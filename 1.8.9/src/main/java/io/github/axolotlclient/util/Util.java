@@ -44,7 +44,7 @@ import org.lwjgl.opengl.GL11;
 
 public class Util {
 
-	public static Color GlColor = new Color();
+	public static final Color GlColor = new Color();
 	public static String lastgame;
 	public static String game;
 

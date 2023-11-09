@@ -22,15 +22,22 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.net.URI;
+
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
+import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.UnsupportedMod;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -64,6 +71,23 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addDrawableChild(new AuthWidget());
 		}
+		if(APIOptions.getInstance().updateNotifications.get() &&
+			GlobalDataRequest.get().isSuccess() &&
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
+				MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
+					if (r){
+						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+					}
+				}, "https://modrinth.com/mod/axolotlclient/versions", true)))
+				.positionAndSize(width - 125, 10, 120, 20).build());
+		}
+		if (APIOptions.getInstance().displayNotes.get() &&
+			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
+			addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
+					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
+				.positionAndSize(width-125, 25, 120, 20).build());
+		}
 	}
 
 	@ModifyArgs(method = "initWidgetsNormal",
@@ -80,9 +104,7 @@ public abstract class TitleScreenMixin extends Screen {
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawStringWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"), index = 2)
 	public String axolotlclient$setVersionText(String s) {
 		return "Minecraft " + SharedConstants.getGameVersion().getName() + "/AxolotlClient "
-			+ (QuiltLoader.getModContainer("axolotlclient").isPresent()
-			? QuiltLoader.getModContainer("axolotlclient").get().metadata().version().raw()
-			: "");
+			+ AxolotlClient.VERSION;
 	}
 
 	@Inject(method = "areRealmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)

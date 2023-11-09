@@ -26,7 +26,7 @@ import net.minecraft.client.MinecraftClient;
 
 public abstract class AbstractModule implements Module {
 
-	protected MinecraftClient client;
+	protected final MinecraftClient client;
 
 	public AbstractModule() {
 		client = MinecraftClient.getInstance();

@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.modules.auth;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,15 +36,15 @@ import io.github.axolotlclient.util.Logger;
 
 public abstract class Accounts {
 
-	private final List<MSAccount> accounts = new ArrayList<>();
-	protected MSAccount current;
+	private final List<Account> accounts = new ArrayList<>();
+	protected Account current;
 	protected MSAuth auth;
 
 	public MSAuth getAuth() {
 		return auth;
 	}
 
-	public List<MSAccount> getAccounts() {
+	public List<Account> getAccounts() {
 		return accounts;
 	}
 
@@ -54,7 +53,7 @@ public abstract class Accounts {
 			try {
 				JsonObject list = GsonHelper.GSON.fromJson(String.join("", Files.readAllLines(getAccountsSaveFile())), JsonObject.class);
 				if (list != null) {
-					list.get("accounts").getAsJsonArray().forEach(jsonElement -> accounts.add(MSAccount.deserialize(jsonElement.getAsJsonObject())));
+					list.get("accounts").getAsJsonArray().forEach(jsonElement -> accounts.add(Account.deserialize(jsonElement.getAsJsonObject())));
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -75,28 +74,19 @@ public abstract class Accounts {
 
 	protected abstract Path getConfigDir();
 
-	public void addAccount(MSAccount account) {
+	public void addAccount(Account account) {
 		accounts.add(account);
 	}
 
-	public MSAccount getCurrent() {
+	public Account getCurrent() {
 		return current;
 	}
 
-	protected abstract void login(MSAccount account);
+	protected abstract void login(Account account);
 
-	public void removeAccount(MSAccount account) {
+	public void removeAccount(Account account) {
 		accounts.remove(account);
-		removeSkinFile(account);
 		save();
-	}
-
-	public void removeSkinFile(MSAccount account) {
-		try {
-			Files.delete(getSkinFile(account).toPath());
-		} catch (IOException e) {
-			getLogger().error("Failed to clean up skin file for " + account.getName());
-		}
 	}
 
 	public void save() {
@@ -111,35 +101,15 @@ public abstract class Accounts {
 		}
 	}
 
-	public File getSkinFile(MSAccount account) {
-		return getSkinFile(account.getUuid());
-	}
-
 	protected abstract Logger getLogger();
-
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public File getSkinFile(String uuid) {
-		File f = getConfigDir().resolve("skins").resolve(uuid).toFile();
-		if (!f.exists()) {
-			try {
-				f.getParentFile().mkdirs();
-				f.createNewFile();
-			} catch (IOException e) {
-				getLogger().error("Couldn't create skin file for " + uuid);
-			}
-		}
-		return f;
-	}
-
-	public String getSkinTextureId(MSAccount account) {
-		return "accounts_" + account.getUuid();
-	}
 
 	protected boolean isContained(String uuid) {
 		return accounts.stream().anyMatch(account -> account.getUuid().equals(uuid));
 	}
 
 	public boolean allowOfflineAccounts() {
-		return accounts.size() > 0 && !accounts.stream().allMatch(MSAccount::isOffline);
+		return accounts.size() > 0 && !accounts.stream().allMatch(Account::isOffline);
 	}
+
+	public abstract void loadTextures(String uuid, String name);
 }

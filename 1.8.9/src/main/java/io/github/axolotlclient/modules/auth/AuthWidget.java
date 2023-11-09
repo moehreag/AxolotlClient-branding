@@ -25,31 +25,23 @@ package io.github.axolotlclient.modules.auth;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.util.Identifier;
 
 public class AuthWidget extends ButtonWidget {
-	private final Identifier skinId;
 
 	public AuthWidget() {
 		super(242, 10, 10,
 			MinecraftClient.getInstance().textRenderer.getStringWidth(Auth.getInstance().getCurrent().getName()) + 28,
-			20, (!Auth.getInstance().getCurrent().isOffline() ? "    " : "") + Auth.getInstance().getCurrent().getName());
-		skinId = new Identifier(Auth.getInstance().getSkinTextureId(Auth.getInstance().getCurrent()));
+			20, "    " + Auth.getInstance().getCurrent().getName());
 	}
 
 	@Override
 	public void render(MinecraftClient minecraftClient, int i, int j) {
-		if (!Auth.getInstance().getCurrent().isOffline()) {
-			Auth.getInstance().loadSkinFile(skinId, Auth.getInstance().getCurrent());
-		}
 		super.render(minecraftClient, i, j);
-		if (!Auth.getInstance().getCurrent().isOffline()) {
-			GlStateManager.color(1, 1, 1, 1);
-			MinecraftClient.getInstance().getTextureManager().bindTexture(skinId);
-			GlStateManager.enableBlend();
-			drawTexture(x + 1, y + 1, 8, 8, 8, 8, height - 2, height - 2, 64, 64);
-			drawTexture(x + 1, y + 1, 40, 8, 8, 8, height - 2, height - 2, 64, 64);
-			GlStateManager.disableBlend();
-		}
+		GlStateManager.color(1, 1, 1, 1);
+		MinecraftClient.getInstance().getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent()));
+		GlStateManager.enableBlend();
+		drawTexture(x + 1, y + 1, 8, 8, 8, 8, height - 2, height - 2, 64, 64);
+		drawTexture(x + 1, y + 1, 40, 8, 8, 8, height - 2, height - 2, 64, 64);
+		GlStateManager.disableBlend();
 	}
 }

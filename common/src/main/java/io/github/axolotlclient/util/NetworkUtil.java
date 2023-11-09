@@ -66,15 +66,15 @@ public class NetworkUtil {
 
 	public JsonElement postRequest(String url, String body, CloseableHttpClient client, boolean ignoreStatus) throws IOException {
 		RequestBuilder requestBuilder = RequestBuilder.post().setUri(url);
-		requestBuilder.setHeader("Content-Type", "application/json");
-		requestBuilder.setHeader("Accept", "application/json");
+		requestBuilder.addHeader("Content-Type", "application/json");
+		requestBuilder.addHeader("Accept", "application/json");
 		requestBuilder.setEntity(new StringEntity(body));
 		return request(requestBuilder.build(), client, ignoreStatus);
 	}
 
 	public JsonElement deleteRequest(String url, String body, CloseableHttpClient client) throws IOException {
 		RequestBuilder requestBuilder = RequestBuilder.delete().setUri(url);
-		requestBuilder.setHeader("Content-Type", "application/json");
+		requestBuilder.addHeader("Content-Type", "application/json");
 		requestBuilder.setEntity(new StringEntity(body));
 		return request(requestBuilder.build(), client);
 	}

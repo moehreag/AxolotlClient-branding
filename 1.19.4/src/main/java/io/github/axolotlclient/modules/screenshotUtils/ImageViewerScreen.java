@@ -134,8 +134,11 @@ public class ImageViewerScreen extends Screen {
 		}
 		addDrawableChild(urlBox);
 
+		setFocusedChild(urlBox);
+
 		addDrawableChild(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
 			20, 20, Text.translatable("download"), buttonWidget -> {
+			//Logger.info("Downloading image from "+urlBox.getText());
 			imageId = downloadImage(url = urlBox.getText());
 			clearAndInit();
 		}, Supplier::get) {

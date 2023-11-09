@@ -26,19 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.mojang.blaze3d.lighting.DiffuseLighting;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Util;
 
 /**
@@ -154,44 +144,6 @@ public class ItemUtil {
 			}
 		}
 		return list;
-	}
-
-	public void renderGuiItemModel(float scale, ItemStack stack, float x, float y) {
-		MinecraftClient client = MinecraftClient.getInstance();
-		BakedModel model = client.getItemRenderer().getHeldItemModel(stack, null, null, (int) (x * y));
-		client.getTextureManager().getTexture(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
-		RenderSystem.setShaderTexture(0, PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
-		RenderSystem.enableBlend();
-		RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		MatrixStack modelStack = RenderSystem.getModelViewStack();
-		modelStack.push();
-		modelStack.scale(scale, scale, 0);
-		modelStack.translate(x, y, (100.0F + ItemRenderer.ITEM_COUNT_BLIT_OFFSET));
-		modelStack.translate(8.0D, 8.0D, 0.0D);
-		modelStack.scale(1.0F, -1.0F, 1.0F);
-		modelStack.scale(16.0F, 16.0F, 16.0F);
-
-		RenderSystem.applyModelViewMatrix();
-		MatrixStack nextStack = new MatrixStack();
-
-		VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders()
-			.getEntityVertexConsumers();
-		boolean bl = !model.isSideLit();
-		if (bl) {
-			DiffuseLighting.setupFlatGuiLighting();
-		}
-
-		client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, nextStack, immediate, 15728880,
-			OverlayTexture.DEFAULT_UV, model);
-		immediate.draw();
-		RenderSystem.enableDepthTest();
-		if (bl) {
-			DiffuseLighting.setup3DGuiLighting();
-		}
-
-		modelStack.pop();
-		RenderSystem.applyModelViewMatrix();
 	}
 
 	public static class ItemStorage {

@@ -31,7 +31,6 @@ import io.github.axolotlclient.AxolotlClientConfig.Color;
 import io.github.axolotlclient.AxolotlClientConfig.common.ConfigHolder;
 import io.github.axolotlclient.AxolotlClientConfig.options.*;
 import io.github.axolotlclient.config.screen.CreditsScreen;
-import io.github.axolotlclient.util.NetworkHelper;
 import net.minecraft.client.MinecraftClient;
 
 public class AxolotlClientConfig extends ConfigHolder {
@@ -40,13 +39,7 @@ public class AxolotlClientConfig extends ConfigHolder {
 	public final BooleanOption useShadows = new BooleanOption("useShadows", false);
 	public final BooleanOption nametagBackground = new BooleanOption("nametagBackground", true);
 
-	public final BooleanOption showBadges = new BooleanOption("showBadges", value -> {
-		if (value) {
-			NetworkHelper.setOnline();
-		} else {
-			NetworkHelper.setOffline();
-		}
-	}, true);
+	public final BooleanOption showBadges = new BooleanOption("showBadges", true);
 	public final BooleanOption customBadge = new BooleanOption("customBadge", false);
 	public final StringOption badgeText = new StringOption("badgeText", "");
 
@@ -72,6 +65,7 @@ public class AxolotlClientConfig extends ConfigHolder {
 	public final IntegerOption outlineWidth = new IntegerOption("outlineWidth", 1, 1, 10);
 
 	public final BooleanOption noRain = new BooleanOption("noRain", false);
+	public final BooleanOption showSaturation = new BooleanOption("showSaturation", false);
 
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final GenericOption openCredits = new GenericOption("Credits", "Open Credits",
@@ -145,8 +139,8 @@ public class AxolotlClientConfig extends ConfigHolder {
 			hitColor,
 			minimalViewBob,
 			flatItems,
+			showSaturation,
 			noHurtCam);
-
 
 		timeChanger.add(timeChangerEnabled);
 		timeChanger.add(customTime);

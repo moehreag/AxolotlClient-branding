@@ -24,22 +24,39 @@ package io.github.axolotlclient.mixin;
 
 import java.util.Objects;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.FriendsSidebar;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GameMenuScreen.class)
-public abstract class GameMenuScreenMixin {
+public abstract class GameMenuScreenMixin extends Screen {
+
+	protected GameMenuScreenMixin(Text title) {
+		super(title);
+	}
+
+	@Inject(method = "initWidgets", at = @At("TAIL"))
+	private void axolotlclient$friendsSidebarButton(CallbackInfo ci) {
+		if (API.getInstance().isConnected()) {
+			addDrawableChild(new ButtonWidget(10, height - 30, 75, 20, Text.translatable("api.friends"),
+				buttonWidget -> client.setScreen(new FriendsSidebar(this))));
+		}
+	}
 
 	@ModifyArgs(method = "initWidgets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V", ordinal = 3))
 	public void addClientOptionsButton(Args args) {

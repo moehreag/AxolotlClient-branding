@@ -22,15 +22,22 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.net.URI;
+
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
+import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.UnsupportedMod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -42,10 +49,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
@@ -66,6 +70,23 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addButton(new AuthWidget());
 		}
+		if(APIOptions.getInstance().updateNotifications.get() &&
+			GlobalDataRequest.get().isSuccess() &&
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			addButton(new ButtonWidget(width - 125, 10, 120, 20,
+				new TranslatableText("api.new_version_available"), widget ->
+				MinecraftClient.getInstance().openScreen(new ConfirmChatLinkScreen(r -> {
+					if (r){
+						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+					}
+				}, "https://modrinth.com/mod/axolotlclient/versions", true))));
+		}
+		if (APIOptions.getInstance().displayNotes.get() &&
+			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
+			addButton(new ButtonWidget(width-125, 25, 120, 20,
+				new TranslatableText("api.notes"), buttonWidget ->
+				MinecraftClient.getInstance().openScreen(new NewsScreen(this))));
+		}
 	}
 
 	@ModifyArgs(method = "initWidgetsNormal", at =
@@ -80,13 +101,18 @@ public abstract class TitleScreenMixin extends Screen {
 		}
 	}
 
+	@Redirect(method = "initWidgetsNormal", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;active:Z", ordinal = 1))
+	private void axolotlclient$activateIfModSettings(ButtonWidget instance, boolean value) {
+		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+			instance.active = value;
+		}
+	}
+
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawStringWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"), index = 2)
 	public String axolotlclient$setVersionText(String s) {
 		return "Minecraft " + SharedConstants.getGameVersion().getName() + "/AxolotlClient "
-			+ (FabricLoader.getInstance().getModContainer("axolotlclient").isPresent()
-			? FabricLoader.getInstance().getModContainer("axolotlclient").get().getMetadata().getVersion().getFriendlyString()
-			: "");
+			+ AxolotlClient.VERSION;
 	}
 
 	@Inject(method = "areRealmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)

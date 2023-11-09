@@ -145,3 +145,14 @@
 ### 3.0.6
 
 - add more Zoom keybinds
+
+### 3.1.0
+
+- Add a new Backend (made by gart)
+- Features:
+	- Friends
+	- Direct/Group Chats
+	- Status update notifications
+- rewrite DiscordRPC
+
+

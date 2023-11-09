@@ -42,8 +42,8 @@ import net.minecraft.util.Identifier;
 
 public class HotbarHUD extends TextHudEntry {
 
+	public static final Identifier ID = new Identifier("axolotlclient", "hotbarhud");
 	private static final Identifier WIDGETS_TEXTURE = new Identifier("textures/gui/widgets.png");
-	public static Identifier ID = new Identifier("axolotlclient", "hotbarhud");
 
 	public HotbarHUD() {
 		super(182, 22, false);
@@ -65,6 +65,8 @@ public class HotbarHUD extends TextHudEntry {
 			RenderSystem.setShaderTexture(0, WIDGETS_TEXTURE);
 			ItemStack itemStack = playerEntity.getOffHandStack();
 			Arm arm = playerEntity.getMainArm().getOpposite();
+			//int j = this.getZOffset();
+			//this.setZOffset(-90);
 			drawTexture(matrices, pos.x, pos.y, 0, 0, 182, 22);
 			drawTexture(matrices, pos.x - 1 + playerEntity.getInventory().selectedSlot * 20, pos.y - 1, 0, 22, 24,
 				22);
@@ -76,6 +78,7 @@ public class HotbarHUD extends TextHudEntry {
 				}
 			}
 
+			//this.setZOffset(j);
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 
@@ -129,11 +132,6 @@ public class HotbarHUD extends TextHudEntry {
 
 		drawCenteredString(matrices, MinecraftClient.getInstance().textRenderer, getName(), pos.x + width / 2,
 			pos.y + height / 2 - 4, -1, true);
-	}
-
-	@Override
-	public boolean movable() {
-		return true;
 	}
 
 	@Override

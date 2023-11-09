@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ScreenMixin {
 
 	@Inject(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
-	public void axolotlclient$customClickEvents(Style style, CallbackInfoReturnable<Boolean> cir) {
+	private void axolotlclient$customClickEvents(Style style, CallbackInfoReturnable<Boolean> cir) {
 		ClickEvent event = style.getClickEvent();
 		if (event instanceof ScreenshotUtils.CustomClickEvent) {
 			((ScreenshotUtils.CustomClickEvent) event).doAction();

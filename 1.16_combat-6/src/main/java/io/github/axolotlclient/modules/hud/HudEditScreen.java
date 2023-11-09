@@ -119,7 +119,7 @@ public class HudEditScreen extends Screen {
 		this.addButton(new ButtonWidget(width / 2 - 75, height / 2 - 10, 150, 20, new TranslatableText("hud.clientOptions"),
 			buttonWidget -> MinecraftClient.getInstance().openScreen(new OptionsScreenBuilder(this,
 				(OptionCategory) new OptionCategory("config", false).addSubCategories(AxolotlClient.CONFIG.getCategories()),
-				AxolotlClient.modid))));
+				AxolotlClient.MODID))));
 
 		if (parent != null)
 			addButton(new ButtonWidget(width / 2 - 75, height - 50 + 22, 150, 20, ScreenTexts.BACK,
@@ -147,7 +147,7 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(abstractHudEntry -> MinecraftClient.getInstance().openScreen(
-				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.modid)));
+				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.MODID)));
 		}
 		return false;
 	}

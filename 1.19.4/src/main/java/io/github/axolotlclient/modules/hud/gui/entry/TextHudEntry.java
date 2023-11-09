@@ -38,8 +38,8 @@ import io.github.axolotlclient.AxolotlClientConfig.options.Option;
 
 public abstract class TextHudEntry extends BoxHudEntry {
 
-	protected ColorOption textColor = new ColorOption("textcolor", Color.WHITE);
-	protected BooleanOption shadow = new BooleanOption("shadow", getShadowDefault());
+	protected final ColorOption textColor = new ColorOption("textcolor", Color.WHITE);
+	protected final BooleanOption shadow = new BooleanOption("shadow", getShadowDefault());
 
 	public TextHudEntry(int width, int height, boolean backgroundAllowed) {
 		super(width, height, backgroundAllowed);

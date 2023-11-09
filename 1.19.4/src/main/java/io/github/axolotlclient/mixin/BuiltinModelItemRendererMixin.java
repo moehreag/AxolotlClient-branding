@@ -38,13 +38,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BuiltinModelItemRendererMixin {
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/ShieldEntityModel;getHandle()Lnet/minecraft/client/model/ModelPart;"))
-	public void axolotlclient$lowShield(ItemStack itemStack, ModelTransformationMode mode, MatrixStack matrixStack,
-										VertexConsumerProvider vertexConsumerProvider, int i, int j, CallbackInfo ci) {
+	public void axolotlclient$lowShield(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, CallbackInfo ci) {
 		if (AxolotlClient.CONFIG.lowShield.get()
 			&& MinecraftClient.getInstance().options.getPerspective().isFirstPerson()
 			&& (mode.equals(ModelTransformationMode.FIRST_PERSON_LEFT_HAND)
 			|| mode.equals(ModelTransformationMode.FIRST_PERSON_RIGHT_HAND))) {
-			matrixStack.translate(0, 0.2F, 0);
+			matrices.translate(0, 0.2F, 0);
 		}
 	}
 }

@@ -42,9 +42,10 @@ import net.minecraft.util.Identifier;
 public class ActionBarHud extends TextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "actionbarhud");
+
+	public final IntegerOption timeShown = new IntegerOption("timeshown", 60, 40, 300);
+	public final BooleanOption customTextColor = new BooleanOption("customtextcolor", false);
 	private final String placeholder = "Action Bar";
-	public IntegerOption timeShown = new IntegerOption("timeshown", 60, 40, 300);
-	public BooleanOption customTextColor = new BooleanOption("customtextcolor", false);
 	@Getter
 	private String actionBar;
 	private int ticksShown;

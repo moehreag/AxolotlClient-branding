@@ -1,11 +1,13 @@
 plugins {
 	id 'java'
-	id "org.quiltmc.loom" version "1.2.+"
+	id "org.quiltmc.loom" version "1.2.1"
 }
+
+apply plugin: "io.github.p03w.machete"
 
 group = maven_group
 version = "${project.version}+${project.minecraft_1194}"
-archivesBaseName = "AxolotlClient"
+base.archivesName = "AxolotlClient"
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -23,18 +25,16 @@ dependencies {
 	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
 
 	modImplementation include("org.quiltmc.qsl.core:networking:${project.qsl_1194}+${project.minecraft_1194}")
-	modImplementation include("org.quiltmc.qsl.core:resource_loader:${project.qsl_1194}+${project.minecraft_1194}")
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1194}") {
 		exclude group: "com.terraformersmc"
 	}
-	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
-	modCompileOnlyApi("com.terraformersmc:modmenu:5.0.2")
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1194}"
+	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
+
+	modCompileOnlyApi("com.terraformersmc:modmenu:5.0.2")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
-
-	implementation('com.github.JnCrMx:discord-game-sdk4j:v0.5.5')
 }
 
 processResources {

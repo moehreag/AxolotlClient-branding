@@ -22,82 +22,53 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.util.concurrent.CompletableFuture;
 
-import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import io.github.axolotlclient.util.Logger;
-import io.github.axolotlclient.util.NetworkUtil;
-import lombok.experimental.UtilityClass;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.APIError;
+import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.util.BufferUtil;
+import lombok.Data;
 
-@UtilityClass
-public class ImageNetworking {
+public abstract class ImageNetworking {
 
-	public String upload(String data, String url, CloseableHttpClient client, Logger logger) throws IOException {
+	public abstract void uploadImage(File file);
 
-		JsonElement el = NetworkUtil.getRequest(url, client);
-		if (el != null) {
-			JsonObject initGet = el.getAsJsonObject();
-			String tempId = initGet.get("id").getAsString();
-			int chunkSize = initGet.get("chunkSize").getAsInt();
-			int maxChunks = initGet.get("maxChunks").getAsInt();
-
-			List<String> dataList = new ArrayList<>();
-
-			for (char c : data.toCharArray()) {
-				dataList.add(String.valueOf(c));
-			}
-
-			List<String> chunks = new ArrayList<>();
-			Lists.partition(dataList, chunkSize).forEach(list -> chunks.add(String.join("", list)));
-
-			if (chunks.size() > maxChunks) {
-				throw new IllegalStateException("Too much Data!");
-			}
-
-			long index = 0;
-			for (String content : chunks) {
-				RequestBuilder requestBuilder = RequestBuilder.post().setUri(url + "/" + tempId);
-				requestBuilder.setHeader("Content-Type", "application/json");
-				requestBuilder.setEntity(new StringEntity("{" +
-					"\"index\":" + index + "," +
-					"  \"content\": \"" + content + "\"" +
-					"}"));
-				logger.debug(EntityUtils.toString(client.execute(requestBuilder.build()).getEntity()));
-				index += content.getBytes(StandardCharsets.UTF_8).length;
-			}
-
-			logger.debug("Finishing Stream... tempId was: " + tempId);
-
-			RequestBuilder requestBuilder = RequestBuilder.post().setUri(url + "/" + tempId + "/end");
-			requestBuilder.setHeader("Content-Type", "application/json");
-
-			requestBuilder.setEntity(new StringEntity("{\"language\": \"image:png/base64\", \"expiration\": 168, \"password\":\"\"}"));
-
-			HttpResponse response = client.execute(requestBuilder.build());
-
-			String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-			try {
-				JsonElement element = new JsonParser().parse(body);
-
-				return element.getAsJsonObject().get("pasteId").getAsString();
-			} catch (JsonParseException e) {
-				logger.warn("Not Json data: \n" + body);
-			}
-		} else {
-			logger.error("Server Error!");
+	protected CompletableFuture<String> upload(File file) {
+		try {
+			return upload(file.getName(), Files.readAllBytes(file.toPath()));
+		} catch (IOException e){
+			return CompletableFuture.completedFuture("");
 		}
-		return "";
+	}
+
+	protected CompletableFuture<String> upload(String name, byte[] data){
+		return API.getInstance().send(new Request(Request.Type.UPLOAD_SCREENSHOT,
+			new Request.Data().add(name.length()).add(name).add(data))).handleAsync((buf, throwable) -> {
+				if(throwable != null){
+					APIError.display(throwable);
+					return "";
+				} else {
+					return BufferUtil.getString(buf, 0x09, buf.readableBytes() - 0x09);
+				}
+		});
+	}
+
+	protected ImageData download(String url){
+		return API.getInstance().send(new Request(Request.Type.DOWNLOAD_SCREENSHOT, url)).handleAsync((buf, throwable) -> {
+			int nameLength = buf.getInt(0x09);
+			return new ImageData(BufferUtil.getString(buf, 0x0C, nameLength), BufferUtil.toArray(buf.slice(0x0C + nameLength, buf.readableBytes() - (0x0C + nameLength))));
+		}).getNow(ImageData.EMPTY);
+	}
+
+	@Data
+	public static class ImageData {
+		public static final ImageData EMPTY = new ImageData("", new byte[0]);
+
+		private final String name;
+		private final byte[] data;
 	}
 }

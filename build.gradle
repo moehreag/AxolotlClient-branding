@@ -1,12 +1,13 @@
 plugins {
 	id 'java'
 	id 'maven-publish'
-	id "io.freefair.lombok" version '6.6.+' apply false
+	id "io.freefair.lombok" version '8.0.1' apply false
 	id 'com.modrinth.minotaur' version '2.+' apply false
-	id 'org.quiltmc.gradle.licenser' version '1.+'
+	id 'org.quiltmc.gradle.licenser' version '2.+'
+	id 'io.github.p03w.machete' version '2.+' apply false
 }
 
-archivesBaseName = project.archives_base_name
+base.archivesName = project.archives_base_name
 version = "${project.version}"
 group = project.maven_group
 
@@ -22,6 +23,7 @@ dependencies {
 }
 
 allprojects {
+
 	repositories {
 		maven {
 			url 'https://repo.hypixel.net/repository/Hypixel/'

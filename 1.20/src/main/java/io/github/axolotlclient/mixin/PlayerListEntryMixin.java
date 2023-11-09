@@ -43,7 +43,7 @@ public abstract class PlayerListEntryMixin {
 	private GameProfile profile;
 
 	@Inject(method = "getSkinTexture", at = @At("RETURN"), cancellable = true)
-	public void axolotlclient$hideSkins(CallbackInfoReturnable<Identifier> cir) {
+	private void axolotlclient$hideSkins(CallbackInfoReturnable<Identifier> cir) {
 		if (profile.equals(MinecraftClient.getInstance().player.getGameProfile())
 			&& NickHider.getInstance().hideOwnSkin.get()) {
 			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));

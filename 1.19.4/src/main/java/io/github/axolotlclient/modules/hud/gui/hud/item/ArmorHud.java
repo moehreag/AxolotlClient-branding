@@ -46,10 +46,11 @@ import net.minecraft.util.Identifier;
 public class ArmorHud extends TextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "armorhud");
+
+	protected final BooleanOption showProtLvl = new BooleanOption("showProtectionLevel", false);
 	private final ItemStack[] placeholderStacks = new ItemStack[]{new ItemStack(Items.IRON_BOOTS),
 		new ItemStack(Items.IRON_LEGGINGS), new ItemStack(Items.IRON_CHESTPLATE), new ItemStack(Items.IRON_HELMET),
 		new ItemStack(Items.IRON_SWORD)};
-	protected BooleanOption showProtLvl = new BooleanOption("showProtectionLevel", false);
 
 	public ArmorHud() {
 		super(20, 100, true);
@@ -81,19 +82,17 @@ public class ArmorHud extends TextHudEntry {
 	}
 
 	public void renderMainItem(MatrixStack matrices, ItemStack stack, int x, int y) {
-		ItemUtil.renderGuiItemModel(getScale(), stack, x, y);
+		client.getItemRenderer().renderItemInGui(matrices, stack, x, y);
 		String total = String.valueOf(ItemUtil.getTotal(client, stack));
 		if (total.equals("1")) {
 			total = null;
 		}
-		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, total, textColor.get().getAsInt(),
-			shadow.get());
+		client.getItemRenderer().renderGuiItemDecorations(matrices, client.textRenderer, stack, x, y, total);
 	}
 
 	public void renderItem(MatrixStack matrices, ItemStack stack, int x, int y) {
-		ItemUtil.renderGuiItemModel(getScale(), stack, x, y);
-		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, null, textColor.get().getAsInt(),
-			shadow.get());
+		client.getItemRenderer().renderItemInGui(matrices, stack, x, y);
+		client.getItemRenderer().renderGuiItemDecorations(matrices, client.textRenderer, stack, x, y);
 	}
 
 	@Override
@@ -107,11 +106,6 @@ public class ArmorHud extends TextHudEntry {
 			renderItem(matrices, item, pos.x() + 2, lastY + pos.y());
 			lastY = lastY - 20;
 		}
-	}
-
-	@Override
-	public boolean movable() {
-		return true;
 	}
 
 	@Override

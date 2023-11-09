@@ -109,7 +109,7 @@ public class MenuBlur extends AbstractModule {
 			}
 
 			if (shader != null) {
-				((ShaderEffectAccessor) shader).getPasses().forEach((shader) -> {
+				((ShaderEffectAccessor) shader).axolotlclient$getPasses().forEach((shader) -> {
 					GlUniform radius = shader.getProgram().getUniformByName("Radius");
 					GlUniform progress = shader.getProgram().getUniformByName("Progress");
 

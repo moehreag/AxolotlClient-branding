@@ -24,6 +24,7 @@ package io.github.axolotlclient.modules.blur;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
@@ -181,7 +182,7 @@ public class MenuBlur extends AbstractModule {
 				+ "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 0.0, 1.0 ]\n"
 				+ "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
 				+ "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
-				+ "        }\n" + "    ]\n" + "}");
+				+ "        }\n" + "    ]\n" + "}", StandardCharsets.UTF_8);
 		}
 
 		@Nullable

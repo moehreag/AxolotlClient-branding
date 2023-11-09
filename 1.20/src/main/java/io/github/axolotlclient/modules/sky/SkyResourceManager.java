@@ -56,10 +56,6 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 	}
 
 	@Override
-	public void init() {
-	}
-
-	@Override
 	public @NotNull Identifier getQuiltId() {
 		return new Identifier("axolotlclient", "custom_skies");
 	}

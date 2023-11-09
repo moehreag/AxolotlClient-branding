@@ -30,6 +30,7 @@ import com.mojang.blaze3d.glfw.Window;
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
 import io.github.axolotlclient.util.Util;
@@ -157,16 +158,11 @@ public class CreditsScreen extends Screen {
 	private void initCredits() {
 		credits.add(new SpacerTitle("- - - - - - " + I18n.translate("contributors") + " - - - - - -"));
 
-		credits.add(new Credit("moehreag", "Author, Programming", "https://github.com/moehreag"));
-		credits.add(new Credit("YakisikliBaran", "Turkish Translation"));
-		credits.add(new Credit("TheKodeToad", "Contributor", "Motion Blur", "Freelook", "Zoom"));
-		credits.add(new Credit("DragonEggBedrockBreaking", "Bugfixing", "Inspiration of new Features"));
-		credits.add(new Credit("DarkKronicle", "Bedwars Overlay", "Author of KronHUD, the best HUD mod!"));
+		Credits.getContributors().forEach(credit -> credits.add(new Credit(credit.getName(), credit.getThings())));
 
 		credits.add(new SpacerTitle("- - - - - - " + I18n.translate("other_people") + " - - - - - -"));
 
-		credits.add(new Credit("gart", "gartbin dev and host", "Image sharing help", "https://gart.sh"));
-		credits.add(new Credit("AMereBagatelle", "Author of the excellent FabricSkyBoxes Mod"));
+		Credits.getOtherPeople().forEach(credit -> credits.add(new Credit(credit.getName(), credit.getThings())));
 
 		if (!externalModuleCredits.isEmpty()) {
 			credits.add(new SpacerTitle("- - - - - - " + I18n.translate("external_modules") + " - - - - - -"));
@@ -274,7 +270,7 @@ public class CreditsScreen extends Screen {
 			}
 			this.hovered = hovered;
 			DrawUtil.drawCenteredString(graphics, MinecraftClient.getInstance().textRenderer, name, x, y + 5,
-				hovered || c.isFocused() ? Color.SELECTOR_RED.getAsInt()
+				hovered || c.isFocused() ? io.github.axolotlclient.AxolotlClientConfig.Color.SELECTOR_RED.getAsInt()
 					: -1,
 				true);
 		}
@@ -346,9 +342,9 @@ public class CreditsScreen extends Screen {
 
 		public void render(GuiGraphics graphics) {
 			RenderUtil.drawRectangle(graphics, x, y, width, height,
-				Color.DARK_GRAY.withAlpha(127));
+				io.github.axolotlclient.AxolotlClientConfig.Color.DARK_GRAY.withAlpha(127));
 			DrawUtil.outlineRect(graphics, x, y, width, height,
-				Color.BLACK.getAsInt());
+				io.github.axolotlclient.AxolotlClientConfig.Color.BLACK.getAsInt());
 
 			DrawUtil.drawCenteredString(graphics, MinecraftClient.getInstance().textRenderer, credit.name,
 				window.getScaledWidth() / 2, y + 7, -16784327, true);

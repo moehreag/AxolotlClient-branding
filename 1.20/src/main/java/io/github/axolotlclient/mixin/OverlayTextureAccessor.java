@@ -30,6 +30,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(OverlayTexture.class)
 public interface OverlayTextureAccessor {
 
-	@Accessor
-	NativeImageBackedTexture getTexture();
+	@Accessor("texture")
+	NativeImageBackedTexture axolotlclient$getTexture();
 }

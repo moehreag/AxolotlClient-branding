@@ -29,6 +29,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(Particle.class)
 public interface ParticleAccessor {
 
-	@Accessor
-	void setColorAlpha(float alpha);
+	@Accessor("colorAlpha")
+	void axolotlclient$setColorAlpha(float alpha);
 }

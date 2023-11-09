@@ -40,9 +40,9 @@ public abstract class WorldListWidgetEntryMixin {
 	private WorldSaveSummary level;
 
 	@Inject(method = "play", at = @At("HEAD"))
-	public void axolotlclient$onSPWorldJoin(CallbackInfo ci) {
+	private void axolotlclient$onSPWorldJoin(CallbackInfo ci) {
 		if (!level.isUnavailable()) {
-			DiscordRPC.setWorld(level.getDisplayName());
+			DiscordRPC.getInstance().setWorld(level.getDisplayName());
 		}
 	}
 }

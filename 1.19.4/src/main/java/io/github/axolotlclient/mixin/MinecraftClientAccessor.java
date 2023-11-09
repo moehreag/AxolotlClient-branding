@@ -52,7 +52,7 @@ public interface MinecraftClientAccessor {
 	@Mutable
 	void setPlayerKeyPairManager(PlayerKeyPairManager manager);
 
-	@Accessor("chatReportingContext")
+	@Accessor
 	@Mutable
 	void setChatReportingContext(ChatReportingContext context);
 

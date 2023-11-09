@@ -1,11 +1,13 @@
 plugins {
 	id 'java'
-	id "org.quiltmc.loom" version "1.2.+"
+	id "org.quiltmc.loom" version "1.2.1"
 }
+
+apply plugin: "io.github.p03w.machete"
 
 group = maven_group
 version = "${project.version}+${project.minecraft_120}"
-archivesBaseName = "AxolotlClient"
+base.archivesName = "AxolotlClient"
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -34,8 +36,6 @@ dependencies {
 	modCompileOnlyApi("com.terraformersmc:modmenu:5.0.2")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
-
-	implementation('com.github.JnCrMx:discord-game-sdk4j:v0.5.5')
 }
 
 processResources {

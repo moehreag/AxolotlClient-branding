@@ -1,10 +1,10 @@
 plugins {
 	id 'java'
-	id 'com.github.johnrengelman.shadow' version '7.+'
+	id 'com.github.johnrengelman.shadow' version '8.+'
 }
 
-group 'io.github.axolotlclient'
-archivesBaseName = project.archives_base_name
+group = maven_group
+base.archivesName = project.archives_base_name
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -18,17 +18,12 @@ repositories {
 	}
 
 	maven {
-		url 'https://repo.hypixel.net/repository/Hypixel/'
-	}
-
-	maven {
 		name 'TerraformersMC Maven'
 		url 'https://maven.terraformersmc.com/releases/'
 	}
 
 	mavenLocal()
 	mavenCentral()
-	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -44,17 +39,10 @@ dependencies {
 	compileOnly("commons-io:commons-io:2.4")
 	compileOnly("org.apache.commons:commons-lang3:3.3.2")
 
-	shadow(implementation("net.hypixel:hypixel-api-core:4.1") {
-		exclude group: "com.google.code.gson", module: "gson"
-		exclude group: "org.apache.httpcomponents", module: "httpclient"
-	})
+	shadow implementation("io.github.CDAGaming:DiscordIPC:0.6.5")
+	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.2")
 
-	shadow(implementation("net.hypixel:hypixel-api-transport-apache:4.1") {
-		exclude group: "com.google.code.gson", module: "gson"
-		exclude group: "org.apache.httpcomponents", module: "httpclient"
-	})
-
-	shadow implementation('com.github.JnCrMx:discord-game-sdk4j:v0.5.5')
+	shadow implementation("io.netty:netty-all:4.1.96.Final")
 }
 
 build {
@@ -78,7 +66,15 @@ tasks.withType(AbstractArchiveTask).configureEach {
 shadowJar {
 	archiveClassifier.set('')
 	minimize()
-	relocate 'net.hypixel', 'axolotlclient.hypixel'
+
+	relocate 'io.netty', 'io.github.axolotlclient.shadow.netty'
+	relocate 'com.jagrosh', 'io.github.axolotlclient.shadow.jagrosh'
+
+	exclude 'META-INF/versions/**'
+	exclude 'META-INF/maven/**'
+
+	append '../LICENSE'
+	mergeServiceFiles()
 }
 
 publishing {
@@ -100,4 +96,4 @@ publishing {
 	}
 }
 
-tasks.modrinth.enabled = false
+tasks.modrinth.setEnabled(false)

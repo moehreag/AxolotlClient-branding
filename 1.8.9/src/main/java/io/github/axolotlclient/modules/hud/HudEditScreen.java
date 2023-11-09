@@ -121,7 +121,7 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(abstractHudEntry -> MinecraftClient.getInstance().setScreen(
-				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.modid)));
+				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.MODID)));
 		}
 	}
 
@@ -169,7 +169,7 @@ public class HudEditScreen extends Screen {
 			case 1:
 				MinecraftClient.getInstance().setScreen(new OptionsScreenBuilder(this,
 					(OptionCategory) new OptionCategory("config", false).addSubCategories(AxolotlClient.CONFIG.getCategories()),
-					AxolotlClient.modid));
+					AxolotlClient.MODID));
 				break;
 			case 0:
 				MinecraftClient.getInstance().setScreen(parent);

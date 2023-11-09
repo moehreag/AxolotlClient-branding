@@ -50,7 +50,7 @@ public class AddOfflineScreen extends Screen {
 	public void render(GuiGraphics graphics, int i, int j, float f) {
 		renderBackground(graphics);
 		super.render(graphics, i, j, f);
-		graphics.drawShadowedText(textRenderer, Text.translatable("auth.add.offline.name"), width / 2 - 100, height / 2 - 20, -1);
+		graphics.drawShadowedText(textRenderer, Text.translatable("auth.add.offline.name"), (int) (width / 2F - 100), (int) (height / 2f - 20), -1);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
 		nameInput.render(graphics, i, j, f);
 	}
@@ -66,7 +66,7 @@ public class AddOfflineScreen extends Screen {
 
 		addDrawableChild(new ButtonWidget.Builder(CommonTexts.CANCEL, button -> client.setScreen(parent)).positionAndSize(width / 2 - 155, height - 50, 150, 20).build());
 		addDrawableChild(new ButtonWidget.Builder(CommonTexts.DONE, button -> {
-			Auth.getInstance().addAccount(new MSAccount(nameInput.getText(), UUID.randomUUID().toString(), MSAccount.OFFLINE_TOKEN));
+			Auth.getInstance().addAccount(new Account(nameInput.getText(), UUID.randomUUID().toString(), Account.OFFLINE_TOKEN));
 			client.setScreen(parent);
 		}).positionAndSize(width / 2 + 5, height - 50, 150, 20).build());
 	}

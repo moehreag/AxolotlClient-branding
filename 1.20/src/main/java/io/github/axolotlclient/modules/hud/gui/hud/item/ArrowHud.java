@@ -73,17 +73,15 @@ public class ArrowHud extends TextHudEntry {
 	@Override
 	public void renderComponent(GuiGraphics graphics, float delta) {
 		DrawPosition pos = getPos();
-		drawCenteredString(graphics, client.textRenderer, String.valueOf(arrows), pos.x() + getWidth() / 2,
-			pos.y() + getHeight() - 10, textColor.get(), shadow.get());
+		graphics.drawItemInSlot(client.textRenderer, currentArrow, pos.x() + 2, pos.y() + 2, String.valueOf(arrows));
 		graphics.drawItem(currentArrow, pos.x() + 2, pos.y() + 2);
 	}
 
 	@Override
 	public void renderPlaceholderComponent(GuiGraphics graphics, float delta) {
 		DrawPosition pos = getPos();
-		drawCenteredString(graphics, client.textRenderer, "64", pos.x() + getWidth() / 2, pos.y() + getHeight() - 10,
-			textColor.get(), shadow.get());
-		ItemUtil.renderGuiItemModel(getScale(), arrowTypes[0], pos.x() + 2, pos.y() + 2);
+		graphics.drawItem(arrowTypes[0], pos.x() + 2, pos.y() + 2);
+		graphics.drawItemInSlot(client.textRenderer, arrowTypes[0], pos.x() + 2, pos.y() + 2, "64");
 	}
 
 	@Override

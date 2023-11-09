@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.common.io.Files;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.sun.net.httpserver.HttpServer;
@@ -42,7 +41,6 @@ import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.OSUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.RequestBuilder;
@@ -50,7 +48,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 
 // Partly oriented on In-Game-Account-Switcher by The-Fireplace, VidTu
 public class MSAuth {
@@ -128,7 +125,7 @@ public class MSAuth {
 			String accessToken = authMC(xsts.getValue(), xsts.getKey());
 			if (checkOwnership(accessToken)) {
 				logger.debug("finished auth flow!");
-				MSAccount account = new MSAccount(getMCProfile(accessToken), accessToken, msTokens.getValue());
+				Account account = new Account(getMCProfile(accessToken), accessToken, msTokens.getValue());
 				if (accounts.isContained(account.getUuid())) {
 					accounts.getAccounts().removeAll(accounts.getAccounts().stream().filter(acc -> acc.getUuid().equals(account.getUuid())).collect(Collectors.toList()));
 				}
@@ -208,25 +205,13 @@ public class MSAuth {
 	}
 
 	public JsonObject getMCProfile(String accessToken) throws IOException {
-		JsonObject profile = NetworkUtil.request(RequestBuilder.get()
+		return NetworkUtil.request(RequestBuilder.get()
 			.setUri("https://api.minecraftservices.com/minecraft/profile")
 			.addHeader("Authorization", "Bearer " + accessToken).build(), getHttpClient(), true).getAsJsonObject();
-		saveSkinFile(profile.get("skins").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString(), profile.get("id").getAsString());
-		return profile;
 	}
 
 	private CloseableHttpClient getHttpClient() {
 		return NetworkUtil.createHttpClient("Auth");
-	}
-
-	public void saveSkinFile(String url, String uuid) throws IOException {
-		RequestBuilder requestBuilder = RequestBuilder.get().setUri(url);
-		try (CloseableHttpClient client = getHttpClient()) {
-			HttpResponse response = client.execute(requestBuilder.build());
-			//noinspection UnstableApiUsage
-			Files.write(EntityUtils.toByteArray(response.getEntity()), accounts.getSkinFile(uuid));
-		}
-
 	}
 
 	public Map.Entry<String, String> refreshToken(String token, String name) {

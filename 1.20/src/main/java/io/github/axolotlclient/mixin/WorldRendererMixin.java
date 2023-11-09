@@ -56,8 +56,8 @@ public abstract class WorldRendererMixin {
 	private MinecraftClient client;
 
 	@Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$renderSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera preStep, boolean bl,
-										Runnable runnable, CallbackInfo ci) {
+	private void axolotlclient$renderSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera preStep, boolean bl,
+										 Runnable runnable, CallbackInfo ci) {
 		runnable.run();
 		if (AxolotlClient.CONFIG.customSky.get() && SkyboxManager.getInstance().hasSkyBoxes()
 			&& !QuiltLoader.isModLoaded("fabricskyboxes")) {
@@ -72,7 +72,7 @@ public abstract class WorldRendererMixin {
 	}
 
 	@ModifyArgs(method = "drawBlockOutline", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawShapeOutline(Lnet/minecraft/client/util/math/MatrixStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V"))
-	public void axolotlclient$customOutlineColor(Args args) {
+	private void axolotlclient$customOutlineColor(Args args) {
 		if (AxolotlClient.CONFIG.enableCustomOutlines.get()) {
 			int color = AxolotlClient.CONFIG.outlineColor.get().getAsInt();
 			float a = (float) (color >> 24 & 0xFF) / 255.0F;

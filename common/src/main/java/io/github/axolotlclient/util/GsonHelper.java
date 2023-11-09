@@ -24,8 +24,13 @@ package io.github.axolotlclient.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 public class GsonHelper {
 
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+	public static JsonObject fromJson(String s) {
+		return GSON.fromJson(s, JsonObject.class);
+	}
 }

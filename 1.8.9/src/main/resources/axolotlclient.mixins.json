@@ -44,6 +44,7 @@
 		"PlayerListHudMixin",
 		"ReloadableResourceManagerImplMixin",
 		"RenderDataMixin",
+		"ScreenAccessor",
 		"ScreenMixin",
 		"ScreenshotUtilsMixin",
 		"ShaderEffectAccessor",

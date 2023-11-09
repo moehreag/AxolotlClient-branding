@@ -42,8 +42,8 @@ import org.lwjgl.opengl.GL11;
 
 public class Util {
 
-	private final static TreeMap<Integer, String> map = new TreeMap<>();
-	public static Color GlColor = new Color();
+	public static final Color GlColor = new Color();
+	private static final TreeMap<Integer, String> map = new TreeMap<>();
 	public static String lastgame;
 	public static String game;
 

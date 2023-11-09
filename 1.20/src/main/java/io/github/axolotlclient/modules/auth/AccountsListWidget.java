@@ -42,7 +42,7 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 		this.screen = screen;
 	}
 
-	public void setAccounts(List<MSAccount> accounts) {
+	public void setAccounts(List<Account> accounts) {
 		accounts.forEach(account -> addEntry(new Entry(screen, account)));
 	}
 
@@ -62,24 +62,20 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 	}
 
 	@ClientOnly
-	public static class Entry extends AlwaysSelectedEntryListWidget.Entry<Entry> {
+	public static class Entry extends AlwaysSelectedEntryListWidget.Entry<AccountsListWidget.Entry> {
 
 		private static final Identifier checkmark = new Identifier("axolotlclient", "textures/check.png");
 		private static final Identifier warningSign = new Identifier("axolotlclient", "textures/warning.png");
 
-
-		private final Identifier skin;
 		private final AccountsScreen screen;
-		private final MSAccount account;
+		private final Account account;
 		private final MinecraftClient client;
 		private long time;
 
-		public Entry(AccountsScreen screen, MSAccount account) {
+		public Entry(AccountsScreen screen, Account account) {
 			this.screen = screen;
 			this.account = account;
 			this.client = MinecraftClient.getInstance();
-			this.skin = new Identifier(Auth.getInstance().getSkinTextureId(account));
-			Auth.getInstance().loadSkinFile(skin, account);
 		}
 
 		@Override
@@ -89,14 +85,15 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 
 		@Override
 		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			if (Auth.getInstance().getCurrent().equals(account)) {
-				graphics.drawTexture(checkmark, x - 35, y + 1, 0, 0, 25, 25, 25, 25);
-			} else if (account.isExpired()) {
-				graphics.drawTexture(warningSign, x - 35, y + 1, 0, 0, 25, 25, 25, 25);
-			}
 			RenderSystem.enableBlend();
-			graphics.drawTexture(skin, x - 1, y - 1, 33, 33, 8, 8, 8, 8, 64, 64);
-			graphics.drawTexture(skin, x - 1, y - 1, 33, 33, 40, 8, 8, 8, 64, 64);
+			if (Auth.getInstance().getCurrent().equals(account)) {
+				graphics.drawTexture(checkmark, x - 35, y + 1, 0, 0, 32, 32, 32, 32);
+			} else if (account.isExpired()) {
+				graphics.drawTexture(warningSign, x - 35, y + 1, 0, 0, 32, 32, 32, 32);
+			}
+			Identifier texture = Auth.getInstance().getSkinTexture(account);
+			graphics.drawTexture(texture, x - 1, y - 1, 33, 33, 8, 8, 8, 8, 64, 64);
+			graphics.drawTexture(texture, x - 1, y - 1, 33, 33, 40, 8, 8, 8, 64, 64);
 			RenderSystem.disableBlend();
 
 			graphics.drawText(client.textRenderer, account.getName(), x + 3 + 33, y + 1, -1, false);
@@ -114,7 +111,7 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 			return false;
 		}
 
-		public MSAccount getAccount() {
+		public Account getAccount() {
 			return account;
 		}
 	}

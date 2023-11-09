@@ -37,7 +37,7 @@ public abstract class AddServerScreenMixin {
 	private TextFieldWidget serverNameField;
 
 	@Inject(method = "init", at = @At(value = "TAIL"))
-	public void axolotlclient$noNameLimit(CallbackInfo ci) {
+	private void axolotlclient$noNameLimit(CallbackInfo ci) {
 		serverNameField.setMaxLength(1024);
 	}
 }

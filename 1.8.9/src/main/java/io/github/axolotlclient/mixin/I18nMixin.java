@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.mixin;
 
-import io.github.axolotlclient.util.translation.TranslationProvider;
+import io.github.axolotlclient.util.translation.Translations;
 import net.minecraft.client.resource.language.I18n;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,10 +37,10 @@ public abstract class I18nMixin {
 	@Inject(method = "translate", at = @At("HEAD"), cancellable = true)
 	private static void axolotlclient$translate(String key, Object[] args, CallbackInfoReturnable<String> callback) {
 		if (key.startsWith(KEY_PREFIX)) {
-			callback.setReturnValue(TranslationProvider
-				.format(TranslationProvider.translate(key.substring(KEY_PREFIX.length())), args));
-		} else if (TranslationProvider.hasTranslation(key)) {
-			callback.setReturnValue(TranslationProvider.translate(key, args));
+			callback.setReturnValue(Translations
+				.format(Translations.getInstance().translate(key.substring(KEY_PREFIX.length())), args));
+		} else if (Translations.hasTranslation(key)) {
+			callback.setReturnValue(Translations.getInstance().translate(key, args));
 		}
 	}
 }

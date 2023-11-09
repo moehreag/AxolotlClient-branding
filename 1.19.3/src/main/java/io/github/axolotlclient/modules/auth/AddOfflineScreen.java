@@ -66,7 +66,7 @@ public class AddOfflineScreen extends Screen {
 
 		addDrawableChild(new ButtonWidget.Builder(ScreenTexts.CANCEL, button -> client.setScreen(parent)).positionAndSize(width / 2 - 155, height - 50, 150, 20).build());
 		addDrawableChild(new ButtonWidget.Builder(ScreenTexts.DONE, button -> {
-			Auth.getInstance().addAccount(new MSAccount(nameInput.getText(), UUID.randomUUID().toString(), MSAccount.OFFLINE_TOKEN));
+			Auth.getInstance().addAccount(new Account(nameInput.getText(), UUID.randomUUID().toString(), Account.OFFLINE_TOKEN));
 			client.setScreen(parent);
 		}).positionAndSize(width / 2 + 5, height - 50, 150, 20).build());
 	}

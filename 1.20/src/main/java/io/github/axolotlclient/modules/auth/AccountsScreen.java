@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.modules.auth;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -39,6 +40,7 @@ public class AccountsScreen extends Screen {
 	public AccountsScreen(Screen currentScreen) {
 		super(Text.translatable("accounts"));
 		this.parent = currentScreen;
+		this.client = MinecraftClient.getInstance();
 	}
 
 	@Override

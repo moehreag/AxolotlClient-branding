@@ -71,10 +71,7 @@ public class ScrollableTooltips extends AbstractModule {
 	}
 
 	protected boolean applyInverse(boolean value) {
-		if (inverse.get()) {
-			return !value;
-		}
-		return value;
+		return inverse.get() != value;
 	}
 
 	public void resetScroll() {

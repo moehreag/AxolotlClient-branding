@@ -64,7 +64,7 @@ public class AddOfflineScreen extends Screen {
 		if (buttonWidget.id == 1) {
 			client.setScreen(parent);
 		} else if (buttonWidget.id == 2) {
-			Auth.getInstance().addAccount(new MSAccount(nameInput.getText(), UUID.randomUUID().toString(), MSAccount.OFFLINE_TOKEN));
+			Auth.getInstance().addAccount(new Account(nameInput.getText(), UUID.randomUUID().toString(), Account.OFFLINE_TOKEN));
 			client.setScreen(parent);
 		}
 	}

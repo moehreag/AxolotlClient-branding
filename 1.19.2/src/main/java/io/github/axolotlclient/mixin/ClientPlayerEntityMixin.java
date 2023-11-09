@@ -22,26 +22,33 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.mojang.authlib.GameProfile;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.KeyBind;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.encryption.PlayerPublicKey;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin {
+public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity {
 
-	/**
-	 * @param sprintKey the sprint key that the user has bound
-	 * @return whether or not the user should try to sprint
-	 * @author DragonEggBedrockBreaking
-	 * @license MPL-2.0
-	 */
-	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBind;isPressed()Z"))
-	private boolean axolotlclient$alwaysPressed(KeyBind sprintKey) {
+	public ClientPlayerEntityMixin(ClientWorld world, GameProfile gameProfile, @Nullable PlayerPublicKey playerPublicKey) {
+		super(world, gameProfile, playerPublicKey);
+	}
+
+	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSprinting()Z"))
+	private void axolotlclient$toggleSprint(CallbackInfo ci) {
 		ToggleSprintHud hud = (ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID);
-		return hud.getSprintToggled().get() || sprintKey.isPressed();
+		if ((!this.isTouchingWater() || this.isSubmergedInWater()) &&
+			((float) this.getHungerManager().getFoodLevel() > 6.0F || this.getAbilities().allowFlying) &&
+			hud.getSprintToggled().get()) {
+			this.setSprinting(true);
+		}
 	}
 }

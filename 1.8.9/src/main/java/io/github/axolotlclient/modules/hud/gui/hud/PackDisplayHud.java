@@ -41,7 +41,7 @@ import net.minecraft.util.Identifier;
 
 public class PackDisplayHud extends TextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "packdisplayhud");
+	public static final Identifier ID = new Identifier("axolotlclient", "packdisplayhud");
 
 	private final List<PackWidget> widgets = new ArrayList<>();
 	private final List<ResourcePack> packs = new ArrayList<>();

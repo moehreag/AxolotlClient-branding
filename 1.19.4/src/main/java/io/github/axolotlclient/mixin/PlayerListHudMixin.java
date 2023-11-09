@@ -28,7 +28,7 @@ import java.util.UUID;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsGame;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
@@ -40,7 +40,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.PlayerListHud;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.ClientConnection;
@@ -94,14 +93,14 @@ public abstract class PlayerListHudMixin {
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getWidth(Lnet/minecraft/text/StringVisitable;)I"))
 	public int axolotlclient$moveName(TextRenderer instance, StringVisitable text) {
-		if (profile != null && AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(profile.getId()))
+		if (profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(profile.getId().toString()))
 			return instance.getWidth(text) + 10;
 		return instance.getWidth(text);
 	}
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/Text;FFI)I"))
 	public int axolotlclient$moveName2(TextRenderer instance, MatrixStack matrices, Text text, float x, float y, int color) {
-		if (profile != null && AxolotlClient.CONFIG.showBadges.get() && AxolotlClient.isUsingClient(profile.getId())) {
+		if (profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(profile.getId().toString())) {
 			RenderSystem.setShaderTexture(0, AxolotlClient.badgeIcon);
 			RenderSystem.setShaderColor(1, 1, 1, 1);
 

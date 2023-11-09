@@ -26,8 +26,11 @@ import java.util.function.IntSupplier;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.modules.auth.Auth;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.util.ColorUtil;
+import net.minecraft.client.util.math.MatrixStack;
 import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,6 +52,13 @@ public abstract class SplashOverlayMixin {
 		if (!QuiltLoader.isModLoaded("dark-loading-screen")) {
 			Color color = AxolotlClient.CONFIG.loadingScreenColor.get();
 			BRAND_ARGB = () -> ColorUtil.ARGB32.getArgb(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+		}
+	}
+
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(Lnet/minecraft/client/MinecraftClient;II)V"))
+	private void onReloadFinish(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		if (!API.getInstance().isConnected() && !Auth.getInstance().getCurrent().isOffline()) {
+			API.getInstance().startup(Auth.getInstance().getCurrent());
 		}
 	}
 }

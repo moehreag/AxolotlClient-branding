@@ -30,6 +30,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(WorldRenderer.class)
 public interface WorldRendererAccessor {
 
-	@Accessor
-	VertexBuffer getStarsBuffer();
+	@Accessor("starsBuffer")
+	VertexBuffer axolotlclient$getStarsBuffer();
 }

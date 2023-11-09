@@ -23,11 +23,12 @@
 package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
 import io.github.axolotlclient.modules.zoom.Zoom;
-import io.github.axolotlclient.util.NetworkHelper;
 import io.github.axolotlclient.util.Util;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.MouseInputEvent;
@@ -72,6 +73,7 @@ public abstract class MinecraftClientMixin {
 		this.textureManager = textureManager;
 	}
 
+	@SuppressWarnings("EmptyMethod")
 	@Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;)V", ordinal = 1), remap = false)
 	public void axolotlclient$noSessionIDLeak(Logger instance, String s) {
 	}
@@ -80,6 +82,7 @@ public abstract class MinecraftClientMixin {
 	 * @author TheKodeToad & Sk1erLLC (initially created this fix).
 	 * @reason unnecessary garbage collection
 	 */
+	@SuppressWarnings("EmptyMethod")
 	@Redirect(method = "connect(Lnet/minecraft/client/world/ClientWorld;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Ljava/lang/System;gc()V"))
 	public void axolotlclient$noWorldGC() {
 	}
@@ -130,6 +133,9 @@ public abstract class MinecraftClientMixin {
 	@Inject(method = "initializeGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/texture/TextureManager;close(Lnet/minecraft/util/Identifier;)V"))
 	private void axolotlclient$onLaunch(CallbackInfo ci) {
 		HudManager.getInstance().refreshAllBounds();
+		if (!API.getInstance().isConnected() && !Auth.getInstance().getCurrent().isOffline()) {
+			API.getInstance().startup(Auth.getInstance().getCurrent());
+		}
 	}
 
 	@Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/client/RunArgs$Game;version:Ljava/lang/String;"))
@@ -139,15 +145,12 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "startIntegratedServer", at = @At("HEAD"))
 	public void axolotlclient$startup(String worldFileName, String worldName, LevelInfo levelInfo, CallbackInfo ci) {
-		DiscordRPC.setWorld(worldFileName);
+		DiscordRPC.getInstance().setWorld(worldFileName);
 	}
 
 	@Inject(method = "stop", at = @At("HEAD"))
 	public void axolotlclient$stop(CallbackInfo ci) {
-		if (AxolotlClient.CONFIG.showBadges.get()) {
-			NetworkHelper.setOffline();
-		}
-		DiscordRPC.shutdown();
+		DiscordRPC.getInstance().shutdown();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Mouse;getEventDWheel()I"), remap = false)
@@ -163,13 +166,6 @@ public abstract class MinecraftClientMixin {
 	public void axolotlclient$onMouseButton(CallbackInfo ci) {
 		if (Mouse.getEventButtonState()) {
 			Events.MOUSE_INPUT.invoker().invoke(new MouseInputEvent(Mouse.getEventButton()));
-		}
-	}
-
-	@Inject(method = "connect(Lnet/minecraft/client/world/ClientWorld;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;flipPlayer(Lnet/minecraft/entity/player/PlayerEntity;)V"))
-	public void axolotlclient$login(ClientWorld world, String loadingMessage, CallbackInfo ci) {
-		if (AxolotlClient.CONFIG.showBadges.get()) {
-			NetworkHelper.setOnline();
 		}
 	}
 

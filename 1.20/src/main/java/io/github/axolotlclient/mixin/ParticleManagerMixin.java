@@ -53,8 +53,8 @@ public abstract class ParticleManagerMixin {
 	private ParticleType<?> cachedType;
 
 	@Inject(method = "addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)Lnet/minecraft/client/particle/Particle;", at = @At(value = "HEAD"), cancellable = true)
-	public void axolotlclient$afterCreation(ParticleEffect parameters, double x, double y, double z, double velocityX,
-											double velocityY, double velocityZ, CallbackInfoReturnable<Particle> cir) {
+	private void axolotlclient$afterCreation(ParticleEffect parameters, double x, double y, double z, double velocityX,
+											 double velocityY, double velocityZ, CallbackInfoReturnable<Particle> cir) {
 		cachedType = parameters.getType();
 
 		if (!Particles.getInstance().getShowParticle(cachedType)) {
@@ -64,7 +64,7 @@ public abstract class ParticleManagerMixin {
 	}
 
 	@Inject(method = "addParticle(Lnet/minecraft/client/particle/Particle;)V", at = @At(value = "HEAD"))
-	public void axolotlclient$afterCreation(Particle particle, CallbackInfo ci) {
+	private void axolotlclient$afterCreation(Particle particle, CallbackInfo ci) {
 		if (cachedType != null) {
 			Particles.getInstance().particleMap.put(particle, cachedType);
 			cachedType = null;
@@ -72,7 +72,7 @@ public abstract class ParticleManagerMixin {
 	}
 
 	@Redirect(method = "tickParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/ParticleManager;tickParticle(Lnet/minecraft/client/particle/Particle;)V"))
-	public void axolotlclient$removeParticlesWhenRemoved(ParticleManager instance, Particle particle) {
+	private void axolotlclient$removeParticlesWhenRemoved(ParticleManager instance, Particle particle) {
 		if (!particle.isAlive()) {
 			Particles.getInstance().particleMap.remove(particle);
 		}
@@ -83,7 +83,7 @@ public abstract class ParticleManagerMixin {
 	protected abstract void tickParticle(Particle particle);
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Queue;removeAll(Ljava/util/Collection;)Z"))
-	public boolean axolotlclient$removeEmitterParticlesWhenRemoved(Queue<Particle> instance, Collection<Particle> collection) {
+	private boolean axolotlclient$removeEmitterParticlesWhenRemoved(Queue<Particle> instance, Collection<Particle> collection) {
 		collection.forEach(particle -> Particles.getInstance().particleMap.remove(particle));
 
 		return instance.removeAll(collection);

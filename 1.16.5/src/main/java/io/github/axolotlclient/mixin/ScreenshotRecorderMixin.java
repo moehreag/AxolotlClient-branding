@@ -40,12 +40,13 @@ public abstract class ScreenshotRecorderMixin {
 
 	private static File currentFile;
 
+	@SuppressWarnings("unresolvable-target")
 	@Inject(method = "method_1661", at = @At("HEAD"))
 	private static void axolotlclient$getFile(NativeImage nativeImage, File file, Consumer<Text> consumer, CallbackInfo ci) {
 		currentFile = file;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unresolvable-target"})
 	@ModifyArg(method = "method_1661", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
 	private static <T> T axolotlclient$onScreenShotTaken(T t) {
 		return (T) ScreenshotUtils.getInstance().onScreenshotTaken((MutableText) t, currentFile);

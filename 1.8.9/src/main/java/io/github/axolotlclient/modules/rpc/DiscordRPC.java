@@ -22,72 +22,21 @@
 
 package io.github.axolotlclient.modules.rpc;
 
-import java.time.Instant;
-import java.util.Optional;
-
-import de.jcm.discordgamesdk.Core;
-import de.jcm.discordgamesdk.CreateParams;
-import de.jcm.discordgamesdk.DiscordEventAdapter;
-import de.jcm.discordgamesdk.activity.Activity;
-import de.jcm.discordgamesdk.activity.ActivityType;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.modules.AbstractModule;
-import io.github.axolotlclient.modules.rpc.gameSdk.GameSdkDownloader;
-import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.Util;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.language.I18n;
 
-/**
- * This DiscordRPC module is derived from <a href="https://github.com/DeDiamondPro/HyCord">HyCord</a>.
- *
- * @author DeDiamondPro
- * @license GPL-3.0
- */
-
-public class DiscordRPC extends AbstractModule {
-
-	public static Activity currentActivity;
-	public static Core discordRPC;
+public class DiscordRPC extends RPCCommon {
 	private static DiscordRPC Instance;
-	private static String modVersion;
-	public BooleanOption enabled = new BooleanOption("enabled", value -> {
-		if (value) {
-			initRPC();
-		} else {
-			shutdown();
-		}
-	}, false);
-	private static boolean running;
-	public OptionCategory category = new OptionCategory("rpc");
-	public BooleanOption showActivity = new BooleanOption("showActivity", true);
-	public EnumOption showServerNameMode = new EnumOption("showServerNameMode",
-		new String[]{"showIp", "showName", "off"}, "off");
-	public BooleanOption showTime = new BooleanOption("showTime", true);
-	Instant time = Instant.now();
 
-	public static void setWorld(String world) {
-		if (running) {
-			if (currentActivity == null) {
-				DiscordRPC.getInstance().updateRPC();
-			}
-
-			currentActivity.setDetails("World: " + world);
-			if (discordRPC.isOpen()) {
-				discordRPC.activityManager().updateActivity(currentActivity);
-			}
-		}
+	public DiscordRPC() {
+		super(AxolotlClient.LOGGER);
 	}
 
-	public void updateRPC() {
-		if (discordRPC != null && discordRPC.isOpen()) {
-			updateActivity();
-		}
+	private String currentWorld = "";
+
+	public void setWorld(String world) {
+		currentWorld = world;
 	}
 
 	public static DiscordRPC getInstance() {
@@ -96,8 +45,8 @@ public class DiscordRPC extends AbstractModule {
 		return Instance;
 	}
 
-	public void updateActivity() {
-		Activity activity = new Activity();
+	@Override
+	protected void createRichPresence() {
 
 		String state;
 		switch (showServerNameMode.get()) {
@@ -118,107 +67,22 @@ public class DiscordRPC extends AbstractModule {
 				break;
 		}
 
-		if (showActivity.get() && Util.getCurrentServerAddress() != null) {
-			activity.setDetails(Util.getGame());
-		} else if (showActivity.get() && currentActivity != null) {
-			activity.setDetails(currentActivity.getDetails());
+		String details;
+		if (showActivity.get() && MinecraftClient.getInstance().getCurrentServerEntry() != null) {
+			details = (Util.getGame());
+		} else if (showActivity.get() && !currentWorld.isEmpty()) {
+			details = (currentWorld);
+			currentWorld = "";
+		} else {
+			details = "";
 		}
 
-		activity.setState(state);
-		activity.setType(ActivityType.PLAYING);
-
-		if (showTime.get()) {
-			activity.timestamps().setStart(Instant.ofEpochMilli(time.toEpochMilli()));
-		}
-
-		if (currentActivity != null) {
-			currentActivity.close();
-		}
-
-		activity.assets().setLargeText("AxolotlClient " + modVersion);
-		activity.assets().setLargeImage("icon");
-		discordRPC.activityManager().updateActivity(activity);
-		currentActivity = activity;
+		setRichPresence(createRichPresence(AxolotlClient.VERSION, state, details));
 	}
 
-	public static void shutdown() {
-		running = false;
-	}
-
-	@Override
 	public void init() {
-		category.add(enabled, showTime, showActivity, showServerNameMode);
+		super.init();
 
 		AxolotlClient.CONFIG.addCategory(category);
-
-		if (OSUtil.getOS() == OSUtil.OperatingSystem.OTHER) {
-			enabled.setForceOff(true, I18n.translate("crash"));
-		}
-
-		Optional<ModContainer> container = FabricLoader.getInstance().getModContainer("axolotlclient");
-		container.ifPresent(modContainer -> modVersion = modContainer.getMetadata().getVersion().getFriendlyString());
 	}
-
-	@Override
-	public void tick() {
-		if (!running && enabled.get()) {
-			initRPC();
-		}
-
-		if (running) {
-			updateRPC();
-		}
-	}
-
-	@SuppressWarnings("BusyWait")
-	public void initRPC() {
-		if (enabled.get()) {
-			GameSdkDownloader.downloadSdk(AxolotlClient.LOGGER, enabled);
-		}
-
-		if (enabled.get()) {
-			CreateParams params = new CreateParams();
-
-			params.setClientID(875835666729152573L);
-			params.setFlags(CreateParams.Flags.NO_REQUIRE_DISCORD);
-
-			DiscordEventAdapter handler = new DiscordEventAdapter() {
-			};
-			params.registerEventHandler(handler);
-
-			try {
-				discordRPC = new Core(params);
-
-				running = true;
-				Thread callBacks = new Thread(() -> {
-					while (enabled.get() && running) {
-						discordRPC.runCallbacks();
-
-						try {
-							Thread.sleep(16);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-
-					discordRPC.close();
-					Thread.currentThread().interrupt();
-				});
-				callBacks.setName("Discord RPC Thread");
-				callBacks.setDaemon(true);
-				callBacks.start();
-				AxolotlClient.LOGGER.info("Started RPC Core");
-			} catch (Exception e) {
-				if (!e.getMessage().contains("INTERNAL_ERROR")) {
-					AxolotlClient.LOGGER.error("An error occurred: ");
-					e.printStackTrace();
-				} else {
-					AxolotlClient.LOGGER.debug("Error starting RPC: ", e);
-					enabled.set(false);
-				}
-			}
-		}
-	}
-
-
 }

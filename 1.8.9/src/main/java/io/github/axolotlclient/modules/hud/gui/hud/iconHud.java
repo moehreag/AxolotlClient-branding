@@ -30,7 +30,7 @@ import net.minecraft.util.Identifier;
 
 public class iconHud extends BoxHudEntry {
 
-	public Identifier ID = new Identifier("axolotlclient", "iconhud");
+	public final Identifier ID = new Identifier("axolotlclient", "iconhud");
 
 	public iconHud() {
 		super(15, 15, false);

@@ -24,6 +24,8 @@ package io.github.axolotlclient.mixin;
 
 import java.util.Objects;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.FriendsSidebar;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
@@ -46,6 +48,10 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "init", at = @At("RETURN"))
 	public void axolotlclient$addConfigButton(CallbackInfo ci) {
+		if (API.getInstance().isConnected()) {
+			buttons.add(new ButtonWidget(234, 10, height - 30, 75, 20, I18n.translate("api.friends")));
+		}
+
 		if (axolotlclient$hasModMenu())
 			return;
 
@@ -54,7 +60,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 				height / 4 + 82,
 				I18n.translate("config")));
 			for (ButtonWidget button : buttons) {
-				if (button.y >= this.height / 4 - 16 + 24 * 4 - 1 && !(button.id == 20)) {
+				if (button.y >= this.height / 4 - 16 + 24 * 4 - 1 && button.id < 20) {
 					button.y += 24;
 				}
 				//button.y -= 12;
@@ -88,7 +94,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 	@Inject(method = "buttonClicked", at = @At("HEAD"))
 	public void axolotlclient$customButtons(ButtonWidget button, CallbackInfo ci) {
 		if (button.id == 20 && !axolotlclient$hasModMenu()) {
-			MinecraftClient.getInstance().setScreen(new HudEditScreen((GameMenuScreen) (Object) this));
+			MinecraftClient.getInstance().setScreen(new HudEditScreen(this));
 		} else if (button.id == 1) {
 			FeatureDisabler.clear();
 			if (HypixelMods.getInstance().cacheMode.get() != null
@@ -96,6 +102,8 @@ public abstract class GameMenuScreenMixin extends Screen {
 				HypixelMods.HypixelApiCacheMode.ON_CLIENT_DISCONNECT.toString())) {
 				HypixelAbstractionLayer.clearPlayerData();
 			}
+		} else if (button.id == 234) {
+			MinecraftClient.getInstance().setScreen(new FriendsSidebar(this));
 		}
 	}
 }

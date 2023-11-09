@@ -42,8 +42,8 @@ import net.minecraft.util.Identifier;
 
 public class HotbarHUD extends TextHudEntry {
 
+	public static final Identifier ID = new Identifier("axolotlclient", "hotbarhud");
 	private static final Identifier WIDGETS_TEXTURE = new Identifier("textures/gui/widgets.png");
-	public static Identifier ID = new Identifier("axolotlclient", "hotbarhud");
 
 	public HotbarHUD() {
 		super(182, 22, false);

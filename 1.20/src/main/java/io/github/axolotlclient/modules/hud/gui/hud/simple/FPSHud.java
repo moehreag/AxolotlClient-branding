@@ -48,7 +48,7 @@ public class FPSHud extends SimpleTextHudEntry {
 
 	@Override
 	public String getValue() {
-		return MinecraftClientAccessor.getCurrentFps() + " FPS";
+		return MinecraftClientAccessor.axolotlclient$getCurrentFps() + " FPS";
 	}
 
 	@Override
