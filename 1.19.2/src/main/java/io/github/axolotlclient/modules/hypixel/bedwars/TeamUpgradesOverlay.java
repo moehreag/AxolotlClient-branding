@@ -25,8 +25,8 @@ package io.github.axolotlclient.modules.hypixel.bedwars;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.BoxHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.BedwarsTeamUpgrades;
@@ -43,7 +43,7 @@ public class TeamUpgradesOverlay extends BoxHudEntry {
 
 	public final static Identifier ID = new Identifier("axolotlclient", "bedwars_teamupgrades");
 
-	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath()+".renderWhenRelevant", true);
+	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath() + ".renderWhenRelevant", true);
 
 	private BedwarsTeamUpgrades upgrades = null;
 	private final BedwarsMod mod;
@@ -101,18 +101,18 @@ public class TeamUpgradesOverlay extends BoxHudEntry {
 			y += 17;
 		}
 		if (editMode) {
-			for(TrapUpgrade.TrapType type : trapEdit){
+			for (TrapUpgrade.TrapType type : trapEdit) {
 				RenderSystem.setShaderColor(1, 1, 1, 1);
 				type.draw(stack, x, y, 16, 16);
-				x+=17;
+				x += 17;
 			}
 			setWidth(Math.max((x - position.x()) + 1, 18));
 		} else {
 			upgrades.trap.draw(stack, x, y, 16, 16);
-			setWidth(Math.max(((x + (upgrades.trap.getTrapCount()*16)) - position.x()) + 1, getWidth()));
+			setWidth(Math.max(((x + (upgrades.trap.getTrapCount() * 16)) - position.x()) + 1, getWidth()));
 		}
 		RenderSystem.setShaderColor(1, 1, 1, 1);
-		setHeight((y - position.y())+19);
+		setHeight((y - position.y()) + 19);
 		if (getHeight() != height || getWidth() != width) {
 			onBoundsUpdate();
 		}

@@ -162,7 +162,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 		RenderSystem.enableBlend();
 
 		// Need to not enable blend while the debug HUD is open because it does weird stuff. Why? no idea.
-		if (color == defaultColor.get() && !type.get().equals(Crosshair.DIRECTION.toString()) && applyBlend.get()
+		if (color == defaultColor.get() && !type.get().equals(Crosshair.DIRECTION) && applyBlend.get()
 			&& !client.options.debugEnabled) {
 			RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.ONE_MINUS_DST_COLOR,
 				GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SrcFactor.ONE,
@@ -171,14 +171,14 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 			RenderSystem.disableBlend();
 		}
 
-		if (type.get().equals(Crosshair.DOT.toString())) {
+		if (type.get().equals(Crosshair.DOT)) {
 			RenderUtil.fillBlend(matrices, x + (getWidth() / 2) - 2, y + (getHeight() / 2) - 2, 3, 3, color);
-		} else if (type.get().equals(Crosshair.CROSS.toString())) {
+		} else if (type.get().equals(Crosshair.CROSS)) {
 			RenderUtil.fillBlend(matrices, x + (getWidth() / 2) - 6, y + (getHeight() / 2) - 1, 6, 1, color);
 			RenderUtil.fillBlend(matrices, x + (getWidth() / 2), y + (getHeight() / 2) - 1, 5, 1, color);
 			RenderUtil.fillBlend(matrices, x + (getWidth() / 2) - 1, y + (getHeight() / 2) - 6, 1, 5, color);
 			RenderUtil.fillBlend(matrices, x + (getWidth() / 2) - 1, y + (getHeight() / 2), 1, 5, color);
-		} else if (type.get().equals(Crosshair.DIRECTION.toString())) {
+		} else if (type.get().equals(Crosshair.DIRECTION)) {
 			RenderSystem.pushMatrix();
 			RenderSystem.translatef(client.getWindow().getScaledWidth() / 2F, client.getWindow().getScaledHeight() / 2F, (float) this.getZOffset());
 			Camera camera = this.client.gameRenderer.getCamera();
@@ -187,9 +187,9 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 			RenderSystem.scalef(-getScale(), -getScale(), -getScale());
 			RenderSystem.renderCrosshair(10);
 			RenderSystem.popMatrix();
-		} else if (type.get().equals(Crosshair.TEXTURE.toString()) || type.get().equals(Crosshair.CUSTOM.toString())) {
+		} else if (type.get().equals(Crosshair.TEXTURE) || type.get().equals(Crosshair.CUSTOM)) {
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			if (type.get().equals(Crosshair.TEXTURE.toString())) {
+			if (type.get().equals(Crosshair.TEXTURE)) {
 				MinecraftClient.getInstance().getTextureManager().bindTexture(DrawableHelper.GUI_ICONS_TEXTURE);
 				// Draw crosshair
 				RenderSystem.color4f((float) color.getRed() / 255, (float) color.getGreen() / 255,
@@ -239,7 +239,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				}
 			}
 		}
-		if (indicator == AttackIndicator.CROSSHAIR && !type.get().equals(Crosshair.TEXTURE.toString()) && !type.get().equals(Crosshair.CUSTOM.toString())) {
+		if (indicator == AttackIndicator.CROSSHAIR && !type.get().equals(Crosshair.TEXTURE) && !type.get().equals(Crosshair.CUSTOM)) {
 			float progress = this.client.player.getAttackCooldownProgress(0.0F) / 2;
 			if (progress != 1.0F) {
 				RenderUtil.drawRectangle(matrices, getRawX() + (getWidth() / 2) - 6, getRawY() + (getHeight() / 2) + 9,

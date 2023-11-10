@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hypixel.autoboop.AutoBoop;
 import io.github.axolotlclient.modules.hypixel.autogg.AutoGG;
@@ -40,10 +40,10 @@ import io.github.axolotlclient.modules.hypixel.skyblock.Skyblock;
 public class HypixelMods extends AbstractModule {
 
 	private static final HypixelMods INSTANCE = new HypixelMods();
-	public final EnumOption cacheMode = new EnumOption("cache_mode", HypixelCacheMode.values(),
-		HypixelCacheMode.ON_CLIENT_DISCONNECT.toString());
+	public final EnumOption<HypixelCacheMode> cacheMode = new EnumOption<>("cache_mode", HypixelCacheMode.class,
+		HypixelCacheMode.ON_CLIENT_DISCONNECT);
 
-	private final OptionCategory category = new OptionCategory("hypixel-mods");
+	private final OptionCategory category = OptionCategory.create("hypixel-mods");
 	private final List<AbstractHypixelMod> subModules = new ArrayList<>();
 
 	public static HypixelMods getInstance() {
@@ -76,7 +76,7 @@ public class HypixelMods extends AbstractModule {
 
 	private void addSubModule(AbstractHypixelMod mod) {
 		this.subModules.add(mod);
-		this.category.addSubCategory(mod.getCategory());
+		this.category.add(mod.getCategory());
 	}
 
 	public enum HypixelCacheMode {

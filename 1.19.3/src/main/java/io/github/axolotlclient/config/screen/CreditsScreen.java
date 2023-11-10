@@ -29,10 +29,10 @@ import java.util.List;
 import com.mojang.blaze3d.glfw.Window;
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
 import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
@@ -275,17 +275,17 @@ public class CreditsScreen extends Screen {
 						   int mouseY, boolean hovered, float tickDelta) {
 			if (hovered || c.isFocused()) {
 				drawVerticalLine(matrices, x - 100, y, y + 20,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 				drawVerticalLine(matrices, x + 100, y, y + 20,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 				drawHorizontalLine(matrices, x - 100, x + 100, y + 20,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 				drawHorizontalLine(matrices, x - 100, x + 100, y,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 			}
 			this.hovered = hovered;
 			DrawUtil.drawCenteredString(matrices, MinecraftClient.getInstance().textRenderer, name, x, y + 5,
-				hovered || c.isFocused() ? io.github.axolotlclient.AxolotlClientConfig.Color.SELECTOR_RED.getAsInt()
+				hovered || c.isFocused() ? ClientColors.SELECTOR_RED.toInt()
 					: -1,
 				true);
 		}
@@ -357,16 +357,16 @@ public class CreditsScreen extends Screen {
 
 		public void render(MatrixStack matrices) {
 			RenderUtil.drawRectangle(matrices, x, y, width, height,
-				io.github.axolotlclient.AxolotlClientConfig.Color.DARK_GRAY.withAlpha(127));
+				ClientColors.DARK_GRAY.withAlpha(127));
 			DrawUtil.outlineRect(matrices, x, y, width, height,
-				io.github.axolotlclient.AxolotlClientConfig.Color.BLACK.getAsInt());
+				ClientColors.BLACK.toInt());
 
 			DrawUtil.drawCenteredString(matrices, MinecraftClient.getInstance().textRenderer, credit.name,
 				window.getScaledWidth() / 2, y + 7, -16784327, true);
 
 			lines.forEach(
 				(integer, s) -> DrawUtil.drawCenteredString(matrices, MinecraftClient.getInstance().textRenderer, s,
-					x + width / 2, integer, Color.SELECTOR_GREEN.getAsInt(), true));
+					x + width / 2, integer, ClientColors.SELECTOR_GREEN.toInt(), true));
 		}
 
 		public boolean isMouseOver(double mouseX, double mouseY) {

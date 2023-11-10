@@ -44,7 +44,7 @@ public class APIOptions extends Options {
 
 		openPrivacyNoteScreen = n ->
 			client.openScreen(new PrivacyNoticeScreen(client.screen, n));
-		KeyBinding openSidebar = new KeyBinding("api.friends.sidebar.open", Keyboard.KEY_O, "axolotlclient");
+		KeyBinding openSidebar = new KeyBinding("api.friends.sidebar.open", Keyboard.KEY_O, "category.axolotlclient");
 		KeyBindingEvents.REGISTER_KEYBINDS.register(registry -> registry.register(openSidebar));
 		MinecraftClientEvents.TICK_END.register(minecraft -> {
 			if (openSidebar.consumeClick()) {

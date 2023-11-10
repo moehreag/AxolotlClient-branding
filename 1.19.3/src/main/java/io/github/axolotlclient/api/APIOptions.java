@@ -24,11 +24,12 @@ package io.github.axolotlclient.api;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
 import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.util.keybinds.KeyBinds;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBind;
 
 public class APIOptions extends Options {
 
@@ -43,13 +44,13 @@ public class APIOptions extends Options {
 
 		openPrivacyNoteScreen = n ->
 			client.execute(() -> client.setScreen(new PrivacyNoticeScreen(client.currentScreen, n)));
-		openSidebar = new KeyBindOption("api.friends.sidebar.open", InputUtil.KEY_O_CODE, keyBind ->
-			client.setScreen(new FriendsSidebar(client.currentScreen)));
-		category.add(openSidebar);
+		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("api.friends.sidebar.open",
+				InputUtil.KEY_O_CODE, "category.axolotlclient"),
+			() -> client.setScreen(new FriendsSidebar(client.currentScreen)));
 		category.add(new GenericOption("viewFriends", "clickToOpen",
-			(mX, mY) -> MinecraftClient.getInstance().setScreen(new FriendsScreen(MinecraftClient.getInstance().currentScreen))));
+			() -> MinecraftClient.getInstance().setScreen(new FriendsScreen(MinecraftClient.getInstance().currentScreen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
-			(mX, mY) -> MinecraftClient.getInstance().setScreen(new ChatListScreen(MinecraftClient.getInstance().currentScreen))));
+			() -> MinecraftClient.getInstance().setScreen(new ChatListScreen(MinecraftClient.getInstance().currentScreen))));
 		AxolotlClient.CONFIG.addCategory(category);
 		AxolotlClient.config.add(privacyAccepted);
 	}

@@ -22,9 +22,9 @@
 
 package io.github.axolotlclient.modules.hypixel.nickhider;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
@@ -41,7 +41,7 @@ public class NickHider implements AbstractHypixelMod {
 	public final BooleanOption hideOtherNames = new BooleanOption("hideOtherNames", false);
 	public final BooleanOption hideOwnSkin = new BooleanOption("hideOwnSkin", false);
 	public final BooleanOption hideOtherSkins = new BooleanOption("hideOtherSkins", false);
-	private final OptionCategory category = new OptionCategory("nickhider");
+	private final OptionCategory category = OptionCategory.create("nickhider");
 
 	@Override
 	public void init() {

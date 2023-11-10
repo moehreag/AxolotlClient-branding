@@ -24,13 +24,14 @@ package io.github.axolotlclient.modules.zoom;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.FloatOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.Util;
+import io.github.axolotlclient.util.keybinds.KeyBinds;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBind;
 
 /**
  * Based on
@@ -39,8 +40,7 @@ import net.minecraft.client.MinecraftClient;
 
 public class Zoom extends AbstractModule {
 
-	public static final KeyBindOption key = new KeyBindOption("key.zoom", InputUtil.KEY_C_CODE, keyBind -> {
-	});
+	public static final KeyBind key = new KeyBind("key.zoom", InputUtil.KEY_C_CODE, "category.axolotlclient");
 	public static final FloatOption zoomDivisor = new FloatOption("zoomDivisor", 4F, 1F, 16F);
 	public static final FloatOption zoomSpeed = new FloatOption("zoomSpeed", 7.5F, 1F, 10F);
 	public static final BooleanOption zoomScrolling = new BooleanOption("zoomScrolling", false);
@@ -55,7 +55,7 @@ public class Zoom extends AbstractModule {
 	private static float lastAnimatedFactor = 1;
 	private static float animatedFactor = 1;
 	private static double lastReturnedFov;
-	public final OptionCategory zoom = new OptionCategory("zoom");
+	public final OptionCategory zoom = OptionCategory.create("zoom");
 
 	public static Zoom getInstance() {
 		return Instance;
@@ -102,7 +102,7 @@ public class Zoom extends AbstractModule {
 	}
 
 	private static boolean keyHeld() {
-		return key.get().isPressed();
+		return key.isPressed();
 	}
 
 	private static void setDivisor(double value) {
@@ -149,15 +149,18 @@ public class Zoom extends AbstractModule {
 		zoom.add(zoomScrolling);
 		zoom.add(decreaseSensitivity);
 		zoom.add(smoothCamera);
-		zoom.add(key);
+		KeyBinds.getInstance().register(key);
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(zoom);
+		AxolotlClient.CONFIG.rendering.add(zoom);
 
 		active = false;
 
-		zoom.add(new KeyBindOption("key.zoom.increase", InputUtil.UNKNOWN_KEY.getKeyCode(), key -> scroll(zoomSpeed.get()/2)));
-
-		zoom.add(new KeyBindOption("key.zoom.decrease", InputUtil.UNKNOWN_KEY.getKeyCode(), key -> scroll(-zoomSpeed.get()/2)));
+		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("key.zoom.increase",
+				InputUtil.UNKNOWN_KEY.getKeyCode(), "category.axolotlclient"),
+			() -> scroll(zoomSpeed.get() / 2));
+		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("key.zoom.decrease",
+				InputUtil.UNKNOWN_KEY.getKeyCode(), "category.axolotlclient"),
+			() -> scroll(-zoomSpeed.get() / 2));
 	}
 
 	public void tick() {

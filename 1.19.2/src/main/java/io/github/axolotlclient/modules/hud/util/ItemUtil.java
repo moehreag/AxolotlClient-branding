@@ -29,7 +29,8 @@ import java.util.Optional;
 import com.mojang.blaze3d.lighting.DiffuseLighting;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -217,9 +218,9 @@ public class ItemUtil {
 			RenderSystem.disableBlend();
 			int i = stack.getItemBarStep();
 			int j = stack.getItemBarColor();
-			DrawUtil.fillRect(matrices, x + 2, y + 13, 13, 2, Color.BLACK.getAsInt());
+			DrawUtil.fillRect(matrices, x + 2, y + 13, 13, 2, ClientColors.BLACK.toInt());
 			DrawUtil.fillRect(matrices, x + 2, y + 13, i, 1,
-				new Color(j >> 16 & 255, j >> 8 & 255, j & 255, 255).getAsInt());
+				new Color(j >> 16 & 255, j >> 8 & 255, j & 255, 255).toInt());
 			RenderSystem.enableBlend();
 			RenderSystem.enableTexture();
 			RenderSystem.enableDepthTest();
@@ -235,7 +236,7 @@ public class ItemUtil {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			DrawUtil.fillRect(matrices, x, y + MathHelper.floor(16.0F * (1.0F - f)), 16, MathHelper.ceil(16.0F * f),
-				Color.WHITE.withAlpha(127).getAsInt());
+				ClientColors.WHITE.withAlpha(127).toInt());
 			RenderSystem.enableTexture();
 			RenderSystem.enableDepthTest();
 		}

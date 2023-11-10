@@ -27,9 +27,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.blaze3d.glfw.Window;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
@@ -43,7 +44,7 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public class SnappingHelper {
 
-	private static final Color LINE_COLOR = Color.SELECTOR_BLUE;
+	private static final Color LINE_COLOR = ClientColors.SELECTOR_BLUE;
 	private final int distance = 4;
 	private final HashSet<Integer> x = new HashSet<>();
 	private final HashSet<Integer> y = new HashSet<>();
@@ -134,10 +135,10 @@ public class SnappingHelper {
 
 	public void renderAll(MatrixStack matrices) {
 		for (Integer xval : x) {
-			DrawUtil.fillRect(matrices, new Rectangle(xval, 0, 1, window.getScaledHeight()), Color.WHITE);
+			DrawUtil.fillRect(matrices, new Rectangle(xval, 0, 1, window.getScaledHeight()), ClientColors.WHITE);
 		}
 		for (Integer yval : y) {
-			DrawUtil.fillRect(matrices, new Rectangle(0, yval, window.getScaledWidth(), 1), Color.WHITE);
+			DrawUtil.fillRect(matrices, new Rectangle(0, yval, window.getScaledWidth(), 1), ClientColors.WHITE);
 		}
 	}
 

@@ -215,7 +215,7 @@ public class Util {
 		Identifier id = new Identifier("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
 		try {
 			NativeImageBackedTexture texture;
-			if (MinecraftClient.getInstance().getTextureManager().getTexture(id) == null) {
+			if (MinecraftClient.getInstance().getTextureManager().getOrDefault(id, null) == null) {
 				texture = new NativeImageBackedTexture(NativeImage.read(new ByteArrayInputStream(option.get().getPixelData())));
 				MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
 			} else {

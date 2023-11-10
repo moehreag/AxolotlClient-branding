@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.mixin.BossBarHudAccessor;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
@@ -68,7 +68,7 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 	private final BooleanOption text = new BooleanOption("text", true);
 	private final BooleanOption bar = new BooleanOption("bar", true);
 	// TODO custom color
-	private final EnumOption anchor = DefaultOptions.getAnchorPoint();
+	private final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint();
 	private Map<UUID, ClientBossBar> bossBars = new HashMap<>();
 
 	public BossBarHud() {
@@ -128,9 +128,9 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 			float textX = x + ((float) getWidth() / 2) - ((float) client.textRenderer.getWidth(text) / 2);
 			float textY = y - 9;
 			if (shadow.get()) {
-				client.textRenderer.drawWithShadow(matrices, text, textX, textY, textColor.get().getAsInt());
+				client.textRenderer.drawWithShadow(matrices, text, textX, textY, textColor.get().toInt());
 			} else {
-				client.textRenderer.draw(matrices, text, textX, textY, textColor.get().getAsInt());
+				client.textRenderer.draw(matrices, text, textX, textY, textColor.get().toInt());
 			}
 		}
 	}
@@ -163,7 +163,7 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return anchor.get();
 	}
 
 	public static class CustomBossBar extends BossBar {

@@ -22,25 +22,27 @@
 
 package io.github.axolotlclient.modules.hypixel.skyblock;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import com.mojang.blaze3d.platform.InputUtil;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
+import io.github.axolotlclient.util.keybinds.KeyBinds;
 import lombok.Getter;
+import net.minecraft.client.option.KeyBind;
 
 public class Skyblock implements AbstractHypixelMod {
 
 	@Getter
 	private final static Skyblock Instance = new Skyblock();
 	public final BooleanOption rotationLocked = new BooleanOption("rotationLocked", false);
-	private final OptionCategory category = new OptionCategory("skyblock");
-	private final KeyBindOption lock = new KeyBindOption("lockRotation",
-		-1,
-		keyBinding -> rotationLocked.toggle());
+	private final OptionCategory category = OptionCategory.create("skyblock");
 
 	@Override
 	public void init() {
-		category.add(rotationLocked, lock);
+		category.add(rotationLocked);
+		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("lockRotation",
+				InputUtil.UNKNOWN_KEY.getKeyCode(), "category.axolotlclient"),
+			rotationLocked::toggle);
 	}
 
 	@Override
