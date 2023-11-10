@@ -29,8 +29,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
@@ -116,7 +116,7 @@ public class AxolotlClientConfig {
 	private final List<Option<?>> options = new ArrayList<>();
 
 	@Getter
-	private final OptionCategory config = OptionCategory.create(AxolotlClient.MODID);
+	private final OptionCategory config = OptionCategory.create("config");
 
 	public void add(Option<?> option) {
 		options.add(option);
@@ -157,13 +157,15 @@ public class AxolotlClientConfig {
 		general.add(debugLogOutput);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
-			general.add(configStyle = new StringArrayOption("configStyle", ConfigUI.getInstance().getStyleNames().toArray(new String[0]),
-				ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
-				ConfigUI.getInstance().setStyle(s);
+			general.add(configStyle = new StringArrayOption("configStyle",
+				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+					.toArray(String[]::new),
+				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
 				MinecraftClient.getInstance().openScreen(null);
 			}));
 			AxolotlClient.configManager.load();
-			ConfigUI.getInstance().setStyle(configStyle.get());
+			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
 		});
 
 		/*searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase,
@@ -173,7 +175,6 @@ public class AxolotlClientConfig {
 		general.add(searchFilters);
 
 		rendering.add(customSky,
-			//AxolotlClientConfigConfig.chromaSpeed,
 			dynamicFOV,
 			fullBright,
 			removeVignette,

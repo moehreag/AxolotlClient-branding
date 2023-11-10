@@ -121,16 +121,17 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::init);
 
-		CONFIG.config.add(config);
+		CONFIG.getConfig().add(config);
 
 		AxolotlClientConfig.getInstance().register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
-			CONFIG.config, 1, (oldVersion, newVersion, config, json) -> {
+			CONFIG.getConfig(), 1, (oldVersion, newVersion, config, json) -> {
 			// convert changed Options between versions here
 			return json;
 		}));
 		configManager.load();
-		//AxolotlClientConfig.getInstance().addIgnoredName(MODID, "x");
-		//AxolotlClientConfig.getInstance().addIgnoredName(MODID, "y");
+		configManager.suppressName("x");
+		configManager.suppressName("y");
+		configManager.suppressName(config.getName());
 
 		modules.forEach(Module::lateInit);
 

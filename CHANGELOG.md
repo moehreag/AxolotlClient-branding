@@ -155,4 +155,3 @@
 	- Status update notifications
 - rewrite DiscordRPC
 
-

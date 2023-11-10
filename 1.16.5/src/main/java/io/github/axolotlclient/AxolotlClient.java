@@ -125,8 +125,9 @@ public class AxolotlClient implements ClientModInitializer {
 			return json;
 		}));
 		configManager.load();
-		//AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "x");
-		//AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "y");
+		configManager.suppressName("x");
+		configManager.suppressName("y");
+		configManager.suppressName(config.getName());
 
 		modules.forEach(Module::lateInit);
 

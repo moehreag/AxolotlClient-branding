@@ -34,6 +34,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.github.axolotlclient.util.options.GenericOption;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 
 public class AxolotlClientConfig {
@@ -83,7 +84,8 @@ public class AxolotlClientConfig {
 	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
 	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
 	public final OptionCategory searchFilters = OptionCategory.create("searchFilters");
-	public final OptionCategory config = OptionCategory.create(AxolotlClient.MODID);
+	@Getter
+	private final OptionCategory config = OptionCategory.create("config");
 
 	private final List<Option<?>> options = new ArrayList<>();
 
@@ -123,13 +125,15 @@ public class AxolotlClientConfig {
 		general.add(debugLogOutput);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
-			general.add(configStyle = new StringArrayOption("configStyle", ConfigUI.getInstance().getStyleNames().toArray(new String[0]),
-				ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
-				ConfigUI.getInstance().setStyle(s);
+			general.add(configStyle = new StringArrayOption("configStyle",
+				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+					.toArray(String[]::new),
+				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
 				Minecraft.getInstance().openScreen(null);
 			}));
 			AxolotlClient.configManager.load();
-			ConfigUI.getInstance().setStyle(configStyle.get());
+			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
 		});
 
 		/*searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase, AxolotlClientConfigConfig.searchForOptions,
@@ -138,7 +142,6 @@ public class AxolotlClientConfig {
 
 		rendering.add(customSky,
 			cloudHeight,
-			//AxolotlClientConfigConfig.chromaSpeed,
 			dynamicFOV,
 			fullBright,
 			removeVignette,

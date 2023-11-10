@@ -31,6 +31,7 @@ import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.ConfigStyles;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
@@ -118,15 +119,8 @@ public class HudEditScreen extends Screen {
 
 		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("hud.clientOptions"),
 			buttonWidget -> {
-				try {
-					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
-						.getConstructor(Screen.class, OptionCategory.class, String.class)
-						.newInstance(this, AxolotlClient.configManager.getRoot(), AxolotlClient.configManager.getRoot().getName());
-					MinecraftClient.getInstance().setScreen(screen);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-						 NoSuchMethodException e) {
-					AxolotlClient.LOGGER.error("Failed to open options! ", e);
-				}
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager, AxolotlClient.configManager.getRoot());
+				MinecraftClient.getInstance().setScreen(screen);
 			}).positionAndSize(width / 2 - 75, height / 2 - 10, 150, 20).build());
 
 		if (parent != null)
@@ -156,15 +150,8 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(abstractHudEntry -> {
-				try {
-					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
-						.getConstructor(Screen.class, OptionCategory.class, String.class)
-						.newInstance(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.configManager.getRoot().getName());
-					MinecraftClient.getInstance().setScreen(screen);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-						 NoSuchMethodException e) {
-					AxolotlClient.LOGGER.error("Failed to open options! ", e);
-				}
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager, abstractHudEntry.getOptionsAsCategory());
+				MinecraftClient.getInstance().setScreen(screen);
 			});
 		}
 		return false;

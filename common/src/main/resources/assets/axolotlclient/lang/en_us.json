@@ -498,5 +498,8 @@
 	"api.new_version_available": "New Version Available!",
 	"api.update_notifications": "Update Notifications",
 	"api.notes": "News",
-	"api.notes.title": "News"
+	"api.notes.title": "News",
+	"configStyle": "Config UI Style",
+	"configStyle.rounded": "Rounded",
+	"configStyle.vanilla": "Vanilla"
 }

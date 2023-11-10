@@ -23,7 +23,6 @@
 package io.github.axolotlclient.modules.hud;
 
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +30,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.ConfigStyles;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
@@ -122,15 +121,8 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(hudEntry -> {
-				try {
-					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
-						.getConstructor(Screen.class, OptionCategory.class, String.class)
-						.newInstance(this, hudEntry.getOptionsAsCategory(), AxolotlClient.configManager.getRoot().getName());
-					Minecraft.getInstance().openScreen(screen);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-						 NoSuchMethodException e) {
-					AxolotlClient.LOGGER.error("Failed to open options! ", e);
-				}
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager, hudEntry.getOptionsAsCategory());
+				Minecraft.getInstance().openScreen(screen);
 			});
 		}
 	}
@@ -177,15 +169,8 @@ public class HudEditScreen extends Screen {
 				AxolotlClient.configManager.save();
 				break;
 			case 1:
-				try {
-					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
-						.getConstructor(Screen.class, OptionCategory.class, String.class)
-						.newInstance(this, AxolotlClient.configManager.getRoot(), AxolotlClient.configManager.getRoot().getName());
-					Minecraft.getInstance().openScreen(screen);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-						 NoSuchMethodException e) {
-					AxolotlClient.LOGGER.error("Failed to open options! ", e);
-				}
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager, AxolotlClient.configManager.getRoot());
+				Minecraft.getInstance().openScreen(screen);
 				break;
 			case 0:
 				Minecraft.getInstance().openScreen(parent);

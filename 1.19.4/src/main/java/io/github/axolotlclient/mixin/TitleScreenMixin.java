@@ -71,7 +71,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@Inject(method = "initWidgetsNormal", at = @At("HEAD"))
 	public void axolotlclient$inMenu(int y, int spacingY, CallbackInfo ci) {
-		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key.get())) {
+		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key)) {
 			MinecraftClient.getInstance().options.saveToolbarActivatorKey.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
