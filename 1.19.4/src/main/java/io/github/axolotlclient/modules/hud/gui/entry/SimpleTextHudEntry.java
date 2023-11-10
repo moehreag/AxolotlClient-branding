@@ -26,10 +26,10 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.gui.layout.Justification;
@@ -46,9 +46,9 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class SimpleTextHudEntry extends TextHudEntry implements DynamicallyPositionable {
 
-	protected final EnumOption justification = new EnumOption("justification", Justification.values(),
-		Justification.CENTER.toString());
-	protected final EnumOption anchor = DefaultOptions.getAnchorPoint();
+	protected final EnumOption<Justification> justification = new EnumOption<>("justification", Justification.class,
+		Justification.CENTER);
+	protected final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint();
 
 	private final IntegerOption minWidth;
 
@@ -88,8 +88,8 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 			onBoundsUpdate();
 		}
 		drawString(matrices, value,
-			pos.x() + Justification.valueOf(justification.get()).getXOffset(valueWidth, getWidth() - 4) + 2,
-			pos.y() + (Math.round((float) getHeight() / 2)) - 4, getTextColor().getAsInt(), shadow.get());
+			pos.x() + (justification.get()).getXOffset(valueWidth, getWidth() - 4) + 2,
+			pos.y() + (Math.round((float) getHeight() / 2)) - 4, getTextColor().toInt(), shadow.get());
 		RenderSystem.disableBlend();
 	}
 
@@ -98,8 +98,8 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 		DrawPosition pos = getPos();
 		String value = getPlaceholder();
 		drawString(matrices, value,
-			pos.x() + Justification.valueOf(justification.get()).getXOffset(value, getWidth() - 4) + 2,
-			pos.y() + (Math.round((float) getHeight() / 2)) - 4, textColor.get().getAsInt(), shadow.get());
+			pos.x() + (justification.get()).getXOffset(value, getWidth() - 4) + 2,
+			pos.y() + (Math.round((float) getHeight() / 2)) - 4, textColor.get().toInt(), shadow.get());
 	}
 
 	@Override
@@ -126,6 +126,6 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return (anchor.get());
 	}
 }

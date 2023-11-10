@@ -29,8 +29,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMode;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.AllArgsConstructor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
@@ -94,8 +95,8 @@ public class TrapUpgrade extends TeamUpgrade {
 	@Override
 	public void draw(GuiGraphics graphics, int x, int y, int width, int height) {
 		if (traps.size() == 0) {
-			Color color = Color.DARK_GRAY;
-			RenderSystem.setShaderColor(color.getAlpha()/255F, color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F);
+			Color color = ClientColors.DARK_GRAY;
+			RenderSystem.setShaderColor(color.getAlpha() / 255F, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F);
 			graphics.drawTexture(new Identifier("textures/item/barrier.png"), x, y, 0, 0, 16, 16, 16, 16);
 		} else {
 			for (TrapType type : traps) {
@@ -106,7 +107,7 @@ public class TrapUpgrade extends TeamUpgrade {
 		}
 	}
 
-	public int getTrapCount(){
+	public int getTrapCount() {
 		return traps.size();
 	}
 
@@ -124,8 +125,7 @@ public class TrapUpgrade extends TeamUpgrade {
 		ALARM((graphics, x, y, width, height, unused) ->
 			graphics.drawItem(new ItemStack(Items.ENDER_EYE), x, y, 0)),
 		MINER_FATIGUE((graphics, x, y, width, height, unused) ->
-			graphics.drawSprite(x, y, 0, width, height, MinecraftClient.getInstance().getStatusEffectSpriteManager().getSprite(StatusEffects.MINING_FATIGUE)))
-		;
+			graphics.drawSprite(x, y, 0, width, height, MinecraftClient.getInstance().getStatusEffectSpriteManager().getSprite(StatusEffects.MINING_FATIGUE)));
 
 		private final TeamUpgradeRenderer renderer;
 
@@ -143,7 +143,7 @@ public class TrapUpgrade extends TeamUpgrade {
 			return ITS_A_TRAP;
 		}
 
-		public void draw(GuiGraphics graphics, int x, int y, int width, int height){
+		public void draw(GuiGraphics graphics, int x, int y, int width, int height) {
 			renderer.render(graphics, x, y, width, height, 0);
 		}
 	}

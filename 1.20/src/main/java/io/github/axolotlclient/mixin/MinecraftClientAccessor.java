@@ -23,6 +23,7 @@
 package io.github.axolotlclient.mixin;
 
 import com.mojang.authlib.minecraft.UserApiService;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
 import net.minecraft.client.network.SocialInteractionsManager;
@@ -59,4 +60,7 @@ public interface MinecraftClientAccessor {
 	@Accessor("userApiService")
 	@Mutable
 	void axolotlclient$setUserApiService(UserApiService service);
+
+	@Accessor("authService")
+	YggdrasilAuthenticationService getAuthService();
 }

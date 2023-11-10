@@ -22,17 +22,15 @@
 
 package io.github.axolotlclient.modules.hud;
 
-import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.screen.OptionsScreenBuilder;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
@@ -40,7 +38,7 @@ import io.github.axolotlclient.modules.hud.util.Rectangle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -54,11 +52,11 @@ import net.minecraft.text.Text;
 public class HudEditScreen extends Screen {
 
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
-	private static final OptionCategory hudEditScreenCategory = new OptionCategory("hudEditScreen");
+	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
 	static {
 		hudEditScreenCategory.add(snapping);
-		AxolotlClient.config.addSubCategory(hudEditScreenCategory);
+		AxolotlClient.config.add(hudEditScreenCategory);
 	}
 
 	private final Screen parent;
@@ -109,7 +107,7 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void init() {
-		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("hud.snapping").append(": ")
+		this.addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("hud.snapping").append(": ")
 			.append(Text.translatable(snapping.get() ? "options.on" : "options.off")),
 			buttonWidget -> {
 				snapping.toggle();
@@ -118,7 +116,7 @@ public class HudEditScreen extends Screen {
 				AxolotlClient.configManager.save();
 			}).positionAndSize(width / 2 - 50, height / 2 + 12, 100, 20).build());
 
-		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("hud.clientOptions"),
+		this.addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("hud.clientOptions"),
 			buttonWidget -> {
 				try {
 					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
@@ -132,10 +130,10 @@ public class HudEditScreen extends Screen {
 			}).positionAndSize(width / 2 - 75, height / 2 - 10, 150, 20).build());
 
 		if (parent != null)
-			addDrawableChild(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
+			addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
 				.positionAndSize(width / 2 - 75, height - 50 + 22, 150, 20).build());
 		else
-			addDrawableChild(new ButtonWidget.Builder(Text.translatable("close"),
+			addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("close"),
 				buttonWidget -> MinecraftClient.getInstance().setScreen(null))
 				.positionAndSize(width / 2 - 75, height - 50 + 22, 150, 20).build());
 	}

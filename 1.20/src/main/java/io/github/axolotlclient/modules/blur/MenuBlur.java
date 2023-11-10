@@ -26,13 +26,14 @@ import java.io.IOException;
 
 import com.mojang.blaze3d.shader.GlUniform;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
@@ -58,8 +59,8 @@ public class MenuBlur extends AbstractModule {
 	private final Identifier shaderLocation = new Identifier("minecraft:shaders/post/menu_blur.json");
 	private final IntegerOption strength = new IntegerOption("strength", 8, 0, 100);
 	private final IntegerOption fadeTime = new IntegerOption("fadeTime", 1, 0, 10);
-	private final ColorOption bgColor = new ColorOption("bgcolor", 0x64000000);
-	private final OptionCategory category = new OptionCategory("menublur");
+	private final ColorOption bgColor = new ColorOption("bgcolor", new Color(0x64000000));
+	private final OptionCategory category = OptionCategory.create("menublur");
 
 	private final Color black = new Color(0);
 
@@ -82,7 +83,7 @@ public class MenuBlur extends AbstractModule {
 	public boolean renderScreen(GuiGraphics graphics) {
 		if (enabled.get() && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen) && shader != null) {
 			graphics.fill(0, 0, MinecraftClient.getInstance().getWindow().getWidth(), MinecraftClient.getInstance().getWindow().getHeight(),
-				Color.blend(black, bgColor.get(), getProgress()).getAsInt());
+				ClientColors.blend(black, bgColor.get(), getProgress()).toInt());
 			return true;
 		}
 		return false;

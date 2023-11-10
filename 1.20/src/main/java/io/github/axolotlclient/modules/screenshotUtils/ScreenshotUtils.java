@@ -31,11 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.AllArgsConstructor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
@@ -47,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 public class ScreenshotUtils extends AbstractModule {
 
 	private static final ScreenshotUtils Instance = new ScreenshotUtils();
-	private final OptionCategory category = new OptionCategory("screenshotUtils");
+	private final OptionCategory category = OptionCategory.create("screenshotUtils");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final List<Action> actions = Util.make(() -> {
 		List<Action> actions = new ArrayList<>();
@@ -90,7 +91,7 @@ public class ScreenshotUtils extends AbstractModule {
 		return actions;
 	});
 
-	private final EnumOption autoExec = new EnumOption("autoExec", Util.make(() -> {
+	private final StringArrayOption autoExec = new StringArrayOption("autoExec", Util.make(() -> {
 		List<String> names = new ArrayList<>();
 		names.add("off");
 		actions.forEach(action -> names.add(action.getName()));
@@ -103,11 +104,11 @@ public class ScreenshotUtils extends AbstractModule {
 
 	@Override
 	public void init() {
-		category.add(enabled, autoExec, new GenericOption("imageViewer", "openViewer", (m1, m2) -> {
+		category.add(enabled, autoExec, new GenericOption("imageViewer", "openViewer", () -> {
 			MinecraftClient.getInstance().setScreen(new ImageViewerScreen(MinecraftClient.getInstance().currentScreen));
 		}));
 
-		AxolotlClient.CONFIG.general.addSubCategory(category);
+		AxolotlClient.CONFIG.general.add(category);
 	}
 
 	public Text onScreenshotTaken(MutableText text, File shot) {

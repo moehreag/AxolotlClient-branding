@@ -47,7 +47,9 @@ dependencies {
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_120}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
-	modApi("com.terraformersmc:modmenu:8.0.0")
+	modCompileOnlyApi("com.terraformersmc:modmenu:8.0.0") {
+		exclude group: "net.fabricmc"
+	}
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 

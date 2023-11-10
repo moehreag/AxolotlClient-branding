@@ -46,7 +46,7 @@ public abstract class ScreenMixin {
 		}
 	}
 
-	@Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fillGradient(IIIIII)V"), cancellable = true)
+	@Inject(method = "renderWorldOverlayBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fillGradient(IIIIII)V"), cancellable = true)
 	private void axolotlclient$menuBlur(GuiGraphics graphics, CallbackInfo ci) {
 		if (MenuBlur.getInstance().renderScreen(graphics)) {
 			ci.cancel();

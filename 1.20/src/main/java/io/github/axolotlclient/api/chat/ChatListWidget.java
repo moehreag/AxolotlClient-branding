@@ -29,8 +29,8 @@ import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.Text;
 
 public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget.ChatListEntry> {
@@ -45,7 +45,6 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
 			list.stream().filter(filter).forEach(c -> addEntryToTop(new ChatListEntry(c)))
 		);
-		setRenderHorizontalShadows(false);
 	}
 
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {

@@ -25,7 +25,7 @@ package io.github.axolotlclient.mixin;
 import java.util.function.IntSupplier;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Auth;
 import net.minecraft.client.gui.GuiGraphics;

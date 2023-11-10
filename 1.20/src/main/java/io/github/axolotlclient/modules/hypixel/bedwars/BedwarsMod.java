@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
@@ -58,7 +58,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 	private static BedwarsMod instance = new BedwarsMod();
 
 	@Getter
-	private final OptionCategory category = new OptionCategory("bedwars");
+	private final OptionCategory category = OptionCategory.create("bedwars");
 
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 
@@ -69,9 +69,9 @@ public class BedwarsMod implements AbstractHypixelMod {
 	public final BooleanOption displayArmor = new BooleanOption(getTranslationKey("displayArmor"), true);
 
 	public final BooleanOption bedwarsLevelHead = new BooleanOption(getTranslationKey("bedwarsLevelHead"), true);
-	public final EnumOption bedwarsLevelHeadMode = new EnumOption(getTranslationKey("bedwarsLevelHeadMode"),
-		BedwarsLevelHeadMode.values(),
-		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS.toString());
+	public final EnumOption<BedwarsLevelHeadMode> bedwarsLevelHeadMode = new EnumOption<>(getTranslationKey("bedwarsLevelHeadMode"),
+		BedwarsLevelHeadMode.class,
+		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS);
 
 
 	protected BedwarsGame currentGame = null;

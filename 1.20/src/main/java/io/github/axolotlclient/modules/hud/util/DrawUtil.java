@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.modules.hud.util;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
@@ -37,7 +37,7 @@ import net.minecraft.client.gui.GuiGraphics;
 public class DrawUtil {
 
 	public static void fillRect(GuiGraphics graphics, Rectangle rectangle, Color color) {
-		fillRect(graphics, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.getAsInt());
+		fillRect(graphics, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
 
 	public static void fillRect(GuiGraphics graphics, int x, int y, int width, int height, int color) {
@@ -45,11 +45,11 @@ public class DrawUtil {
 	}
 
 	public static void fillRect(GuiGraphics graphics, int x, int y, int width, int height, Color color) {
-		RenderUtil.drawRectangle(graphics, x, y, x + width, y + height, color.getAsInt());
+		RenderUtil.drawRectangle(graphics, x, y, x + width, y + height, color.toInt());
 	}
 
 	public static void outlineRect(GuiGraphics graphics, Rectangle rectangle, Color color) {
-		outlineRect(graphics, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.getAsInt());
+		outlineRect(graphics, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
 
 	public static void outlineRect(GuiGraphics graphics, int x, int y, int width, int height, int color) {
@@ -61,7 +61,7 @@ public class DrawUtil {
 
 	public static void drawCenteredString(GuiGraphics graphics, TextRenderer renderer, String text, int x, int y,
 										  Color color, boolean shadow) {
-		drawCenteredString(graphics, renderer, text, x, y, color.getAsInt(), shadow);
+		drawCenteredString(graphics, renderer, text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawCenteredString(GuiGraphics graphics, TextRenderer renderer, String text, int x, int y,
@@ -74,7 +74,7 @@ public class DrawUtil {
 	}
 
 	public static void drawString(GuiGraphics graphics, String text, float x, float y, Color color, boolean shadow) {
-		drawString(graphics, text, x, y, color.getAsInt(), shadow);
+		drawString(graphics, text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawString(GuiGraphics graphics, TextRenderer textRenderer, String text, float x, float y,

@@ -35,6 +35,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
@@ -50,13 +51,13 @@ public class AxolotlClientConfig {
 	public final BooleanOption customBadge = new BooleanOption("customBadge", false);
 	public final StringOption badgeText = new StringOption("badgeText", "");
 
-	public final BooleanOption timeChangerEnabled = new BooleanOption("enabled", false);
+	public final ForceableBooleanOption timeChangerEnabled = new ForceableBooleanOption("enabled", false);
 	public final IntegerOption customTime = new IntegerOption("time", 0, 0, 24000);
 	public final BooleanOption customSky = new BooleanOption("customSky", true);
 	public final BooleanOption dynamicFOV = new BooleanOption("dynamicFov", true);
-	public final BooleanOption fullBright = new BooleanOption("fullBright", false);
+	public final ForceableBooleanOption fullBright = new ForceableBooleanOption("fullBright", false);
 	public final BooleanOption removeVignette = new BooleanOption("removeVignette", false);
-	public final BooleanOption lowFire = new BooleanOption("lowFire", false);
+	public final ForceableBooleanOption lowFire = new ForceableBooleanOption("lowFire", false);
 	public final BooleanOption lowShield = new BooleanOption("lowShield", false);
 	public final ColorOption hitColor = new ColorOption("hitColor", new Color(255, 0, 0, 77),
 		value -> {

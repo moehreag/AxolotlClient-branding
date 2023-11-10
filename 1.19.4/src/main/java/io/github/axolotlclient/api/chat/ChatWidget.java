@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -36,6 +35,7 @@ import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.modules.auth.Auth;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
@@ -224,7 +224,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			super(Text.literal(message.getSender().getName()).setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp()*1000));
+			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));
 		}
 
 		@Override
@@ -235,7 +235,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			drawTexture(matrices, x - 22, y, 18, 18, 8, 8, 8, 8, 64, 64);
 			drawTexture(matrices, x - 22, y, 18, 18, 40, 8, 8, 8, 64, 64);
 			RenderSystem.enableBlend();
-			client.textRenderer.draw(matrices, formattedTime, client.textRenderer.getWidth(getContent()) + x + 5, y, Color.GRAY.getAsInt());
+			client.textRenderer.draw(matrices, formattedTime, client.textRenderer.getWidth(getContent()) + x + 5, y, ClientColors.GRAY.toInt());
 		}
 	}
 }

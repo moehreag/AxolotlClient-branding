@@ -22,21 +22,22 @@
 
 package io.github.axolotlclient.modules.hypixel.levelhead;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
+import io.github.axolotlclient.util.ClientColors;
 
 public class LevelHead implements AbstractHypixelMod {
 
 	private static final LevelHead Instance = new LevelHead();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
 	public final BooleanOption background = new BooleanOption("background", false);
-	public final ColorOption textColor = new ColorOption("textColor", Color.GOLD);
-	public final EnumOption mode = new EnumOption("levelHeadMode", LevelHeadMode.values(), LevelHeadMode.NETWORK.toString());
-	private final OptionCategory category = new OptionCategory("levelhead");
+	public final ColorOption textColor = new ColorOption("textColor", ClientColors.GOLD);
+	public final EnumOption<LevelHeadMode> mode = new EnumOption<>("levelHeadMode", LevelHeadMode.class, LevelHeadMode.NETWORK);
+	private final OptionCategory category = OptionCategory.create("levelhead");
 
 	public static LevelHead getInstance() {
 		return Instance;

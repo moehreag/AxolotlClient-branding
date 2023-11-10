@@ -25,8 +25,8 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import io.github.axolotlclient.util.events.Events;
 import net.minecraft.util.Identifier;
@@ -43,8 +43,8 @@ public class CPSHud extends SimpleTextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "cpshud");
 
-	private final BooleanOption fromKeybindings = new BooleanOption("cpskeybind", ID.getPath(), false);
-	private final BooleanOption rmb = new BooleanOption("rightcps", ID.getPath(), false);
+	private final BooleanOption fromKeybindings = new BooleanOption("cpskeybind",false);
+	private final BooleanOption rmb = new BooleanOption("rightcps",false);
 
 	public CPSHud() {
 		super();

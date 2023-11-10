@@ -211,7 +211,7 @@ public class Util {
 			(int) (width * scale), (int) (height * scale));
 	}
 
-	public static void bindTexture(GraphicsOption option) {
+	public static Identifier getTexture(GraphicsOption option) {
 		Identifier id = new Identifier("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
 		try {
 			NativeImageBackedTexture texture;
@@ -232,6 +232,7 @@ public class Util {
 		} catch (IOException e) {
 			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
 		}
+		return id;
 	}
 
 	public static double lerp(double start, double end, double percent) {

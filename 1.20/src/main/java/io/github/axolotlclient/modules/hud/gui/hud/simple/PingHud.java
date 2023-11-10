@@ -24,19 +24,18 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import io.github.axolotlclient.util.ThreadExecuter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.debug.PerformanceSampleLog;
 import net.minecraft.client.network.Address;
 import net.minecraft.client.network.AllowedAddressResolver;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkState;
 import net.minecraft.network.listener.ClientQueryPacketListener;
-import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
 import net.minecraft.network.packet.c2s.query.MetadataQueryC2SPacket;
 import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
 import net.minecraft.network.packet.s2c.query.QueryPongS2CPacket;
@@ -102,23 +101,23 @@ public class PingHud extends SimpleTextHudEntry {
 				var optional = AllowedAddressResolver.DEFAULT.resolve(address).map(Address::getInetSocketAddress);
 
 				if (optional.isPresent()) {
-					ClientConnection manager = ClientConnection.connect(optional.get(), false);
-					manager.setPacketListener(new ClientQueryPacketListener() {
+					final ClientConnection clientConnection = ClientConnection.connect(optional.get(), false, (PerformanceSampleLog) null);
+					ClientQueryPacketListener listener = new ClientQueryPacketListener() {
 
 						private long currentSystemTime = 0L;
 
 						@Override
 						public void onServerMetadata(ServerMetadataS2CPacket packet) {
 							this.currentSystemTime = net.minecraft.util.Util.getMeasuringTimeMs();
-							manager.send(new QueryPingC2SPacket(this.currentSystemTime));
+							clientConnection.send(new QueryPingC2SPacket(this.currentSystemTime));
 						}
 
 						@Override
-						public void onPong(QueryPongS2CPacket packet) {
+						public void method_12666(QueryPongS2CPacket packet) {
 							var time = this.currentSystemTime;
 							var latency = net.minecraft.util.Util.getMeasuringTimeMs();
 							currentServerPing = (int) (latency - time);
-							manager.disconnect(Text.of(""));
+							clientConnection.disconnect(Text.translatable("multiplayer.status.finished"));
 						}
 
 						@Override
@@ -127,11 +126,11 @@ public class PingHud extends SimpleTextHudEntry {
 
 						@Override
 						public boolean isConnected() {
-							return manager.isOpen();
+							return clientConnection.isOpen();
 						}
-					});
-					manager.send(new HandshakeC2SPacket(address.getAddress(), address.getPort(), NetworkState.STATUS));
-					manager.send(new MetadataQueryC2SPacket());
+					};
+					clientConnection.connect(address.getAddress(), address.getPort(), listener);
+					clientConnection.send(new MetadataQueryC2SPacket());
 				}
 			} catch (Exception ignored) {
 			}

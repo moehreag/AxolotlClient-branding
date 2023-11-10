@@ -112,7 +112,7 @@ public abstract class GameRendererMixin {
 		}
 	}
 
-	@Inject(method = "bobViewWhenHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;", ordinal = 1), cancellable = true)
+	@Inject(method = "bobViewWhenHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;"), cancellable = true)
 	private void axolotlclient$noHurtCam(MatrixStack matrixStack, float f, CallbackInfo ci){
 		if(AxolotlClient.CONFIG.noHurtCam.get()){
 			ci.cancel();
