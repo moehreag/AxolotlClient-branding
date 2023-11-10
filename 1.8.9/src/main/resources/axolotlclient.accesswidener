@@ -1,2 +1,2 @@
 accessWidener v1 named
-accessible field net/minecraft/client/sound/SoundSystem field_8193 Lnet/minecraft/client/sound/SoundSystem$ThreadSafeSoundSystem;
+accessible field net/minecraft/client/sound/system/SoundEngine system Lnet/minecraft/client/sound/system/SoundEngine$System;

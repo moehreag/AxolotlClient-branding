@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ControlsOptionsScreen.class)
 public abstract class ControlsOptionsScreenMixin {
 
-	@Inject(method = "buttonClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
+	@Inject(method = "buttonClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;openScreen(Lnet/minecraft/client/gui/screen/Screen;)V"))
 	public void axolotlclient$updateKeystroke(ButtonWidget button, CallbackInfo ci) {
 		KeystrokeHud hud = (KeystrokeHud) HudManager.getInstance().get(KeystrokeHud.ID);
 		if (hud.isEnabled())

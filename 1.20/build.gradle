@@ -1,9 +1,7 @@
 plugins {
-	id 'java'
-	id "org.quiltmc.loom" version "1.2.1"
+	id "org.quiltmc.loom"
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: "io.github.p03w.machete"
 
 group = maven_group
 version = "${project.version}+${project.minecraft_120}"
@@ -16,6 +14,10 @@ repositories {
 	maven {
 		url = "https://moehreag.duckdns.org/maven/releases"
 	}
+	maven {
+		name = 'Quilt'
+		url = 'https://maven.quiltmc.org/repository/snapshot'
+	}
 	mavenLocal()
 }
 
@@ -25,15 +27,16 @@ dependencies {
 
 	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
 
-	modImplementation include("org.quiltmc.qsl.core:networking:${project.qsl_120}+${project.minecraft_120}")
+	modImplementation ("org.quiltmc.qsl.core:networking:${project.qsl_120}+${project.minecraft_120}-SNAPSHOT")
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_120}") {
 		exclude group: "com.terraformersmc"
+		exclude group: "org.lwjgl"
 	}
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_120}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
-	modCompileOnlyApi("com.terraformersmc:modmenu:5.0.2")
+	modApi("com.terraformersmc:modmenu:8.0.0")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 }

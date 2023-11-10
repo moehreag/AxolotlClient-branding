@@ -22,11 +22,8 @@
 
 package io.github.axolotlclient.util.events;
 
-import java.util.Arrays;
-
 import io.github.axolotlclient.util.events.impl.*;
-import net.legacyfabric.fabric.api.event.Event;
-import net.legacyfabric.fabric.api.event.EventFactory;
+import net.ornithemc.osl.core.api.events.Event;
 
 public class Events {
 
@@ -39,9 +36,7 @@ public class Events {
 	public static final Event<EventCallback<WorldLoadEvent>> WORLD_LOAD_EVENT = createEvent();
 
 	private static <T> Event<EventCallback<T>> createEvent() {
-		return EventFactory
-			.createArrayBacked(EventCallback.class, listeners -> (event) ->
-				Arrays.stream(listeners).forEach(l -> l.invoke(event)));
+		return Event.of(eventCallbacks -> event -> eventCallbacks.forEach(l -> l.invoke(event)));
 	}
 
 	public interface EventCallback<T> {

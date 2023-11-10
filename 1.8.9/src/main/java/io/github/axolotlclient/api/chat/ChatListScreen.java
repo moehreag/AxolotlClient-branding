@@ -49,9 +49,9 @@ public class ChatListScreen extends Screen {
 		groups.render(mouseX, mouseY, delta);
 		super.render(mouseX, mouseY, delta);
 
-		drawCenteredString(client.textRenderer, I18n.translate("api.chats"), width / 2, 20, -1);
-		drawCenteredString(client.textRenderer, I18n.translate("api.chat.dms"), width / 2 + 80, 40, -1);
-		drawCenteredString(client.textRenderer, I18n.translate("api.chat.groups"), width / 2 - 80, 40, -1);
+		drawCenteredString(minecraft.textRenderer, I18n.translate("api.chats"), width / 2, 20, -1);
+		drawCenteredString(minecraft.textRenderer, I18n.translate("api.chat.dms"), width / 2 + 80, 40, -1);
+		drawCenteredString(minecraft.textRenderer, I18n.translate("api.chat.groups"), width / 2 - 80, 40, -1);
 	}
 
 	@Override
@@ -67,9 +67,9 @@ public class ChatListScreen extends Screen {
 	@Override
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 0) {
-			client.setScreen(parent);
+			minecraft.openScreen(parent);
 		} else if (buttonWidget.id == 1) {
-			client.setScreen(new SimpleTextInputScreen(this, I18n.translate("api.chat.groups.create"),
+			minecraft.openScreen(new SimpleTextInputScreen(this, I18n.translate("api.chat.groups.create"),
 				I18n.translate("api.chat.groups.create.label"), s -> {
 				if (!s.trim().isEmpty()) {
 					ChannelRequest.createGroup(Arrays.stream(s.split(",")).map(String::trim).toArray(String[]::new));

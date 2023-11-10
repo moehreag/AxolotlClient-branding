@@ -26,30 +26,30 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.shaders.Uniform;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.FloatOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlUniform;
-import net.minecraft.client.gl.ShaderEffect;
-import net.minecraft.client.resource.ResourceMetadataProvider;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
+import lombok.Getter;
+import net.minecraft.client.render.PostChain;
+import net.minecraft.client.resource.Resource;
+import net.minecraft.client.resource.metadata.ResourceMetadataSection;
+import net.minecraft.resource.Identifier;
 import org.apache.commons.io.IOUtils;
 
 public class MotionBlur extends AbstractModule {
 
+	@Getter
 	private static final MotionBlur Instance = new MotionBlur();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
 	public final FloatOption strength = new FloatOption("strength", 50F, 1F, 99F);
 	public final BooleanOption inGuis = new BooleanOption("inGuis", false);
-	public final OptionCategory category = new OptionCategory("motionBlur");
+	public final OptionCategory category = OptionCategory.create("motionBlur");
 	private final Identifier shaderLocation = new Identifier("minecraft:shaders/post/motion_blur.json");
-	private final MinecraftClient client = MinecraftClient.getInstance();
-	public ShaderEffect shader;
+	public PostChain shader;
 	private float currentBlur;
 
 	private int lastWidth;
@@ -59,7 +59,7 @@ public class MotionBlur extends AbstractModule {
 	public void init() {
 		category.add(enabled, strength, inGuis);
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 
 		AxolotlClient.runtimeResources.put(shaderLocation, new MotionBlurShader());
 	}
@@ -69,16 +69,16 @@ public class MotionBlur extends AbstractModule {
 			&& client.width != 0) {
 			currentBlur = getBlur();
 			try {
-				shader = new ShaderEffect(client.getTextureManager(), client.getResourceManager(),
-					client.getFramebuffer(), shaderLocation);
-				shader.setupDimensions(client.width, client.height);
+				shader = new PostChain(client.getTextureManager(), client.getResourceManager(),
+					client.getRenderTarget(), shaderLocation);
+				shader.resize(client.width, client.height);
 			} catch (JsonSyntaxException | IOException e) {
 				AxolotlClient.LOGGER.error("Could not load motion blur: ", e);
 			}
 		}
 		if (currentBlur != getBlur()) {
 			((ShaderEffectAccessor) shader).getPasses().forEach(shader -> {
-				GlUniform blendFactor = shader.getProgram().getUniformByName("BlendFactor");
+				Uniform blendFactor = shader.getEffect().getUniform("BlendFactor");
 				if (blendFactor != null) {
 					blendFactor.set(getBlur());
 				}
@@ -94,19 +94,15 @@ public class MotionBlur extends AbstractModule {
 		return MotionBlur.getInstance().strength.get() / 100F;
 	}
 
-	public static MotionBlur getInstance() {
-		return Instance;
-	}
-
 	private static class MotionBlurShader implements Resource {
 
 		@Override
-		public Identifier getId() {
+		public Identifier getLocation() {
 			return null;
 		}
 
 		@Override
-		public InputStream getInputStream() {
+		public InputStream asStream() {
 			return IOUtils.toInputStream(String.format("{" + "    \"targets\": [" + "        \"swap\","
 				+ "        \"previous\"" + "    ]," + "    \"passes\": [" + "        {"
 				+ "            \"name\": \"motion_blur\"," + "            \"intarget\": \"minecraft:main\","
@@ -127,12 +123,12 @@ public class MotionBlur extends AbstractModule {
 		}
 
 		@Override
-		public <T extends ResourceMetadataProvider> T getMetadata(String key) {
+		public <T extends ResourceMetadataSection> T getMetadata(String key) {
 			return null;
 		}
 
 		@Override
-		public String getResourcePackName() {
+		public String getSourceName() {
 			return null;
 		}
 	}

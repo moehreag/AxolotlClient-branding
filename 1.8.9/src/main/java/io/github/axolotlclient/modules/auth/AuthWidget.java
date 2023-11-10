@@ -23,22 +23,22 @@
 package io.github.axolotlclient.modules.auth;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ButtonWidget;
 
 public class AuthWidget extends ButtonWidget {
 
 	public AuthWidget() {
 		super(242, 10, 10,
-			MinecraftClient.getInstance().textRenderer.getStringWidth(Auth.getInstance().getCurrent().getName()) + 28,
+			Minecraft.getInstance().textRenderer.getWidth(Auth.getInstance().getCurrent().getName()) + 28,
 			20, "    " + Auth.getInstance().getCurrent().getName());
 	}
 
 	@Override
-	public void render(MinecraftClient minecraftClient, int i, int j) {
+	public void render(Minecraft minecraftClient, int i, int j) {
 		super.render(minecraftClient, i, j);
-		GlStateManager.color(1, 1, 1, 1);
-		MinecraftClient.getInstance().getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent()));
+		GlStateManager.color4f(1, 1, 1, 1);
+		Minecraft.getInstance().getTextureManager().bind(Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent()));
 		GlStateManager.enableBlend();
 		drawTexture(x + 1, y + 1, 8, 8, 8, 8, height - 2, height - 2, 64, 64);
 		drawTexture(x + 1, y + 1, 40, 8, 8, 8, height - 2, height - 2, 64, 64);

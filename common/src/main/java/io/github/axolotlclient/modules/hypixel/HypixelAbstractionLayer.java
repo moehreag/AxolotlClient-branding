@@ -51,13 +51,13 @@ public class HypixelAbstractionLayer {
 	private static final Map<String, Map<RequestDataType, Object>> cachedPlayerData = new HashMap<>();
 	private static final Map<String, Integer> tempValues = new HashMap<>();
 
-	public static int getPlayerLevel(String uuid, String mode) {
+	public static int getPlayerLevel(String uuid, LevelHeadMode mode) {
 		int value = -1;
-		if (Objects.equals(mode, LevelHeadMode.NETWORK.toString())) {
+		if (Objects.equals(mode, LevelHeadMode.NETWORK)) {
 			value = getLevel(uuid, RequestDataType.NETWORK_LEVEL);
-		} else if (Objects.equals(mode, LevelHeadMode.BEDWARS.toString())) {
+		} else if (Objects.equals(mode, LevelHeadMode.BEDWARS)) {
 			value = getLevel(uuid, RequestDataType.BEDWARS_LEVEL);
-		} else if (Objects.equals(mode, LevelHeadMode.SKYWARS.toString())) {
+		} else if (Objects.equals(mode, LevelHeadMode.SKYWARS)) {
 			int exp = getLevel(uuid, RequestDataType.SKYWARS_EXPERIENCE);
 			if (exp != -1) {
 				value = Math.round(ExpCalculator.getLevelForExp(exp));

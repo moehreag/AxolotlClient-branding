@@ -1,9 +1,8 @@
 plugins {
-	id 'io.github.juuxel.loom-quiltflower' version '1.8.+'
-	id "fabric-loom" version "1.2.1"
+	id 'org.quiltmc.loom'
+	id 'ploceus'
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_18}"
@@ -24,27 +23,30 @@ repositories {
 }
 
 loom {
-	setIntermediaryUrl('https://maven.legacyfabric.net/net/fabricmc/intermediary/%1$s/intermediary-%1$s-v2.jar')
 	accessWidenerPath.set(file("src/main/resources/axolotlclient.accesswidener"))
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_18}"
-	mappings "net.legacyfabric:yarn:${project.mappings_18}"
+	mappings "net.ornithemc:feather:${project.mappings_18}"
 
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader}"
+	modCompileOnly "org.quiltmc:quilt-loader:${project.quilt_loader}"
+	modRuntimeOnly "net.fabricmc:fabric-loader:${fabric_loader}"
 
-	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}")
+	modImplementation ("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
+		exclude group: "org.lwjgl"
+		exclude group: "org.slf4j"
+	}
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
-	modImplementation "net.legacyfabric.legacy-fabric-api:legacy-fabric-api:${project.lfapi}+${project.minecraft_18}"
+	ploceus.dependOsl(osl)
 
-	modCompileOnlyApi(files("libs/legacy-modmenu-1.2.0+1.8.9-dev.jar"))
+	modCompileOnlyApi("com.terraformersmc:modmenu:0.1.0+mc1.8.9")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 
-	modImplementation include("com.github.moehreag:search-in-resources:1.0.2")
+	modImplementation include("io.github.moehreag:search-in-resources:1.0.3+1.8.9")
 
 	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9") {
 		exclude group: 'org.apache.logging.log4j', module: "log4j-api"
@@ -52,6 +54,22 @@ dependencies {
 	}
 	implementation include("org.slf4j:slf4j-api:1.7.36")
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+
+	api ("org.lwjgl:lwjgl-nanovg:3.3.2")
+	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
+	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
+	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows')
+	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64')
+	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
+	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
+
+	modCompileOnly ("com.github.moehreag:legacy-lwjgl3:d27b6b3ce2") {
+		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
+		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
+		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'
+		exclude group: 'org.lwjgl', module: 'lwjgl'
+		exclude group: 'net.fabricmc'
+	}
 }
 
 configurations.configureEach {

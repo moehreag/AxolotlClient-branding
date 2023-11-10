@@ -22,6 +22,9 @@
 
 package io.github.axolotlclient.util;
 
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -29,15 +32,19 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.Window;
+import net.minecraft.client.render.texture.DynamicTexture;
+import net.minecraft.resource.Identifier;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.scoreboard.ScoreboardScore;
+import net.minecraft.scoreboard.team.Team;
+import net.minecraft.text.Formatting;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.lwjgl.opengl.GL11;
@@ -66,37 +73,37 @@ public class Util {
 
 	public static int toGlCoordsX(int x) {
 		if (window == null) {
-			window = new Window(MinecraftClient.getInstance());
+			window = new Window(Minecraft.getInstance());
 		}
-		return x * window.getScaleFactor();
+		return x * window.getScale();
 	}
 
 	public static int toGlCoordsY(int y) {
 		if (window == null) {
-			window = new Window(MinecraftClient.getInstance());
+			window = new Window(Minecraft.getInstance());
 		}
-		int scale = window.getScaleFactor();
-		return MinecraftClient.getInstance().height - y * scale - scale;
+		int scale = window.getScale();
+		return Minecraft.getInstance().height - y * scale - scale;
 	}
 
 	public static int toMCCoordsX(int x) {
 		if (window == null) {
-			window = new Window(MinecraftClient.getInstance());
+			window = new Window(Minecraft.getInstance());
 		}
-		return x * window.getWidth() / MinecraftClient.getInstance().width;
+		return x * window.getWidth() / Minecraft.getInstance().width;
 	}
 
 	public static int toMCCoordsY(int y) {
 		if (window == null) {
-			window = new Window(MinecraftClient.getInstance());
+			window = new Window(Minecraft.getInstance());
 		}
-		return window.getHeight() - y * window.getHeight() / MinecraftClient.getInstance().height - 1;
+		return window.getHeight() - y * window.getHeight() / Minecraft.getInstance().height - 1;
 	}
 
 	public static Window getWindow() {
 		if (window == null) {
 			try {
-				return window = new Window(MinecraftClient.getInstance());
+				return window = new Window(Minecraft.getInstance());
 			} catch (Exception e) {
 				return null;
 			}
@@ -105,11 +112,11 @@ public class Util {
 	}
 
 	public static void sendChatMessage(String msg) {
-		MinecraftClient.getInstance().player.sendChatMessage(msg);
+		Minecraft.getInstance().player.sendChat(msg);
 	}
 
 	public static void sendChatMessage(Text msg) {
-		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(msg);
+		Minecraft.getInstance().gui.getChat().addMessage(msg);
 	}
 
 	public static String splitAtCapitalLetters(String string) {
@@ -162,20 +169,20 @@ public class Util {
 
 	public static List<String> getSidebar() {
 		List<String> lines = new ArrayList<>();
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 		if (client.world == null)
 			return lines;
 
 		Scoreboard scoreboard = client.world.getScoreboard();
 		if (scoreboard == null)
 			return lines;
-		ScoreboardObjective sidebar = scoreboard.getObjectiveForSlot(1);
+		ScoreboardObjective sidebar = scoreboard.getDisplayObjective(1);
 		if (sidebar == null)
 			return lines;
 
-		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(sidebar);
-		List<ScoreboardPlayerScore> list = scores.stream().filter(
-				input -> input != null && input.getPlayerName() != null && !input.getPlayerName().startsWith("#"))
+		Collection<ScoreboardScore> scores = scoreboard.getScores(sidebar);
+		List<ScoreboardScore> list = scores.stream().filter(
+				input -> input != null && input.getOwner() != null && !input.getOwner().startsWith("#"))
 			.collect(Collectors.toList());
 
 		if (list.size() > 15) {
@@ -184,12 +191,12 @@ public class Util {
 			scores = list;
 		}
 
-		for (ScoreboardPlayerScore score : scores) {
-			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
+		for (ScoreboardScore score : scores) {
+			Team team = scoreboard.getTeam(score.getOwner());
 			if (team == null)
 				return lines;
 			String text = team.getPrefix() + team.getSuffix();
-			if (text.trim().length() > 0)
+			if (!text.trim().isEmpty())
 				lines.add(text);
 		}
 
@@ -200,15 +207,15 @@ public class Util {
 	}
 
 	public static String getCurrentServerAddress() {
-		if (MinecraftClient.getInstance().isInSingleplayer()) {
+		if (Minecraft.getInstance().isInSingleplayer()) {
 			return null;
 		}
 
-		if (MinecraftClient.getInstance().getCurrentServerEntry() != null) {
-			return MinecraftClient.getInstance().getCurrentServerEntry().address;
+		if (Minecraft.getInstance().getCurrentServerEntry() != null) {
+			return Minecraft.getInstance().getCurrentServerEntry().address;
 		}
-		return ((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerAddress() != null
-			? ((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerAddress()
+		return ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress() != null
+			? ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress()
 			: null;
 	}
 
@@ -230,21 +237,21 @@ public class Util {
 	}
 
 	public static boolean currentServerAddressContains(String address) {
-		if (MinecraftClient.getInstance().isInSingleplayer()
-			|| MinecraftClient.getInstance().isIntegratedServerRunning()) {
+		if (Minecraft.getInstance().isInSingleplayer()
+			|| Minecraft.getInstance().isIntegratedServerRunning()) {
 			return false;
 		}
-		if (MinecraftClient.getInstance().getCurrentServerEntry() != null) {
-			return MinecraftClient.getInstance().getCurrentServerEntry().address.contains(address);
+		if (Minecraft.getInstance().getCurrentServerEntry() != null) {
+			return Minecraft.getInstance().getCurrentServerEntry().address.contains(address);
 		}
-		return ((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerAddress() != null
-			&& ((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerAddress().contains(address);
+		return ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress() != null
+			&& ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress().contains(address);
 	}
 
 	public static void applyScissor(int x, int y, int width, int height) {
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		Window window = new Window(MinecraftClient.getInstance());
-		int scale = window.getScaleFactor();
+		Window window = new Window(Minecraft.getInstance());
+		int scale = window.getScale();
 		GL11.glScissor(x * scale, (int) ((window.getScaledHeight() - height - y) * scale), width * scale,
 			height * scale);
 	}
@@ -279,6 +286,31 @@ public class Util {
 			this.green = green;
 			this.blue = blue;
 			this.alpha = alpha;
+		}
+	}
+
+	public static void bindTexture(GraphicsOption option) {
+		Identifier id = new Identifier("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
+		try {
+			DynamicTexture texture;
+			if (Minecraft.getInstance().getTextureManager().get(id) == null) {
+				texture = new DynamicTexture(ImageIO.read(new ByteArrayInputStream(option.get().getPixelData())));
+				Minecraft.getInstance().getTextureManager().register(id, texture);
+			} else {
+				texture = (DynamicTexture) Minecraft.getInstance().getTextureManager().get(id);
+				int[] pix = texture.getPixels();
+				for (int x = 0; x < option.get().getWidth(); x++) {
+					for (int y = 0; y < option.get().getHeight(); y++) {
+						int rows = (y) * option.get().getWidth() + x;
+						pix[rows] = option.get().getPixelColor(x, y);
+					}
+				}
+			}
+
+			texture.upload();
+			Minecraft.getInstance().getTextureManager().bind(id);
+		} catch (IOException e) {
+			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
 		}
 	}
 }

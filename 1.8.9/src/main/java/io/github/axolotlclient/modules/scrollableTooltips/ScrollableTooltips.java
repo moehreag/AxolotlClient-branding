@@ -25,16 +25,18 @@ package io.github.axolotlclient.modules.scrollableTooltips;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.Util;
+import lombok.Getter;
 import net.minecraft.client.gui.screen.Screen;
 import org.lwjgl.input.Mouse;
 
 public class ScrollableTooltips extends AbstractModule {
 
+	@Getter
 	private static final ScrollableTooltips instance = new ScrollableTooltips();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
 	public final BooleanOption enableShiftHorizontalScroll = new BooleanOption("shiftHorizontalScroll",
@@ -42,15 +44,11 @@ public class ScrollableTooltips extends AbstractModule {
 	protected final IntegerOption scrollAmount = new IntegerOption("scrollAmount", 5, 1, 20);
 	protected final BooleanOption inverse = new BooleanOption("inverse", false);
 	private final BooleanOption alignToBottom = new BooleanOption("alignToBottom", false);
-	private final OptionCategory category = new OptionCategory("scrollableTooltips");
+	private final OptionCategory category = OptionCategory.create("scrollableTooltips");
 	public int tooltipOffsetX;
 	public int tooltipOffsetY;
 
 	private boolean alignedToBottom;
-
-	public static ScrollableTooltips getInstance() {
-		return instance;
-	}
 
 	@Override
 	public void init() {
@@ -60,7 +58,7 @@ public class ScrollableTooltips extends AbstractModule {
 		category.add(inverse);
 		category.add(alignToBottom);
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 	}
 
 	public void onRenderTooltip() {
@@ -80,7 +78,7 @@ public class ScrollableTooltips extends AbstractModule {
 	}
 
 	public void onScroll(boolean reverse) {
-		if (Screen.hasShiftDown()) {
+		if (Screen.isShiftDown()) {
 			if (reverse) {
 				tooltipOffsetX -= scrollAmount.get();
 			} else {
@@ -107,11 +105,11 @@ public class ScrollableTooltips extends AbstractModule {
 		tooltipOffsetY = tooltipOffsetX = 0;
 	}
 
-	public void alignToScreenBottom(List<String> tooltip, int y){
-		if(alignToBottom.get() && !alignedToBottom) {
+	public void alignToScreenBottom(List<String> tooltip, int y) {
+		if (alignToBottom.get() && !alignedToBottom) {
 			int height = tooltip.size() * 10 - 4;
 
-			if(height + y > Util.getWindow().getHeight()){
+			if (height + y > Util.getWindow().getHeight()) {
 				tooltipOffsetY = Util.getWindow().getHeight() - y - height;
 			}
 

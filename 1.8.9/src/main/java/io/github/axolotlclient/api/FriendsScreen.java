@@ -32,7 +32,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.LanScanWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.gui.widget.ServerEntry;
 import net.minecraft.client.resource.language.I18n;
 
 public class FriendsScreen extends Screen {
@@ -73,18 +72,18 @@ public class FriendsScreen extends Screen {
 		} else {
 			if (j >= 0) {
 				if (i == 200) {
-					if (hasShiftDown()) {
-						if (j > 0 && entry instanceof ServerEntry) {
+					if (isShiftDown()) {
+						if (j > 0 && entry instanceof UserListWidget.UserListEntry) {
 							this.select(this.widget.getSelected() - 1);
-							this.widget.scroll(-this.widget.getItemHeight());
+							this.widget.scroll(-this.widget.getEntryHeight());
 						}
 					} else if (j > 0) {
 						this.select(this.widget.getSelected() - 1);
-						this.widget.scroll(-this.widget.getItemHeight());
+						this.widget.scroll(-this.widget.getEntryHeight());
 						if (this.widget.getEntry(this.widget.getSelected()) instanceof LanScanWidget) {
 							if (this.widget.getSelected() > 0) {
-								this.select(this.widget.getEntryCount() - 1);
-								this.widget.scroll(-this.widget.getItemHeight());
+								this.select(this.widget.size() - 1);
+								this.widget.scroll(-this.widget.getEntryHeight());
 							} else {
 								this.select(-1);
 							}
@@ -93,16 +92,16 @@ public class FriendsScreen extends Screen {
 						this.select(-1);
 					}
 				} else if (i == 208) {
-					if (hasShiftDown()) {
+					if (isShiftDown()) {
 						this.select(j + 1);
-						this.widget.scroll(this.widget.getItemHeight());
-					} else if (j < this.widget.getEntryCount()) {
+						this.widget.scroll(this.widget.getEntryHeight());
+					} else if (j < this.widget.size()) {
 						this.select(this.widget.getSelected() + 1);
-						this.widget.scroll(this.widget.getItemHeight());
+						this.widget.scroll(this.widget.getEntryHeight());
 						if (this.widget.getEntry(this.widget.getSelected()) instanceof LanScanWidget) {
-							if (this.widget.getSelected() < this.widget.getEntryCount() - 1) {
-								this.select(this.widget.getEntryCount() + 1);
-								this.widget.scroll(this.widget.getItemHeight());
+							if (this.widget.getSelected() < this.widget.size() - 1) {
+								this.select(this.widget.size() + 1);
+								this.widget.scroll(this.widget.getEntryHeight());
 							} else {
 								this.select(-1);
 							}
@@ -122,7 +121,7 @@ public class FriendsScreen extends Screen {
 	}
 
 	private void refresh() {
-		client.setScreen(new FriendsScreen(parent));
+		minecraft.openScreen(new FriendsScreen(parent));
 	}
 
 	public void select(int i) {
@@ -134,7 +133,7 @@ public class FriendsScreen extends Screen {
 		UserListWidget.UserListEntry entry = widget.getSelectedEntry();
 		if (entry != null) {
 			ChannelRequest.getOrCreateDM(entry.getUser().getUuid())
-				.whenCompleteAsync((c, t) -> client.setScreen(new ChatScreen(this, c)));
+				.whenCompleteAsync((c, t) -> minecraft.openScreen(new ChatScreen(this, c)));
 		}
 	}
 
@@ -170,7 +169,7 @@ public class FriendsScreen extends Screen {
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		switch (buttonWidget.id) {
 			case 0:
-				this.client.setScreen(this.parent);
+				this.minecraft.openScreen(this.parent);
 				break;
 			case 1:
 				openChat();
@@ -189,26 +188,26 @@ public class FriendsScreen extends Screen {
 				}
 				break;
 			case 5:
-				client.setScreen(new AddFriendScreen(this));
+				minecraft.openScreen(new AddFriendScreen(this));
 				break;
 			case 6:
-				client.setScreen(new FriendsScreen(parent, Tab.ONLINE));
+				minecraft.openScreen(new FriendsScreen(parent, Tab.ONLINE));
 				break;
 			case 7:
-				client.setScreen(new FriendsScreen(parent, Tab.ALL));
+				minecraft.openScreen(new FriendsScreen(parent, Tab.ALL));
 				break;
 			case 8:
-				client.setScreen(new FriendsScreen(parent, Tab.PENDING));
+				minecraft.openScreen(new FriendsScreen(parent, Tab.PENDING));
 				break;
 			case 9:
-				client.setScreen(new FriendsScreen(parent, Tab.BLOCKED));
+				minecraft.openScreen(new FriendsScreen(parent, Tab.BLOCKED));
 				break;
 		}
 	}
 
 	@Override
 	public void init() {
-		widget = new UserListWidget(this, client, width, height, 32, height - 64, 35);
+		widget = new UserListWidget(this, minecraft, width, height, 32, height - 64, 35);
 
 		if (current == Tab.ALL || current == Tab.ONLINE) {
 			FriendHandler.getInstance().getFriends().whenCompleteAsync((list, t) -> widget.setUsers(list.stream().filter(user -> {

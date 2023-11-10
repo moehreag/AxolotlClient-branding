@@ -26,15 +26,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.DefaultConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.common.ConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig;
+import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.managers.VersionedJsonConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.StatusUpdateProviderImpl;
-import io.github.axolotlclient.config.AxolotlClientConfig;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.modules.ModuleLoader;
 import io.github.axolotlclient.modules.auth.Auth;
@@ -60,9 +59,9 @@ import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.translation.Translations;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.legacyfabric.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.resource.Resource;
+import net.minecraft.resource.Identifier;
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 
 public class AxolotlClient implements ClientModInitializer {
 
@@ -70,11 +69,11 @@ public class AxolotlClient implements ClientModInitializer {
 	public static String VERSION;
 	public static final HashMap<Identifier, Resource> runtimeResources = new HashMap<>();
 	public static final Identifier badgeIcon = new Identifier("axolotlclient", "textures/badge.png");
-	public static final OptionCategory config = new OptionCategory("storedOptions");
+	public static final OptionCategory config = OptionCategory.create("storedOptions");
 	public static final BooleanOption someNiceBackground = new BooleanOption("defNoSecret", false);
 	public static final List<Module> modules = new ArrayList<>();
 	public static final Logger LOGGER = new LoggerImpl();
-	public static AxolotlClientConfig CONFIG;
+	public static io.github.axolotlclient.config.AxolotlClientConfig CONFIG;
 	public static ConfigManager configManager;
 
 	@Override
@@ -83,7 +82,7 @@ public class AxolotlClient implements ClientModInitializer {
 		VERSION = FabricLoader.getInstance().getModContainer(MODID).orElseThrow(IllegalStateException::new)
 			.getMetadata().getVersion().getFriendlyString();
 
-		CONFIG = new AxolotlClientConfig();
+		CONFIG = new io.github.axolotlclient.config.AxolotlClientConfig();
 		config.add(someNiceBackground);
 
 		getModules();
@@ -94,13 +93,16 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::init);
 
-		CONFIG.config.addAll(CONFIG.getCategories());
 		CONFIG.config.add(config);
 
-		AxolotlClientConfigManager.getInstance().registerConfig(MODID, CONFIG, configManager = new DefaultConfigManager(MODID,
-			FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"), CONFIG.config));
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "x");
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "y");
+		AxolotlClientConfig.getInstance().register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
+			CONFIG.config, 1, (oldVersion, newVersion, config, json) -> {
+			// convert changed Options between versions here
+			return json;
+		}));
+		configManager.load();
+		//AxolotlClientConfig.getInstance().addIgnoredName(MODID, "x");
+		//AxolotlClientConfig.getInstance().addIgnoredName(MODID, "y");
 
 		modules.forEach(Module::lateInit);
 
@@ -109,7 +111,7 @@ public class AxolotlClient implements ClientModInitializer {
             optional.ifPresent(path -> MinecraftClient.getInstance().getResourcePackLoader().method_10366(path.toFile()));
         });*/
 
-		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
+		MinecraftClientEvents.TICK_END.register(client -> tickClient());
 
 		FeatureDisabler.init();
 

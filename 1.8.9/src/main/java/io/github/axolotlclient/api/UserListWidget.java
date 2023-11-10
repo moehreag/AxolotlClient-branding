@@ -29,10 +29,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.Formatting;
 
 public class UserListWidget extends EntryListWidget {
 
@@ -40,7 +40,7 @@ public class UserListWidget extends EntryListWidget {
 	private final List<UserListEntry> entries = new ArrayList<>();
 	private int selectedEntry = -1;
 
-	public UserListWidget(FriendsScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
+	public UserListWidget(FriendsScreen screen, Minecraft client, int width, int height, int top, int bottom, int entryHeight) {
 		super(client, width, height, top, bottom, entryHeight);
 		this.screen = screen;
 	}
@@ -54,7 +54,7 @@ public class UserListWidget extends EntryListWidget {
 	}
 
 	@Override
-	protected int getEntryCount() {
+	protected int size() {
 		return entries.size();
 	}
 
@@ -93,11 +93,11 @@ public class UserListWidget extends EntryListWidget {
 		this.selectedEntry = i;
 	}
 
-	public static class UserListEntry extends DrawableHelper implements EntryListWidget.Entry {
+	public static class UserListEntry extends GuiElement implements EntryListWidget.Entry {
 
 		@Getter
 		private final User user;
-		private final MinecraftClient client;
+		private final Minecraft client;
 		private long time;
 		private String note;
 		private FriendsScreen screen;
@@ -108,7 +108,7 @@ public class UserListWidget extends EntryListWidget {
 		}
 
 		public UserListEntry(User user) {
-			this.client = MinecraftClient.getInstance();
+			this.client = Minecraft.getInstance();
 			this.user = user;
 		}
 
@@ -118,7 +118,7 @@ public class UserListWidget extends EntryListWidget {
 		}
 
 		@Override
-		public void updatePosition(int i, int j, int k) {
+		public void renderOutOfBounds(int i, int j, int k) {
 
 		}
 
@@ -131,11 +131,11 @@ public class UserListWidget extends EntryListWidget {
 			}
 
 			if (note != null) {
-				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getStringWidth(note) - 2, y + entryHeight - 10, 8421504);
+				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
 			}
 
-			GlStateManager.color(1, 1, 1, 1);
-			client.getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
+			GlStateManager.color4f(1, 1, 1, 1);
+			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
 			GlStateManager.enableBlend();
 			drawTexture(x - 1, y - 1, 8, 8, 8, 8, 33, 33, 64, 64);
 			drawTexture(x - 1, y - 1, 40, 8, 8, 8, 33, 33, 64, 64);
@@ -145,11 +145,11 @@ public class UserListWidget extends EntryListWidget {
 		@Override
 		public boolean mouseClicked(int i, int j, int k, int l, int m, int n) {
 			this.screen.select(i);
-			if (MinecraftClient.getTime() - this.time < 250L && client.world == null) {
+			if (Minecraft.getTime() - this.time < 250L && client.world == null) {
 				screen.openChat();
 			}
 
-			this.time = MinecraftClient.getTime();
+			this.time = Minecraft.getTime();
 			return false;
 		}
 

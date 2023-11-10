@@ -33,14 +33,14 @@ import io.github.axolotlclient.api.util.StatusUpdateProvider;
 import io.github.axolotlclient.modules.hypixel.HypixelLocation;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.level.LevelInfo;
+import net.minecraft.client.network.PlayerInfo;
+import net.minecraft.client.options.ServerListEntry;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.world.WorldSettings;
 
 public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
@@ -55,7 +55,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 	@Override
 	public Request getStatus() {
 
-		Screen current = MinecraftClient.getInstance().currentScreen;
+		Screen current = Minecraft.getInstance().screen;
 		if (current instanceof TitleScreen) {
 			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
 		} else if (current instanceof MultiplayerScreen) {
@@ -64,7 +64,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
 		}
 
-		ServerInfo entry = MinecraftClient.getInstance().getCurrentServerEntry();
+		ServerListEntry entry = Minecraft.getInstance().getCurrentServerEntry();
 		if (entry != null) {
 
 			if (!entry.isLocal()) {
@@ -78,15 +78,15 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 						StatusUpdate.GameType gameType = StatusUpdate.GameType.valueOf(object.get("gametype").getAsString());
 						String gameMode = getOrEmpty(object, "mode");
 						String map = getOrEmpty(object, "map");
-						int maxPlayers = MinecraftClient.getInstance().world.playerEntities.size();
-						int players = MinecraftClient.getInstance().world.playerEntities.stream()
-							.filter(e -> getGameMode(e) != LevelInfo.GameMode.CREATIVE && getGameMode(e) != LevelInfo.GameMode.SPECTATOR).mapToInt(value -> 1).reduce(0, Integer::sum);
+						int maxPlayers = Minecraft.getInstance().world.players.size();
+						int players = Minecraft.getInstance().world.players.stream()
+							.filter(e -> getGameMode(e) != WorldSettings.GameMode.CREATIVE && getGameMode(e) != WorldSettings.GameMode.SPECTATOR).mapToInt(value -> 1).reduce(0, Integer::sum);
 						return StatusUpdate.inGame(server, gameType.toString(), gameMode, map, players, maxPlayers, Instant.now().getEpochSecond() - time.getEpochSecond());
 					}
 				}
 			}
 
-			String gamemode = getGameModeString(MinecraftClient.getInstance().player);
+			String gamemode = getGameModeString(Minecraft.getInstance().player);
 			return StatusUpdate.inGameUnknown(entry.address, "", entry.name, gamemode, Instant.now().getEpochSecond() - time.getEpochSecond());
 
 		}
@@ -98,12 +98,12 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 		return object.has(name) ? object.get(name).getAsString() : "";
 	}
 
-	private LevelInfo.GameMode getGameMode(PlayerEntity entity) {
-		return MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(entity.getUuid()).getGameMode();
+	private WorldSettings.GameMode getGameMode(PlayerEntity entity) {
+		return Minecraft.getInstance().getNetworkHandler().getOnlinePlayer(entity.getUuid()).getGameMode();
 	}
 
 	private String getGameModeString(PlayerEntity entity) {
-		PlayerListEntry entry = MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(entity.getUuid());
+		PlayerInfo entry = Minecraft.getInstance().getNetworkHandler().getOnlinePlayer(entity.getUuid());
 		switch (entry.getGameMode()) {
 			case CREATIVE:
 				return "Creative Mode";

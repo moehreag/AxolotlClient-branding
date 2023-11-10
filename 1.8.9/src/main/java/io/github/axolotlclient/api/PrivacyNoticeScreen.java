@@ -63,7 +63,7 @@ public class PrivacyNoticeScreen extends Screen {
 	@Override
 	public void init() {
 
-		message = client.textRenderer.wrapLines(
+		message = minecraft.textRenderer.split(
 			I18n.translate("api.privacyNotice.description"), width - 50);
 		int y = MathHelper.clamp(this.getMessageY() + this.getMessagesHeight() + 20, this.height / 6 + 96, this.height - 24);
 		this.addButtons(y);
@@ -81,12 +81,12 @@ public class PrivacyNoticeScreen extends Screen {
 	@Override
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 0) {
-			client.setScreen(parent);
+			minecraft.openScreen(parent);
 			APIOptions.getInstance().enabled.set(false);
 			APIOptions.getInstance().privacyAccepted.set("denied");
 			accepted.accept(false);
 		} else if (buttonWidget.id == 1) {
-			client.setScreen(parent);
+			minecraft.openScreen(parent);
 			APIOptions.getInstance().privacyAccepted.set("accepted");
 			accepted.accept(true);
 		} else if (buttonWidget.id == 2) {

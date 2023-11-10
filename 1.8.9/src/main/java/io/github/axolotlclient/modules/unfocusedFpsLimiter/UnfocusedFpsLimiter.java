@@ -25,13 +25,13 @@ package io.github.axolotlclient.modules.unfocusedFpsLimiter;
 import java.util.concurrent.locks.LockSupport;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.FloatOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.sound.SoundCategory;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.input.Mouse;
@@ -65,7 +65,7 @@ public class UnfocusedFpsLimiter extends AbstractModule {
 
 	@Override
 	public void init() {
-		OptionCategory category = new OptionCategory("fpsLimiter");
+		OptionCategory category = OptionCategory.create("fpsLimiter");
 		category.add(enabled, reduceFPSWhenUnfocused, unfocusedFPS, restoreOnHover, unfocusedVolumeMultiplier, hiddenVolumeMultiplier, runGCOnUnfocus);
 		AxolotlClient.CONFIG.rendering.add(category);
 	}
@@ -82,7 +82,7 @@ public class UnfocusedFpsLimiter extends AbstractModule {
 
 		checkForStateChanges();
 
-		long currentTime = MinecraftClient.getTime();
+		long currentTime = Minecraft.getTime();
 		long timeSinceLastRender = currentTime - lastRender;
 
 		if (!checkForRender(timeSinceLastRender)) return false;
@@ -180,12 +180,12 @@ public class UnfocusedFpsLimiter extends AbstractModule {
 
 	private void setVolumeMultiplier(float multiplier) {
 		// setting the volume to 0 stops all sounds (including music), which we want to avoid if possible.
-		boolean clientWillPause = !isFocused && client.options.pauseOnLostFocus && client.currentScreen == null;
+		boolean clientWillPause = !isFocused && client.options.pauseOnUnfocus && client.screen == null;
 		// if the client would pause anyway, we don't need to do anything because that will already pause all sounds.
 		if (multiplier == 0 && clientWillPause) return;
 
-		float baseVolume = MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.MASTER);
-		MinecraftClient.getInstance().getSoundManager().updateSoundVolume(
+		float baseVolume = Minecraft.getInstance().options.getSoundCategoryVolume(SoundCategory.MASTER);
+		Minecraft.getInstance().getSoundManager().setVolume(
 			SoundCategory.MASTER,
 			baseVolume * multiplier
 		);

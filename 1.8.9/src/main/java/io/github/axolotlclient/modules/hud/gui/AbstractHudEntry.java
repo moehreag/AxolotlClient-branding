@@ -26,20 +26,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.DoubleOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -53,7 +54,7 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	protected final BooleanOption enabled = DefaultOptions.getEnabled();
 	protected final DoubleOption scale = DefaultOptions.getScale(this);
-	protected final MinecraftClient client = MinecraftClient.getInstance();
+	protected final Minecraft client = Minecraft.getInstance();
 	private final DoubleOption x = DefaultOptions.getX(getDefaultX(), this);
 	private final DoubleOption y = DefaultOptions.getY(getDefaultY(), this);
 	@Setter
@@ -76,16 +77,16 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	public void renderPlaceholderBackground() {
 		if (hovered) {
-			fillRect(getTrueBounds(), Color.SELECTOR_BLUE.withAlpha(100));
+			fillRect(getTrueBounds(), ClientColors.SELECTOR_BLUE.withAlpha(100));
 		} else {
-			fillRect(getTrueBounds(), Color.WHITE.withAlpha(50));
+			fillRect(getTrueBounds(), ClientColors.WHITE.withAlpha(50));
 		}
-		outlineRect(getTrueBounds(), Color.BLACK);
+		outlineRect(getTrueBounds(), Colors.BLACK);
 	}
 
 	public void scale() {
 		float scale = getScale();
-		GlStateManager.scale(scale, scale, 1);
+		GlStateManager.scalef(scale, scale, 1);
 	}
 
 	@Override
@@ -210,8 +211,8 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	public OptionCategory getAllOptions() {
 		List<Option<?>> options = getSaveOptions();
-		OptionCategory cat = new OptionCategory(getNameKey());
-		cat.add(options);
+		OptionCategory cat = OptionCategory.create(getNameKey());
+		options.forEach(cat::add);
 		return cat;
 	}
 
@@ -242,8 +243,8 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	}
 
 	public OptionCategory getOptionsAsCategory() {
-		OptionCategory cat = new OptionCategory(getNameKey(), false);
-		cat.add(getConfigurationOptions());
+		OptionCategory cat = OptionCategory.create(getNameKey());
+		getConfigurationOptions().forEach(cat::add);
 		return cat;
 	}
 

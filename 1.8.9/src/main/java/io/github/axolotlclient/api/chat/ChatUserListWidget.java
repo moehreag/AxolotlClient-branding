@@ -35,18 +35,19 @@ import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.Formatting;
 
 public class ChatUserListWidget extends EntryListWidget {
 
 	private final List<UserListEntry> entries = new ArrayList<>();
 	private final ChatScreen screen;
+	private int selectedEntry = -1;
 
-	public ChatUserListWidget(ChatScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
+	public ChatUserListWidget(ChatScreen screen, Minecraft client, int width, int height, int top, int bottom, int entryHeight) {
 		super(client, width, height, top, bottom, entryHeight);
 		this.screen = screen;
 	}
@@ -57,11 +58,11 @@ public class ChatUserListWidget extends EntryListWidget {
 
 	@Override
 	protected int getScrollbarPosition() {
-		return this.xStart + this.width / 2 - this.getRowWidth() / 2 + 2 + width - 8;
+		return this.minX + this.width / 2 - this.getRowWidth() / 2 + 2 + width - 8;
 	}
 
 	@Override
-	protected int getEntryCount() {
+	protected int size() {
 		return entries.size();
 	}
 
@@ -88,15 +89,15 @@ public class ChatUserListWidget extends EntryListWidget {
 	protected void renderDecorations(int i, int j) {
 		super.renderDecorations(i, j);
 		GlStateManager.enableTexture();
-		client.getTextureManager().bindTexture(DrawableHelper.OPTIONS_BACKGROUND_TEXTURE);
+		minecraft.getTextureManager().bind(GuiElement.BACKGROUND_LOCATION);
 
 	}
 
-	public class UserListEntry extends DrawableHelper implements Entry {
+	public class UserListEntry extends GuiElement implements Entry {
 
 		@Getter
 		private final User user;
-		private final MinecraftClient client;
+		private final Minecraft client;
 		private long time;
 		private String note;
 		private ChatScreen screen;
@@ -107,7 +108,7 @@ public class ChatUserListWidget extends EntryListWidget {
 		}
 
 		public UserListEntry(User user) {
-			this.client = MinecraftClient.getInstance();
+			this.client = Minecraft.getInstance();
 			this.user = user;
 		}
 
@@ -117,9 +118,14 @@ public class ChatUserListWidget extends EntryListWidget {
 		}
 
 		@Override
+		public void renderOutOfBounds(int i, int j, int k) {
+
+		}
+
+		@Override
 		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			if (hovered && !screen.hasContextMenu()) {
-				DrawableHelper.fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
+				GuiElement.fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
 			DrawUtil.drawScrollableText(client.textRenderer, user.getName(), x + 3 + entryHeight,
 				y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
@@ -129,12 +135,12 @@ public class ChatUserListWidget extends EntryListWidget {
 			}
 
 			if (note != null) {
-				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getStringWidth(note) - 2, y + entryHeight - 10, 8421504);
+				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
 			}
 
-			client.getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
+			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
 			GlStateManager.enableBlend();
-			GlStateManager.color(1, 1, 1);
+			GlStateManager.color3f(1, 1, 1);
 			drawTexture(x, y, 8, 8, 8, 8, entryHeight, entryHeight, 64, 64);
 			drawTexture(x, y, 40, 8, 8, 8, entryHeight, entryHeight, 64, 64);
 			GlStateManager.disableBlend();
@@ -144,10 +150,10 @@ public class ChatUserListWidget extends EntryListWidget {
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
 			ChatUserListWidget.this.selectedEntry = index;
 			if (button == 0) { // left click
-				if (MinecraftClient.getTime() - this.time < 250L && client.world == null) { // left *double* click
+				if (Minecraft.getTime() - this.time < 250L && client.world == null) { // left *double* click
 
 				}
-				this.time = MinecraftClient.getTime();
+				this.time = Minecraft.getTime();
 			} else if (button == 1) { // right click
 
 
@@ -158,7 +164,7 @@ public class ChatUserListWidget extends EntryListWidget {
 						.spacer()
 						.entry("api.friends.chat", buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user.getUuid())
-								.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
+								.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
 						})
 						.spacer()
 						.entry("api.chat.report.user", buttonWidget -> {
@@ -176,11 +182,6 @@ public class ChatUserListWidget extends EntryListWidget {
 			}
 
 			return false;
-		}
-
-		@Override
-		public void updatePosition(int i, int j, int k) {
-
 		}
 
 		@Override

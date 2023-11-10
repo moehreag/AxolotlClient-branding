@@ -24,14 +24,14 @@ package io.github.axolotlclient.mixin;
 
 import java.util.Map;
 
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.sound.SoundSystem;
+import net.minecraft.client.sound.instance.SoundInstance;
+import net.minecraft.client.sound.system.SoundEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(SoundSystem.class)
+@Mixin(SoundEngine.class)
 public interface SoundSystemAccessor {
 
 	@Accessor
-	Map<SoundInstance, String> getField_8196();
+	Map<SoundInstance, String> getChannelsByEvent();
 }

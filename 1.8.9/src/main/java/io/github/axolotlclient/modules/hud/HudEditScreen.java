@@ -23,19 +23,20 @@
 package io.github.axolotlclient.modules.hud;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.screen.OptionsScreenBuilder;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
@@ -50,11 +51,11 @@ import net.minecraft.client.resource.language.I18n;
 public class HudEditScreen extends Screen {
 
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
-	private static final OptionCategory hudEditScreenCategory = new OptionCategory("hudEditScreen");
+	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
 	static {
 		hudEditScreenCategory.add(snapping);
-		AxolotlClient.config.addSubCategory(hudEditScreenCategory);
+		AxolotlClient.config.add(hudEditScreenCategory);
 	}
 
 	private final Screen parent;
@@ -86,11 +87,11 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void render(int mouseX, int mouseY, float delta) {
-		if (MinecraftClient.getInstance().world != null)
+		if (Minecraft.getInstance().world != null)
 			fillGradient(0, 0, width, height, new Color(0xB0100E0E, true).hashCode(),
 				new Color(0x46212020, true).hashCode());
 		else {
-			renderDirtBackground(0);
+			renderBackground(0);
 		}
 
 		super.render(mouseX, mouseY, delta);
@@ -120,8 +121,17 @@ public class HudEditScreen extends Screen {
 				current = null;
 			}
 		} else if (button == 1) {
-			entry.ifPresent(abstractHudEntry -> MinecraftClient.getInstance().setScreen(
-				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.MODID)));
+			entry.ifPresent(hudEntry -> {
+				try {
+					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
+						.getConstructor(Screen.class, OptionCategory.class, String.class)
+						.newInstance(this, hudEntry.getOptionsAsCategory(), AxolotlClient.configManager.getRoot().getName());
+					Minecraft.getInstance().openScreen(screen);
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+						 NoSuchMethodException e) {
+					AxolotlClient.LOGGER.error("Failed to open options! ", e);
+				}
+			});
 		}
 	}
 
@@ -167,15 +177,21 @@ public class HudEditScreen extends Screen {
 				AxolotlClient.configManager.save();
 				break;
 			case 1:
-				MinecraftClient.getInstance().setScreen(new OptionsScreenBuilder(this,
-					(OptionCategory) new OptionCategory("config", false).addSubCategories(AxolotlClient.CONFIG.getCategories()),
-					AxolotlClient.MODID));
+				try {
+					Screen screen = (Screen) ConfigUI.getInstance().getScreen(this.getClass().getClassLoader())
+						.getConstructor(Screen.class, OptionCategory.class, String.class)
+						.newInstance(this, AxolotlClient.configManager.getRoot(), AxolotlClient.configManager.getRoot().getName());
+					Minecraft.getInstance().openScreen(screen);
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+						 NoSuchMethodException e) {
+					AxolotlClient.LOGGER.error("Failed to open options! ", e);
+				}
 				break;
 			case 0:
-				MinecraftClient.getInstance().setScreen(parent);
+				Minecraft.getInstance().openScreen(parent);
 				break;
 			case 2:
-				MinecraftClient.getInstance().setScreen(null);
+				Minecraft.getInstance().openScreen(null);
 				break;
 		}
 	}

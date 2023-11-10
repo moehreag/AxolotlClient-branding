@@ -22,13 +22,13 @@
 
 package io.github.axolotlclient.modules;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public abstract class AbstractModule implements Module {
 
-	protected final MinecraftClient client;
+	protected final Minecraft client;
 
 	public AbstractModule() {
-		client = MinecraftClient.getInstance();
+		client = Minecraft.getInstance();
 	}
 }

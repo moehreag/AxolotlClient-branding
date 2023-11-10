@@ -35,8 +35,8 @@ import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.ClientBrandRetriever;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -98,28 +98,28 @@ public abstract class TitleScreenMixin extends Screen {
 	@Inject(method = "buttonClicked", at = @At("TAIL"))
 	public void axolotlclient$onClick(ButtonWidget button, CallbackInfo ci) {
 		if (button.id == 192)
-			MinecraftClient.getInstance().setScreen(new HudEditScreen(this));
+			Minecraft.getInstance().openScreen(new HudEditScreen(this));
 		else if (button.id == 242)
-			MinecraftClient.getInstance().setScreen(new AccountsScreen(MinecraftClient.getInstance().currentScreen));
+			Minecraft.getInstance().openScreen(new AccountsScreen(Minecraft.getInstance().screen));
 		else if (button.id == 182)
-			MinecraftClient.getInstance().setScreen(new ConfirmChatLinkScreen((bl, i) -> {
+			Minecraft.getInstance().openScreen(new ConfirmChatLinkScreen((bl, i) -> {
 				if(bl && i == 353){
 					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
 				}
-				MinecraftClient.getInstance().setScreen(this);
+				Minecraft.getInstance().openScreen(this);
 			}, "https://modrinth.com/mod/axolotlclient/versions", 353, true));
 		else if (button.id == 253)
-			MinecraftClient.getInstance().setScreen(new NewsScreen(this));
+			Minecraft.getInstance().openScreen(new NewsScreen(this));
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
 	public void axolotlclient$customBranding(TitleScreen instance, TextRenderer textRenderer, String s, int x, int y, int color) {
 		if (FabricLoader.getInstance().getModContainer("axolotlclient").isPresent()) {
-			instance.drawWithShadow(textRenderer,
+			instance.drawString(textRenderer,
 				"Minecraft 1.8.9/" + ClientBrandRetriever.getClientModName() + " " + AxolotlClient.VERSION,
 				x, y, color);
 		} else {
-			instance.drawWithShadow(textRenderer, s, x, y, color);
+			instance.drawString(textRenderer, s, x, y, color);
 		}
 	}
 }

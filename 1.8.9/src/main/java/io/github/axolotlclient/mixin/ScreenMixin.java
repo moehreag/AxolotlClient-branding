@@ -29,10 +29,10 @@ import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.screenshotUtils.ScreenshotUtils;
 import io.github.axolotlclient.modules.scrollableTooltips.ScrollableTooltips;
 import io.github.axolotlclient.util.OSUtil;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.item.itemgroup.ItemGroup;
+import net.minecraft.client.gui.screen.inventory.menu.CreativeInventoryScreen;
+import net.minecraft.item.CreativeModeTab;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,9 +51,9 @@ public abstract class ScreenMixin {
 	@ModifyArgs(method = "renderTooltip(Lnet/minecraft/item/ItemStack;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderTooltip(Ljava/util/List;II)V"))
 	public void axolotlclient$modifyTooltipPosition(Args args) {
 		if (ScrollableTooltips.getInstance().enabled.get()) {
-			if ((MinecraftClient.getInstance().currentScreen instanceof CreativeInventoryScreen)
-				&& ((CreativeInventoryScreen) MinecraftClient.getInstance().currentScreen)
-				.getSelectedTab() != ItemGroup.INVENTORY.getIndex()) {
+			if ((Minecraft.getInstance().screen instanceof CreativeInventoryScreen)
+				&& ((CreativeInventoryScreen) Minecraft.getInstance().screen)
+				.getSelectedTab() != CreativeModeTab.INVENTORY.getId()) {
 				return;
 			}
 
@@ -76,7 +76,7 @@ public abstract class ScreenMixin {
 		ci.cancel();
 	}
 
-	@Inject(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
+	@Inject(method = "m_9528629", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
 	public void axolotlclient$customClickEvents(Text text, CallbackInfoReturnable<Boolean> cir) {
 		ClickEvent event = text.getStyle().getClickEvent();
 		if (event instanceof ScreenshotUtils.CustomClickEvent) {

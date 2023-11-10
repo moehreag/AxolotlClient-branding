@@ -26,7 +26,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.

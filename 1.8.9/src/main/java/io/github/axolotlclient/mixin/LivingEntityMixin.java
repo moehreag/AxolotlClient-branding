@@ -25,9 +25,9 @@ package io.github.axolotlclient.mixin;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ComboHud;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.living.LivingEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +41,7 @@ public abstract class LivingEntityMixin extends Entity {
 		super(world);
 	}
 
-	@Inject(method = "damage", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;hurtTime:I"))
+	@Inject(method = "damage", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/living/LivingEntity;hurtTime:I"))
 	private void axolotlclient$onDamage(DamageSource source, float damage, CallbackInfoReturnable<Boolean> ci) {
 		// The client doesn't really get any sort of information about why a person is damaged
 		// Kinda sucks since that means combos can't be guarenteed (i.e. fall damage, or other person hits)

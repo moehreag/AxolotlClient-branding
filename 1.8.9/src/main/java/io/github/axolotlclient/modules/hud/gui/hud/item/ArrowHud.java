@@ -24,16 +24,16 @@ package io.github.axolotlclient.modules.hud.gui.hud.item;
 
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
-import net.minecraft.entity.player.ClientPlayerEntity;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -56,7 +56,7 @@ public class ArrowHud extends TextHudEntry {
 	@Override
 	public void render(float delta) {
 		if (dynamic.get()) {
-			ClientPlayerEntity player = client.player;
+			LocalClientPlayerEntity player = client.player;
 			if (player == null || player.getMainHandStack() == null
 				|| !(player.getMainHandStack().getItem() instanceof BowItem)) {
 				return;

@@ -35,6 +35,9 @@
 	"depends": {
 		"fabricloader": ">=0.14.7",
 		"minecraft": "1.8.9",
-		"legacy-fabric-api": ">=1.7.0"
+		"osl-resource-loader": "*",
+		"osl-lifecycle-events": "*",
+		"osl-keybinds": "*",
+		"osl-entrypoints": "*"
 	}
 }

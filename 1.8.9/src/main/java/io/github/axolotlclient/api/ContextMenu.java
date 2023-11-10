@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
 
 public class ContextMenu {
@@ -55,7 +55,7 @@ public class ContextMenu {
 		children.add(entry);
 	}
 
-	public void render(MinecraftClient client, int mouseX, int mouseY) {
+	public void render(Minecraft client, int mouseX, int mouseY) {
 		if (!rendering) {
 			y = mouseY;
 			x = mouseX;
@@ -72,11 +72,11 @@ public class ContextMenu {
 			width = Math.max(width, d.getWidth());
 		}
 		height = y;
-		DrawableHelper.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
+		GuiElement.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ButtonWidget c : children) {
 			c.setWidth(width);
-			c.render(MinecraftClient.getInstance(), mouseX, mouseY);
+			c.render(Minecraft.getInstance(), mouseX, mouseY);
 		}
 	}
 
@@ -131,7 +131,7 @@ public class ContextMenu {
 		}
 
 		@Override
-		public void render(MinecraftClient client, int mouseX, int mouseY) {
+		public void render(Minecraft client, int mouseX, int mouseY) {
 			drawCenteredString(client.textRenderer, message, x + getWidth() / 2, y, 0xDDDDDD);
 		}
 	}
@@ -140,24 +140,24 @@ public class ContextMenu {
 
 		final PressAction action;
 
-		private final MinecraftClient client = MinecraftClient.getInstance();
+		private final Minecraft client = Minecraft.getInstance();
 
 		public ContextMenuEntryWidget(String message, PressAction onPress) {
-			super(0, 0, 0, MinecraftClient.getInstance().textRenderer.getStringWidth(message) + 4, 11, message);
+			super(0, 0, 0, Minecraft.getInstance().textRenderer.getWidth(message) + 4, 11, message);
 			this.action = onPress;
 		}
 
 		@Override
-		public void render(MinecraftClient client, int mouseX, int mouseY) {
+		public void render(Minecraft client, int mouseX, int mouseY) {
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
 			if (isHovered()) {
 				fill(x, y, x + getWidth(), y + height, 0x55ffffff);
 			}
 
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			int i = this.active ? 16777215 : 10526880;
-			drawScrollableText(MinecraftClient.getInstance().textRenderer, 2, i);
+			drawScrollableText(Minecraft.getInstance().textRenderer, 2, i);
 		}
 
 		protected void drawScrollableText(TextRenderer textRenderer, int xOffset, int color) {
@@ -167,7 +167,7 @@ public class ContextMenu {
 		}
 
 		public void onPress(double mouseX, double mouseY, int button) {
-			playDownSound(client.getSoundManager());
+			playClickSound(client.getSoundManager());
 			if (isMouseOver(client, (int) mouseX, (int) mouseY) && button == 0) {
 				action.onPress(this);
 			}

@@ -28,22 +28,22 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import io.github.axolotlclient.util.events.impl.ScoreboardRenderEvent;
 import io.github.axolotlclient.util.events.impl.WorldLoadEvent;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.PlayerInfo;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.scoreboard.ScoreboardScore;
+import net.minecraft.scoreboard.team.Team;
+import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 
 /**
  * @author DarkKronicle
@@ -59,7 +59,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 	private static BedwarsMod instance = new BedwarsMod();
 
 	@Getter
-	private final OptionCategory category = new OptionCategory("bedwars");
+	private final OptionCategory category = OptionCategory.create("bedwars");
 
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 
@@ -70,9 +70,9 @@ public class BedwarsMod implements AbstractHypixelMod {
 	public final BooleanOption displayArmor = new BooleanOption(getTranslationKey("displayArmor"), true);
 
 	public final BooleanOption bedwarsLevelHead = new BooleanOption(getTranslationKey("bedwarsLevelHead"), true);
-	public final EnumOption bedwarsLevelHeadMode = new EnumOption(getTranslationKey("bedwarsLevelHeadMode"),
-		BedwarsLevelHeadMode.values(),
-		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS.toString());
+	public final EnumOption<BedwarsLevelHeadMode> bedwarsLevelHeadMode = new EnumOption<>(getTranslationKey("bedwarsLevelHeadMode"),
+		BedwarsLevelHeadMode.class,
+		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS);
 
 	protected BedwarsGame currentGame = null;
 
@@ -128,7 +128,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 
 	public void onMessage(ReceiveChatMessageEvent event) {
 		// Remove formatting
-		String rawMessage = event.getFormattedMessage().asUnformattedString();
+		String rawMessage = event.getFormattedMessage().getString();
 		if (currentGame != null) {
 			currentGame.onChatMessage(rawMessage, event);
 			String time = "§7" + currentGame.getFormattedTime() + Formatting.RESET + " ";
@@ -142,7 +142,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 			}
 		} else if (enabled.get() && targetTick < 0 && BedwarsMessages.matched(GAME_START, rawMessage).isPresent()) {
 			// Give time for Hypixel to sync
-			targetTick = MinecraftClient.getInstance().inGameHud.getTicks() + 10;
+			targetTick = Minecraft.getInstance().gui.getTicks() + 10;
 		}
 	}
 
@@ -162,14 +162,14 @@ public class BedwarsMod implements AbstractHypixelMod {
 			if (currentGame.isStarted()) {
 				// Trigger setting the header
 				currentGame.tick();
-				MinecraftClient.getInstance().inGameHud.getPlayerListWidget().setHeader(null);
+				Minecraft.getInstance().gui.getPlayerTabOverlay().setHeader(null);
 			} else {
 				if (checkReady()) {
 					currentGame.onStart();
 				}
 			}
 		} else {
-			if (targetTick > 0 && MinecraftClient.getInstance().inGameHud.getTicks() > targetTick) {
+			if (targetTick > 0 && Minecraft.getInstance().gui.getTicks() > targetTick) {
 				currentGame = new BedwarsGame(this);
 				targetTick = -1;
 			}
@@ -177,8 +177,8 @@ public class BedwarsMod implements AbstractHypixelMod {
 	}
 
 	private boolean checkReady() {
-		for (PlayerListEntry player : MinecraftClient.getInstance().player.networkHandler.getPlayerList()) {
-			String name = MinecraftClient.getInstance().inGameHud.getPlayerListWidget().getPlayerName(player).replaceAll("§.", "");
+		for (PlayerInfo player : Minecraft.getInstance().player.networkHandler.getOnlinePlayers()) {
+			String name = Minecraft.getInstance().gui.getPlayerTabOverlay().getDisplayName(player).replaceAll("§.", "");
 			if (name.charAt(1) == ' ') {
 				return true;
 			}
@@ -200,13 +200,13 @@ public class BedwarsMod implements AbstractHypixelMod {
 			return;
 		}
 		Scoreboard scoreboard = event.getObjective().getScoreboard();
-		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(event.getObjective());
-		List<ScoreboardPlayerScore> filteredScores = scores.stream()
-			.filter(p_apply_1_ -> p_apply_1_.getPlayerName() != null && !p_apply_1_.getPlayerName().startsWith("#"))
+		Collection<ScoreboardScore> scores = scoreboard.getScores(event.getObjective());
+		List<ScoreboardScore> filteredScores = scores.stream()
+			.filter(score -> score.getOwner() != null && !score.getOwner().startsWith("#"))
 			.collect(Collectors.toList());
 		waiting = filteredScores.stream().anyMatch(score -> {
-			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
-			String format = Formatting.strip(Team.decorateName(team, score.getPlayerName())).replaceAll("[^A-z0-9 .:]", "");
+			Team team = scoreboard.getTeam(score.getOwner());
+			String format = Formatting.strip(Team.getMemberDisplayName(team, score.getOwner())).replaceAll("[^A-z0-9 .:]", "");
 			return format.contains("Waiting...") || format.contains("Starting in");
 		});
 	}

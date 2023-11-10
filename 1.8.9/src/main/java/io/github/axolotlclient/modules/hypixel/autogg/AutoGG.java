@@ -27,15 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.Util;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 /**
  * Based on <a href="https://github.com/DragonEggBedrockBreaking/AutoGG/blob/trunk/src/main/java/uk/debb/autogg/mixin/MixinChatHud.java">DragonEggBedrockBreaking's AutoGG Mod</a>
@@ -53,8 +53,8 @@ public class AutoGG implements AbstractHypixelMod {
 	public final StringOption gfString = new StringOption("gfString", "gf");
 	public final BooleanOption glhf = new BooleanOption("printGLHF", false);
 	public final StringOption glhfString = new StringOption("glhfString", "glhf");
-	private final OptionCategory category = new OptionCategory("autogg");
-	private final MinecraftClient client = MinecraftClient.getInstance();
+	private final OptionCategory category = OptionCategory.create("autogg");
+	private final Minecraft client = Minecraft.getInstance();
 	private final BooleanOption onHypixel = new BooleanOption("onHypixel", false);
 	private final BooleanOption onBWP = new BooleanOption("onBWP", false);
 	private final BooleanOption onPVPL = new BooleanOption("onPVPL", false);

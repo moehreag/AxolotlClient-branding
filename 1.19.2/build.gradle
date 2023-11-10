@@ -1,9 +1,7 @@
 plugins {
-	id 'java'
-	id "org.quiltmc.loom" version "1.2.1"
+	id "org.quiltmc.loom"
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_1192}"
@@ -29,6 +27,7 @@ dependencies {
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1192}") {
 		exclude group: "com.terraformersmc"
+		exclude group: "org.lwjgl"
 	}
 	modCompileOnlyApi("com.terraformersmc:modmenu:4.1.2")
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1192}"

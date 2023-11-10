@@ -24,12 +24,12 @@ package io.github.axolotlclient.modules.sky;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tessellator;
 import io.github.axolotlclient.util.Util;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resource.Identifier;
 
 public class MCPSkyboxInstance extends SkyboxInstance {
 
@@ -87,9 +87,9 @@ public class MCPSkyboxInstance extends SkyboxInstance {
 	@Override
 	public void renderSkybox() {
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferBuilder = tessellator.getBuffer();
+		BufferBuilder bufferBuilder = tessellator.getBuilder();
 
-		MinecraftClient.getInstance().getTextureManager().bindTexture(textures[0]);
+		Minecraft.getInstance().getTextureManager().bind(textures[0]);
 		for (int i = 0; i < 6; ++i) {
 			GlStateManager.pushMatrix();
 
@@ -100,37 +100,37 @@ public class MCPSkyboxInstance extends SkyboxInstance {
 				u = 0;
 				v = 0;
 			} else if (i == 1) {
-				GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
+				GlStateManager.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
 				u = 1 / 3D;
 				v = 0.5D;
 			} else if (i == 2) {
-				GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
-				GlStateManager.rotate(180, 0, 1, 0);
+				GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
+				GlStateManager.rotatef(180, 0, 1, 0);
 				u = 2 / 3D;
 				v = 0F;
 			} else if (i == 3) {
-				GlStateManager.rotate(180.0F, 1.0F, 0.0F, 0.0F);
+				GlStateManager.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
 				u = 1 / 3D;
 				v = 0F;
 			} else if (i == 4) {
-				GlStateManager.rotate(90.0F, 0.0F, 0.0F, 1.0F);
-				GlStateManager.rotate(-90, 0, 1, 0);
+				GlStateManager.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
+				GlStateManager.rotatef(-90, 0, 1, 0);
 				u = 2 / 3D;
 				v = 0.5D;
 			} else {
-				GlStateManager.rotate(-90.0F, 0.0F, 0.0F, 1.0F);
-				GlStateManager.rotate(90, 0, 1, 0);
+				GlStateManager.rotatef(-90.0F, 0.0F, 0.0F, 1.0F);
+				GlStateManager.rotatef(90, 0, 1, 0);
 				v = 0.5D;
 				u = 0;
 			}
 
-			bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-			bufferBuilder.vertex(-100, -100, -100).texture(u, v).color(1F, 1F, 1F, alpha).next();
-			bufferBuilder.vertex(-100, -100, 100).texture(u, v + 0.5).color(1F, 1F, 1F, alpha).next();
-			bufferBuilder.vertex(100, -100, 100).texture(u + 1 / 3F, v + 0.5).color(1F, 1F, 1F, alpha).next();
-			bufferBuilder.vertex(100, -100, -100).texture(u + 1 / 3F, v).color(1F, 1F, 1F, alpha).next();
+			bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+			bufferBuilder.vertex(-100, -100, -100).texture(u, v).color(1F, 1F, 1F, alpha).nextVertex();
+			bufferBuilder.vertex(-100, -100, 100).texture(u, v + 0.5).color(1F, 1F, 1F, alpha).nextVertex();
+			bufferBuilder.vertex(100, -100, 100).texture(u + 1 / 3F, v + 0.5).color(1F, 1F, 1F, alpha).nextVertex();
+			bufferBuilder.vertex(100, -100, -100).texture(u + 1 / 3F, v).color(1F, 1F, 1F, alpha).nextVertex();
 
-			tessellator.draw();
+			tessellator.end();
 
 			GlStateManager.popMatrix();
 		}

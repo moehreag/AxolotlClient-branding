@@ -68,7 +68,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 		drawCenteredString(this.textRenderer, channel.getName(), this.width / 2, 20, 16777215);
 
-		contextMenu.render(client, mouseX, mouseY);
+		contextMenu.render(minecraft, mouseX, mouseY);
 	}
 
 	@Override
@@ -79,12 +79,12 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this);
 
 		if (!channel.isDM()) {
-			users = new ChatUserListWidget(this, client, 80, height, 30, height - 60, 25);
-			users.setXPos(width - 80);
+			users = new ChatUserListWidget(this, minecraft, 80, height, 30, height - 60, 25);
+			users.setX(width - 80);
 			users.setUsers(Arrays.asList(channel.getUsers()));
 		}
 
-		input = new TextFieldWidget(5, client.textRenderer, width / 2 - 150, height - 50,
+		input = new TextFieldWidget(5, minecraft.textRenderer, width / 2 - 150, height - 50,
 			300, 20) {
 
 			@Override
@@ -101,7 +101,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 			public void render() {
 				super.render();
 				if (getText().isEmpty()) {
-					drawWithShadow(textRenderer, I18n.translate(channel.isDM() ? "api.chat.messageUser" : "api.chat.messageGroup", channel.getName()),
+					drawString(textRenderer, I18n.translate(channel.isDM() ? "api.chat.messageUser" : "api.chat.messageGroup", channel.getName()),
 						x + 2, y + 6, -8355712);
 				}
 			}
@@ -129,7 +129,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	@Override
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 1) {
-			this.client.setScreen(this.parent);
+			this.minecraft.openScreen(this.parent);
 		}
 	}
 

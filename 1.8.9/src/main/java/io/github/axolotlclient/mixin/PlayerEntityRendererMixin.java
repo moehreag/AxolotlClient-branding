@@ -24,32 +24,32 @@ package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.PlayerRenderer;
+import net.minecraft.client.render.model.Model;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(PlayerEntityRenderer.class)
-public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<AbstractClientPlayerEntity> {
+@Mixin(PlayerRenderer.class)
+public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<ClientPlayerEntity> {
 
-	public PlayerEntityRendererMixin(EntityRenderDispatcher dispatcher, EntityModel model, float shadowSize) {
+	public PlayerEntityRendererMixin(EntityRenderDispatcher dispatcher, Model model, float shadowSize) {
 		super(dispatcher, model, shadowSize);
 	}
 
-	@ModifyArgs(method = "method_10209(Lnet/minecraft/client/network/AbstractClientPlayerEntity;DDDLjava/lang/String;FD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;method_10209(Lnet/minecraft/entity/Entity;DDDLjava/lang/String;FD)V"))
+	@ModifyArgs(method = "renderNameTag(Lnet/minecraft/client/entity/living/player/ClientPlayerEntity;DDDLjava/lang/String;FD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;renderNameTag(Lnet/minecraft/entity/Entity;DDDLjava/lang/String;FD)V"))
 	public void axolotlclient$modifiyName(Args args) {
 		if (AxolotlClient.CONFIG != null) {
-			AbstractClientPlayerEntity player = args.get(0);
-			if (player.getUuid() == MinecraftClient.getInstance().player.getUuid()
+			ClientPlayerEntity player = args.get(0);
+			if (player.getUuid() == Minecraft.getInstance().player.getUuid()
 				&& NickHider.getInstance().hideOwnName.get()) {
 				args.set(4, NickHider.getInstance().hiddenNameSelf.get());
-			} else if (player.getUuid() != MinecraftClient.getInstance().player.getUuid()
+			} else if (player.getUuid() != Minecraft.getInstance().player.getUuid()
 				&& NickHider.getInstance().hideOtherNames.get()) {
 				args.set(4, NickHider.getInstance().hiddenNameOthers.get());
 			}

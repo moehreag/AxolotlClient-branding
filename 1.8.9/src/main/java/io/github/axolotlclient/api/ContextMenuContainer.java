@@ -24,11 +24,11 @@ package io.github.axolotlclient.api;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import org.jetbrains.annotations.Nullable;
 
-public class ContextMenuContainer extends DrawableHelper {
+public class ContextMenuContainer extends GuiElement {
 
 	@Getter
 	@Setter
@@ -47,7 +47,7 @@ public class ContextMenuContainer extends DrawableHelper {
 		return menu != null;
 	}
 
-	public void render(MinecraftClient client, int mouseX, int mouseY) {
+	public void render(Minecraft client, int mouseX, int mouseY) {
 		if (menu != null) {
 			menu.render(client, mouseX, mouseY);
 		}

@@ -34,17 +34,17 @@ import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsPlayer;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.modules.tablist.Tablist;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.hud.PlayerListHud;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.client.gui.overlay.PlayerTabOverlay;
+import net.minecraft.client.network.PlayerInfo;
+import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
+import net.minecraft.client.render.TextRenderer;
+import net.minecraft.network.Connection;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.text.Formatting;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -54,67 +54,67 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(PlayerListHud.class)
-public abstract class PlayerListHudMixin extends DrawableHelper {
+@Mixin(PlayerTabOverlay.class)
+public abstract class PlayerListHudMixin extends GuiElement {
 	@Unique
-	private final MinecraftClient axolotlclient$client = MinecraftClient.getInstance();
+	private final Minecraft axolotlclient$client = Minecraft.getInstance();
 	@Shadow
 	private Text header;
 	@Shadow
 	private Text footer;
 	@Unique
-	private PlayerListEntry axolotlclient$playerListEntry;
+	private PlayerInfo axolotlclient$playerListEntry;
 
-	@Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$nickHider(PlayerListEntry playerEntry, CallbackInfoReturnable<String> cir) {
-		if (playerEntry.getProfile().getId() == MinecraftClient.getInstance().player.getUuid()
+	@Inject(method = "getDisplayName", at = @At("HEAD"), cancellable = true)
+	public void axolotlclient$nickHider(PlayerInfo playerEntry, CallbackInfoReturnable<String> cir) {
+		if (playerEntry.getProfile().getId() == Minecraft.getInstance().player.getUuid()
 			&& NickHider.getInstance().hideOwnName.get()) {
 			cir.setReturnValue(NickHider.getInstance().hiddenNameSelf.get());
-		} else if (playerEntry.getProfile().getId() != MinecraftClient.getInstance().player.getUuid()
+		} else if (playerEntry.getProfile().getId() != Minecraft.getInstance().player.getUuid()
 			&& NickHider.getInstance().hideOtherNames.get()) {
 			cir.setReturnValue(NickHider.getInstance().hiddenNameOthers.get());
 		}
 	}
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Ljava/lang/String;"))
-	public PlayerListEntry axolotlclient$getPlayer(PlayerListEntry playerEntry) {
-		axolotlclient$playerListEntry = playerEntry;
-		return playerEntry;
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/overlay/PlayerTabOverlay;getDisplayName(Lnet/minecraft/client/network/PlayerInfo;)Ljava/lang/String;"))
+	public PlayerInfo axolotlclient$getPlayer(PlayerInfo playerInfo) {
+		axolotlclient$playerListEntry = playerInfo;
+		return playerInfo;
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getStringWidth(Ljava/lang/String;)I", ordinal = 0))
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;getWidth(Ljava/lang/String;)I", ordinal = 0))
 	public int axolotlclient$moveName(TextRenderer instance, String text) {
 		if (AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$playerListEntry.getProfile().getId().toString()))
-			return instance.getStringWidth(text) + 10;
-		return instance.getStringWidth(text);
+			return instance.getWidth(text) + 10;
+		return instance.getWidth(text);
 	}
 
-	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I", ordinal = 1))
+	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I", ordinal = 1))
 	public void axolotlclient$getCoords(Args args) {
 		float x = args.get(1);
 		float y = args.get(2);
 		if (AxolotlClient.CONFIG.showBadges.get()
 			&& User.getOnline(axolotlclient$playerListEntry.getProfile().getId().toString())) {
-			axolotlclient$client.getTextureManager().bindTexture(AxolotlClient.badgeIcon);
-			DrawableHelper.drawTexture((int) x, (int) y, 0, 0, 8, 8, 8, 8);
+			axolotlclient$client.getTextureManager().bind(AxolotlClient.badgeIcon);
+			GuiElement.drawTexture((int) x, (int) y, 0, 0, 8, 8, 8, 8);
 			args.set(1, x + 10);
 		}
 	}
 
-	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I", ordinal = 2))
+	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I", ordinal = 2))
 	public void axolotlclient$getCoords2(Args args) {
 		float x = args.get(1);
 		float y = args.get(2);
 		if (AxolotlClient.CONFIG.showBadges.get()
 			&& User.getOnline(axolotlclient$playerListEntry.getProfile().getId().toString())) {
-			axolotlclient$client.getTextureManager().bindTexture(AxolotlClient.badgeIcon);
-			DrawableHelper.drawTexture((int) x, (int) y, 0, 0, 8, 8, 8, 8);
+			axolotlclient$client.getTextureManager().bind(AxolotlClient.badgeIcon);
+			GuiElement.drawTexture((int) x, (int) y, 0, 0, 8, 8, 8, 8);
 			args.set(1, x + 10);
 		}
 	}
 
-	@Inject(method = "renderLatencyIcon", at = @At("HEAD"), cancellable = true)
-	private void axolotlclient$numericalPing(int width, int x, int y, PlayerListEntry entry, CallbackInfo ci) {
+	@Inject(method = "renderPing", at = @At("HEAD"), cancellable = true)
+	private void axolotlclient$numericalPing(int width, int x, int y, PlayerInfo entry, CallbackInfo ci) {
 		if (BedwarsMod.getInstance().isEnabled() && BedwarsMod.getInstance().blockLatencyIcon() && (BedwarsMod.getInstance().isWaiting() || BedwarsMod.getInstance().inGame())) {
 			ci.cancel();
 		} else if (Tablist.getInstance().renderNumericPing(width, x, y, entry)) {
@@ -122,23 +122,23 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 		}
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isIntegratedServerRunning()Z"))
-	private boolean axolotlclient$showPlayerHeads$1(MinecraftClient instance) {
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isIntegratedServerRunning()Z"))
+	private boolean axolotlclient$showPlayerHeads$1(Minecraft instance) {
 		if (Tablist.getInstance().showPlayerHeads.get()) {
 			return instance.isIntegratedServerRunning();
 		}
 		return false;
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;isEncrypted()Z"))
-	private boolean axolotlclient$showPlayerHeads$2(ClientConnection instance) {
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;isEncrypted()Z"))
+	private boolean axolotlclient$showPlayerHeads$2(Connection instance) {
 		if (Tablist.getInstance().showPlayerHeads.get()) {
 			return instance.isEncrypted();
 		}
 		return false;
 	}
 
-	@Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;header:Lnet/minecraft/text/Text;"))
+	@Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/overlay/PlayerTabOverlay;header:Lnet/minecraft/text/Text;"))
 	private void axolotlclient$setRenderHeaderFooter(int width, Scoreboard scoreboard, ScoreboardObjective playerListScoreboardObjective, CallbackInfo ci) {
 		if (!Tablist.getInstance().showHeader.get()) {
 			header = null;
@@ -148,23 +148,23 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 		}
 	}
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getPlayerByUuid(Ljava/util/UUID;)Lnet/minecraft/entity/player/PlayerEntity;"))
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getPlayer(Ljava/util/UUID;)Lnet/minecraft/entity/living/player/PlayerEntity;"))
 	private UUID axolotlclient$makeStuff(UUID par1) {
-		return Tablist.getInstance().alwaysShowHeadLayer.get() ? MinecraftClient.getInstance().player.getUuid() : par1;
+		return Tablist.getInstance().alwaysShowHeadLayer.get() ? Minecraft.getInstance().player.getUuid() : par1;
 	}
 
 	@Inject(
 		method = "render",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/hud/PlayerListHud;renderLatencyIcon(IIILnet/minecraft/client/network/PlayerListEntry;)V"
+			target = "Lnet/minecraft/client/gui/overlay/PlayerTabOverlay;renderPing(IIILnet/minecraft/client/network/PlayerInfo;)V"
 		),
 		locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	public void axolotlclient$renderWithoutObjective(
 		int width, Scoreboard scoreboard, ScoreboardObjective playerListScoreboardObjective, CallbackInfo ci,
 		ClientPlayNetworkHandler clientPlayNetworkHandler, List list, int i, int j, int l, int m, int k, boolean bl, int n, int o,
-		int p, int q, int r, List list2, int t, int u, int s, int v, int y, PlayerListEntry playerListEntry2
+		int p, int q, int r, List list2, int t, int u, int s, int v, int y, PlayerInfo playerListEntry2
 	) {
 		if (!BedwarsMod.getInstance().isEnabled() || !BedwarsMod.getInstance().isWaiting()) {
 			return;
@@ -179,27 +179,27 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 
 			render = String.valueOf(HypixelAbstractionLayer.getPlayerLevel(playerListEntry2
 					.getProfile().getId().toString().replace("-", ""),
-				LevelHeadMode.BEDWARS.toString()));
+				LevelHeadMode.BEDWARS));
 		} catch (Exception e) {
 			return;
 		}
 		this.axolotlclient$client.textRenderer.drawWithShadow(
 			render,
-			(float) (endX - this.axolotlclient$client.textRenderer.getStringWidth(render)) + 20,
+			(float) (endX - this.axolotlclient$client.textRenderer.getWidth(render)) + 20,
 			(float) y,
 			-1
 		);
 	}
 
 	@Inject(
-		method = "renderScoreboardObjective",
+		method = "renderDisplayScore",
 		at = @At(
-			value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I", ordinal = 1
+			value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawWithShadow(Ljava/lang/String;FFI)I", ordinal = 1
 		),
 		cancellable = true
 	)
 	public void axolotlclient$renderCustomScoreboardObjective(
-		ScoreboardObjective objective, int y, String player, int startX, int endX, PlayerListEntry playerEntry, CallbackInfo ci
+		ScoreboardObjective objective, int y, String player, int startX, int endX, PlayerInfo playerEntry, CallbackInfo ci
 	) {
 		if (!BedwarsMod.getInstance().isEnabled()) {
 			return;
@@ -233,8 +233,8 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 		return value;
 	}
 
-	@Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$getPlayerName(PlayerListEntry playerEntry, CallbackInfoReturnable<String> cir) {
+	@Inject(method = "getDisplayName", at = @At("HEAD"), cancellable = true)
+	public void axolotlclient$getPlayerName(PlayerInfo playerEntry, CallbackInfoReturnable<String> cir) {
 		if (!BedwarsMod.getInstance().isEnabled()) {
 			return;
 		}
@@ -250,11 +250,11 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 	}
 
 	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lcom/google/common/collect/Ordering;sortedCopy(Ljava/lang/Iterable;)Ljava/util/List;", remap = false))
-	public List<PlayerListEntry> axolotlclient$overrideSortedPlayers(List<PlayerListEntry> original) {
+	public List<PlayerInfo> axolotlclient$overrideSortedPlayers(List<PlayerInfo> original) {
 		if (!BedwarsMod.getInstance().inGame()) {
 			return original;
 		}
-		List<PlayerListEntry> players = BedwarsMod.getInstance().getGame().get().getTabPlayerList(original);
+		List<PlayerInfo> players = BedwarsMod.getInstance().getGame().get().getTabPlayerList(original);
 		if (players == null) {
 			return original;
 		}

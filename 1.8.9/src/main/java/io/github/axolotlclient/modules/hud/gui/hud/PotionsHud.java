@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
@@ -36,9 +36,9 @@ import io.github.axolotlclient.modules.hud.gui.layout.CardinalOrder;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.Util;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.util.Identifier;
+import net.minecraft.entity.living.effect.StatusEffect;
+import net.minecraft.entity.living.effect.StatusEffectInstance;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -51,8 +51,8 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 
 	public static final Identifier ID = new Identifier("kronhud", "potionshud");
 	protected static final Identifier INVENTORY_TEXTURE = new Identifier("textures/gui/container/inventory.png");
-	private final EnumOption anchor = DefaultOptions.getAnchorPoint();
-	private final EnumOption order = DefaultOptions.getCardinalOrder(CardinalOrder.TOP_DOWN);
+	private final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint();
+	private final EnumOption<CardinalOrder> order = DefaultOptions.getCardinalOrder(CardinalOrder.TOP_DOWN);
 	private final BooleanOption iconsOnly = new BooleanOption("iconsonly", false);
 	private final List<StatusEffectInstance> placeholder = Util.make(() -> {
 		List<StatusEffectInstance> list = new ArrayList<>();
@@ -72,7 +72,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 
 	@Override
 	public void renderComponent(float delta) {
-		List<StatusEffectInstance> effects = new ArrayList<>(client.player.getStatusEffectInstances());
+		List<StatusEffectInstance> effects = new ArrayList<>(client.player.getStatusEffects());
 		if (effects.isEmpty()) {
 			return;
 		}
@@ -95,7 +95,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			onBoundsUpdate();
 		}
 		int lastPos = 0;
-		CardinalOrder direction = CardinalOrder.valueOf(order.get());
+		CardinalOrder direction = order.get();
 
 		Rectangle bounds = getBounds();
 		int x = bounds.x();
@@ -113,7 +113,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 	}
 
 	private int calculateWidth(List<StatusEffectInstance> effects) {
-		if (CardinalOrder.valueOf(order.get()).isXAxis()) {
+		if (order.get().isXAxis()) {
 			if (iconsOnly.get()) {
 				return 20 * effects.size() + 2;
 			}
@@ -127,7 +127,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 	}
 
 	private int calculateHeight(List<StatusEffectInstance> effects) {
-		if (CardinalOrder.valueOf(order.get()).isXAxis()) {
+		if (order.get().isXAxis()) {
 			return 22;
 		} else {
 			return 20 * effects.size() + 2;
@@ -135,13 +135,13 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 	}
 
 	private void renderPotion(StatusEffectInstance effect, int x, int y) {
-		StatusEffect type = StatusEffect.STATUS_EFFECTS[effect.getEffectId()];
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.client.getTextureManager().bindTexture(INVENTORY_TEXTURE);
-		int m = type.getIconLevel();
+		StatusEffect type = StatusEffect.BY_ID[effect.getId()];
+		GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+		this.client.getTextureManager().bind(INVENTORY_TEXTURE);
+		int m = type.getIconIndex();
 		this.drawTexture(x, y, m % 8 * 18, 198 + m / 8 * 18, 18, 18);
 		if (!iconsOnly.get()) {
-			drawString(StatusEffect.getFormattedDuration(effect), x + 19, y + 5, textColor.get().getAsInt(), shadow.get());
+			drawString(StatusEffect.getDurationString(effect), x + 19, y + 5, textColor.get().toInt(), shadow.get());
 		}
 	}
 
@@ -166,6 +166,6 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return anchor.get();
 	}
 }

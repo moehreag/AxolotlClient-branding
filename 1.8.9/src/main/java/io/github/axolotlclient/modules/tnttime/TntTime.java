@@ -25,32 +25,30 @@ package io.github.axolotlclient.modules.tnttime;
 import java.text.DecimalFormat;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
+import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 public class TntTime extends AbstractModule {
 
+	@Getter
 	private static final TntTime Instance = new TntTime();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
-	private final OptionCategory category = new OptionCategory("tnttime");
+	private final OptionCategory category = OptionCategory.create("tnttime");
 	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", 2, 0, 6);
 	private DecimalFormat format = new DecimalFormat("##");
 	private int decimals;
 
-	public static TntTime getInstance() {
-		return Instance;
-	}
-
 	@Override
 	public void init() {
 		category.add(enabled, decimalPlaces);
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 	}
 
 	@Override
@@ -70,7 +68,7 @@ public class TntTime extends AbstractModule {
 
 	public Text getFuseTime(int time) {
 		float secs = time / 20F;
-		return new LiteralText(format.format(secs)).copy().setStyle(new Style().setFormatting(getCurrentColor(secs)));
+		return new LiteralText(format.format(secs)).copy().setStyle(new Style().setColor(getCurrentColor(secs)));
 	}
 
 	private Formatting getCurrentColor(float seconds) {

@@ -26,14 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigConfig;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.common.ConfigHolder;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
 import io.github.axolotlclient.config.screen.CreditsScreen;
-import net.minecraft.client.MinecraftClient;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
+import io.github.axolotlclient.util.options.GenericOption;
+import net.minecraft.client.Minecraft;
 
-public class AxolotlClientConfig extends ConfigHolder {
+public class AxolotlClientConfig {
 
 	public final BooleanOption showOwnNametag = new BooleanOption("showOwnNametag", false);
 	public final BooleanOption useShadows = new BooleanOption("useShadows", false);
@@ -43,14 +46,14 @@ public class AxolotlClientConfig extends ConfigHolder {
 	public final BooleanOption customBadge = new BooleanOption("customBadge", false);
 	public final StringOption badgeText = new StringOption("badgeText", "");
 
-	public final BooleanOption timeChangerEnabled = new BooleanOption("enabled", false);
+	public final ForceableBooleanOption timeChangerEnabled = new ForceableBooleanOption("enabled", false);
 	public final IntegerOption customTime = new IntegerOption("time", 0, 0, 24000);
 	public final BooleanOption customSky = new BooleanOption("customSky", true);
 	public final IntegerOption cloudHeight = new IntegerOption("cloudHeight", 128, 100, 512);
 	public final BooleanOption dynamicFOV = new BooleanOption("dynamicFov", true);
-	public final BooleanOption fullBright = new BooleanOption("fullBright", false);
+	public final ForceableBooleanOption fullBright = new ForceableBooleanOption("fullBright", false);
 	public final BooleanOption removeVignette = new BooleanOption("removeVignette", false);
-	public final BooleanOption lowFire = new BooleanOption("lowFire", false);
+	public final ForceableBooleanOption lowFire = new ForceableBooleanOption("lowFire", false);
 	public final ColorOption hitColor = new ColorOption("hitColor", new Color(255, 0, 0, 77));
 	public final BooleanOption minimalViewBob = new BooleanOption("minimalViewBob", false);
 	public final BooleanOption noHurtCam = new BooleanOption("noHurtCam", false);
@@ -69,31 +72,27 @@ public class AxolotlClientConfig extends ConfigHolder {
 
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final GenericOption openCredits = new GenericOption("Credits", "Open Credits",
-		(mouseX, mouseY) -> MinecraftClient.getInstance()
-			.setScreen(new CreditsScreen(MinecraftClient.getInstance().currentScreen)));
+		() -> Minecraft.getInstance()
+			.openScreen(new CreditsScreen(Minecraft.getInstance().screen)));
 	public final BooleanOption creditsBGM = new BooleanOption("creditsBGM", true);
 	public final BooleanOption customWindowTitle = new BooleanOption("customWindowTitle", true);
 
-	public final OptionCategory general = new OptionCategory("general");
-	public final OptionCategory nametagOptions = new OptionCategory("nametagOptions");
-	public final OptionCategory rendering = new OptionCategory("rendering");
-	public final OptionCategory outlines = new OptionCategory("blockOutlines");
-	public final OptionCategory timeChanger = new OptionCategory("timeChanger");
-	public final OptionCategory searchFilters = new OptionCategory("searchFilters");
-	public final List<io.github.axolotlclient.AxolotlClientConfig.common.options.OptionCategory> config = new ArrayList<>();
+	public final OptionCategory general = OptionCategory.create("general");
+	public final OptionCategory nametagOptions = OptionCategory.create("nametagOptions");
+	public final OptionCategory rendering = OptionCategory.create("rendering");
+	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
+	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
+	public final OptionCategory searchFilters = OptionCategory.create("searchFilters");
+	public final OptionCategory config = OptionCategory.create(AxolotlClient.MODID);
+
 	private final List<Option<?>> options = new ArrayList<>();
-	private final List<io.github.axolotlclient.AxolotlClientConfig.common.options.OptionCategory> categories = new ArrayList<>();
 
 	public void add(Option<?> option) {
 		options.add(option);
 	}
 
 	public void addCategory(OptionCategory cat) {
-		categories.add(cat);
-	}
-
-	public List<io.github.axolotlclient.AxolotlClientConfig.common.options.OptionCategory> getCategories() {
-		return categories;
+		config.add(cat);
 	}
 
 	public List<Option<?>> getOptions() {
@@ -101,11 +100,9 @@ public class AxolotlClientConfig extends ConfigHolder {
 	}
 
 	public void init() {
-		categories.add(general);
-		categories.add(nametagOptions);
-		categories.add(rendering);
-
-		categories.forEach(io.github.axolotlclient.AxolotlClientConfig.common.options.OptionCategory::clearOptions);
+		config.add(general);
+		config.add(nametagOptions);
+		config.add(rendering);
 
 		nametagOptions.add(showOwnNametag);
 		nametagOptions.add(useShadows);
@@ -117,21 +114,31 @@ public class AxolotlClientConfig extends ConfigHolder {
 
 		general.add(loadingScreenColor);
 		general.add(nightMode);
-		general.add(AxolotlClientConfigConfig.showQuickToggles);
-		general.add(AxolotlClientConfigConfig.showOptionTooltips);
-		general.add(AxolotlClientConfigConfig.showCategoryTooltips);
+		//general.add(AxolotlClientConfigConfig.showQuickToggles);
+		//general.add(AxolotlClientConfigConfig.showOptionTooltips);
+		//general.add(AxolotlClientConfigConfig.showCategoryTooltips);
 		general.add(customWindowTitle);
 		general.add(rawMouseInput);
 		general.add(openCredits);
 		general.add(debugLogOutput);
+		ConfigUI.getInstance().runWhenLoaded(() -> {
+			StringArrayOption configStyle;
+			general.add(configStyle = new StringArrayOption("configStyle", ConfigUI.getInstance().getStyleNames().toArray(new String[0]),
+				ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				ConfigUI.getInstance().setStyle(s);
+				Minecraft.getInstance().openScreen(null);
+			}));
+			AxolotlClient.configManager.load();
+			ConfigUI.getInstance().setStyle(configStyle.get());
+		});
 
-		searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase, AxolotlClientConfigConfig.searchForOptions,
-			AxolotlClientConfigConfig.searchSort, AxolotlClientConfigConfig.searchSortOrder);
+		/*searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase, AxolotlClientConfigConfig.searchForOptions,
+			AxolotlClientConfigConfig.searchSort, AxolotlClientConfigConfig.searchSortOrder);*/
 		general.add(searchFilters);
 
 		rendering.add(customSky,
 			cloudHeight,
-			AxolotlClientConfigConfig.chromaSpeed,
+			//AxolotlClientConfigConfig.chromaSpeed,
 			dynamicFOV,
 			fullBright,
 			removeVignette,

@@ -35,13 +35,13 @@ import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import io.github.axolotlclient.mixin.ScreenAccessor;
 import io.github.axolotlclient.util.Util;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.Formatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -73,7 +73,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 		fill(sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
-		client.textRenderer.drawWithShadow(I18n.translate("api.friends"), 10 + sidebarAnimX, 10, -1);
+		minecraft.textRenderer.drawWithShadow(I18n.translate("api.friends"), 10 + sidebarAnimX, 10, -1);
 		if (list != null) {
 			list.render(mouseX, mouseY, delta);
 		}
@@ -86,16 +86,16 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		if (hasChat) {
 			drawVerticalLine(70 + sidebarAnimX, 0, height, 0xFF000000);
-			client.textRenderer.drawWithShadow(channel.getName(), sidebarAnimX + 75, 20, -1);
+			minecraft.textRenderer.drawWithShadow(channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM()) {
-				client.textRenderer.drawWithShadow(Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
+				minecraft.textRenderer.drawWithShadow(Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 
 			chatWidget.render(mouseX, mouseY, delta);
 		}
 
-		contextMenu.render(client, mouseX, mouseY);
+		contextMenu.render(minecraft, mouseX, mouseY);
 
 		animate();
 	}
@@ -172,7 +172,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	}
 
 	private void close() {
-		client.setScreen(parent);
+		minecraft.openScreen(parent);
 		if (chatWidget != null) {
 			chatWidget.remove();
 		}
@@ -206,10 +206,10 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(client.textRenderer.getStringWidth(chatUser.getStatus().getTitle() + ":" + chatUser.getStatus().getDescription()),
-				client.textRenderer.getStringWidth(channel.getName()));
+			w = Math.max(minecraft.textRenderer.getWidth(chatUser.getStatus().getTitle() + ":" + chatUser.getStatus().getDescription()),
+				minecraft.textRenderer.getWidth(channel.getName()));
 		} else {
-			w = client.textRenderer.getStringWidth(channel.getName());
+			w = minecraft.textRenderer.getWidth(channel.getName());
 		}
 		sidebarWidth = Math.max(width * 5 / 12, w + 5);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 60, this);
@@ -251,11 +251,11 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		private boolean visible;
 
 		public ListWidget(List<Channel> list, int x, int y, int width, int height) {
-			super(MinecraftClient.getInstance(), width, height, y, FriendsSidebar.this.height - y, 25);
-			xStart = x;
-			xEnd = x + width;
-			yStart = y;
-			yEnd = y + height;
+			super(Minecraft.getInstance(), width, height, y, FriendsSidebar.this.height - y, 25);
+			minX = x;
+			maxX = x + width;
+			minY = y;
+			maxY = y + height;
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
 				.map(channel -> new UserButton(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
@@ -263,17 +263,17 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		public int getX() {
-			return xStart;
+			return minX;
 		}
 
 		public void setX(int x) {
-			xStart = x;
-			xEnd = x + width;
+			minX = x;
+			maxX = x + width;
 			elements.forEach(e -> e.x = x);
 		}
 
 		@Override
-		protected int getEntryCount() {
+		protected int size() {
 			return elements.size();
 		}
 
@@ -282,14 +282,14 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			if (this.visible) {
 				GlStateManager.enableDepthTest();
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(0, 0, 1F);
-				this.lastMouseX = mouseX;
-				this.lastMouseY = mouseY;
-				this.capYPosition();
+				GlStateManager.translatef(0, 0, 1F);
+				this.mouseX = mouseX;
+				this.mouseY = mouseY;
+				this.capScrolling();
 				GlStateManager.disableLighting();
 				GlStateManager.disableFog();
 				int k = this.width / 2;
-				int l = this.yStart + 4 - (int) this.scrollAmount;
+				int l = this.minY + 4 - (int) this.scrollAmount;
 				GlStateManager.enableTexture();
 
 				this.renderList(k, l, mouseX, mouseY);
@@ -303,7 +303,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		@Override
 		protected void renderList(int x, int y, int mouseX, int mouseY) {
-			Util.applyScissor(xStart, yStart, xStart + this.width, yEnd - yStart);
+			Util.applyScissor(minX, minY, minX + this.width, maxX - minY);
 			super.renderList(x, y, mouseX, mouseY);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}
@@ -323,14 +323,14 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			}
 
 			public void mouseClicked(int mouseX, int mouseY) {
-				if (isMouseOver(client, mouseX, mouseY)) {
-					playDownSound(client.getSoundManager());
+				if (isMouseOver(minecraft, mouseX, mouseY)) {
+					playClickSound(minecraft.getSoundManager());
 					action.onPress(this);
 				}
 			}
 
 			@Override
-			public void updatePosition(int i, int j, int k) {
+			public void renderOutOfBounds(int i, int j, int k) {
 
 			}
 
@@ -338,13 +338,13 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			public void render(int index, int x, int y, int rowWidth, int rowHeight, int mouseX, int mouseY,
 							   boolean hovered) {
 				this.y = y;
-				render(client, mouseX, mouseY);
+				render(minecraft, mouseX, mouseY);
 			}
 
 			@Override
 			public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
-				if (isMouseOver(client, mouseX, mouseY)) {
-					playDownSound(client.getSoundManager());
+				if (isMouseOver(minecraft, mouseX, mouseY)) {
+					playClickSound(minecraft.getSoundManager());
 					action.onPress(this);
 					return true;
 				}

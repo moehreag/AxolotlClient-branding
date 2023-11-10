@@ -29,20 +29,24 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tessellator;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import lombok.experimental.UtilityClass;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.entity.BlockEntityItemStackRenderHelper;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.texture.TextureUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.TextRenderer;
+import net.minecraft.client.render.item.BlockEntityItemRenderer;
+import net.minecraft.client.render.model.block.ModelTransformations;
+import net.minecraft.client.render.texture.TextureAtlas;
+import net.minecraft.client.resource.model.BakedModel;
+import net.minecraft.client.resource.model.BakedQuad;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
+import net.minecraft.text.Formatting;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 
@@ -58,7 +62,7 @@ public class ItemUtil {
 
 	private static final Identifier ITEM_GLINT_TEXTURE = new Identifier("textures/misc/enchanted_item_glint.png");
 
-	public static int getTotal(MinecraftClient client, ItemStack stack) {
+	public static int getTotal(Minecraft client, ItemStack stack) {
 		List<ItemStack> item = ItemUtil.getItems(client);
 		if (item == null) {
 			return 0;
@@ -66,19 +70,19 @@ public class ItemUtil {
 		AtomicInteger count = new AtomicInteger();
 		item.forEach(itemStack -> {
 			if (itemStack != null && stack != null && itemStack.getItem() == stack.getItem()) {
-				count.addAndGet(itemStack.count);
+				count.addAndGet(itemStack.size);
 			}
 		});
 		return count.get();
 	}
 
-	public static List<ItemStack> getItems(MinecraftClient client) {
+	public static List<ItemStack> getItems(Minecraft client) {
 		ArrayList<ItemStack> items = new ArrayList<>();
 		if (client.player == null) {
 			return null;
 		}
-		items.addAll(Arrays.asList(client.player.inventory.armor));
-		items.addAll(Arrays.asList(client.player.inventory.main));
+		items.addAll(Arrays.asList(client.player.inventory.armorSlots));
+		items.addAll(Arrays.asList(client.player.inventory.inventorySlots));
 		return items;
 	}
 
@@ -110,7 +114,7 @@ public class ItemUtil {
 
 	public static Optional<ItemUtil.ItemStorage> getItemFromItem(ItemStack item, List<ItemUtil.ItemStorage> list) {
 		ItemStack compare = item.copy();
-		compare.count = 1;
+		compare.size = 1;
 		for (ItemUtil.ItemStorage storage : list) {
 			if (isEqual(storage.stack, compare)) {
 				return Optional.of(storage);
@@ -136,7 +140,7 @@ public class ItemUtil {
 	public static Optional<ItemUtil.TimedItemStorage> getTimedItemFromItem(ItemStack item,
 																		   List<ItemUtil.TimedItemStorage> list) {
 		ItemStack compare = item.copy();
-		compare.count = 1;
+		compare.size = 1;
 		for (ItemUtil.TimedItemStorage storage : list) {
 			if (isEqual(storage.stack, compare)) {
 				return Optional.of(storage);
@@ -154,9 +158,9 @@ public class ItemUtil {
 			Optional<ItemStorage> s = getItemFromItem(item, storage);
 			if (s.isPresent()) {
 				ItemUtil.ItemStorage store = s.get();
-				store.incrementTimes(item.count);
+				store.incrementTimes(item.size);
 			} else {
-				storage.add(new ItemUtil.ItemStorage(item, item.count));
+				storage.add(new ItemUtil.ItemStorage(item, item.size));
 			}
 		}
 		return storage;
@@ -173,65 +177,65 @@ public class ItemUtil {
 	// The scaling stuff wasn't a problem on 1.8.9 so no need to create more complicated stuff
 
 	public static void renderGuiItemModel(ItemStack stack, int x, int y) {
-		DiffuseLighting.enable();
+		Lighting.turnOnGui();
 		GlStateManager.pushMatrix();
-		MinecraftClient.getInstance().getItemRenderer().renderInGuiWithOverrides(stack, x, y);
+		Minecraft.getInstance().getItemRenderer().renderGuiItemModel(stack, x, y);
 		GlStateManager.popMatrix();
-		DiffuseLighting.disable();
+		Lighting.turnOff();
 	}
 
-	public static void renderColoredGuiItemModel(ItemStack stack, int x, int y, Color color){
-		DiffuseLighting.enable();
+	public static void renderColoredGuiItemModel(ItemStack stack, int x, int y, Color color) {
+		Lighting.turnOnGui();
 		GlStateManager.pushMatrix();
 
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
 		if (stack != null && stack.getItem() != null) {
 			client.getItemRenderer().zOffset += 50.0F;
 
 
-			BakedModel bakedModel = client.getItemRenderer().getModels().getModel(stack);
+			BakedModel bakedModel = client.getItemRenderer().getModelShaper().getModel(stack);
 			GlStateManager.pushMatrix();
-			client.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-			client.getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX).pushFilter(false, false);
+			client.getTextureManager().bind(TextureAtlas.BLOCKS_LOCATION);
+			client.getTextureManager().get(TextureAtlas.BLOCKS_LOCATION).pushFilter(false, false);
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.enableAlphaTest();
 			GlStateManager.alphaFunc(516, 0.1F);
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(770, 771);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
 
-			GlStateManager.translate((float)x, (float)y, 100.0F + client.getItemRenderer().zOffset);
-			GlStateManager.translate(8.0F, 8.0F, 0.0F);
-			GlStateManager.scale(1.0F, 1.0F, -1.0F);
-			GlStateManager.scale(0.5F, 0.5F, 0.5F);
-			if (bakedModel.hasDepth()) {
-				GlStateManager.scale(40.0F, 40.0F, 40.0F);
-				GlStateManager.rotate(210.0F, 1.0F, 0.0F, 0.0F);
-				GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.translatef((float) x, (float) y, 100.0F + client.getItemRenderer().zOffset);
+			GlStateManager.translatef(8.0F, 8.0F, 0.0F);
+			GlStateManager.scalef(1.0F, 1.0F, -1.0F);
+			GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+			if (bakedModel.isGui3d()) {
+				GlStateManager.scalef(40.0F, 40.0F, 40.0F);
+				GlStateManager.rotatef(210.0F, 1.0F, 0.0F, 0.0F);
+				GlStateManager.rotatef(-135.0F, 0.0F, 1.0F, 0.0F);
 				GlStateManager.enableLighting();
 			} else {
-				GlStateManager.scale(64.0F, 64.0F, 64.0F);
-				GlStateManager.rotate(180.0F, 1.0F, 0.0F, 0.0F);
+				GlStateManager.scalef(64.0F, 64.0F, 64.0F);
+				GlStateManager.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
 				GlStateManager.disableLighting();
 			}
 
 
-			bakedModel.getTransformation().apply(ModelTransformation.Mode.GUI);
+			bakedModel.getTransformations().apply(ModelTransformations.Type.GUI);
 
 
 			GlStateManager.pushMatrix();
-			GlStateManager.scale(0.5F, 0.5F, 0.5F);
-			if (bakedModel.isBuiltin()) {
-				GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-				GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+			if (bakedModel.isCustomRenderer()) {
+				GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+				GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
+				GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.enableRescaleNormal();
-				BlockEntityItemStackRenderHelper.INSTANCE.renderItem(stack);
+				BlockEntityItemRenderer.INSTANCE.render(stack);
 			} else {
-				GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-				renderBakedItemModel(bakedModel, color.getAsInt(), stack);
+				GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
+				renderBakedItemModel(bakedModel, color.toInt(), stack);
 				if (stack.hasEnchantmentGlint()) {
 					renderGlint(bakedModel);
 				}
@@ -244,39 +248,39 @@ public class ItemUtil {
 			GlStateManager.disableRescaleNormal();
 			GlStateManager.disableLighting();
 			GlStateManager.popMatrix();
-			client.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-			client.getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX).pop();
+			client.getTextureManager().bind(TextureAtlas.BLOCKS_LOCATION);
+			client.getTextureManager().get(TextureAtlas.BLOCKS_LOCATION).popFilter();
 
 
 			client.getItemRenderer().zOffset -= 50.0F;
 		}
 
 		GlStateManager.popMatrix();
-		DiffuseLighting.disable();
+		Lighting.turnOff();
 	}
 
 	private void renderBakedItemModel(BakedModel bakedModel, int color, ItemStack itemStack) {
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferBuilder = tessellator.getBuffer();
-		bufferBuilder.begin(7, VertexFormats.BLOCK_NORMALS);
+		BufferBuilder bufferBuilder = tessellator.getBuilder();
+		bufferBuilder.begin(7, DefaultVertexFormat.BLOCK_NORMALS);
 
-		for(Direction direction : Direction.values()) {
-			renderBakedItemQuads(bufferBuilder, bakedModel.getByDirection(direction), color, itemStack);
+		for (Direction direction : Direction.values()) {
+			renderBakedItemQuads(bufferBuilder, bakedModel.getQuads(direction), color, itemStack);
 		}
 
 		renderBakedItemQuads(bufferBuilder, bakedModel.getQuads(), color, itemStack);
-		tessellator.draw();
+		tessellator.end();
 	}
 
 	private void renderBakedItemQuads(BufferBuilder bufferBuilder, List<BakedQuad> list, int color, ItemStack itemStack) {
 		boolean bl = color == -1 && itemStack != null;
 		int j = 0;
 
-		for(int k = list.size(); j < k; ++j) {
+		for (int k = list.size(); j < k; ++j) {
 			BakedQuad bakedQuad = list.get(j);
 			int l = color;
-			if (bl && bakedQuad.hasColor()) {
-				l = itemStack.getItem().getDisplayColor(itemStack, bakedQuad.getColorIndex());
+			if (bl && bakedQuad.hasTint()) {
+				l = itemStack.getItem().getDisplayColor(itemStack, bakedQuad.getTintIndex());
 				if (GameRenderer.anaglyphEnabled) {
 					l = TextureUtil.getAnaglyphColor(l);
 				}
@@ -293,20 +297,20 @@ public class ItemUtil {
 		GlStateManager.depthFunc(514);
 		GlStateManager.disableLighting();
 		GlStateManager.blendFunc(768, 1);
-		MinecraftClient.getInstance().getTextureManager().bindTexture(ITEM_GLINT_TEXTURE);
+		Minecraft.getInstance().getTextureManager().bind(ITEM_GLINT_TEXTURE);
 		GlStateManager.matrixMode(5890);
 		GlStateManager.pushMatrix();
-		GlStateManager.scale(8.0F, 8.0F, 8.0F);
-		float f = (float)(MinecraftClient.getTime() % 3000L) / 3000.0F / 8.0F;
-		GlStateManager.translate(f, 0.0F, 0.0F);
-		GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
+		GlStateManager.scalef(8.0F, 8.0F, 8.0F);
+		float f = (float) (Minecraft.getTime() % 3000L) / 3000.0F / 8.0F;
+		GlStateManager.translatef(f, 0.0F, 0.0F);
+		GlStateManager.rotatef(-50.0F, 0.0F, 0.0F, 1.0F);
 		renderBakedItemModel(bakedModel, -8372020, null);
 		GlStateManager.popMatrix();
 		GlStateManager.pushMatrix();
-		GlStateManager.scale(8.0F, 8.0F, 8.0F);
-		float g = (float)(MinecraftClient.getTime() % 4873L) / 4873.0F / 8.0F;
-		GlStateManager.translate(-g, 0.0F, 0.0F);
-		GlStateManager.rotate(10.0F, 0.0F, 0.0F, 1.0F);
+		GlStateManager.scalef(8.0F, 8.0F, 8.0F);
+		float g = (float) (Minecraft.getTime() % 4873L) / 4873.0F / 8.0F;
+		GlStateManager.translatef(-g, 0.0F, 0.0F);
+		GlStateManager.rotatef(10.0F, 0.0F, 0.0F, 1.0F);
 		renderBakedItemModel(bakedModel, -8372020, null);
 		GlStateManager.popMatrix();
 		GlStateManager.matrixMode(5888);
@@ -314,33 +318,33 @@ public class ItemUtil {
 		GlStateManager.enableLighting();
 		GlStateManager.depthFunc(515);
 		GlStateManager.depthMask(true);
-		MinecraftClient.getInstance().getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
+		Minecraft.getInstance().getTextureManager().bind(TextureAtlas.BLOCKS_LOCATION);
 	}
 
 	private void renderQuad(BufferBuilder bufferBuilder, BakedQuad bakedQuad, int color) {
-		bufferBuilder.putArray(bakedQuad.getVertexData());
-		bufferBuilder.putQuadColor(color);
-		Vec3i vec3i = bakedQuad.getFace().getVector();
-		bufferBuilder.putNormal((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ());
+		bufferBuilder.vertices(bakedQuad.getVertices());
+		bufferBuilder.setQuadColor(color);
+		Vec3i vec3i = bakedQuad.getFace().getNormal();
+		bufferBuilder.postNormal((float) vec3i.getX(), (float) vec3i.getY(), (float) vec3i.getZ());
 	}
 
 
 	public static void renderGuiItemOverlay(TextRenderer renderer, ItemStack stack, int x, int y, String countLabel,
 											int textColor, boolean shadow) {
-		DiffuseLighting.enable();
+		Lighting.turnOnGui();
 		GlStateManager.pushMatrix();
-		GlStateManager.color(textColor >> 24 & 0xff, textColor >> 16 & 0xff, textColor >> 8 & 0xff, textColor & 0xff);
+		GlStateManager.color4f(textColor >> 24 & 0xff, textColor >> 16 & 0xff, textColor >> 8 & 0xff, textColor & 0xff);
 		if (stack != null) {
-			if (stack.count != 1 || countLabel != null) {
-				String string = countLabel == null ? String.valueOf(stack.count) : countLabel;
-				if (countLabel == null && stack.count < 1) {
-					string = Formatting.RED + String.valueOf(stack.count);
+			if (stack.size != 1 || countLabel != null) {
+				String string = countLabel == null ? String.valueOf(stack.size) : countLabel;
+				if (countLabel == null && stack.size < 1) {
+					string = Formatting.RED + String.valueOf(stack.size);
 				}
 
 				GlStateManager.disableLighting();
 				GlStateManager.disableDepthTest();
 				GlStateManager.disableBlend();
-				renderer.draw(string, (float) (x + 19 - 2 - renderer.getStringWidth(string)), (float) (y + 6 + 3),
+				renderer.draw(string, (float) (x + 19 - 2 - renderer.getWidth(string)), (float) (y + 6 + 3),
 					16777215, shadow);
 				GlStateManager.enableLighting();
 				GlStateManager.enableDepthTest();
@@ -355,7 +359,7 @@ public class ItemUtil {
 				GlStateManager.disableAlphaTest();
 				GlStateManager.disableBlend();
 				Tessellator tessellator = Tessellator.getInstance();
-				BufferBuilder bufferBuilder = tessellator.getBuffer();
+				BufferBuilder bufferBuilder = tessellator.getBuilder();
 				renderGuiQuad(bufferBuilder, x + 2, y + 13, 13, 2, 0, 0, 0, 255);
 				renderGuiQuad(bufferBuilder, x + 2, y + 13, 12, 1, (255 - j) / 4, 64, 0, 255);
 				renderGuiQuad(bufferBuilder, x + 2, y + 13, i, 1, 255 - j, j, 0, 255);
@@ -367,18 +371,18 @@ public class ItemUtil {
 			}
 		}
 
-		DiffuseLighting.disable();
+		Lighting.turnOff();
 		GlStateManager.popMatrix();
 	}
 
 	private static void renderGuiQuad(BufferBuilder buffer, int x, int y, int width, int height, int red, int green,
 									  int blue, int alpha) {
-		buffer.begin(7, VertexFormats.POSITION_COLOR);
-		buffer.vertex(x, y, 0.0).color(red, green, blue, alpha).next();
-		buffer.vertex(x, y + height, 0.0).color(red, green, blue, alpha).next();
-		buffer.vertex(x + width, y + height, 0.0).color(red, green, blue, alpha).next();
-		buffer.vertex(x + width, y, 0.0).color(red, green, blue, alpha).next();
-		Tessellator.getInstance().draw();
+		buffer.begin(7, DefaultVertexFormat.POSITION_COLOR);
+		buffer.vertex(x, y, 0.0).color(red, green, blue, alpha).nextVertex();
+		buffer.vertex(x, y + height, 0.0).color(red, green, blue, alpha).nextVertex();
+		buffer.vertex(x + width, y + height, 0.0).color(red, green, blue, alpha).nextVertex();
+		buffer.vertex(x + width, y, 0.0).color(red, green, blue, alpha).nextVertex();
+		Tessellator.getInstance().end();
 	}
 
 	public static class ItemStorage {
@@ -388,7 +392,7 @@ public class ItemUtil {
 
 		public ItemStorage(ItemStack stack, int times) {
 			ItemStack copy = stack.copy();
-			copy.count = 1;
+			copy.size = 1;
 			this.stack = copy;
 			this.times = times;
 		}
@@ -412,11 +416,11 @@ public class ItemUtil {
 
 		public TimedItemStorage(ItemStack stack, int times) {
 			super(stack, times);
-			this.start = MinecraftClient.getTime();
+			this.start = Minecraft.getTime();
 		}
 
 		public float getPassedTime() {
-			return MinecraftClient.getTime() - start;
+			return Minecraft.getTime() - start;
 		}
 
 		@Override
@@ -426,7 +430,7 @@ public class ItemUtil {
 		}
 
 		public void refresh() {
-			start = MinecraftClient.getTime();
+			start = Minecraft.getTime();
 		}
 	}
 }

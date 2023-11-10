@@ -23,11 +23,13 @@
 package io.github.axolotlclient.api;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
 import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.util.options.GenericOption;
+import net.minecraft.client.options.KeyBinding;
+import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
 public class APIOptions extends Options {
@@ -38,17 +40,21 @@ public class APIOptions extends Options {
 	@Override
 	public void init() {
 		super.init();
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
 		openPrivacyNoteScreen = n ->
-			client.setScreen(new PrivacyNoticeScreen(client.currentScreen, n));
-		openSidebar = new KeyBindOption("api.friends.sidebar.open", Keyboard.KEY_O, keyBind ->
-			client.setScreen(new FriendsSidebar(client.currentScreen)));
-		category.add(openSidebar);
+			client.openScreen(new PrivacyNoticeScreen(client.screen, n));
+		KeyBinding openSidebar = new KeyBinding("api.friends.sidebar.open", Keyboard.KEY_O, "axolotlclient");
+		KeyBindingEvents.REGISTER_KEYBINDS.register(registry -> registry.register(openSidebar));
+		MinecraftClientEvents.TICK_END.register(minecraft -> {
+			if (openSidebar.consumeClick()){
+				minecraft.openScreen(new FriendsSidebar(client.screen));
+			}
+		});
 		category.add(new GenericOption("viewFriends", "clickToOpen",
-			(mX, mY) -> MinecraftClient.getInstance().setScreen(new FriendsScreen(MinecraftClient.getInstance().currentScreen))));
+			() -> client.openScreen(new FriendsScreen(Minecraft.getInstance().screen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
-			(mX, mY) -> MinecraftClient.getInstance().setScreen(new ChatListScreen(MinecraftClient.getInstance().currentScreen))));
+			() -> client.openScreen(new ChatListScreen(Minecraft.getInstance().screen))));
 		AxolotlClient.CONFIG.addCategory(category);
 		AxolotlClient.config.add(privacyAccepted);
 	}

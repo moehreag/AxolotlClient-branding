@@ -23,14 +23,15 @@
 package io.github.axolotlclient.modules.zoom;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.FloatOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.Util;
-import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
+import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import org.lwjgl.input.Keyboard;
 
 /**
@@ -46,6 +47,7 @@ public class Zoom extends AbstractModule {
 	public static final BooleanOption decreaseSensitivity = new BooleanOption("decreaseSensitivity",
 		true);
 	public static final BooleanOption smoothCamera = new BooleanOption("smoothCamera", false);
+	@Getter
 	private static final Zoom Instance = new Zoom();
 	public static boolean active;
 	private static float originalSensitivity;
@@ -58,18 +60,14 @@ public class Zoom extends AbstractModule {
 	private static float lastAnimatedFactor = 1;
 	private static float animatedFactor = 1;
 	private static double lastReturnedFov;
-	public final OptionCategory zoom = new OptionCategory("zoom");
-
-	public static Zoom getInstance() {
-		return Instance;
-	}
+	public final OptionCategory zoom = OptionCategory.create("zoom");
 
 	public static double getFov(float current, float tickDelta) {
 		double result = current
 			* (zoomSpeed.get() == 10 ? targetFactor : Util.lerp(lastAnimatedFactor, animatedFactor, tickDelta));
 
 		if (lastReturnedFov != 0 && lastReturnedFov != result) {
-			MinecraftClient.getInstance().worldRenderer.scheduleTerrainUpdate();
+			Minecraft.getInstance().worldRenderer.onViewChanged();
 		}
 		lastReturnedFov = result;
 		return result;
@@ -113,24 +111,24 @@ public class Zoom extends AbstractModule {
 	}
 
 	public static void setOptions() {
-		originalSensitivity = MinecraftClient.getInstance().options.sensitivity;
+		originalSensitivity = Minecraft.getInstance().options.mouseSensitivity;
 
 		if (smoothCamera.get()) {
-			originalSmoothCamera = MinecraftClient.getInstance().options.smoothCameraEnabled;
-			MinecraftClient.getInstance().options.smoothCameraEnabled = true;
+			originalSmoothCamera = Minecraft.getInstance().options.smoothCamera;
+			Minecraft.getInstance().options.smoothCamera = true;
 		}
 
 		updateSensitivity();
 	}
 
 	public static void restoreOptions() {
-		MinecraftClient.getInstance().options.sensitivity = originalSensitivity;
-		MinecraftClient.getInstance().options.smoothCameraEnabled = originalSmoothCamera;
+		Minecraft.getInstance().options.mouseSensitivity = originalSensitivity;
+		Minecraft.getInstance().options.smoothCamera = originalSmoothCamera;
 	}
 
 	private static void updateSensitivity() {
 		if (decreaseSensitivity.get()) {
-			MinecraftClient.getInstance().options.sensitivity = (float) (originalSensitivity / divisor);
+			Minecraft.getInstance().options.mouseSensitivity = (float) (originalSensitivity / divisor);
 		}
 	}
 
@@ -152,28 +150,30 @@ public class Zoom extends AbstractModule {
 		zoom.add(decreaseSensitivity);
 		zoom.add(smoothCamera);
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(zoom);
+		AxolotlClient.CONFIG.rendering.add(zoom);
 
 		keyBinding = new KeyBinding("key.zoom", Keyboard.KEY_C, "category.axolotlclient");
-		KeyBindingHelper.registerKeyBinding(keyBinding);
 		active = false;
 
 		increase = new KeyBinding("key.zoom.increase", Keyboard.KEY_NONE, "category.axolotlclient");
 		decrease = new KeyBinding("key.zoom.decrease", Keyboard.KEY_NONE, "category.axolotlclient");
 
-		KeyBindingHelper.registerKeyBinding(increase);
-		KeyBindingHelper.registerKeyBinding(decrease);
+		KeyBindingEvents.REGISTER_KEYBINDS.register(r -> {
+			r.register(keyBinding);
+			r.register(increase);
+			r.register(decrease);
+		});
 	}
 
 	@Override
 	public void tick() {
 		lastAnimatedFactor = animatedFactor;
-		animatedFactor += (targetFactor - animatedFactor) * (zoomSpeed.get() / 10F);
+		animatedFactor += (float) ((targetFactor - animatedFactor) * (zoomSpeed.get() / 10F));
 
-		if (increase.isPressed()){
-			scroll(zoomSpeed.get()/2);
-		} else if (decrease.isPressed()){
-			scroll(-zoomSpeed.get()/2);
+		if (increase.isPressed()) {
+			scroll(zoomSpeed.get() / 2);
+		} else if (decrease.isPressed()) {
+			scroll(-zoomSpeed.get() / 2);
 		}
 	}
 }

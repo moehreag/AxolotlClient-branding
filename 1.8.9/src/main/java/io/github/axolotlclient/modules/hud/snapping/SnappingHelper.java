@@ -26,12 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.Util;
 import lombok.Setter;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.render.Window;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -42,7 +43,7 @@ import net.minecraft.client.util.Window;
 
 public class SnappingHelper {
 
-	private static final Color LINE_COLOR = Color.SELECTOR_BLUE;
+	private static final Color LINE_COLOR = ClientColors.SELECTOR_BLUE;
 	private final int distance = 4;
 	private final HashSet<Integer> x = new HashSet<>();
 	private final HashSet<Integer> y = new HashSet<>();
@@ -133,10 +134,10 @@ public class SnappingHelper {
 
 	public void renderAll() {
 		for (Integer xval : x) {
-			DrawUtil.fillRect(new Rectangle(xval, 0, 1, (int) window.getScaledHeight()), Color.WHITE);
+			DrawUtil.fillRect(new Rectangle(xval, 0, 1, (int) window.getScaledHeight()), ClientColors.WHITE);
 		}
 		for (Integer yval : y) {
-			DrawUtil.fillRect(new Rectangle(0, yval, (int) window.getScaledWidth(), 1), Color.WHITE);
+			DrawUtil.fillRect(new Rectangle(0, yval, (int) window.getScaledWidth(), 1), ClientColors.WHITE);
 		}
 	}
 

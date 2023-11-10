@@ -23,11 +23,12 @@
 package io.github.axolotlclient.modules.hud.util;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.Window;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.util.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.client.render.TextRenderer;
+import net.minecraft.client.render.Window;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -37,22 +38,22 @@ import org.lwjgl.opengl.GL11;
  * @license GPL-3.0
  */
 
-public class DrawUtil extends DrawableHelper {
+public class DrawUtil extends GuiElement {
 
 	public static void fillRect(Rectangle rectangle, Color color) {
-		fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.getAsInt());
+		fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
 
 	public static void fillRect(int x, int y, int width, int height, int color) {
-		DrawableHelper.fill(x, y, x + width, y + height, color);
+		GuiElement.fill(x, y, x + width, y + height, color);
 	}
 
 	public static void fillRect(int x, int y, int width, int height, Color color) {
-		fillRect(x, y, x + width, y + height, color.getAsInt());
+		fillRect(x, y, x + width, y + height, color.toInt());
 	}
 
 	public static void outlineRect(Rectangle rectangle, Color color) {
-		outlineRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.getAsInt());
+		outlineRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
 
 	public static void outlineRect(int x, int y, int width, int height, int color) {
@@ -64,20 +65,20 @@ public class DrawUtil extends DrawableHelper {
 
 	public static void drawCenteredString(TextRenderer renderer, String text, int x, int y, Color color,
 										  boolean shadow) {
-		drawCenteredString(renderer, text, x, y, color.getAsInt(), shadow);
+		drawCenteredString(renderer, text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawCenteredString(TextRenderer renderer, String text, int x, int y, int color, boolean shadow) {
-		drawString(text, (float) (x - renderer.getStringWidth(text) / 2), (float) y, color, shadow);
+		drawString(text, (float) (x - renderer.getWidth(text) / 2), (float) y, color, shadow);
 	}
 
 	public static void drawString(String text, float x, float y, int color, boolean shadow) {
 		GlStateManager.enableTexture();
-		MinecraftClient.getInstance().textRenderer.draw(text, x, y, color, shadow);
+		Minecraft.getInstance().textRenderer.draw(text, x, y, color, shadow);
 	}
 
 	public static void drawString(String text, float x, float y, Color color, boolean shadow) {
-		drawString(text, x, y, color.getAsInt(), shadow);
+		drawString(text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawString(TextRenderer textRenderer, String text, float x, float y, int color, boolean shadow) {
@@ -85,12 +86,12 @@ public class DrawUtil extends DrawableHelper {
 	}
 
 	public static void drawScrollableText(TextRenderer textRenderer, String text, int left, int top, int right, int bottom, int color) {
-		int i = textRenderer.getStringWidth(text);
+		int i = textRenderer.getWidth(text);
 		int j = (top + bottom - 9) / 2 + 1;
 		int k = right - left;
 		if (i > k) {
 			int l = i - k;
-			double d = (double) MinecraftClient.getTime() / 1000.0;
+			double d = (double) Minecraft.getTime() / 1000.0;
 			double e = Math.max((double) l * 0.5, 3.0);
 			double f = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d / e)) / 2.0 + 0.5;
 			double g = f * l;
@@ -104,9 +105,9 @@ public class DrawUtil extends DrawableHelper {
 
 	public static void enableScissor(int x1, int y1, int x2, int y2) {
 		GlStateManager.pushMatrix();
-		Window window = io.github.axolotlclient.util.Util.getWindow();
-		int i = MinecraftClient.getInstance().height;
-		double d = window.getScaleFactor();
+		Window window = Util.getWindow();
+		int i = Minecraft.getInstance().height;
+		double d = window.getScale();
 		double e = (double) x1 * d;
 		double f = (double) i - (double) y2 * d;
 		double g = (double) (x2 - x1) * d;

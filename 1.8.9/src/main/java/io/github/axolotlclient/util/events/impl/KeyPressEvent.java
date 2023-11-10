@@ -23,7 +23,7 @@
 package io.github.axolotlclient.util.events.impl;
 
 import lombok.Data;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.options.KeyBinding;
 
 @Data
 public class KeyPressEvent {

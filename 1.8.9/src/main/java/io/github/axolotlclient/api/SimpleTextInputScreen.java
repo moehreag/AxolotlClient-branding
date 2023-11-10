@@ -83,11 +83,11 @@ public class SimpleTextInputScreen extends Screen {
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		switch (buttonWidget.id) {
 			case 0:
-				client.setScreen(parent);
+				minecraft.openScreen(parent);
 				break;
 			case 1:
 				consumer.accept(input.getText());
-				client.setScreen(parent);
+				minecraft.openScreen(parent);
 				break;
 		}
 	}

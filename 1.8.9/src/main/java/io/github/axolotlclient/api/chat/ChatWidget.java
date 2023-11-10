@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -37,10 +36,11 @@ import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.text.LiteralText;
@@ -51,17 +51,18 @@ public class ChatWidget extends EntryListWidget {
 	private final List<ChatMessage> messages = new ArrayList<>();
 	private final List<ChatLine> entries = new ArrayList<>();
 	private final Channel channel;
-	private final MinecraftClient client;
+	private final Minecraft client;
 	@Setter
 	@Getter
 	private int x, y, width, height;
 	private final ContextMenuScreen screen;
+	private int selectedEntry = -1;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
-		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);
+		super(Minecraft.getInstance(), width, height, y, y + height, 13);
 		this.channel = channel;
-		this.client = MinecraftClient.getInstance();
-		setXPos(x + 5);
+		this.client = Minecraft.getInstance();
+		super.setX(x + 5);
 
 		setHeader(false, 0);
 		this.screen = screen;
@@ -90,7 +91,7 @@ public class ChatWidget extends EntryListWidget {
 	}
 
 	private void addMessage(ChatMessage message) {
-		List<String> list = client.textRenderer.wrapLines(message.getContent(), getRowWidth());
+		List<String> list = client.textRenderer.split(message.getContent(), getRowWidth());
 
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
@@ -134,8 +135,8 @@ public class ChatWidget extends EntryListWidget {
 		if (scrollAmount < 0) {
 			loadMessages();
 		}
-		this.capYPosition();
-		this.yDrag = -2;
+		this.capScrolling();
+		this.mouseYStart = -2;
 	}
 
 	public void remove() {
@@ -157,12 +158,12 @@ public class ChatWidget extends EntryListWidget {
 	}
 
 	@Override
-	protected int getEntryCount() {
+	protected int size() {
 		return entries.size();
 	}
 
 	public class ChatLine extends DrawUtil implements Entry {
-		protected final MinecraftClient client = MinecraftClient.getInstance();
+		protected final Minecraft client = Minecraft.getInstance();
 		@Getter
 		private final String content;
 		@Getter
@@ -175,7 +176,7 @@ public class ChatWidget extends EntryListWidget {
 		}
 
 		@Override
-		public void updatePosition(int i, int j, int k) {
+		public void renderOutOfBounds(int i, int j, int k) {
 
 		}
 
@@ -191,7 +192,7 @@ public class ChatWidget extends EntryListWidget {
 					.spacer()
 					.entry("api.friends.chat", buttonWidget -> {
 						ChannelRequest.getOrCreateDM(origin.getSender().getUuid())
-							.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
+							.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
 					})
 					.spacer()
 					.entry("api.chat.report.message", buttonWidget -> {
@@ -235,7 +236,7 @@ public class ChatWidget extends EntryListWidget {
 				}
 			}
 			renderExtras(x, y, mouseX, mouseY);
-			MinecraftClient.getInstance().textRenderer.draw(content, x, y, -1);
+			Minecraft.getInstance().textRenderer.draw(content, x, y, -1);
 		}
 	}
 
@@ -244,22 +245,22 @@ public class ChatWidget extends EntryListWidget {
 		private final String formattedTime;
 
 		public NameChatLine(ChatMessage message) {
-			super(new LiteralText(message.getSender().getName()).setStyle(new Style().setBold(true)).asFormattedString(), message);
+			super(new LiteralText(message.getSender().getName()).setStyle(new Style().setBold(true)).getFormattedString(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp()*1000));
+			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));
 		}
 
 		@Override
 		protected void renderExtras(int x, int y, int mouseX, int mouseY) {
 			GlStateManager.disableBlend();
 			GlStateManager.enableTexture();
-			client.getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(getOrigin().getSender().getUuid(),
+			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(getOrigin().getSender().getUuid(),
 				getOrigin().getSender().getName()));
 			drawTexture(x - 22, y, 8, 8, 8, 8, 18, 18, 64, 64);
 			drawTexture(x - 22, y, 40, 8, 8, 8, 18, 18, 64, 64);
 			GlStateManager.enableBlend();
-			client.textRenderer.draw(formattedTime, client.textRenderer.getStringWidth(getContent()) + x + 5, y, Color.GRAY.getAsInt());
+			client.textRenderer.draw(formattedTime, client.textRenderer.getWidth(getContent()) + x + 5, y, ClientColors.GRAY.toInt());
 		}
 	}
 }

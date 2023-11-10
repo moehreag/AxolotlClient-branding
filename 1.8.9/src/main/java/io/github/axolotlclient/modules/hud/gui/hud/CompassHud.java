@@ -25,18 +25,19 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
-import net.minecraft.util.Identifier;
+import io.github.axolotlclient.util.ClientColors;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -49,14 +50,14 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 
 	public final Identifier ID = new Identifier("kronhud", "compasshud");
 
-	private final IntegerOption widthOption = new IntegerOption("width", this::updateWidth, width, 100, 800);
+	private final IntegerOption widthOption = new IntegerOption("width", width, this::updateWidth, 100, 800);
 
 	private final ColorOption lookingBox = new ColorOption("lookingbox", new Color(0x80000000));
 	private final ColorOption degreesColor = new ColorOption("degreescolor", new Color(-1));
 	private final ColorOption majorIndicatorColor = new ColorOption("majorindicator", new Color(-1));
 	private final ColorOption minorIndicatorColor = new ColorOption("minorindicator",
 		new Color(0xCCFFFFFF));
-	private final ColorOption cardinalColor = new ColorOption("cardinalcolor", Color.WHITE);
+	private final ColorOption cardinalColor = new ColorOption("cardinalcolor", ClientColors.WHITE);
 	private final ColorOption semiCardinalColor = new ColorOption("semicardinalcolor",
 		new Color(0xFFAAAAAA));
 	private final BooleanOption invert = new BooleanOption("invert_direction", false);
@@ -117,7 +118,7 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 		if (invert.get()) {
 			shift = dist - shift;
 		}
-		GlStateManager.translate(shift, 0, 0);
+		GlStateManager.translatef(shift, 0, 0);
 		for (int i = 0; i < amount; i++) {
 			int d;
 			if (invert.get()) {
@@ -137,11 +138,11 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 
 			float targetOpacity = 1 - Math.abs((halfWidth - trueDist)) / halfWidth;
 			//System.out.println(targetOpacity);
-			GlStateManager.color(1, 1, 1, targetOpacity);
+			GlStateManager.color4f(1, 1, 1, targetOpacity);
 			if (indicator == Indicator.CARDINAL) {
 				// We have to call .color() here so that transparency stays
 				RenderUtil.drawRectangle(innerX, y, 1, 9, majorIndicatorColor.get()
-					.withAlpha((int) (majorIndicatorColor.get().getAlpha() * targetOpacity)).getAsInt());
+					.withAlpha((int) (majorIndicatorColor.get().getAlpha() * targetOpacity)).toInt());
 				Color color = cardinalColor.get();
 				color = color.withAlpha((int) (color.getAlpha() * targetOpacity));
 				if (color.getAlpha() > 0) {
@@ -158,11 +159,11 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 			} else {
 				// We have to call .color() here so that transparency stays
 				RenderUtil.drawRectangle(innerX, y, 1, 5, minorIndicatorColor.get()
-					.withAlpha((int) (minorIndicatorColor.get().getAlpha() * targetOpacity)).getAsInt());
+					.withAlpha((int) (minorIndicatorColor.get().getAlpha() * targetOpacity)).toInt());
 			}
 		}
-		GlStateManager.color(1, 1, 1, 1);
-		GlStateManager.translate(-shift, 0, 0);
+		GlStateManager.color4f(1, 1, 1, 1);
+		GlStateManager.translatef(-shift, 0, 0);
 	}
 
 	private static Indicator getIndicator(int degrees) {

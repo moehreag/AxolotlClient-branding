@@ -22,20 +22,20 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.minecraft.client.render.VertexBuffer;
-import net.minecraft.client.render.WorldRenderer;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.client.render.world.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(WorldRenderer.class)
 public interface WorldRendererAccessor {
 
-	@Accessor
+	@Accessor("starsGlList")
 	int getStarsList();
 
-	@Accessor
+	@Accessor()
 	VertexBuffer getStarsBuffer();
 
-	@Accessor
+	@Accessor("useVbo")
 	boolean getVbo();
 }

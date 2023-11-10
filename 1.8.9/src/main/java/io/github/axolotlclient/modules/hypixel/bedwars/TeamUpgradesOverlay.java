@@ -25,15 +25,15 @@ package io.github.axolotlclient.modules.hypixel.bedwars;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.BoxHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.BedwarsTeamUpgrades;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.TeamUpgrade;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.TrapUpgrade;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resource.Identifier;
 
 /**
  * @author DarkKronicle
@@ -42,17 +42,17 @@ import net.minecraft.util.Identifier;
 public class TeamUpgradesOverlay extends BoxHudEntry {
 
 	public final static Identifier ID = new Identifier("axolotlclient", "bedwars_teamupgrades");
-	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath()+".renderWhenRelevant", true);
+	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath() + ".renderWhenRelevant", true);
 
 	private BedwarsTeamUpgrades upgrades = null;
 	private final BedwarsMod mod;
-	private final MinecraftClient mc;
+	private final Minecraft mc;
 	private final static TrapUpgrade.TrapType[] trapEdit = {TrapUpgrade.TrapType.MINER_FATIGUE, TrapUpgrade.TrapType.ITS_A_TRAP};
 
 	public TeamUpgradesOverlay(BedwarsMod mod) {
 		super(60, 40, true);
 		this.mod = mod;
-		this.mc = MinecraftClient.getInstance();
+		this.mc = Minecraft.getInstance();
 	}
 
 	public void onStart(BedwarsTeamUpgrades newUpgrades) {
@@ -81,7 +81,7 @@ public class TeamUpgradesOverlay extends BoxHudEntry {
 		int height = getHeight();
 		GlStateManager.enableAlphaTest();
 		GlStateManager.enableBlend();
-		GlStateManager.color(1, 1, 1);
+		GlStateManager.color3f(1, 1, 1);
 		boolean normalUpgrades = false;
 		if (upgrades != null) {
 			for (TeamUpgrade u : upgrades.upgrades) {
@@ -91,7 +91,7 @@ public class TeamUpgradesOverlay extends BoxHudEntry {
 				if (u instanceof TrapUpgrade) {
 					continue;
 				}
-				GlStateManager.color(1, 1, 1);
+				GlStateManager.color3f(1, 1, 1);
 				u.draw(x, y, 16, 16);
 				x += 17;
 				normalUpgrades = true;
@@ -103,17 +103,17 @@ public class TeamUpgradesOverlay extends BoxHudEntry {
 			y += 17;
 		}
 		if (editMode) {
-			for(TrapUpgrade.TrapType type : trapEdit){
-				GlStateManager.color(1, 1, 1, 1);
+			for (TrapUpgrade.TrapType type : trapEdit) {
+				GlStateManager.color4f(1, 1, 1, 1);
 				type.draw(x, y, 16, 16);
-				x+=17;
+				x += 17;
 			}
 			setWidth(Math.max((x - position.x()) + 1, 18));
 		} else {
 			upgrades.trap.draw(x, y, 16, 16);
-			setWidth(Math.max(((x + (upgrades.trap.getTrapCount()*16)) - position.x()) + 1, getWidth()));
+			setWidth(Math.max(((x + (upgrades.trap.getTrapCount() * 16)) - position.x()) + 1, getWidth()));
 		}
-		setHeight((y - position.y())+19);
+		setHeight((y - position.y()) + 19);
 		if (getHeight() != height || getWidth() != width) {
 			onBoundsUpdate();
 		}

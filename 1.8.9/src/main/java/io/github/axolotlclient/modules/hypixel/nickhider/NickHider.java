@@ -22,13 +22,13 @@
 
 package io.github.axolotlclient.modules.hypixel.nickhider;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
@@ -42,7 +42,7 @@ public class NickHider implements AbstractHypixelMod {
 	public final BooleanOption hideOtherNames = new BooleanOption("hideOtherNames", false);
 	public final BooleanOption hideOwnSkin = new BooleanOption("hideOwnSkin", false);
 	public final BooleanOption hideOtherSkins = new BooleanOption("hideOtherSkins", false);
-	private final OptionCategory category = new OptionCategory("nickhider");
+	private final OptionCategory category = OptionCategory.create("nickhider");
 
 	@Override
 	public void init() {
@@ -61,14 +61,14 @@ public class NickHider implements AbstractHypixelMod {
 
 	public Text editMessage(Text message) {
 		if (hideOwnName.get() || hideOtherNames.get()) {
-			String msg = message.asFormattedString();
-			String playerName = MinecraftClient.getInstance().player.getGameProfile().getName();
+			String msg = message.getFormattedString();
+			String playerName = Minecraft.getInstance().player.getGameProfile().getName();
 			if (hideOwnName.get() && msg.contains(playerName)) {
 				msg = msg.replaceAll(playerName, hiddenNameSelf.get());
 			}
 
 			if (hideOtherNames.get()) {
-				for (PlayerEntity player : MinecraftClient.getInstance().world.playerEntities) {
+				for (PlayerEntity player : Minecraft.getInstance().world.players) {
 					if (msg.contains(player.getGameProfile().getName())) {
 						msg = msg.replaceAll(player.getGameProfile().getName(), hiddenNameOthers.get());
 					}

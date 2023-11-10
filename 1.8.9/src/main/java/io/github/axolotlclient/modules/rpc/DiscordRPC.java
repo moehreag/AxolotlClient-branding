@@ -24,7 +24,8 @@ package io.github.axolotlclient.modules.rpc;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.Util;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+
 
 public class DiscordRPC extends RPCCommon {
 	private static DiscordRPC Instance;
@@ -51,15 +52,15 @@ public class DiscordRPC extends RPCCommon {
 		String state;
 		switch (showServerNameMode.get()) {
 			case "showIp":
-				state = MinecraftClient.getInstance().world == null ? "In the menu"
+				state = Minecraft.getInstance().world == null ? "In the menu"
 					: (Util.getCurrentServerAddress() == null ? "Singleplayer" : Util.getCurrentServerAddress());
 				break;
 			case "showName":
-				state = MinecraftClient.getInstance().world == null ? "In the menu"
-					: (MinecraftClient.getInstance().getCurrentServerEntry() == null
+				state = Minecraft.getInstance().world == null ? "In the menu"
+					: (Minecraft.getInstance().getCurrentServerEntry() == null
 					? (Util.getCurrentServerAddress() == null ? "Singleplayer"
 					: Util.getCurrentServerAddress())
-					: MinecraftClient.getInstance().getCurrentServerEntry().name);
+					: Minecraft.getInstance().getCurrentServerEntry().name);
 				break;
 			case "off":
 			default:
@@ -68,7 +69,7 @@ public class DiscordRPC extends RPCCommon {
 		}
 
 		String details;
-		if (showActivity.get() && MinecraftClient.getInstance().getCurrentServerEntry() != null) {
+		if (showActivity.get() && Minecraft.getInstance().getCurrentServerEntry() != null) {
 			details = (Util.getGame());
 		} else if (showActivity.get() && !currentWorld.isEmpty()) {
 			details = (currentWorld);

@@ -26,23 +26,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.ParticleAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.Util;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleType;
+import lombok.Getter;
+import net.minecraft.client.entity.particle.Particle;
+import net.minecraft.entity.particle.ParticleType;
 import org.apache.commons.lang3.StringUtils;
 
 public class Particles extends AbstractModule {
 
+	@Getter
 	private static final Particles Instance = new Particles();
 
 	public final HashMap<ParticleType, HashMap<String, Option<?>>> particleOptions = new HashMap<>();
 	public final HashMap<Particle, ParticleType> particleMap = new HashMap<>();
 
-	private final OptionCategory cat = new OptionCategory("particles");
+	private final OptionCategory cat = OptionCategory.create("particles");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 
 	@Override
@@ -50,29 +57,30 @@ public class Particles extends AbstractModule {
 		cat.add(enabled);
 
 		addParticleOptions();
-		AxolotlClient.CONFIG.rendering.addSubCategory(cat);
+		AxolotlClient.CONFIG.rendering.add(cat);
 	}
 
 	private void addParticleOptions() {
 		for (ParticleType type : Arrays.stream(ParticleType.values()).sorted(new AlphabeticalComparator())
 			.collect(Collectors.toList())) {
-			OptionCategory category = new OptionCategory(
-				StringUtils.capitalize(Util.splitAtCapitalLetters(type.getName().replace("_", ""))), false);
+			OptionCategory category = OptionCategory.create(
+				StringUtils.capitalize(Util.splitAtCapitalLetters(type.getKey().replace("_", ""))));
 			HashMap<String, Option<?>> optionsByKey = new LinkedHashMap<>();
 
 			populateMap(optionsByKey, new BooleanOption("showParticle", true),
 				new IntegerOption("count", 1, 1, 20),
 				new BooleanOption("customColor", false),
-				new ColorOption("color", "particles", Color.WHITE));
+				// tooltip: "particles
+				new ColorOption("color", ClientColors.WHITE));
 
 			if (type == ParticleType.CRIT || type == ParticleType.CRIT_MAGIC) {
 				populateMap(optionsByKey, new BooleanOption("alwaysCrit", false));
 			}
 
-			category.add(optionsByKey.values());
+			optionsByKey.values().forEach(category::add);
 			particleOptions.put(type, optionsByKey);
 
-			cat.addSubCategory(category);
+			cat.add(category);
 		}
 	}
 
@@ -112,10 +120,6 @@ public class Particles extends AbstractModule {
 			.get();
 	}
 
-	public static Particles getInstance() {
-		return Instance;
-	}
-
 	public boolean getShowParticle(ParticleType type) {
 		return enabled.get() && particleOptions.containsKey(type)
 			? ((BooleanOption) Particles.getInstance().particleOptions.get(type).get("showParticle")).get()
@@ -126,12 +130,12 @@ public class Particles extends AbstractModule {
 
 		// Function to compare
 		public int compare(ParticleType s1, ParticleType s2) {
-			if (s1.getName().equals(s2.getName()))
+			if (s1.getKey().equals(s2.getKey()))
 				return 0;
-			String[] strings = {s1.getName(), s2.getName()};
+			String[] strings = {s1.getKey(), s2.getKey()};
 			Arrays.sort(strings, Collections.reverseOrder());
 
-			if (strings[0].equals(s1.getName()))
+			if (strings[0].equals(s1.getKey()))
 				return 1;
 			else
 				return -1;
