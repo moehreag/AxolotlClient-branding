@@ -23,12 +23,13 @@
 package io.github.axolotlclient.modules.zoom;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.FloatOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.Util;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.options.KeyBinding;
 import org.lwjgl.glfw.GLFW;
@@ -55,7 +56,7 @@ public class Zoom extends AbstractModule {
 	private static float lastAnimatedFactor = 1;
 	private static float animatedFactor = 1;
 	private static double lastReturnedFov;
-	public final OptionCategory zoom = new OptionCategory("zoom");
+	public final OptionCategory zoom = OptionCategory.create("zoom");
 
 	public static Zoom getInstance() {
 		return Instance;
@@ -149,18 +150,26 @@ public class Zoom extends AbstractModule {
 		zoom.add(zoomScrolling);
 		zoom.add(decreaseSensitivity);
 		zoom.add(smoothCamera);
-		zoom.add(new KeyBindOption("key.zoom", keyBinding, keyBind -> {
-		}));
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(zoom);
+		AxolotlClient.CONFIG.rendering.add(zoom);
 
-		//KeyBindingHelper.registerKeyBinding(keyBinding);
+		KeyBindingHelper.registerKeyBinding(keyBinding);
 
 		active = false;
 
-		zoom.add(new KeyBindOption("key.zoom.increase", GLFW.GLFW_KEY_UNKNOWN, key -> scroll(zoomSpeed.get()/2)));
+		KeyBinding increase = new KeyBinding("key.zoom.increase", GLFW.GLFW_KEY_UNKNOWN, "category.axolotlclient");
+		KeyBindingHelper.registerKeyBinding(increase);
 
-		zoom.add(new KeyBindOption("key.zoom.decrease", GLFW.GLFW_KEY_UNKNOWN, key -> scroll(-zoomSpeed.get()/2)));
+		KeyBinding decrease = new KeyBinding("key.zoom.decrease", GLFW.GLFW_KEY_UNKNOWN, "category.axolotlclient");
+		KeyBindingHelper.registerKeyBinding(decrease);
+		ClientTickEvents.END_CLIENT_TICK.register(c -> {
+			if (increase.wasPressed()) {
+				scroll(zoomSpeed.get() / 2);
+			}
+			if (decrease.wasPressed()) {
+				scroll(-zoomSpeed.get() / 2);
+			}
+		});
 	}
 
 	public void tick() {

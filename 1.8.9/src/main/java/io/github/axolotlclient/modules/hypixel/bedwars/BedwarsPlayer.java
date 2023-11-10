@@ -35,11 +35,11 @@ import net.minecraft.client.network.PlayerInfo;
 public class BedwarsPlayer {
 
 	private final BedwarsTeam team;
+	private final int number;
 	private PlayerInfo profile;
 	private boolean alive = true;
 	private boolean disconnected = false;
 	private boolean bed = true;
-	private final int number;
 	private BedwarsPlayerStats stats = null;
 	private boolean triedStats = false;
 	private int tickAlive = -1;

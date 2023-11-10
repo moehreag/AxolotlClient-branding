@@ -46,6 +46,10 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(GameMenuScreen.class)
 public abstract class GameMenuScreenMixin extends Screen {
 
+	private static boolean axolotlclient$hasModMenu() {
+		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
+	}
+
 	@Inject(method = "init", at = @At("RETURN"))
 	public void axolotlclient$addConfigButton(CallbackInfo ci) {
 		if (API.getInstance().isConnected()) {
@@ -72,10 +76,6 @@ public abstract class GameMenuScreenMixin extends Screen {
 				}
 			}
 		}
-	}
-
-	private static boolean axolotlclient$hasModMenu() {
-		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
 
 	@ModifyArgs(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIIILjava/lang/String;)V", ordinal = 1))

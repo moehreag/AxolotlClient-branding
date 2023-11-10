@@ -35,11 +35,9 @@ import org.lwjgl.input.Mouse;
 
 public class NewsScreen extends Screen {
 
-	private final Screen parent;
-
-	private int scrollAmount;
 	private static final int SCROLL_STEP = 5;
-
+	private final Screen parent;
+	private int scrollAmount;
 	private List<String> lines;
 
 	public NewsScreen(Screen parent) {

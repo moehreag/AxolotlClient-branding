@@ -26,15 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.GraphicsOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
 import net.minecraft.client.MinecraftClient;
@@ -58,9 +59,9 @@ public class KeystrokeHud extends TextHudEntry {
 	public static final Identifier ID = new Identifier("kronhud", "keystrokehud");
 
 	private final ColorOption pressedTextColor = new ColorOption("heldtextcolor", new Color(0xFF000000));
-	private final ColorOption pressedBackgroundColor = new ColorOption("heldbackgroundcolor", 0x64FFFFFF);
-	private final ColorOption pressedOutlineColor = new ColorOption("heldoutlinecolor", Color.BLACK);
-	private final BooleanOption mouseMovement = new BooleanOption("mousemovement", this::onMouseMovementOption, false);
+	private final ColorOption pressedBackgroundColor = new ColorOption("heldbackgroundcolor", new Color(0x64FFFFFF));
+	private final ColorOption pressedOutlineColor = new ColorOption("heldoutlinecolor", ClientColors.BLACK);
+	private final BooleanOption mouseMovement = new BooleanOption("mousemovement", false, this::onMouseMovementOption);
 	private final GraphicsOption mouseMovementIndicatorInner = new GraphicsOption("mouseMovementIndicator", new int[][]{
 		new int[]{0, 0, 0, 0, 0, 0, 0},
 		new int[]{0, 0, 0, 0, 0, 0, 0},
@@ -69,7 +70,7 @@ public class KeystrokeHud extends TextHudEntry {
 		new int[]{0, 0, 0, 0, 0, 0, 0},
 		new int[]{0, 0, 0, 0, 0, 0, 0},
 		new int[]{0, 0, 0, 0, 0, 0, 0}
-	}, true);
+	});
 	private final GraphicsOption mouseMovementIndicatorOuter = new GraphicsOption("mouseMovementIndicatorOuter", new int[][]{
 		new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
@@ -82,7 +83,7 @@ public class KeystrokeHud extends TextHudEntry {
 		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
 		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
 		new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-	}, true);
+	});
 	private final MinecraftClient client;
 	private ArrayList<Keystroke> keystrokes;
 	private float mouseX = 0;
@@ -126,7 +127,7 @@ public class KeystrokeHud extends TextHudEntry {
 			fillRect(matrices, spaceBounds, stroke.getFGColor());
 			if (shadow.get()) {
 				fillRect(matrices, spaceBounds.offset(1, 1), new Color(
-					(stroke.getFGColor().getAsInt() & 16579836) >> 2 | stroke.getFGColor().getAsInt() & -16777216));
+					(stroke.getFGColor().toInt() & 16579836) >> 2 | stroke.getFGColor().toInt() & -16777216));
 			}
 		}));
 		KeyBinding.unpressAll();
@@ -185,7 +186,7 @@ public class KeystrokeHud extends TextHudEntry {
 				- ((float) client.textRenderer.getWidth(word) / 2);
 			float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
 
-			drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().getAsInt(), shadow.get());
+			drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
 		});
 	}
 
@@ -209,21 +210,21 @@ public class KeystrokeHud extends TextHudEntry {
 			int spaceY = 62 + getRawY();
 			int spaceX = getRawX();
 			if (background.get()) {
-				DrawUtil.fillRect(matrices, spaceX, spaceY, width, 35, backgroundColor.get().getAsInt());
+				DrawUtil.fillRect(matrices, spaceX, spaceY, width, 35, backgroundColor.get().toInt());
 			}
 			if (outline.get()) {
-				DrawUtil.outlineRect(matrices, spaceX, spaceY, width, 35, outlineColor.get().getAsInt());
+				DrawUtil.outlineRect(matrices, spaceX, spaceY, width, 35, outlineColor.get().toInt());
 			}
 
 			float calculatedMouseX = (lastMouseX + ((mouseX - lastMouseX) * delta)) - 5;
 			float calculatedMouseY = (lastMouseY + ((mouseY - lastMouseY) * delta)) - 5;
 
-			mouseMovementIndicatorInner.bindTexture();
+			io.github.axolotlclient.util.Util.bindTexture(mouseMovementIndicatorInner);
 			drawTexture(matrices, spaceX + (width / 2) - 7 / 2 - 1, spaceY + 17 - (7 / 2), 0, 0, 7, 7, 7, 7);
 
 			matrices.translate(calculatedMouseX, calculatedMouseY, 0); // Woah KodeToad, good use of translate
 
-			mouseMovementIndicatorOuter.bindTexture();
+			io.github.axolotlclient.util.Util.bindTexture(mouseMovementIndicatorOuter);
 			drawTexture(matrices, spaceX + (width / 2) - 1, spaceY + 17, 0, 0, 11, 11, 11, 11);
 		}
 	}
@@ -307,8 +308,8 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		public Color getFGColor() {
-			return key.isPressed() ? Color.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
-				: Color.blend(pressedTextColor.get(), textColor.get(), getPercentPressed());
+			return key.isPressed() ? ClientColors.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
+				: ClientColors.blend(pressedTextColor.get(), textColor.get(), getPercentPressed());
 		}
 
 		private float getPercentPressed() {
@@ -339,13 +340,13 @@ public class KeystrokeHud extends TextHudEntry {
 
 		public Color getColor() {
 			return key.isPressed()
-				? Color.blend(backgroundColor.get(), pressedBackgroundColor.get(), getPercentPressed())
-				: Color.blend(pressedBackgroundColor.get(), backgroundColor.get(), getPercentPressed());
+				? ClientColors.blend(backgroundColor.get(), pressedBackgroundColor.get(), getPercentPressed())
+				: ClientColors.blend(pressedBackgroundColor.get(), backgroundColor.get(), getPercentPressed());
 		}
 
 		public Color getOutlineColor() {
-			return key.isPressed() ? Color.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
-				: Color.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
+			return key.isPressed() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
+				: ClientColors.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
 		}
 	}
 }

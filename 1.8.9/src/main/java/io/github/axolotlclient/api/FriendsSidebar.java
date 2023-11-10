@@ -200,6 +200,13 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		super.mouseClicked(mouseX, mouseY, button);
 	}
 
+	@Override
+	protected void buttonClicked(ButtonWidget buttonWidget) {
+		if (buttonWidget.id == 0) {
+			close();
+		}
+	}
+
 	private void addChat(Channel channel) {
 		hasChat = true;
 		this.channel = channel;

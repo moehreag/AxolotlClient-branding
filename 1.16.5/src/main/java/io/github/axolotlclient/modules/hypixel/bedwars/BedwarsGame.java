@@ -26,8 +26,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.BedwarsTeamUpgrades;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import io.github.axolotlclient.util.events.impl.ScoreboardRenderEvent;
 import lombok.Getter;
@@ -124,17 +125,17 @@ public class BedwarsGame {
 
 	private String calculateTopBarText() {
 		String topBar = getFormattedTime();
-		if(me.getStats() != null){
-			topBar += "\n"+
-				"K: "+me.getStats().getGameKills()+
-				" D: "+me.getStats().getGameDeaths()+
-				" B: "+me.getStats().getGameBedsBroken();
+		if (me.getStats() != null) {
+			topBar += "\n" +
+				"K: " + me.getStats().getGameKills() +
+				" D: " + me.getStats().getGameDeaths() +
+				" B: " + me.getStats().getGameBedsBroken();
 		}
 		return topBar;
 	}
 
 	private String calculateBottomBarText() {
-		return Formatting.DARK_AQUA + "Last Kill: "+ Formatting.RESET + (lastKill == null ? "N/A" : lastKill.getColoredName()) +
+		return Formatting.DARK_AQUA + "Last Kill: " + Formatting.RESET + (lastKill == null ? "N/A" : lastKill.getColoredName()) +
 			Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
 		// left in here because it'll be useful later on
 		/*Comparator<BedwarsPlayer> comparator = Comparator.comparingInt(o -> o.getStats().getGameKills());
@@ -176,9 +177,9 @@ public class BedwarsGame {
 		if (mod.overrideMessages.get()) {
 			event.setNewMessage(new LiteralText(formatDeath(player, killer, type, finalDeath)));
 		}
-		if(me.equals(killer)){
+		if (me.equals(killer)) {
 			lastKill = player;
-		} else if (me.equals(player)){
+		} else if (me.equals(player)) {
 			lastKiller = killer;
 		}
 	}
@@ -442,11 +443,11 @@ public class BedwarsGame {
 		if (stats == null) {
 			return null;
 		}
-		BedwarsLevelHeadMode mode = BedwarsLevelHeadMode.get(mod.bedwarsLevelHeadMode.get());
+		BedwarsLevelHeadMode mode = mod.bedwarsLevelHeadMode.get();
 		return mode.apply(stats);
 	}
 
-	public void renderCustomScoreboardObjective(MatrixStack matrices, String playerName, ScoreboardObjective objective, int y, int endX){
+	public void renderCustomScoreboardObjective(MatrixStack matrices, String playerName, ScoreboardObjective objective, int y, int endX) {
 		BedwarsPlayer bedwarsPlayer = getPlayer(playerName).orElse(null);
 		if (bedwarsPlayer == null) {
 			return;
@@ -460,10 +461,10 @@ public class BedwarsGame {
 			int tickTillLive = Math.max(0, bedwarsPlayer.getTickAlive() - mc.inGameHud.getTicks());
 			float secondsTillLive = tickTillLive / 20f;
 			render = String.format("%.1f", secondsTillLive) + "s";
-			color = new Color(200, 200, 200).getAsInt();
+			color = new Color(200, 200, 200).toInt();
 		} else {
 			int health = objective.getScoreboard().getPlayerScore(playerName, objective).getScore();
-			color = Color.blend(new Color(255, 255, 255), new Color(215, 0, 64), (int) (1 - (health / 20f))).getAsInt();
+			color = ClientColors.blend(new Color(255, 255, 255), new Color(215, 0, 64), (int) (1 - (health / 20f))).toInt();
 			render = String.valueOf(health);
 		}
 		// Health

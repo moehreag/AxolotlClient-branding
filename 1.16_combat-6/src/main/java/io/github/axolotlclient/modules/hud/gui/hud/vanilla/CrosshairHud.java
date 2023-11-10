@@ -26,12 +26,18 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
+import io.github.axolotlclient.util.ClientColors;
+import io.github.axolotlclient.util.Util;
 import lombok.AllArgsConstructor;
 import net.minecraft.block.AbstractChestBlock;
 import net.minecraft.class_5512;
@@ -62,14 +68,14 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 
 	public static final Identifier ID = new Identifier("kronhud", "crosshairhud");
 
-	private final EnumOption type = new EnumOption("crosshair_type", Crosshair.values(), Crosshair.CROSS.toString());
+	private final EnumOption<Crosshair> type = new EnumOption<>("crosshair_type", Crosshair.class, Crosshair.CROSS);
 	private final BooleanOption showInF5 = new BooleanOption("showInF5", false);
-	private final ColorOption defaultColor = new ColorOption("defaultcolor", Color.WHITE);
-	private final ColorOption entityColor = new ColorOption("entitycolor", Color.SELECTOR_RED);
-	private final ColorOption containerColor = new ColorOption("blockcolor", Color.SELECTOR_BLUE);
+	private final ColorOption defaultColor = new ColorOption("defaultcolor", ClientColors.WHITE);
+	private final ColorOption entityColor = new ColorOption("entitycolor", ClientColors.SELECTOR_RED);
+	private final ColorOption containerColor = new ColorOption("blockcolor", ClientColors.SELECTOR_BLUE);
 	private final ColorOption attackIndicatorBackgroundColor = new ColorOption("attackindicatorbg",
 		new Color(0xFF141414));
-	private final ColorOption attackIndicatorForegroundColor = new ColorOption("attackindicatorfg", Color.WHITE);
+	private final ColorOption attackIndicatorForegroundColor = new ColorOption("attackindicatorfg", ClientColors.WHITE);
 	private final BooleanOption applyBlend = new BooleanOption("applyBlend", true);
 	private final BooleanOption overrideF3 = new BooleanOption("overrideF3", false);
 
@@ -90,7 +96,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 			new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		}, true);
+		});
 
 	public CrosshairHud() {
 		super(15, 15);
@@ -192,7 +198,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 					(int) (((client.getWindow().getScaledWidth() / getScale()) - 15) / 2),
 					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 0, 0, 15, 15);
 			} else {
-				customTextureGraphics.bindTexture();
+				Util.bindTexture(customTextureGraphics);
 				// Draw crosshair
 				RenderSystem.color4f((float) color.getRed() / 255, (float) color.getGreen() / 255,
 					(float) color.getBlue() / 255, (float) color.getAlpha() / 255);

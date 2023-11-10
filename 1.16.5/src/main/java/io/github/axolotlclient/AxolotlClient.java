@@ -26,11 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.DefaultConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.common.ConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.managers.VersionedJsonConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.StatusUpdateProviderImpl;
@@ -70,7 +69,7 @@ public class AxolotlClient implements ClientModInitializer {
 	public static String VERSION;
 	public static final HashMap<Identifier, Resource> runtimeResources = new HashMap<>();
 	public static final Identifier badgeIcon = new Identifier("axolotlclient", "textures/badge.png");
-	public static final OptionCategory config = new OptionCategory("storedOptions");
+	public static final OptionCategory config = OptionCategory.create("storedOptions");
 	public static final BooleanOption someNiceBackground = new BooleanOption("defNoSecret", false);
 	public static final List<Module> modules = new ArrayList<>();
 	public static final Logger LOGGER = new LoggerImpl();
@@ -118,13 +117,16 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::init);
 
-		CONFIG.getConfig().addAll(CONFIG.getCategories());
 		CONFIG.getConfig().add(config);
 
-		AxolotlClientConfigManager.getInstance().registerConfig(MODID, CONFIG, configManager = new DefaultConfigManager(MODID,
-			FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"), CONFIG.getConfig()));
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "x");
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "y");
+		io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig.getInstance().register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
+			CONFIG.getConfig(), 1, (oldVersion, newVersion, config, json) -> {
+			// convert changed Options between versions here
+			return json;
+		}));
+		configManager.load();
+		//AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "x");
+		//AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "y");
 
 		modules.forEach(Module::lateInit);
 

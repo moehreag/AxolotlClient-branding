@@ -62,6 +62,12 @@ public class ChatHud extends TextHudEntry {
 		super(320, 80, false);
 	}
 
+	public static int getHeight(float chatHeight) {
+		int i = 180;
+		int j = 20;
+		return MathHelper.floor(chatHeight * (float) (i - j) + (float) j);
+	}
+
 	@Override
 	public void render(float delta) {
 		int scrolledLines = ((ChatHudAccessor) client.gui.getChat()).getScrolledLines();
@@ -161,12 +167,6 @@ public class ChatHud extends TextHudEntry {
 
 	protected int getFontHeight() {
 		return MathHelper.floor(Minecraft.getInstance().textRenderer.fontHeight);
-	}
-
-	public static int getHeight(float chatHeight) {
-		int i = 180;
-		int j = 20;
-		return MathHelper.floor(chatHeight * (float) (i - j) + (float) j);
 	}
 
 	public Text getTextAt(int x, int y) {

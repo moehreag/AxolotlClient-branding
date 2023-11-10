@@ -16,6 +16,17 @@ repositories {
 	}
 }
 
+loom {
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_1165}"
 	mappings "net.fabricmc:yarn:${project.mappings_1165}:v2"
@@ -30,7 +41,7 @@ dependencies {
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+1.16") {
 		exclude group: "com.terraformersmc"
-		//exclude group: "org.quiltmc"
+		exclude group: "org.quiltmc"
 		exclude group: "org.lwjgl"
 	}
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+1.16"
@@ -46,6 +57,11 @@ dependencies {
 	}
 	implementation include("org.slf4j:slf4j-api:1.7.36")
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+
+	api("org.lwjgl:lwjgl-nanovg:3.2.2")
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.2.2:natives-linux')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.2.2:natives-windows')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.2.2:natives-macos')
 }
 
 processResources {

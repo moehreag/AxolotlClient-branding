@@ -38,8 +38,8 @@ public class PrivacyNoticeScreen extends Screen {
 	private static final URI PRIVACY_POLICY_URL = URI.create("https://axolotlclient.xyz/privacy");
 
 	private final Screen parent;
-	private List<String> message;
 	private final Consumer<Boolean> accepted;
+	private List<String> message;
 
 	protected PrivacyNoticeScreen(Screen parent, Consumer<Boolean> accepted) {
 		super();

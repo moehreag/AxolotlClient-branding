@@ -36,11 +36,11 @@ import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -64,14 +64,14 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(new AuthWidget());
 		}
-		if(APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			buttons.add(new ButtonWidget(182, width - 125, 10, 120, 20, I18n.translate("api.new_version_available")));
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
-			buttons.add(new ButtonWidget(253, width-125, 25, 120, 20,
+			buttons.add(new ButtonWidget(253, width - 125, 25, 120, 20,
 				I18n.translate("api.notes")));
 		}
 	}
@@ -103,7 +103,7 @@ public abstract class TitleScreenMixin extends Screen {
 			Minecraft.getInstance().openScreen(new AccountsScreen(Minecraft.getInstance().screen));
 		else if (button.id == 182)
 			Minecraft.getInstance().openScreen(new ConfirmChatLinkScreen((bl, i) -> {
-				if(bl && i == 353){
+				if (bl && i == 353) {
 					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
 				}
 				Minecraft.getInstance().openScreen(this);

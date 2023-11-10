@@ -55,6 +55,10 @@ public class MotionBlur extends AbstractModule {
 	private int lastWidth;
 	private int lastHeight;
 
+	private static float getBlur() {
+		return MotionBlur.getInstance().strength.get() / 100F;
+	}
+
 	@Override
 	public void init() {
 		category.add(enabled, strength, inGuis);
@@ -88,10 +92,6 @@ public class MotionBlur extends AbstractModule {
 
 		lastWidth = client.width;
 		lastHeight = client.height;
-	}
-
-	private static float getBlur() {
-		return MotionBlur.getInstance().strength.get() / 100F;
 	}
 
 	private static class MotionBlurShader implements Resource {

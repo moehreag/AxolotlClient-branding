@@ -29,10 +29,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMode;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.AllArgsConstructor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -96,8 +97,8 @@ public class TrapUpgrade extends TeamUpgrade {
 	@Override
 	public void draw(MatrixStack stack, int x, int y, int width, int height) {
 		if (traps.size() == 0) {
-			Color color = Color.DARK_GRAY;
-			RenderSystem.color4f(color.getAlpha()/255F, color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F);
+			Color color = ClientColors.DARK_GRAY;
+			RenderSystem.color4f(color.getAlpha() / 255F, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F);
 			MinecraftClient.getInstance().getTextureManager().bindTexture(new Identifier("textures/item/barrier.png"));
 			DrawableHelper.drawTexture(stack, x, y, 0, 0, 16, 16, 16, 16);
 		} else {
@@ -109,7 +110,7 @@ public class TrapUpgrade extends TeamUpgrade {
 		}
 	}
 
-	public int getTrapCount(){
+	public int getTrapCount() {
 		return traps.size();
 	}
 
@@ -155,7 +156,7 @@ public class TrapUpgrade extends TeamUpgrade {
 			return ITS_A_TRAP;
 		}
 
-		public void draw(MatrixStack graphics, int x, int y, int width, int height){
+		public void draw(MatrixStack graphics, int x, int y, int width, int height) {
 			renderer.render(graphics, x, y, width, height, 0);
 		}
 	}

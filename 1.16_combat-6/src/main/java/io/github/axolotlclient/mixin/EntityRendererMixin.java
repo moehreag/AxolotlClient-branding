@@ -28,9 +28,9 @@ import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHead;
+import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.util.Util;
-import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -125,14 +125,14 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 						Matrix4f matrix4f = matrices.peek().getModel();
 						MinecraftClient.getInstance().textRenderer.draw(text, x, y,
-							LevelHead.getInstance().textColor.get().getAsInt(), AxolotlClient.CONFIG.useShadows.get(),
+							LevelHead.getInstance().textColor.get().toInt(), AxolotlClient.CONFIG.useShadows.get(),
 							matrix4f, vertexConsumers, false, LevelHead.getInstance().background.get() ? 127 : 0,
 							light);
 					}
 				} else if (LevelHead.getInstance().enabled.get()) {
 					String text = "Level: " + HypixelAbstractionLayer.getPlayerLevel(String.valueOf(entity.getUuid()), LevelHead.getInstance().mode.get());
 
-					if(LevelHead.getInstance().mode.get().equals(LevelHeadMode.BEDWARS.toString())){
+					if (LevelHead.getInstance().mode.get().equals(LevelHeadMode.BEDWARS.toString())) {
 						text += "☆";
 					}
 
@@ -141,7 +141,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 					Matrix4f matrix4f = matrices.peek().getModel();
 					MinecraftClient.getInstance().textRenderer.draw(text, x, y,
-						LevelHead.getInstance().textColor.get().getAsInt(), AxolotlClient.CONFIG.useShadows.get(),
+						LevelHead.getInstance().textColor.get().toInt(), AxolotlClient.CONFIG.useShadows.get(),
 						matrix4f, vertexConsumers, false, LevelHead.getInstance().background.get() ? 127 : 0,
 						light);
 				}

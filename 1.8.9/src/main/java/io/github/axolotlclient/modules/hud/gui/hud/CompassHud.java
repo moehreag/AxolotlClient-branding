@@ -67,6 +67,46 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 		super(240, 33, false);
 	}
 
+	private static Indicator getIndicator(int degrees) {
+		if (degrees % 90 == 0) {
+			return Indicator.CARDINAL;
+		}
+		if (degrees % 45 == 0) {
+			return Indicator.SEMI_CARDINAL;
+		}
+		return Indicator.SMALL;
+	}
+
+	private static String getCardString(Indicator indicator, int degrees) {
+		if (indicator == Indicator.CARDINAL) {
+			switch (degrees) {
+				case 0:
+					return "N";
+
+				case 90:
+					return "E";
+				case 180:
+					return "S";
+				case 270:
+					return "W";
+				default:
+					return "NaD";
+			}
+		}
+		switch (degrees) {
+			case 45:
+				return "NE";
+			case 135:
+				return "SE";
+			case 225:
+				return "SW";
+			case 315:
+				return "NW";
+			default:
+				return "NaD";
+		}
+	}
+
 	private void updateWidth(int newWidth) {
 		setWidth(newWidth);
 		onBoundsUpdate();
@@ -164,46 +204,6 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 		}
 		GlStateManager.color4f(1, 1, 1, 1);
 		GlStateManager.translatef(-shift, 0, 0);
-	}
-
-	private static Indicator getIndicator(int degrees) {
-		if (degrees % 90 == 0) {
-			return Indicator.CARDINAL;
-		}
-		if (degrees % 45 == 0) {
-			return Indicator.SEMI_CARDINAL;
-		}
-		return Indicator.SMALL;
-	}
-
-	private static String getCardString(Indicator indicator, int degrees) {
-		if (indicator == Indicator.CARDINAL) {
-			switch (degrees) {
-				case 0:
-					return "N";
-
-				case 90:
-					return "E";
-				case 180:
-					return "S";
-				case 270:
-					return "W";
-				default:
-					return "NaD";
-			}
-		}
-		switch (degrees) {
-			case 45:
-				return "NE";
-			case 135:
-				return "SE";
-			case 225:
-				return "SW";
-			case 315:
-				return "NW";
-			default:
-				return "NaD";
-		}
 	}
 
 	@Override

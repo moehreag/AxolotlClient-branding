@@ -192,7 +192,7 @@ public abstract class PlayerListHudMixin {
 
 			render = String.valueOf(HypixelAbstractionLayer.getPlayerLevel(playerListEntry2
 					.getProfile().getId().toString().replace("-", ""),
-				LevelHeadMode.BEDWARS.toString()));
+				LevelHeadMode.BEDWARS));
 		} catch (Exception e) {
 			return;
 		}

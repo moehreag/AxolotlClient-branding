@@ -32,10 +32,10 @@ import net.minecraft.client.resource.language.I18n;
 public class SimpleTextInputScreen extends Screen {
 
 	private final Screen parent;
-	private TextFieldWidget input;
 	private final String inputLabel;
 	private final String title;
 	private final Consumer<String> consumer;
+	private TextFieldWidget input;
 
 	public SimpleTextInputScreen(Screen parent, String title, String inputLabel, Consumer<String> consumer) {
 		super();

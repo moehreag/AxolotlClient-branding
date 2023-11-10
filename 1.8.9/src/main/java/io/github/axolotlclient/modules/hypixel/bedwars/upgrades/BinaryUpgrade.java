@@ -33,12 +33,10 @@ import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMode;
 
 public class BinaryUpgrade extends TeamUpgrade {
 
-	private boolean purchased = false;
-
 	private final int foursPrice;
 	private final int doublesPrice;
-
 	private final TeamUpgradeRenderer drawer;
+	private boolean purchased = false;
 
 	public BinaryUpgrade(String name, Pattern regex, int foursPrice, int doublesPrice, TeamUpgradeRenderer drawer) {
 		super(name, regex);

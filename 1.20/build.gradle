@@ -21,13 +21,24 @@ repositories {
 	mavenLocal()
 }
 
+loom {
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_120}"
 	mappings "org.quiltmc:quilt-mappings:${project.mappings_120}:intermediary-v2"
 
 	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
 
-	modImplementation ("org.quiltmc.qsl.core:networking:${project.qsl_120}+${project.minecraft_120}-SNAPSHOT")
+	modImplementation("org.quiltmc.qsl.core:networking:${project.qsl_120}+${project.minecraft_120}-SNAPSHOT")
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_120}") {
 		exclude group: "com.terraformersmc"
@@ -39,6 +50,14 @@ dependencies {
 	modApi("com.terraformersmc:modmenu:8.0.0")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
+
+	api("org.lwjgl:lwjgl-nanovg:3.3.2")
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
 }
 
 processResources {

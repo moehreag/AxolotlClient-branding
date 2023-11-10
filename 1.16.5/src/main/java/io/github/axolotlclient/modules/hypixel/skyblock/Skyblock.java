@@ -22,26 +22,32 @@
 
 package io.github.axolotlclient.modules.hypixel.skyblock;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import lombok.Getter;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
+import org.lwjgl.glfw.GLFW;
 
 public class Skyblock implements AbstractHypixelMod {
 
 	@Getter
 	private final static Skyblock Instance = new Skyblock();
 	public final BooleanOption rotationLocked = new BooleanOption("rotationLocked", false);
-	private final OptionCategory category = new OptionCategory("skyblock");
-	private final KeyBindOption lock = new KeyBindOption("lockRotation",
-		new KeyBinding("lockRotation", -1, "category.axolotlclient"),
-		keyBinding -> rotationLocked.toggle());
+	private final OptionCategory category = OptionCategory.create("skyblock");
 
 	@Override
 	public void init() {
-		category.add(rotationLocked, lock);
+		category.add(rotationLocked);
+		KeyBinding binding = new KeyBinding("lockRotation", GLFW.GLFW_KEY_UNKNOWN, "category.axolotlclient");
+		KeyBindingHelper.registerKeyBinding(binding);
+		ClientTickEvents.END_CLIENT_TICK.register(c -> {
+			if (binding.wasPressed()){
+				rotationLocked.toggle();
+			}
+		});
 	}
 
 	@Override

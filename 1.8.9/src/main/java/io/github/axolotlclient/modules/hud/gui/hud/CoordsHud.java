@@ -62,6 +62,71 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		super(79, 31, true);
 	}
 
+	/**
+	 * Get direction. 1 = North, 2 North East, 3 East, 4 South East...
+	 *
+	 * @param yaw the player's yaw
+	 * @return the direction, 0-360 degrees.
+	 */
+	public static int getDirection(double yaw) {
+		yaw %= 360;
+
+		if (yaw < 0) {
+			yaw += 360;
+		}
+		int[] directions = {0, 23, 68, 113, 158, 203, 248, 293, 338, 360};
+		for (int i = 0; i < directions.length; i++) {
+			int min = directions[i];
+			int max;
+			if (i + 1 >= directions.length) {
+				max = directions[0];
+			} else {
+				max = directions[i + 1];
+			}
+			if (yaw >= min && yaw < max) {
+				if (i >= 8) {
+					return 1;
+				}
+				return i + 1;
+			}
+		}
+		return 0;
+	}
+
+	public static String getXDir(int dir) {
+		switch (dir) {
+			case 3:
+				return "++";
+			case 2:
+			case 4:
+				return "+";
+			case 6:
+			case 8:
+				return "-";
+			case 7:
+				return "--";
+			default:
+				return "";
+		}
+	}
+
+	public static String getZDir(int dir) {
+		switch (dir) {
+			case 5:
+				return "++";
+			case 4:
+			case 6:
+				return "+";
+			case 8:
+			case 2:
+				return "-";
+			case 1:
+				return "--";
+			default:
+				return "";
+		}
+	}
+
 	@Override
 	public void renderComponent(float delta) {
 		DrawPosition pos = getPos();
@@ -147,37 +212,6 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		}
 	}
 
-	/**
-	 * Get direction. 1 = North, 2 North East, 3 East, 4 South East...
-	 *
-	 * @param yaw the player's yaw
-	 * @return the direction, 0-360 degrees.
-	 */
-	public static int getDirection(double yaw) {
-		yaw %= 360;
-
-		if (yaw < 0) {
-			yaw += 360;
-		}
-		int[] directions = {0, 23, 68, 113, 158, 203, 248, 293, 338, 360};
-		for (int i = 0; i < directions.length; i++) {
-			int min = directions[i];
-			int max;
-			if (i + 1 >= directions.length) {
-				max = directions[0];
-			} else {
-				max = directions[i + 1];
-			}
-			if (yaw >= min && yaw < max) {
-				if (i >= 8) {
-					return 1;
-				}
-				return i + 1;
-			}
-		}
-		return 0;
-	}
-
 	public String getWordedDirection(int dir) {
 		switch (dir) {
 			case 1:
@@ -198,40 +232,6 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 				return "NW";
 			case 0:
 				return "?";
-			default:
-				return "";
-		}
-	}
-
-	public static String getXDir(int dir) {
-		switch (dir) {
-			case 3:
-				return "++";
-			case 2:
-			case 4:
-				return "+";
-			case 6:
-			case 8:
-				return "-";
-			case 7:
-				return "--";
-			default:
-				return "";
-		}
-	}
-
-	public static String getZDir(int dir) {
-		switch (dir) {
-			case 5:
-				return "++";
-			case 4:
-			case 6:
-				return "+";
-			case 8:
-			case 2:
-				return "-";
-			case 1:
-				return "--";
 			default:
 				return "";
 		}

@@ -23,8 +23,10 @@
 package io.github.axolotlclient.modules.renderOptions;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.util.options.GenericOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import lombok.Getter;
 
@@ -36,7 +38,7 @@ public class BeaconBeam extends AbstractModule {
 	private final BooleanOption showBeaconBeams = new BooleanOption("showBeaconBeams", true);
 	private final BooleanOption showEndGatewayBeams = new BooleanOption("showEndGatewayBeams", true);
 
-	private final OptionCategory beams = new OptionCategory("beams");
+	private final OptionCategory beams = OptionCategory.create("beams");
 
 	@Override
 	public void init() {

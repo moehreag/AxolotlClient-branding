@@ -57,37 +57,24 @@ public class BedwarsMod implements AbstractHypixelMod {
 
 	@Getter
 	private static BedwarsMod instance = new BedwarsMod();
-
-	@Getter
-	private final OptionCategory category = OptionCategory.create("bedwars");
-
-	private final BooleanOption enabled = new BooleanOption("enabled", false);
-
 	public final BooleanOption hardcoreHearts = new BooleanOption(getTranslationKey("hardcoreHearts"), true);
-
 	public final BooleanOption showHunger = new BooleanOption(getTranslationKey("showHunger"), false);
-
 	public final BooleanOption displayArmor = new BooleanOption(getTranslationKey("displayArmor"), true);
-
 	public final BooleanOption bedwarsLevelHead = new BooleanOption(getTranslationKey("bedwarsLevelHead"), true);
 	public final EnumOption<BedwarsLevelHeadMode> bedwarsLevelHeadMode = new EnumOption<>(getTranslationKey("bedwarsLevelHeadMode"),
 		BedwarsLevelHeadMode.class,
 		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS);
-
-	protected BedwarsGame currentGame = null;
-
 	@Getter
 	protected final TeamUpgradesOverlay upgradesOverlay;
-
-
 	protected final BooleanOption removeAnnoyingMessages = new BooleanOption(getTranslationKey("removeAnnoyingMessages"), true);
-
-
+	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
+	@Getter
+	private final OptionCategory category = OptionCategory.create("bedwars");
+	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final BooleanOption tabRenderLatencyIcon = new BooleanOption(getTranslationKey("tabRenderLatencyIcon"), false);
 
 	private final BooleanOption showChatTime = new BooleanOption(getTranslationKey("showChatTime"), true);
-
-	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
+	protected BedwarsGame currentGame = null;
 	private int targetTick = -1;
 	private boolean waiting = false;
 

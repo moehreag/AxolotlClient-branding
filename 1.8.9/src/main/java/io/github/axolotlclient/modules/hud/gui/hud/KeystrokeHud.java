@@ -95,6 +95,17 @@ public class KeystrokeHud extends TextHudEntry {
 		Events.PLAYER_DIRECTION_CHANGE.register(this::onPlayerDirectionChange);
 	}
 
+	public static Optional<String> getMouseKeyBindName(KeyBinding keyBinding) {
+		if (keyBinding.getName().equalsIgnoreCase(client.options.attackKey.getName())) {
+			return Optional.of("LMB");
+		} else if (keyBinding.getName().equalsIgnoreCase(client.options.usekey.getName())) {
+			return Optional.of("RMB");
+		} else if (keyBinding.getName().equalsIgnoreCase(client.options.pickItemKey.getName())) {
+			return Optional.of("MMB");
+		}
+		return Optional.empty();
+	}
+
 	public void setKeystrokes() {
 		if (Util.getWindow() == null) {
 			keystrokes = null;
@@ -161,17 +172,6 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 		height = baseHeight;
 		onBoundsUpdate();
-	}
-
-	public static Optional<String> getMouseKeyBindName(KeyBinding keyBinding) {
-		if (keyBinding.getName().equalsIgnoreCase(client.options.attackKey.getName())) {
-			return Optional.of("LMB");
-		} else if (keyBinding.getName().equalsIgnoreCase(client.options.usekey.getName())) {
-			return Optional.of("RMB");
-		} else if (keyBinding.getName().equalsIgnoreCase(client.options.pickItemKey.getName())) {
-			return Optional.of("MMB");
-		}
-		return Optional.empty();
 	}
 
 	public Keystroke createFromString(Rectangle bounds, DrawPosition offset, KeyBinding key, String word) {

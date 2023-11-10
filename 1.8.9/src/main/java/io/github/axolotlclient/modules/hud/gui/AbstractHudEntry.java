@@ -75,6 +75,14 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 		this.height = height;
 	}
 
+	public static float intToFloat(int current, int max, int offset) {
+		return MathHelper.clamp((float) (current) / (max - offset), 0, 1);
+	}
+
+	public static int floatToInt(float percent, int max, int offset) {
+		return MathHelper.clamp(Math.round((max - offset) * percent), 0, max);
+	}
+
 	public void renderPlaceholderBackground() {
 		if (hovered) {
 			fillRect(getTrueBounds(), ClientColors.SELECTOR_BLUE.withAlpha(100));
@@ -96,10 +104,6 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	public void setX(int x) {
 		this.x.set((double) intToFloat(x, (int) Util.getWindow().getScaledWidth(), 0));
-	}
-
-	public static float intToFloat(int current, int max, int offset) {
-		return MathHelper.clamp((float) (current) / (max - offset), 0, 1);
 	}
 
 	@Override
@@ -131,6 +135,39 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	 */
 	public Rectangle getBounds() {
 		return renderBounds;
+	}
+
+	public void setBounds(float scale) {
+		if (Util.getWindow() == null) {
+			truePosition = new DrawPosition(0, 0);
+			renderPosition = new DrawPosition(0, 0);
+			renderBounds = new Rectangle(0, 0, 1, 1);
+			trueBounds = new Rectangle(0, 0, 1, 1);
+			return;
+		}
+		int scaledX = floatToInt(x.get().floatValue(), (int) Util.getWindow().getScaledWidth(), 0) - offsetTrueWidth();
+		int scaledY = floatToInt(y.get().floatValue(), (int) Util.getWindow().getScaledHeight(), 0)
+			- offsetTrueHeight();
+		if (scaledX < 0) {
+			scaledX = 0;
+		}
+		if (scaledY < 0) {
+			scaledY = 0;
+		}
+		int trueWidth = (int) (getWidth() * getScale());
+		if (trueWidth < Util.getWindow().getScaledWidth() && scaledX + trueWidth > Util.getWindow().getScaledWidth()) {
+			scaledX = (int) (Util.getWindow().getScaledWidth() - trueWidth);
+		}
+		int trueHeight = (int) (getHeight() * getScale());
+		if (trueHeight < Util.getWindow().getScaledHeight()
+			&& scaledY + trueHeight > Util.getWindow().getScaledHeight()) {
+			scaledY = (int) (Util.getWindow().getScaledHeight() - trueHeight);
+		}
+		truePosition.x = scaledX;
+		truePosition.y = scaledY;
+		renderPosition = truePosition.divide(getScale());
+		renderBounds = new Rectangle(renderPosition.x(), renderPosition.y(), getWidth(), getHeight());
+		trueBounds = new Rectangle(scaledX, scaledY, (int) (getWidth() * getScale()), (int) (getHeight() * getScale()));
 	}
 
 	@Override
@@ -170,43 +207,6 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	public void setBounds() {
 		setBounds(getScale());
-	}
-
-	public static int floatToInt(float percent, int max, int offset) {
-		return MathHelper.clamp(Math.round((max - offset) * percent), 0, max);
-	}
-
-	public void setBounds(float scale) {
-		if (Util.getWindow() == null) {
-			truePosition = new DrawPosition(0, 0);
-			renderPosition = new DrawPosition(0, 0);
-			renderBounds = new Rectangle(0, 0, 1, 1);
-			trueBounds = new Rectangle(0, 0, 1, 1);
-			return;
-		}
-		int scaledX = floatToInt(x.get().floatValue(), (int) Util.getWindow().getScaledWidth(), 0) - offsetTrueWidth();
-		int scaledY = floatToInt(y.get().floatValue(), (int) Util.getWindow().getScaledHeight(), 0)
-			- offsetTrueHeight();
-		if (scaledX < 0) {
-			scaledX = 0;
-		}
-		if (scaledY < 0) {
-			scaledY = 0;
-		}
-		int trueWidth = (int) (getWidth() * getScale());
-		if (trueWidth < Util.getWindow().getScaledWidth() && scaledX + trueWidth > Util.getWindow().getScaledWidth()) {
-			scaledX = (int) (Util.getWindow().getScaledWidth() - trueWidth);
-		}
-		int trueHeight = (int) (getHeight() * getScale());
-		if (trueHeight < Util.getWindow().getScaledHeight()
-			&& scaledY + trueHeight > Util.getWindow().getScaledHeight()) {
-			scaledY = (int) (Util.getWindow().getScaledHeight() - trueHeight);
-		}
-		truePosition.x = scaledX;
-		truePosition.y = scaledY;
-		renderPosition = truePosition.divide(getScale());
-		renderBounds = new Rectangle(renderPosition.x(), renderPosition.y(), getWidth(), getHeight());
-		trueBounds = new Rectangle(scaledX, scaledY, (int) (getWidth() * getScale()), (int) (getHeight() * getScale()));
 	}
 
 	public OptionCategory getAllOptions() {

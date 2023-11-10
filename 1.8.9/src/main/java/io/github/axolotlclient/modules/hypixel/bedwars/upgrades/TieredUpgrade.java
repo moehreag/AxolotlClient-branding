@@ -36,10 +36,9 @@ public class TieredUpgrade extends TeamUpgrade {
 
 	private final int[] doublesPrice;
 	private final int[] foursPrice;
+	private final TeamUpgradeRenderer drawer;
 	@Getter
 	private int level = 0;
-
-	private final TeamUpgradeRenderer drawer;
 
 	public TieredUpgrade(String name, Pattern regex, int[] foursPrice, int[] doublesPrice, TeamUpgradeRenderer drawer) {
 		super(name, regex);

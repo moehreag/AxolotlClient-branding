@@ -24,6 +24,15 @@ repositories {
 
 loom {
 	accessWidenerPath.set(file("src/main/resources/axolotlclient.accesswidener"))
+
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
+	}
 }
 
 dependencies {
@@ -33,7 +42,7 @@ dependencies {
 	modCompileOnly "org.quiltmc:quilt-loader:${project.quilt_loader}"
 	modRuntimeOnly "net.fabricmc:fabric-loader:${fabric_loader}"
 
-	modImplementation ("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
+	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
 		exclude group: "org.lwjgl"
 		exclude group: "org.slf4j"
 	}
@@ -55,15 +64,15 @@ dependencies {
 	implementation include("org.slf4j:slf4j-api:1.7.36")
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
 
-	api ("org.lwjgl:lwjgl-nanovg:3.3.2")
-	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
-	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
-	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows')
-	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64')
-	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
-	runtimeOnly ('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
+	api("org.lwjgl:lwjgl-nanovg:3.3.2")
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
 
-	modCompileOnly ("com.github.moehreag:legacy-lwjgl3:d27b6b3ce2") {
+	modCompileOnly("com.github.moehreag:legacy-lwjgl3:d27b6b3ce2") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
 		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'

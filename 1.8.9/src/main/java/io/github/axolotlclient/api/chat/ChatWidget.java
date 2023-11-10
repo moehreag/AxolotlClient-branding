@@ -52,10 +52,10 @@ public class ChatWidget extends EntryListWidget {
 	private final List<ChatLine> entries = new ArrayList<>();
 	private final Channel channel;
 	private final Minecraft client;
+	private final ContextMenuScreen screen;
 	@Setter
 	@Getter
 	private int x, y, width, height;
-	private final ContextMenuScreen screen;
 	private int selectedEntry = -1;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {

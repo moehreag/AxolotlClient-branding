@@ -25,9 +25,9 @@ package io.github.axolotlclient.modules.tnttime;
 import java.text.DecimalFormat;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -37,7 +37,7 @@ public class TntTime extends AbstractModule {
 
 	private static final TntTime Instance = new TntTime();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
-	private final OptionCategory category = new OptionCategory("tnttime");
+	private final OptionCategory category = OptionCategory.create("tnttime");
 	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", 2, 0, 6);
 	private DecimalFormat format;
 	private int decimals;
@@ -49,7 +49,7 @@ public class TntTime extends AbstractModule {
 	@Override
 	public void init() {
 		category.add(enabled, decimalPlaces);
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 	}
 
 	@Override

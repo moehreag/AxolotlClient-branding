@@ -45,6 +45,12 @@ public class ReachHud extends SimpleTextHudEntry {
 	private String currentDist;
 	private long lastTime = 0;
 
+	public static double getAttackDistance(Entity attacking, Entity receiving) {
+
+		Vec3d camera = attacking.getRotationVec(1);
+		return camera.distanceTo(receiving.getRotationVec(1));
+	}
+
 	@Override
 	public Identifier getId() {
 		return ID;
@@ -70,12 +76,6 @@ public class ReachHud extends SimpleTextHudEntry {
 		formatter.setRoundingMode(RoundingMode.HALF_UP);
 		currentDist = formatter.format(distance) + " " + I18n.translate("blocks");
 		lastTime = Minecraft.getTime();
-	}
-
-	public static double getAttackDistance(Entity attacking, Entity receiving) {
-
-		Vec3d camera = attacking.getRotationVec(1);
-		return camera.distanceTo(receiving.getRotationVec(1));
 	}
 
 	@Override

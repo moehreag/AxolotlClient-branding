@@ -32,9 +32,10 @@ import com.mojang.authlib.minecraft.SocialInteractionsService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.util.UUIDTypeAdapter;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.util.options.GenericOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.modules.Module;
@@ -56,7 +57,8 @@ public class Auth extends Accounts implements Module {
 	private final static Auth Instance = new Auth();
 	public final BooleanOption showButton = new BooleanOption("auth.showButton", false);
 	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", (x, y) -> client.openScreen(new AccountsScreen(client.currentScreen)));
+	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", () ->
+		client.openScreen(new AccountsScreen(client.currentScreen)));
 
 	private final Map<String, Identifier> textures = new HashMap<>();
 	private final Set<String> loadingTexture = new HashSet<>();
@@ -76,7 +78,7 @@ public class Auth extends Accounts implements Module {
 			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
 		}
 
-		OptionCategory category = new OptionCategory("auth");
+		OptionCategory category = OptionCategory.create("auth");
 		category.add(showButton, viewAccounts);
 		AxolotlClient.CONFIG.general.add(category);
 	}

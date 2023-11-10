@@ -38,7 +38,7 @@ public abstract class SplashScreenMixin {
 
 	@Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screen/SplashScreen;field_25042:I"))
 	private int axolotlclient$customBackgroundColor() {
-		return AxolotlClient.CONFIG.loadingScreenColor.get().getAsInt() & 16777215;
+		return AxolotlClient.CONFIG.loadingScreenColor.get().toInt() & 16777215;
 	}
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(Lnet/minecraft/client/MinecraftClient;II)V"))

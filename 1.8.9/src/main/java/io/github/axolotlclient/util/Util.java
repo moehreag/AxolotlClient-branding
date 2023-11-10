@@ -271,24 +271,6 @@ public class Util {
 		return "";
 	}
 
-	public static class Color {
-
-		public float red = 1.0F;
-		public float green = 1.0F;
-		public float blue = 1.0F;
-		public float alpha = 1.0F;
-
-		public Color() {
-		}
-
-		public Color(float red, float green, float blue, float alpha) {
-			this.red = red;
-			this.green = green;
-			this.blue = blue;
-			this.alpha = alpha;
-		}
-	}
-
 	public static void bindTexture(GraphicsOption option) {
 		Identifier id = new Identifier("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
 		try {
@@ -311,6 +293,24 @@ public class Util {
 			Minecraft.getInstance().getTextureManager().bind(id);
 		} catch (IOException e) {
 			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
+		}
+	}
+
+	public static class Color {
+
+		public float red = 1.0F;
+		public float green = 1.0F;
+		public float blue = 1.0F;
+		public float alpha = 1.0F;
+
+		public Color() {
+		}
+
+		public Color(float red, float green, float blue, float alpha) {
+			this.red = red;
+			this.green = green;
+			this.blue = blue;
+			this.alpha = alpha;
 		}
 	}
 }

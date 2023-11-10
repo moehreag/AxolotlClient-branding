@@ -107,6 +107,8 @@ public class PingHud extends SimpleTextHudEntry {
 
 				manager.setListener(new ClientQueryPacketHandler() {
 
+					private long currentSystemTime = 0L;
+
 					@Override
 					public void onDisconnect(Text text) {
 
@@ -125,8 +127,6 @@ public class PingHud extends SimpleTextHudEntry {
 						currentServerPing = (int) (latency - time);
 						manager.disconnect(new LiteralText(""));
 					}
-
-					private long currentSystemTime = 0L;
 				});
 				manager.send(new HandshakeC2SPacket(47, address, port, NetworkProtocol.STATUS));
 				manager.send(new ServerStatusC2SPacket());

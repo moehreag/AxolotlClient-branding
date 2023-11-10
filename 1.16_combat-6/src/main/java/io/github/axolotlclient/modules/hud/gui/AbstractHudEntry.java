@@ -25,16 +25,16 @@ package io.github.axolotlclient.modules.hud.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.DoubleOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
@@ -75,11 +75,11 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	public void renderPlaceholderBackground(MatrixStack matrices) {
 		if (hovered) {
-			fillRect(matrices, getTrueBounds(), Color.SELECTOR_BLUE.withAlpha(100));
+			fillRect(matrices, getTrueBounds(), ClientColors.SELECTOR_BLUE.withAlpha(100));
 		} else {
-			fillRect(matrices, getTrueBounds(), Color.WHITE.withAlpha(50));
+			fillRect(matrices, getTrueBounds(), ClientColors.WHITE.withAlpha(50));
 		}
-		outlineRect(matrices, getTrueBounds(), Color.BLACK);
+		outlineRect(matrices, getTrueBounds(), ClientColors.BLACK);
 	}
 
 	public void scale(MatrixStack matrices) {
@@ -209,8 +209,8 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
 	public OptionCategory getAllOptions() {
 		List<Option<?>> options = getSaveOptions();
-		OptionCategory cat = new OptionCategory(getNameKey());
-		cat.add(options);
+		OptionCategory cat = OptionCategory.create(getNameKey());
+		options.forEach(cat::add);
 		return cat;
 	}
 
@@ -241,8 +241,8 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	}
 
 	public OptionCategory getOptionsAsCategory() {
-		OptionCategory cat = new OptionCategory(getNameKey(), false);
-		cat.add(getConfigurationOptions());
+		OptionCategory cat = OptionCategory.create(getNameKey());
+		getConfigurationOptions().forEach(cat::add);
 		return cat;
 	}
 

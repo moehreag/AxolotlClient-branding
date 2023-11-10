@@ -16,6 +16,17 @@ repositories {
 	}
 }
 
+loom {
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_1193}"
 	mappings "org.quiltmc:quilt-mappings:${project.mappings_1193}:intermediary-v2"
@@ -34,6 +45,14 @@ dependencies {
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
+
+	api("org.lwjgl:lwjgl-nanovg:3.3.1")
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-linux')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-linux-arm64')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-windows')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-windows-arm64')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-macos')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-macos-arm64')
 }
 
 processResources {

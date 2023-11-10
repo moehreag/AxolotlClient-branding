@@ -27,9 +27,10 @@ import java.io.InputStream;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.FloatOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.util.options.GenericOption;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
 import net.minecraft.client.MinecraftClient;
@@ -47,7 +48,7 @@ public class MotionBlur extends AbstractModule {
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
 	public final FloatOption strength = new FloatOption("strength", 50F, 1F, 99F);
 	public final BooleanOption inGuis = new BooleanOption("inGuis", false);
-	public final OptionCategory category = new OptionCategory("motionBlur");
+	public final OptionCategory category = OptionCategory.create("motionBlur");
 	private final Identifier shaderLocation = new Identifier("minecraft:shaders/post/motion_blur.json");
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	public ShaderEffect shader;
@@ -60,7 +61,7 @@ public class MotionBlur extends AbstractModule {
 	public void init() {
 		category.add(enabled, strength, inGuis);
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 		AxolotlClient.runtimeResources.put(shaderLocation, new MotionBlurShader());
 	}
 

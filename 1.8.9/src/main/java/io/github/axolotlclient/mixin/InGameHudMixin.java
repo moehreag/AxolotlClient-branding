@@ -46,6 +46,9 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(GameGui.class)
 public abstract class InGameHudMixin {
 
+	@Unique
+	private static final Entity axolotlclient$noHungerEntityTM = new RideableMinecartEntity(null);
+
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;color4f(FFFF)V", ordinal = 0))
 	private void axolotlclient$onHudRender(float tickDelta, CallbackInfo ci) {
 		HudManager.getInstance().render(Minecraft.getInstance(), tickDelta);
@@ -165,9 +168,6 @@ public abstract class InGameHudMixin {
 		}
 		return instance.getWidth();
 	}
-
-	@Unique
-	private static final Entity axolotlclient$noHungerEntityTM = new RideableMinecartEntity(null);
 
 	@ModifyVariable(
 		method = "renderStatusBars",

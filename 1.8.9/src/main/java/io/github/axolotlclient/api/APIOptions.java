@@ -25,11 +25,11 @@ package io.github.axolotlclient.api;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.chat.ChatListScreen;
 import io.github.axolotlclient.util.options.GenericOption;
+import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.options.KeyBinding;
 import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
-import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
 public class APIOptions extends Options {
@@ -47,7 +47,7 @@ public class APIOptions extends Options {
 		KeyBinding openSidebar = new KeyBinding("api.friends.sidebar.open", Keyboard.KEY_O, "axolotlclient");
 		KeyBindingEvents.REGISTER_KEYBINDS.register(registry -> registry.register(openSidebar));
 		MinecraftClientEvents.TICK_END.register(minecraft -> {
-			if (openSidebar.consumeClick()){
+			if (openSidebar.consumeClick()) {
 				minecraft.openScreen(new FriendsSidebar(client.screen));
 			}
 		});

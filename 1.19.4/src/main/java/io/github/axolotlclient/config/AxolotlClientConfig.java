@@ -30,17 +30,23 @@ import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigConfig;
 import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.common.ConfigHolder;
 import io.github.axolotlclient.AxolotlClientConfig.common.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.common.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ConfigUI;
 import io.github.axolotlclient.AxolotlClientConfig.options.*;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 
-public class AxolotlClientConfig extends ConfigHolder {
+public class AxolotlClientConfig {
 
 	public final BooleanOption showOwnNametag = new BooleanOption("showOwnNametag", false);
 	public final BooleanOption useShadows = new BooleanOption("useShadows", false);
@@ -141,9 +147,7 @@ public class AxolotlClientConfig extends ConfigHolder {
 		categories.add(nametagOptions);
 		categories.add(rendering);
 
-		rendering.addSubCategory(outlines);
-
-		categories.forEach(OptionCategory::clearOptions);
+		rendering.add(outlines);
 
 		nametagOptions.add(showOwnNametag);
 		nametagOptions.add(useShadows);
@@ -161,6 +165,16 @@ public class AxolotlClientConfig extends ConfigHolder {
 		general.add(customWindowTitle);
 		general.add(openCredits);
 		general.add(debugLogOutput);
+		ConfigUI.getInstance().runWhenLoaded(() -> {
+			StringArrayOption configStyle;
+			general.add(configStyle = new StringArrayOption("configStyle", ConfigUI.getInstance().getStyleNames().toArray(new String[0]),
+				ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				ConfigUI.getInstance().setStyle(s);
+				MinecraftClient.getInstance().setScreen(null);
+			}));
+			AxolotlClient.configManager.load();
+			ConfigUI.getInstance().setStyle(configStyle.get());
+		});
 
 		searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase,
 			AxolotlClientConfigConfig.searchForOptions,
@@ -182,7 +196,7 @@ public class AxolotlClientConfig extends ConfigHolder {
 
 		timeChanger.add(timeChangerEnabled);
 		timeChanger.add(customTime);
-		rendering.addSubCategory(timeChanger);
+		rendering.add(timeChanger);
 
 		outlines.add(enableCustomOutlines);
 		outlines.add(outlineColor);

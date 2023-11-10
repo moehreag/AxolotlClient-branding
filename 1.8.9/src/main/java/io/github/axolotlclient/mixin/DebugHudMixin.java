@@ -22,12 +22,8 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.gui.overlay.DebugOverlay;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(DebugOverlay.class)
 public abstract class DebugHudMixin {

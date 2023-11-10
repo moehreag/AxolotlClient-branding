@@ -37,11 +37,10 @@ public abstract class HandledScreenMixin {
 
 	@Shadow
 	private InventorySlot hoveredSlot;
+	private InventorySlot cachedSlot;
 
 	@Shadow
 	protected abstract boolean moveHoveredSlotToHotbar(int i);
-
-	private InventorySlot cachedSlot;
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;popMatrix()V"))
 	public void axolotlclient$resetScrollOnSlotChange(int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {

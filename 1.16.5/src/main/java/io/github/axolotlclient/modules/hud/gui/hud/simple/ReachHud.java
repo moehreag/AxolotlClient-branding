@@ -27,8 +27,8 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.Entity;
@@ -50,7 +50,7 @@ import net.minecraft.util.math.Vec3d;
 public class ReachHud extends SimpleTextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "reachhud");
-	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", ID.getPath(), 0, 0, 15);
+	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", 0, 0, 15);
 
 	private String currentDist;
 	private long lastTime = 0;

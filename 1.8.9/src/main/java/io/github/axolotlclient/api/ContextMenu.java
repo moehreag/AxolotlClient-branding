@@ -95,6 +95,10 @@ public class ContextMenu {
 		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 	}
 
+	public interface PressAction {
+		void onPress(ButtonWidget buttonWidget);
+	}
+
 	public static class Builder {
 
 		private final List<ButtonWidget> elements = new ArrayList<>();
@@ -172,9 +176,5 @@ public class ContextMenu {
 				action.onPress(this);
 			}
 		}
-	}
-
-	public interface PressAction {
-		void onPress(ButtonWidget buttonWidget);
 	}
 }
