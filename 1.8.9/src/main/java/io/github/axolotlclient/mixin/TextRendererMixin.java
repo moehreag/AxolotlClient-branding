@@ -43,14 +43,14 @@ public abstract class TextRendererMixin {
 	private final Identifier texture_g = new Identifier("axolotlclient", "textures/font/g_breve_capital.png");
 	@Shadow
 	public int fontHeight;
-	@Shadow(aliases = "r")
-	private float red;
-	@Shadow(aliases = "g")
-	private float green;
-	@Shadow(aliases = "b")
-	private float blue;
-	@Shadow(aliases = "a")
-	private float alpha;
+	@Shadow
+	private float r;
+	@Shadow
+	private float g;
+	@Shadow
+	private float b;
+	@Shadow
+	private float a;
 	@Shadow
 	private float x;
 	@Shadow
@@ -70,14 +70,14 @@ public abstract class TextRendererMixin {
 			Minecraft.getInstance().getTextureManager().bind(texture_g);
 
 			if (!bl || shouldHaveShadow) {
-				GlStateManager.color4f(this.red / 4, this.green / 4, this.blue / 4, this.alpha);
+				GlStateManager.color4f(this.r / 4, this.g / 4, this.b / 4, this.a);
 				drawTexture(this.x + 1, this.y - this.fontHeight + 7);
 			}
 
-			GlStateManager.color4f(this.red, this.green, this.blue, this.alpha);
+			GlStateManager.color4f(this.r, this.g, this.b, this.a);
 			drawTexture(this.x, this.y - this.fontHeight + 6);
 
-			GlStateManager.color4f(this.red, this.green, this.blue, this.alpha);
+			GlStateManager.color4f(this.r, this.g, this.b, this.a);
 			cir.setReturnValue(7.0F);
 		}
 	}

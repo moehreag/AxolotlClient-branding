@@ -72,11 +72,11 @@ public abstract class InGameHudMixin {
 			GlStateManager.enableAlphaTest();
 			return false;
 		}
-		return showCrosshair();
+		return hasCrosshair();
 	}
 
-	@Shadow(aliases = "hasCrosshair")
-	protected abstract boolean showCrosshair();
+	@Shadow
+	protected abstract boolean hasCrosshair();
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I", ordinal = 0))
 	public int axolotlclient$actionBar(TextRenderer instance, String text, int x, int y, int color) {
