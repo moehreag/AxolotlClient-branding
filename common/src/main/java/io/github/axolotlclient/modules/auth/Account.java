@@ -29,6 +29,8 @@ import java.util.Map;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 public class Account {
 
@@ -38,6 +40,7 @@ public class Account {
 	private String name;
 
 	private String authToken;
+	@Getter(AccessLevel.PACKAGE)
 	private String refreshToken;
 	private Instant expiration;
 
@@ -76,18 +79,21 @@ public class Account {
 
 	public void refresh(MSAuth auth, Runnable runAfter) {
 		new Thread(() -> {
-			Map.Entry<String, String> tokens = auth.refreshToken(refreshToken, name);
+			Map.Entry<String, String> tokens = auth.refreshToken(refreshToken, this);
 			if (tokens.getKey() != null) {
 				authToken = tokens.getKey();
 				refreshToken = tokens.getValue();
 				expiration = Instant.now().plus(1, ChronoUnit.DAYS);
 				try {
 					JsonObject object = auth.getMCProfile(authToken);
+					System.out.println(object);
 					name = object.get("name").getAsString();
 				} catch (IOException ignored) {
 				}
+				runAfter.run();
+			} else {
+				auth.startAuth(runAfter);
 			}
-			runAfter.run();
 		}).start();
 	}
 

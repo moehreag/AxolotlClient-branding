@@ -132,7 +132,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 				} else if (LevelHead.getInstance().enabled.get()) {
 					String text = "Level: " + HypixelAbstractionLayer.getPlayerLevel(String.valueOf(entity.getUuid()), LevelHead.getInstance().mode.get());
 
-					if(LevelHead.getInstance().mode.get().equals(LevelHeadMode.BEDWARS.toString())){
+					if(LevelHead.getInstance().mode.get().equals(LevelHeadMode.BEDWARS)){
 						text += "☆";
 					}
 

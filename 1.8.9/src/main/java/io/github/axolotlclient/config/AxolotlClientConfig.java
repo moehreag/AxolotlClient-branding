@@ -69,7 +69,6 @@ public class AxolotlClientConfig {
 	public final IntegerOption outlineWidth = new IntegerOption("outlineWidth", 1, 1, 10);
 
 	public final BooleanOption noRain = new BooleanOption("noRain", false);
-	public final BooleanOption showSaturation = new BooleanOption("showSaturation", false);
 
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final GenericOption openCredits = new GenericOption("Credits", "Open Credits",
@@ -149,7 +148,6 @@ public class AxolotlClientConfig {
 			hitColor,
 			minimalViewBob,
 			flatItems,
-			showSaturation,
 			noHurtCam);
 
 		timeChanger.add(timeChangerEnabled);

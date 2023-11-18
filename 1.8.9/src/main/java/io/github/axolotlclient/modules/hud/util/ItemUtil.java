@@ -177,11 +177,13 @@ public class ItemUtil {
 	// The scaling stuff wasn't a problem on 1.8.9 so no need to create more complicated stuff
 
 	public static void renderGuiItemModel(ItemStack stack, int x, int y) {
-		Lighting.turnOnGui();
-		GlStateManager.pushMatrix();
-		Minecraft.getInstance().getItemRenderer().renderGuiItemModel(stack, x, y);
-		GlStateManager.popMatrix();
-		Lighting.turnOff();
+		if (stack != null && stack.getItem() != null) {
+			Lighting.turnOnGui();
+			GlStateManager.pushMatrix();
+			Minecraft.getInstance().getItemRenderer().renderGuiItemModel(stack, x, y);
+			GlStateManager.popMatrix();
+			Lighting.turnOff();
+		}
 	}
 
 	public static void renderColoredGuiItemModel(ItemStack stack, int x, int y, Color color) {

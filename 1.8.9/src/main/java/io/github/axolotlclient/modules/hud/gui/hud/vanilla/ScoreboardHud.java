@@ -158,7 +158,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 					.getWidth(Integer.toString(scoreboardPlayerScore.get()))
 					: 0))) {
 			scoreboardPlayerScore = scoresIterator.next();
-			Team team = scoreboard.getTeam(scoreboardPlayerScore.getOwner());
+			Team team = scoreboard.getTeamOfMember(scoreboardPlayerScore.getOwner());
 			formattedText = Team.getMemberDisplayName(team, scoreboardPlayerScore.getOwner());
 			scoresWText.add(new Pair<>(scoreboardPlayerScore, formattedText));
 		}

@@ -215,15 +215,11 @@ public class ChatHud extends TextHudEntry {
 	public void tick() {
 		//setWidth((int) (client.options.chatWidth*320));
 		if (lastHeight != getHeight(client.options.unfocusedChatHeight)) {
-			setHeight(getHeight(this.client.options.focusedChatHeight));//int) (client.options.chatHeightUnfocused*180)+11);this.isChatFocused() ? this.client.options.chatHeightFocused
+			setHeight(getHeight(this.client.options.unfocusedChatHeight));
 			onBoundsUpdate();
 			lastHeight = getHeight();
 		}
 	}
-
-    /*public int getHeight() {
-        return getHeight(this.isChatFocused() ? this.client.options.chatHeightFocused : this.client.options.chatHeightUnfocused);
-    }*/
 
 	@Override
 	public double getDefaultX() {

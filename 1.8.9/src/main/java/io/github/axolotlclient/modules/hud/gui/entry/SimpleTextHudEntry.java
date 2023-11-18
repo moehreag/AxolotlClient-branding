@@ -98,7 +98,7 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 		DrawPosition pos = getPos();
 		String value = getPlaceholder();
 		drawString(value, pos.x() + justification.get().getXOffset(value, getWidth() - 4) + 2,
-			pos.y() + (Math.round((float) getHeight() / 2)) - 4, textColor.get().toInt(), shadow.get());
+			pos.y() + (Math.round((float) getHeight() / 2)) - 4, getTextColor().toInt(), shadow.get());
 	}
 
 	@Override

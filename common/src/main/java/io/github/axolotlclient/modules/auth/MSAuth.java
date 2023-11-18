@@ -214,7 +214,7 @@ public class MSAuth {
 		return NetworkUtil.createHttpClient("Auth");
 	}
 
-	public Map.Entry<String, String> refreshToken(String token, String name) {
+	public Map.Entry<String, String> refreshToken(String token, Account account) {
 		try {
 			logger.debug("refreshing auth code... ");
 			List<NameValuePair> form = new ArrayList<>();
@@ -229,6 +229,10 @@ public class MSAuth {
 				.addHeader("Accept", "application/json");
 
 			JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
+
+			if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000){
+				return new AbstractMap.SimpleImmutableEntry<>(null, null);
+			}
 			String refreshToken = response.get("refresh_token").getAsString();
 
 			logger.debug("getting xbl token... ");
@@ -238,7 +242,7 @@ public class MSAuth {
 			logger.debug("getting mc auth token...");
 			String accessToken = authMC(xsts.getValue(), xsts.getKey());
 			if (checkOwnership(accessToken)) {
-				logger.info("Successfully refreshed token for " + name + "!");
+				logger.info("Successfully refreshed token for " + account.getName() + "!");
 
 				return new AbstractMap.SimpleImmutableEntry<>(accessToken, refreshToken);
 			}

@@ -73,33 +73,33 @@ public class HypixelAbstractionLayer {
 	private int getLevel(String uuid, RequestDataType type) {
 		return cache(uuid, type, () ->
 			getHypixelApiData(uuid, type).handleAsync((buf, throwable) -> {
-			if (throwable != null) {
-				APIError.display(throwable);
-				return -1;
-			}
-			return buf.getInt(0x09);
-		}).getNow(-1));
+				if (throwable != null) {
+					APIError.display(throwable);
+					return -1;
+				}
+				return buf.getInt(0x09);
+			}).getNow(-1));
 	}
 
-	public int getBedwarsLevel(String uuid){
+	public int getBedwarsLevel(String uuid) {
 		return getLevel(uuid, RequestDataType.BEDWARS_LEVEL);
 	}
 
 	public BedwarsData getBedwarsData(String playerUuid) {
 		return cache(playerUuid, RequestDataType.BEDWARS_DATA, () ->
 			getHypixelApiData(playerUuid, RequestDataType.BEDWARS_DATA).handleAsync(((buf, throwable) -> {
-			if (throwable != null) {
-				APIError.display(throwable);
-				return BedwarsData.EMPTY;
-			}
-			ByteBuf data = buf.slice(0x09, buf.readableBytes() - 0x09);
-			return BufferUtil.unwrap(data, BedwarsData.class);
-		})).getNow(BedwarsData.EMPTY));
+				if (throwable != null) {
+					APIError.display(throwable);
+					return BedwarsData.EMPTY;
+				}
+				ByteBuf data = buf.slice(0x09, buf.readableBytes() - 0x09);
+				return BufferUtil.unwrap(data, BedwarsData.class);
+			})).getNow(BedwarsData.EMPTY));
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T cache(String uuid, RequestDataType type, Supplier<T> dataSupplier){
-		return (T) cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>()).computeIfAbsent(type, t -> dataSupplier);
+	private <T> T cache(String uuid, RequestDataType type, Supplier<T> dataSupplier) {
+		return (T) cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>()).computeIfAbsent(type, t -> dataSupplier.get());
 	}
 
 	private CompletableFuture<ByteBuf> getHypixelApiData(String uuid, RequestDataType type) {
