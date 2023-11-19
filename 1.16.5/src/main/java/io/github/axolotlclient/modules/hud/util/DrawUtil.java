@@ -83,6 +83,14 @@ public class DrawUtil extends DrawableHelper {
 		}
 	}
 
+	public static void drawText(MatrixStack matrices, Text text, float x, float y, int color, boolean shadow) {
+		if (shadow) {
+			MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, text, x, y, color);
+		} else {
+			MinecraftClient.getInstance().textRenderer.draw(matrices, text, x, y, color);
+		}
+	}
+
 	public static void drawString(MatrixStack matrices, String text, float x, float y, Color color, boolean shadow) {
 		drawString(matrices, text, x, y, color.toInt(), shadow);
 	}

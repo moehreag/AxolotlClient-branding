@@ -260,7 +260,6 @@ public class Util {
 		return start + ((end - start) * percent);
 	}
 
-	// https://stackoverflow.com/questions/12967896/converting-integers-to-roman-numerals-java
 	public static String toRoman(int number) {
 		if (number > 0) {
 			return String.join("", Collections.nCopies(number, "I")).replace("IIIII", "V").replace("IIII", "IV")
