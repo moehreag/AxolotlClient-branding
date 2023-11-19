@@ -72,7 +72,7 @@ dependencies {
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
 
-	modCompileOnly("com.github.moehreag:legacy-lwjgl3:b293a2612b") {
+	modCompileOnly("com.github.moehreag:legacy-lwjgl3:fb699d02ca") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
 		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'

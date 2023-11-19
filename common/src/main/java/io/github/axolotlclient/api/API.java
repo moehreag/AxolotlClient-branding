@@ -257,6 +257,9 @@ public class API {
 	public void startup(Account account) {
 		this.uuid = account.getUuid();
 		this.account = account;
+		if (!Constants.ENABLED){
+			return;
+		}
 
 		if(account.isOffline()){
 			return;
