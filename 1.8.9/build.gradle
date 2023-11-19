@@ -15,10 +15,6 @@ repositories {
 	maven {
 		url = "https://moehreag.duckdns.org/maven/releases"
 	}
-	maven {
-		name = "legacy-fabric"
-		url = "https://repo.legacyfabric.net/repository/legacyfabric/"
-	}
 	mavenCentral()
 }
 
@@ -72,7 +68,14 @@ dependencies {
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
 
-	modCompileOnly("com.github.moehreag:legacy-lwjgl3:fb699d02ca") {
+	modCompileOnly("com.github.zarzelcow:legacy-lwjgl3:1.1.1") {
+		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
+		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
+		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'
+		exclude group: 'org.lwjgl', module: 'lwjgl'
+		exclude group: 'net.fabricmc'
+	}
+	modRuntimeOnly("com.github.zarzelcow:legacy-lwjgl3:1.1.1:all-remapped") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
 		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'

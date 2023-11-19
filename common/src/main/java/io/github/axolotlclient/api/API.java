@@ -162,7 +162,7 @@ public class API {
 					buf.release();
 				});
 		} else {
-			if (apiOptions.enabled.get()) {
+			if (Constants.ENABLED && apiOptions.enabled.get()) {
 				logger.warn("Not sending request because API is closed: " + request);
 			}
 		}
