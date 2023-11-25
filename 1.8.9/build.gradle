@@ -11,13 +11,6 @@ base.archivesName = "AxolotlClient"
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-repositories {
-	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
-	}
-	mavenCentral()
-}
-
 loom {
 	accessWidenerPath.set(file("src/main/resources/axolotlclient.accesswidener"))
 

@@ -10,17 +10,6 @@ base.archivesName = "AxolotlClient"
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-repositories {
-	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
-	}
-	maven {
-		name = 'Quilt'
-		url = 'https://maven.quiltmc.org/repository/snapshot'
-	}
-	mavenLocal()
-}
-
 loom {
 	mods {
 		"axolotlclient" {

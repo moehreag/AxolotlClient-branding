@@ -12,9 +12,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
 	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
-	}
-	maven {
 		name = 'CombatReforged'
 		url = 'https://maven.fabric.rizecookey.net/'
 	}

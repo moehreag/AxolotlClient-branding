@@ -28,16 +28,18 @@ allprojects {
 
 	repositories {
 		maven {
-			url 'https://repo.hypixel.net/repository/Hypixel/'
-		}
-
-		maven {
 			name 'TerraformersMC Maven'
 			url 'https://maven.terraformersmc.com/releases/'
 		}
 		maven {
 			name = 'Quilt'
 			url = 'https://maven.quiltmc.org/repository/snapshot'
+		}
+		maven {
+			url = "https://moehreag.duckdns.org/maven/releases"
+		}
+		maven {
+			url = "https://moehreag.duckdns.org/maven/snapshots"
 		}
 		mavenLocal()
 		maven { url 'https://jitpack.io' }
