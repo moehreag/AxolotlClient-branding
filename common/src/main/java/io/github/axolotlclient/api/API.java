@@ -219,8 +219,7 @@ public class API {
 			}
 
 		} catch (RuntimeException e) {
-			e.printStackTrace();
-			logger.error("Invalid response: " + response);
+			logger.error("Invalid response: " + response, e);
 		}
 
 		response.release();
