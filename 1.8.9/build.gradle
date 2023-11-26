@@ -46,13 +46,6 @@ dependencies {
 
 	modImplementation include("io.github.moehreag:search-in-resources:1.0.3+1.8.9")
 
-	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9") {
-		exclude group: 'org.apache.logging.log4j', module: "log4j-api"
-		exclude group: 'org.apache.logging.log4j', module: "log4j-core"
-	}
-	implementation include("org.slf4j:slf4j-api:1.7.36")
-	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
-
 	api("org.lwjgl:lwjgl-nanovg:3.3.2")
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
