@@ -85,7 +85,7 @@ public class ChannelRequest {
 		io.github.axolotlclient.api.requests.User.get(BufferUtil.getString(buf, 0x00, 16)).whenCompleteAsync((us, t) -> u.set(us));
 
 		return new ChatMessage(u.get(), BufferUtil.getString(buf, 0x1D, buf.getInt(0x19)),
-			ChatMessage.Type.fromCode(buf.getByte(0x18)), buf.getLong(0x10));
+			buf.getLong(0x10), ChatMessage.Type.fromCode(buf.getByte(0x18)));
 	}
 
 	public static CompletableFuture<List<Channel>> getChannelList() {
