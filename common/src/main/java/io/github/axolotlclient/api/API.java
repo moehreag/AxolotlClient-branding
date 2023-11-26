@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.api;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.api.types.Status;
@@ -38,6 +40,7 @@ import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.*;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.Logger;
+import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.NotificationProvider;
 import io.github.axolotlclient.util.translation.TranslationProvider;
@@ -238,7 +241,14 @@ public class API {
 
 	private void createSession() {
 		if (!Constants.TESTING) {
-			new ClientEndpoint().run(Constants.API_URL, Constants.PORT);
+			try {
+				JsonObject object = NetworkUtil.getRequest(Constants.API_INFO_URL, NetworkUtil.createHttpClient("API"))
+					.getAsJsonObject();
+				String[] apiUrl = object.get("api_url").getAsString().split(":");
+				new ClientEndpoint().run(apiUrl[1], Integer.parseInt(apiUrl[0]));
+			} catch (IOException e) {
+				logger.error("Failed to retrieve API url! ", e);
+			}
 		}
 	}
 
