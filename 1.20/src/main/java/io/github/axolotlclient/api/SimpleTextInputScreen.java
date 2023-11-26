@@ -26,17 +26,17 @@ import java.util.function.Consumer;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
 public class SimpleTextInputScreen extends Screen {
 
 	private final Screen parent;
-	private TextFieldWidget input;
 	private final Text inputLabel;
 	private final Consumer<String> consumer;
+	private TextFieldWidget input;
 
 	public SimpleTextInputScreen(Screen parent, Text title, Text inputLabel, Consumer<String> consumer) {
 		super(title);

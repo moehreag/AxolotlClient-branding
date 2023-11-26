@@ -39,10 +39,9 @@ import net.minecraft.text.Text;
 
 public class ChatScreen extends Screen implements ContextMenuScreen {
 
-	private ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private final Channel channel;
 	private final Screen parent;
-
+	private ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private ChatWidget widget;
 	private ChatUserListWidget users;
 	private TextFieldWidget input;

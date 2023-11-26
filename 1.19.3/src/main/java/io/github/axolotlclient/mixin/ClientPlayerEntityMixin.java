@@ -37,12 +37,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayerEntity.class)
 public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity {
 
-	@Shadow
-	protected abstract boolean m_sliqpvmd();
-
 	public ClientPlayerEntityMixin(ClientWorld world, GameProfile profile) {
 		super(world, profile);
 	}
+
+	@Shadow
+	protected abstract boolean m_sliqpvmd();
 
 	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSprinting()Z"))
 	private void axolotlclient$toggleSprint(CallbackInfo ci) {

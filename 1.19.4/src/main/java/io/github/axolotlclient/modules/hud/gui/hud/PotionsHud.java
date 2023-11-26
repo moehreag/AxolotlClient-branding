@@ -121,12 +121,12 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			}
 			return effects.stream()
 				.map(effect -> Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier())))
-				.mapToInt(client.textRenderer::getWidth).map(i -> i+20).sum() + 2;
+				.mapToInt(client.textRenderer::getWidth).map(i -> i + 20).sum() + 2;
 		} else {
 			if (iconsOnly.get()) {
 				return 20;
 			}
-			if (!showEffectName.get()){
+			if (!showEffectName.get()) {
 				return 50;
 			}
 			return effects.stream()

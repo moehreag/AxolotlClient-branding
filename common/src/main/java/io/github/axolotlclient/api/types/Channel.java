@@ -33,10 +33,10 @@ import lombok.Getter;
 @Getter
 public abstract class Channel {
 
-	@Serializer.Length(5)
-	private final String id;
 	@Serializer.Length(64)
 	protected final String name;
+	@Serializer.Length(5)
+	private final String id;
 	private final User[] users;
 	private final ChatMessage[] messages;
 

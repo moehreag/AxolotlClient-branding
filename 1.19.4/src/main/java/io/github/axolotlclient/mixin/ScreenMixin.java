@@ -43,7 +43,7 @@ public abstract class ScreenMixin {
 
 	@ModifyVariable(method = "renderTooltipFromComponents",
 		at = @At("STORE"), index = 11)
-	private int axolotlclient$scrollableTooltipsX(int x){
+	private int axolotlclient$scrollableTooltipsX(int x) {
 		if (ScrollableTooltips.getInstance().enabled.get()) {
 			if ((MinecraftClient.getInstance().currentScreen instanceof CreativeInventoryScreen)
 				&& !((CreativeInventoryScreen) MinecraftClient.getInstance().currentScreen).isInventoryOpen()) {
@@ -57,7 +57,7 @@ public abstract class ScreenMixin {
 
 	@ModifyVariable(method = "renderTooltipFromComponents",
 		at = @At("STORE"), index = 12)
-	private int axolotlclient$scrollableTooltipsY(int y){
+	private int axolotlclient$scrollableTooltipsY(int y) {
 		if (ScrollableTooltips.getInstance().enabled.get()) {
 			if ((MinecraftClient.getInstance().currentScreen instanceof CreativeInventoryScreen)
 				&& !((CreativeInventoryScreen) MinecraftClient.getInstance().currentScreen).isInventoryOpen()) {

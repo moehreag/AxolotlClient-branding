@@ -153,7 +153,7 @@ public class Auth extends Accounts implements Module {
 		client.setScreen(display);
 	}
 
-	private void loadTexture(String uuid){
+	private void loadTexture(String uuid) {
 		if (!loadingTexture.contains(uuid)) {
 			loadingTexture.add(uuid);
 			ThreadExecuter.scheduleTask(() -> {
@@ -173,7 +173,7 @@ public class Auth extends Accounts implements Module {
 	}
 
 	public Identifier getSkinTexture(String uuid, String name) {
-		if (!textures.containsKey(uuid)){
+		if (!textures.containsKey(uuid)) {
 			loadTexture(uuid);
 			return DefaultSkinHelper.getSkin(UndashedUuid.fromString(uuid)).texture();
 		}

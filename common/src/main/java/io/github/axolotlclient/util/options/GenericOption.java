@@ -28,9 +28,10 @@ import lombok.Getter;
 @Getter
 public class GenericOption extends OptionBase<GenericOption.ActionListener> {
 	private final String label;
+
 	public GenericOption(String name, String label, ActionListener listener) {
 		super(name, listener);
-		this.label =  label;
+		this.label = label;
 	}
 
 	@Override

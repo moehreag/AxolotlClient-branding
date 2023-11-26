@@ -83,72 +83,6 @@ public class Request {
 			.setBytes(0x09, data.getData());
 	}
 
-	public static class Data {
-		private final ByteBuf buf = Unpooled.buffer();
-
-		public Data(){}
-
-		public Data(String... data) {
-			for (String s : data) {
-				add(s);
-			}
-		}
-
-		public Data(byte b) {
-			add(b);
-		}
-
-		public Data(byte[] data) {
-			add(data);
-		}
-
-		public Data add(int i){
-			buf.writeInt(i);
-			return this;
-		}
-
-		public Data add(String e) {
-			buf.writeCharSequence(e, StandardCharsets.UTF_8);
-			return this;
-		}
-
-		public Data add(String... a) {
-			for (String s : a) {
-				add(s);
-			}
-			return this;
-		}
-
-		public Data add(long l){
-			buf.writeLong(l);
-			return this;
-		}
-
-		public Data add(byte b) {
-			buf.writeByte(b);
-			return this;
-		}
-
-		public Data add(byte[] data) {
-			buf.writeBytes(data);
-			return this;
-		}
-
-		public Data add(ByteBuf buf){
-			this.buf.writeBytes(buf);
-			return this;
-		}
-
-		ByteBuf getData() {
-			return buf.setIndex(0, buf.capacity());
-		}
-
-		@Override
-		public String toString() {
-			return Arrays.toString(BufferUtil.toArray(buf));
-		}
-	}
-
 	/**
 	 * Defines human-readable names for all request types.
 	 */
@@ -184,5 +118,72 @@ public class Request {
 		ERROR(0xFF);
 
 		private final int type;
+	}
+
+	public static class Data {
+		private final ByteBuf buf = Unpooled.buffer();
+
+		public Data() {
+		}
+
+		public Data(String... data) {
+			for (String s : data) {
+				add(s);
+			}
+		}
+
+		public Data(byte b) {
+			add(b);
+		}
+
+		public Data(byte[] data) {
+			add(data);
+		}
+
+		public Data add(int i) {
+			buf.writeInt(i);
+			return this;
+		}
+
+		public Data add(String e) {
+			buf.writeCharSequence(e, StandardCharsets.UTF_8);
+			return this;
+		}
+
+		public Data add(String... a) {
+			for (String s : a) {
+				add(s);
+			}
+			return this;
+		}
+
+		public Data add(long l) {
+			buf.writeLong(l);
+			return this;
+		}
+
+		public Data add(byte b) {
+			buf.writeByte(b);
+			return this;
+		}
+
+		public Data add(byte[] data) {
+			buf.writeBytes(data);
+			return this;
+		}
+
+		public Data add(ByteBuf buf) {
+			this.buf.writeBytes(buf);
+			return this;
+		}
+
+		ByteBuf getData() {
+			return buf.setIndex(0, buf.capacity());
+		}
+
+		@Override
+		public String toString() {
+			return Arrays.toString(BufferUtil.toArray(buf));
+		}
 	}
 }

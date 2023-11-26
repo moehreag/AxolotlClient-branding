@@ -105,17 +105,17 @@ public class ChatHandler implements RequestHandler {
 			new Request.Data(channel.getId()).add(25).add(getAfter).add(0x01))).whenCompleteAsync(this::handleMessages);
 	}
 
-	public interface NotificationsEnabler {
-		boolean showNotification(ChatMessage message);
-	}
-
-	public void reportMessage(ChatMessage message){
+	public void reportMessage(ChatMessage message) {
 		API.getInstance().send(new Request(Request.Type.REPORT_MESSAGE,
 			new Request.Data(message.getSender().getUuid()).add(message.getTimestamp())
 				.add(message.getContent().length()).add(message.getContent())));
 	}
 
-	public void reportUser(User user){
+	public void reportUser(User user) {
 		API.getInstance().send(new Request(Request.Type.REPORT_USER, user.getUuid()));
+	}
+
+	public interface NotificationsEnabler {
+		boolean showNotification(ChatMessage message);
 	}
 }

@@ -58,6 +58,15 @@ public class SnappingHelper {
 		this.window = MinecraftClient.getInstance().getWindow();
 	}
 
+	public static Optional<Integer> getNearby(int pos, HashSet<Integer> set, int distance) {
+		for (Integer integer : set) {
+			if (integer - distance <= pos && integer + distance >= pos) {
+				return Optional.of(integer);
+			}
+		}
+		return Optional.empty();
+	}
+
 	public void addAllRects(List<Rectangle> rects) {
 		for (Rectangle rect : rects) {
 			addRect(rect);
@@ -104,15 +113,6 @@ public class SnappingHelper {
 			return ySnap;
 		}
 		return null;
-	}
-
-	public static Optional<Integer> getNearby(int pos, HashSet<Integer> set, int distance) {
-		for (Integer integer : set) {
-			if (integer - distance <= pos && integer + distance >= pos) {
-				return Optional.of(integer);
-			}
-		}
-		return Optional.empty();
 	}
 
 	public Integer getHalfXSnap() {

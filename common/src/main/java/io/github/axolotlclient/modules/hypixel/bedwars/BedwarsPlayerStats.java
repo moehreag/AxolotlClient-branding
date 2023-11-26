@@ -38,6 +38,14 @@ import lombok.Getter;
 public class BedwarsPlayerStats {
 
 	@Getter
+	private final int losses;
+	@Getter
+	private final int wins;
+	@Getter
+	private final int winstreak;
+	@Getter
+	private final int stars;
+	@Getter
 	private int finalKills;
 	@Getter
 	private int finalDeaths;
@@ -57,27 +65,18 @@ public class BedwarsPlayerStats {
 	private int gameDeaths;
 	@Getter
 	private int gameKills;
-	@Getter
-	private final int losses;
-	@Getter
-	private final int wins;
-	@Getter
-	private final int winstreak;
-	@Getter
-	private final int stars;
-
 
 	public static BedwarsPlayerStats generateFake(String name) {
 		long seed = 0;
-		for(int i = 0; i<name.length(); i++){
-			seed = (seed << 2) +  name.getBytes(StandardCharsets.UTF_8)[i];
+		for (int i = 0; i < name.length(); i++) {
+			seed = (seed << 2) + name.getBytes(StandardCharsets.UTF_8)[i];
 		}
 		Random random = new Random(seed);
 		int star = (int) getGaussian(random, 150, 30);
 		double fkdr = Math.min(getGaussian(random, 1.3F, 0.5F), 0.6F);
 		double bblr = (fkdr * 8) / getGaussian(random, 10, 2);
 		int wins = (int) (star * (fkdr * 4) * getFloat(random, 0.95F, 1.05F));
-		int losses = (int) (wins * (2/fkdr) * getFloat(random, 0.95F, 1.05F));
+		int losses = (int) (wins * (2 / fkdr) * getFloat(random, 0.95F, 1.05F));
 		int beds = (int) (bblr * losses);
 		int finalDeaths = (int) (losses * getFloat(random, 1F, 1.03F));
 		int deaths = (int) (finalDeaths * getFloat(random, 8, 20));
@@ -89,12 +88,12 @@ public class BedwarsPlayerStats {
 			losses, wins, 0, star);
 	}
 
-	private static double getGaussian(Random random, float mean, float deviation){
-		return Math.max(Math.min(random.nextGaussian()*deviation+mean, mean - deviation*3), mean + deviation*3);
+	private static double getGaussian(Random random, float mean, float deviation) {
+		return Math.max(Math.min(random.nextGaussian() * deviation + mean, mean - deviation * 3), mean + deviation * 3);
 	}
 
-	private static float getFloat(Random random, float origin, float bound){
-		return random.nextFloat()*(bound - origin)+origin;
+	private static float getFloat(Random random, float origin, float bound) {
+		return random.nextFloat() * (bound - origin) + origin;
 	}
 
 	public static BedwarsPlayerStats fromAPI(String uuid) {

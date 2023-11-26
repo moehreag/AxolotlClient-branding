@@ -42,7 +42,7 @@ public class GameOptionsMixin {
 	public KeyBind[] allKeys;
 
 	@Inject(method = "load", at = @At("HEAD"))
-	private void axolotlclient$onLoad(CallbackInfo ci){
+	private void axolotlclient$onLoad(CallbackInfo ci) {
 		this.allKeys = KeyBinds.getInstance().process(this.allKeys);
 	}
 }

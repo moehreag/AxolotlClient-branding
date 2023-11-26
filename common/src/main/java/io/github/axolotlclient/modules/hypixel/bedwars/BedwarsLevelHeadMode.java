@@ -45,23 +45,23 @@ public enum BedwarsLevelHeadMode {
 	FKDR(stats -> "§7FKDR: §f" + stats.getFKDR()),
 	BBLR(stats -> "§7BBLR: §f" + stats.getFKDR());
 
-	private final Function<BedwarsPlayerStats, String> titleSupplier;
-
-	BedwarsLevelHeadMode(Function<BedwarsPlayerStats, String> titleSupplier) {
-		this.titleSupplier = titleSupplier;
-	}
-
-	public String apply(BedwarsPlayerStats stats) {
-		return titleSupplier.apply(stats);
-	}
-
 	private static final Map<String, BedwarsLevelHeadMode> modes;
 
 	static {
 		modes = Arrays.stream(values()).collect(Collectors.toMap(Enum::name, value -> value));
 	}
 
+	private final Function<BedwarsPlayerStats, String> titleSupplier;
+
+	BedwarsLevelHeadMode(Function<BedwarsPlayerStats, String> titleSupplier) {
+		this.titleSupplier = titleSupplier;
+	}
+
 	public static BedwarsLevelHeadMode get(String mode) {
 		return modes.get(mode);
+	}
+
+	public String apply(BedwarsPlayerStats stats) {
+		return titleSupplier.apply(stats);
 	}
 }

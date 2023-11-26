@@ -40,10 +40,10 @@ import net.minecraft.entity.Entity;
 public class Freelook extends AbstractModule {
 
 	private static final Freelook Instance = new Freelook();
+	private static KeyBind KEY = KeyBinds.getInstance().register(new KeyBind("key.freelook", InputUtil.KEY_V_CODE, "category.axolotlclient"));
 	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final OptionCategory category = OptionCategory.create("freelook");
-	private static KeyBind KEY = KeyBinds.getInstance().register(new KeyBind("key.freelook", InputUtil.KEY_V_CODE, "category.axolotlclient"));
 	private final StringArrayOption mode = new StringArrayOption("mode",
 		new String[]{"snap_perspective", "freelook"},
 		"freelook", value -> FeatureDisabler.update());

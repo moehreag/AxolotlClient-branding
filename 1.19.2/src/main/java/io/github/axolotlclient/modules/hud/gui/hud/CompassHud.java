@@ -66,6 +66,35 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 		super(240, 33, false);
 	}
 
+	private static Indicator getIndicator(int degrees) {
+		if (degrees % 90 == 0) {
+			return Indicator.CARDINAL;
+		}
+		if (degrees % 45 == 0) {
+			return Indicator.SEMI_CARDINAL;
+		}
+		return Indicator.SMALL;
+	}
+
+	private static String getCardString(Indicator indicator, int degrees) {
+		if (indicator == Indicator.CARDINAL) {
+			return switch (degrees) {
+				case 0 -> "N";
+				case 90 -> "E";
+				case 180 -> "S";
+				case 270 -> "W";
+				default -> "NaD";
+			};
+		}
+		return switch (degrees) {
+			case 45 -> "NE";
+			case 135 -> "SE";
+			case 225 -> "SW";
+			case 315 -> "NW";
+			default -> "NaD";
+		};
+	}
+
 	private void updateWidth(int newWidth) {
 		setWidth(newWidth);
 		onBoundsUpdate();
@@ -160,35 +189,6 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 		}
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		matrices.translate(-shift, 0, 0);
-	}
-
-	private static Indicator getIndicator(int degrees) {
-		if (degrees % 90 == 0) {
-			return Indicator.CARDINAL;
-		}
-		if (degrees % 45 == 0) {
-			return Indicator.SEMI_CARDINAL;
-		}
-		return Indicator.SMALL;
-	}
-
-	private static String getCardString(Indicator indicator, int degrees) {
-		if (indicator == Indicator.CARDINAL) {
-			return switch (degrees) {
-				case 0 -> "N";
-				case 90 -> "E";
-				case 180 -> "S";
-				case 270 -> "W";
-				default -> "NaD";
-			};
-		}
-		return switch (degrees) {
-			case 45 -> "NE";
-			case 135 -> "SE";
-			case 225 -> "SW";
-			case 315 -> "NW";
-			default -> "NaD";
-		};
 	}
 
 	@Override

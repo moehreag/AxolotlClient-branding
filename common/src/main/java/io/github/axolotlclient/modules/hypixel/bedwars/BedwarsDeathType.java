@@ -46,8 +46,14 @@ public enum BedwarsDeathType {
 	SELF_UNKNOWN(createOption("self_unknown", "died"), new Pattern[]{BedwarsMessages.SELF_UNKNOWN});
 
 	@Getter
-	private final StringOption inner;
+	private static final OptionCategory options = OptionCategory.create("bedwars.deathType");
 
+	static {
+		Arrays.stream(values()).map(BedwarsDeathType::getInner).forEach(options::add);
+	}
+
+	@Getter
+	private final StringOption inner;
 	@Getter
 	private final Pattern[] patterns;
 
@@ -60,20 +66,13 @@ public enum BedwarsDeathType {
 		return false;
 	}
 
-	public interface BedwarsDeathMatch {
-
-		void onMatch(BedwarsDeathType type, Matcher matcher);
-
-	}
-
 	private static StringOption createOption(String type, String def) {
 		return new StringOption("bedwars.deathType." + type, def);
 	}
 
-	@Getter
-	private static final OptionCategory options = OptionCategory.create("bedwars.deathType");
+	public interface BedwarsDeathMatch {
 
-	static {
-		Arrays.stream(values()).map(BedwarsDeathType::getInner).forEach(options::add);
+		void onMatch(BedwarsDeathType type, Matcher matcher);
+
 	}
 }

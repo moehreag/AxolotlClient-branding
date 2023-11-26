@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface KeyBindAccessor {
 
 	@Accessor("ORDER_BY_CATEGORIES")
-	static Map<String, Integer> getOrderByCategories(){
+	static Map<String, Integer> getOrderByCategories() {
 		throw new UnsupportedOperationException();
 	}
 }

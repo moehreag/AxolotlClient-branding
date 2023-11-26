@@ -23,7 +23,6 @@
 package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
-
 import net.minecraft.client.gui.widget.list.world.WorldEntryListWidget;
 import net.minecraft.world.storage.WorldSaveSummary;
 import org.spongepowered.asm.mixin.Final;

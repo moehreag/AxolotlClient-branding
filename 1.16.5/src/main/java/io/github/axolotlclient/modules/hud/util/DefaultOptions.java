@@ -41,7 +41,7 @@ import lombok.experimental.UtilityClass;
 public class DefaultOptions {
 
 	public static DoubleOption getX(double defaultX, HudEntry entry) {
-		return new DoubleOption("x",  defaultX, value -> entry.onBoundsUpdate(), 0d, 1d);
+		return new DoubleOption("x", defaultX, value -> entry.onBoundsUpdate(), 0d, 1d);
 	}
 
 	public static DoubleOption getY(double defaultY, HudEntry entry) {

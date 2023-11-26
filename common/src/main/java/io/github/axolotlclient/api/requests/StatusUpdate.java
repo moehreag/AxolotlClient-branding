@@ -61,12 +61,11 @@ public class StatusUpdate {
 		IN_GAME("inGame", 0x3),
 		IN_GAME_UNKNOWN("inGameUnknown", 0x4);
 
+		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
 		@Getter
 		private final String identifier;
 		@Getter
 		private final int code;
-
-		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
 
 		public static Type fromCode(int code) {
 			return CODES.get(code);

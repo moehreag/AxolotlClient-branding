@@ -106,7 +106,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (direction.isXAxis()) {
 				renderPotion(matrices, effect, x + lastPos + 1, y + 1);
 				lastPos += (iconsOnly.get() ? 20 : (showEffectName.get() ? 20 + client.textRenderer.getWidth(new TranslatableText(effect.getTranslationKey()).append(" ")
-					.append(Util.toRoman(effect.getAmplifier()))) : 50 ));
+					.append(Util.toRoman(effect.getAmplifier()))) : 50));
 			} else {
 				renderPotion(matrices, effect, x + 1, y + 1 + lastPos);
 				lastPos += 20;
@@ -124,12 +124,12 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			}
 			return effects.stream()
 				.map(effect -> new TranslatableText(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier())))
-				.mapToInt(client.textRenderer::getWidth).map(i -> i+20).sum() + 2;
+				.mapToInt(client.textRenderer::getWidth).map(i -> i + 20).sum() + 2;
 		} else {
 			if (iconsOnly.get()) {
 				return 20;
 			}
-			if (!showEffectName.get()){
+			if (!showEffectName.get()) {
 				return 50;
 			}
 			return effects.stream()

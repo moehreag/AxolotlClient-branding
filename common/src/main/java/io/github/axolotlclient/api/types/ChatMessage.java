@@ -37,8 +37,8 @@ public class ChatMessage {
 
 	private final User sender;
 	private final String content;
-	private Type type;
 	private final long timestamp;
+	private Type type;
 
 	@AllArgsConstructor
 	public enum Type {
@@ -46,10 +46,9 @@ public class ChatMessage {
 		REPLY(0x01),
 		JOIN_LEAVE(0x02),
 		PARTY_INVITE(0x03);
+		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.value, k -> k));
 		@Getter
 		private final int value;
-
-		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.value, k -> k));
 
 		public static Type fromCode(int code) {
 			return CODES.get(code);

@@ -70,18 +70,45 @@ import org.quiltmc.qsl.resource.loader.api.ResourcePackActivationType;
 public class AxolotlClient implements ClientModInitializer {
 
 	public static final String MODID = "axolotlclient";
-	public static String VERSION;
 	public static final HashMap<Identifier, Resource> runtimeResources = new HashMap<>();
 	public static final Identifier badgeIcon = new Identifier("axolotlclient", "textures/badge.png");
 	public static final OptionCategory config = OptionCategory.create("storedOptions");
 	public static final BooleanOption someNiceBackground = new BooleanOption("defNoSecret", false);
 	public static final List<Module> modules = new ArrayList<>();
 	public static final Logger LOGGER = new LoggerImpl();
+	public static String VERSION;
 	public static AxolotlClientConfig CONFIG;
 	public static ConfigManager configManager;
 	public static UnsupportedMod badmod;
 	public static boolean titleDisclaimer = false;
 	public static boolean showWarning = true;
+
+	public static void getModules() {
+		modules.add(SkyResourceManager.getInstance());
+		modules.add(Zoom.getInstance());
+		modules.add(HudManager.getInstance());
+		modules.add(HypixelMods.getInstance());
+		modules.add(MotionBlur.getInstance());
+		modules.add(MenuBlur.getInstance());
+		modules.add(ScrollableTooltips.getInstance());
+		modules.add(DiscordRPC.getInstance());
+		modules.add(Freelook.getInstance());
+		modules.add(TntTime.getInstance());
+		modules.add(Particles.getInstance());
+		modules.add(ScreenshotUtils.getInstance());
+		modules.add(BeaconBeam.getInstance());
+		modules.add(Tablist.getInstance());
+		modules.add(Auth.getInstance());
+		modules.add(APIOptions.getInstance());
+	}
+
+	private static void addExternalModules() {
+		modules.addAll(ModuleLoader.loadExternalModules());
+	}
+
+	public static void tickClient() {
+		modules.forEach(Module::tick);
+	}
 
 	@Override
 	public void onInitializeClient(ModContainer container) {
@@ -145,32 +172,5 @@ public class AxolotlClient implements ClientModInitializer {
 		LOGGER.debug("Debug Output activated, Logs will be more verbose!");
 
 		LOGGER.info("AxolotlClient Initialized");
-	}
-
-	public static void getModules() {
-		modules.add(SkyResourceManager.getInstance());
-		modules.add(Zoom.getInstance());
-		modules.add(HudManager.getInstance());
-		modules.add(HypixelMods.getInstance());
-		modules.add(MotionBlur.getInstance());
-		modules.add(MenuBlur.getInstance());
-		modules.add(ScrollableTooltips.getInstance());
-		modules.add(DiscordRPC.getInstance());
-		modules.add(Freelook.getInstance());
-		modules.add(TntTime.getInstance());
-		modules.add(Particles.getInstance());
-		modules.add(ScreenshotUtils.getInstance());
-		modules.add(BeaconBeam.getInstance());
-		modules.add(Tablist.getInstance());
-		modules.add(Auth.getInstance());
-		modules.add(APIOptions.getInstance());
-	}
-
-	private static void addExternalModules() {
-		modules.addAll(ModuleLoader.loadExternalModules());
-	}
-
-	public static void tickClient() {
-		modules.forEach(Module::tick);
 	}
 }

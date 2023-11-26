@@ -29,9 +29,9 @@ import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHead;
+import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.util.Util;
-import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -138,7 +138,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 				} else if (LevelHead.getInstance().enabled.get()) {
 					String text = "Level: " + HypixelAbstractionLayer.getPlayerLevel(String.valueOf(entity.getUuid()), LevelHead.getInstance().mode.get());
 
-					if(LevelHead.getInstance().mode.get().equals(LevelHeadMode.BEDWARS)){
+					if (LevelHead.getInstance().mode.get().equals(LevelHeadMode.BEDWARS)) {
 						text += "☆";
 					}
 

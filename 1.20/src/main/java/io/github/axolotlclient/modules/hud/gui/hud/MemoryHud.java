@@ -25,7 +25,6 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
@@ -56,6 +55,10 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 
 	public MemoryHud() {
 		super(150, 27, true);
+	}
+
+	private static String toMiB(long bytes) {
+		return (bytes / 1024L / 1024L) + "MiB";
 	}
 
 	@Override
@@ -147,10 +150,6 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 		long total = Runtime.getRuntime().totalMemory();
 
 		return I18n.translate("allocated") + ": " + toMiB(total);
-	}
-
-	private static String toMiB(long bytes) {
-		return (bytes / 1024L / 1024L) + "MiB";
 	}
 
 	@Override

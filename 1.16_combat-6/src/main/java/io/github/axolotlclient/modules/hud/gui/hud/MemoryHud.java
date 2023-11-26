@@ -57,6 +57,10 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 		super(150, 27, true);
 	}
 
+	private static String toMiB(long bytes) {
+		return (bytes / 1024L / 1024L) + "MiB";
+	}
+
 	@Override
 	public void renderComponent(MatrixStack matrices, float delta) {
 		DrawPosition pos = getPos();
@@ -151,10 +155,6 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 		long total = Runtime.getRuntime().totalMemory();
 
 		return I18n.translate("allocated") + ": " + toMiB(total);
-	}
-
-	private static String toMiB(long bytes) {
-		return (bytes / 1024L / 1024L) + "MiB";
 	}
 
 	@Override

@@ -43,8 +43,8 @@ public class CPSHud extends SimpleTextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "cpshud");
 
-	private final BooleanOption fromKeybindings = new BooleanOption("cpskeybind",false);
-	private final BooleanOption rmb = new BooleanOption("rightcps",false);
+	private final BooleanOption fromKeybindings = new BooleanOption("cpskeybind", false);
+	private final BooleanOption rmb = new BooleanOption("rightcps", false);
 
 	public CPSHud() {
 		super();

@@ -97,7 +97,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 		}
 	}
 
-	private boolean isMCPSky(String path){
+	private boolean isMCPSky(String path) {
 		return path.endsWith(".properties") && path.startsWith("sky");
 	}
 

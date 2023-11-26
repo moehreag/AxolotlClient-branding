@@ -158,9 +158,9 @@ public class AxolotlClientConfig {
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
 			general.add(configStyle = new StringArrayOption("configStyle",
-				Arrays.stream(ConfigUI.getInstance().getStyleNames().toArray(new String[0])).map(s -> "configStyle."+s)
+				Arrays.stream(ConfigUI.getInstance().getStyleNames().toArray(new String[0])).map(s -> "configStyle." + s)
 					.toArray(String[]::new),
-				"configStyle."+ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
 				ConfigUI.getInstance().setStyle(s.split("\\.")[0]);
 				MinecraftClient.getInstance().setScreen(null);
 			}));

@@ -55,33 +55,6 @@ public class ReachHud extends SimpleTextHudEntry {
 	private String currentDist;
 	private long lastTime = 0;
 
-	@Override
-	public Identifier getId() {
-		return ID;
-	}
-
-	public void updateDistance(Entity attacking, Entity receiving) {
-		double distance = getAttackDistance(attacking, receiving);
-		if (distance < 0) {
-			distance *= -1;
-			// This should not happen...
-			currentDist = "NaN";
-			//return;
-		}
-
-		StringBuilder format = new StringBuilder("0");
-		if (decimalPlaces.get() > 0) {
-			format.append(".");
-			for (int i = 0; i < decimalPlaces.get(); i++) {
-				format.append("0");
-			}
-		}
-		DecimalFormat formatter = new DecimalFormat(format.toString());
-		formatter.setRoundingMode(RoundingMode.HALF_UP);
-		currentDist = formatter.format(distance) + " " + I18n.translate("blocks");
-		lastTime = Util.getMeasuringTimeMs();
-	}
-
 	public static double getAttackDistance(Entity attacking, Entity receiving) {
 		Vec3d camera = attacking.getCameraPosVec(1);
 		Vec3d rotation = attacking.getRotationVec(1);
@@ -117,6 +90,33 @@ public class ReachHud extends SimpleTextHudEntry {
 			return test;
 		}
 		return compare;
+	}
+
+	@Override
+	public Identifier getId() {
+		return ID;
+	}
+
+	public void updateDistance(Entity attacking, Entity receiving) {
+		double distance = getAttackDistance(attacking, receiving);
+		if (distance < 0) {
+			distance *= -1;
+			// This should not happen...
+			currentDist = "NaN";
+			//return;
+		}
+
+		StringBuilder format = new StringBuilder("0");
+		if (decimalPlaces.get() > 0) {
+			format.append(".");
+			for (int i = 0; i < decimalPlaces.get(); i++) {
+				format.append("0");
+			}
+		}
+		DecimalFormat formatter = new DecimalFormat(format.toString());
+		formatter.setRoundingMode(RoundingMode.HALF_UP);
+		currentDist = formatter.format(distance) + " " + I18n.translate("blocks");
+		lastTime = Util.getMeasuringTimeMs();
 	}
 
 	@Override

@@ -68,7 +68,7 @@ dependencies {
 		exclude group: 'org.lwjgl', module: 'lwjgl'
 		exclude group: 'net.fabricmc'
 	}
-	modRuntimeOnly("com.github.zarzelcow:legacy-lwjgl3:1.1.1:all-remapped") {
+	modLocalRuntime("com.github.zarzelcow:legacy-lwjgl3:1.1.1:all-remapped") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
 		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'

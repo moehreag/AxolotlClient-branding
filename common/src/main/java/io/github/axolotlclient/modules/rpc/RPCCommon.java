@@ -41,24 +41,21 @@ import io.github.axolotlclient.util.options.ForceableBooleanOption;
 public abstract class RPCCommon implements Module {
 
 	private static final long CLIENT_ID = 875835666729152573L;
-	private IPCClient client;
-
 	private static boolean running;
-	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false, value -> {
+	public final OptionCategory category = OptionCategory.create("rpc");
+	public final BooleanOption showActivity = new BooleanOption("showActivity", true);	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false, value -> {
 		if (value) {
 			initRPC();
 		} else {
 			shutdown();
 		}
 	});
-	public final OptionCategory category = OptionCategory.create("rpc");
-	public final BooleanOption showActivity = new BooleanOption("showActivity", true);
 	public final StringArrayOption showServerNameMode = new StringArrayOption("showServerNameMode",
 		new String[]{"showIp", "showName", "off"}, "off");
 	public final BooleanOption showTime = new BooleanOption("showTime", true);
 	private final Instant time = Instant.now();
 	private final Logger logger;
-
+	private IPCClient client;
 	public RPCCommon(Logger logger) {
 		this.logger = logger;
 	}
@@ -167,4 +164,6 @@ public abstract class RPCCommon implements Module {
 			}
 		}
 	}
+
+
 }

@@ -28,6 +28,7 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public class ForceableBooleanWidget extends BooleanWidget {
 	private final ForceableBooleanOption option;
+
 	public ForceableBooleanWidget(int x, int y, int width, int height, ForceableBooleanOption option) {
 		super(x, y, width, height, option);
 		this.option = option;

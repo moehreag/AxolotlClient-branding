@@ -34,8 +34,9 @@ public interface RequestHandler {
 
 	/**
 	 * Handles an incoming API message.
+	 *
 	 * @param object the raw data object
-	 * @param error APIError object for easy access to error information
+	 * @param error  APIError object for easy access to error information
 	 */
 	default void handle(ByteBuf object, @Nullable APIError error) {
 	}

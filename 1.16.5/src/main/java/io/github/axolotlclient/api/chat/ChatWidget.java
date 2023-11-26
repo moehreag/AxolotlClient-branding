@@ -49,10 +49,10 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private final List<ChatMessage> messages = new ArrayList<>();
 	private final Channel channel;
 	private final MinecraftClient client;
+	private final ContextMenuScreen screen;
 	@Setter
 	@Getter
 	private int x, y, width, height;
-	private final ContextMenuScreen screen;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
 		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);
@@ -217,7 +217,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			super(new LiteralText(message.getSender().getName()).setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp()*1000));
+			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));
 		}
 
 		@Override

@@ -37,11 +37,9 @@ import net.minecraft.util.math.MathHelper;
 
 public class NewsScreen extends Screen {
 
-	private final Screen parent;
-
-	private int scrollAmount;
 	private static final int SCROLL_STEP = 5;
-
+	private final Screen parent;
+	private int scrollAmount;
 	private List<OrderedText> lines;
 
 	public NewsScreen(Screen parent) {
@@ -54,44 +52,44 @@ public class NewsScreen extends Screen {
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		super.render(graphics, mouseX, mouseY, delta);
 
-		graphics.drawShadowedText(client.textRenderer, title, width/2, 20, -1);
+		graphics.drawShadowedText(client.textRenderer, title, width / 2, 20, -1);
 
 		RenderSystem.enableBlend();
 
 		graphics.getMatrices().push();
 		graphics.getMatrices().translate(0, scrollAmount, 0);
 
-		graphics.enableScissor(0, 35, width, height-65);
+		graphics.enableScissor(0, 35, width, height - 65);
 		int y = 35;
 		for (OrderedText t : lines) {
 			graphics.drawShadowedText(client.textRenderer, t, 25, y, -1);
-			y+=client.textRenderer.fontHeight;
+			y += client.textRenderer.fontHeight;
 		}
 		graphics.disableScissor();
 		graphics.getMatrices().pop();
 
 
-		int scrollbarY = 35 + ((height - 65) - 35)/(lines.size()) * -(scrollAmount/SCROLL_STEP);
-		int scrollbarHeight = (height-65 - 35) / SCROLL_STEP;
-		graphics.fill(width-15, 35, width-9, height-65, -16777216);
-		graphics.fill(width-15, scrollbarY, width-9, scrollbarY + scrollbarHeight, -8355712);
-		graphics.fill(width-15, scrollbarY, width-10, scrollbarY + scrollbarHeight-1, -4144960);
+		int scrollbarY = 35 + ((height - 65) - 35) / (lines.size()) * -(scrollAmount / SCROLL_STEP);
+		int scrollbarHeight = (height - 65 - 35) / SCROLL_STEP;
+		graphics.fill(width - 15, 35, width - 9, height - 65, -16777216);
+		graphics.fill(width - 15, scrollbarY, width - 9, scrollbarY + scrollbarHeight, -8355712);
+		graphics.fill(width - 15, scrollbarY, width - 10, scrollbarY + scrollbarHeight - 1, -4144960);
 
 	}
 
 	@Override
 	protected void init() {
-		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().getNotes()), width-50);
+		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().getNotes()), width - 50);
 
 		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> client.setScreen(parent))
-			.positionAndSize(width/2-100, height-45, 200, 20)
+			.positionAndSize(width / 2 - 100, height - 45, 200, 20)
 			.build());
 	}
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
-		scrollAmount = (int) MathHelper.clamp(scrollAmount + amountY*SCROLL_STEP,
-			Math.min(0, -((lines.size()+3)*client.textRenderer.fontHeight-(height-65))),
+		scrollAmount = (int) MathHelper.clamp(scrollAmount + amountY * SCROLL_STEP,
+			Math.min(0, -((lines.size() + 3) * client.textRenderer.fontHeight - (height - 65))),
 			0);
 		return super.mouseScrolled(mouseX, mouseY, amountX, amountY);
 	}

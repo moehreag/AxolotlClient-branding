@@ -71,22 +71,22 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addDrawableChild(new AuthWidget());
 		}
-		if(APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
-				MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
-					if (r){
-						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
-					}
-				}, "https://modrinth.com/mod/axolotlclient/versions", true)))
+					MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
+						if (r) {
+							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+						}
+					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
 				.positionAndSize(width - 125, 10, 120, 20).build());
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
 					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
-				.positionAndSize(width-125, 25, 120, 20).build());
+				.positionAndSize(width - 125, 25, 120, 20).build());
 		}
 	}
 

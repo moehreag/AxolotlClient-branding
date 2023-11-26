@@ -38,19 +38,15 @@ public class APIError extends Exception {
 	@Getter
 	private final ByteBuf buf;
 
-	public APIError(ByteBuf buf){
+	public APIError(ByteBuf buf) {
 		super(fromCode(buf.getInt(0x09)));
 		code = ErrorCode.fromCode(buf.getInt(0x09));
 		this.buf = buf;
 
 	}
 
-	public void display(){
-		API.getInstance().getNotificationProvider().addStatus("api.error.requestGeneric", getMessage());
-	}
-
-	public static void display(Throwable t){
-		if(t instanceof APIError){
+	public static void display(Throwable t) {
+		if (t instanceof APIError) {
 			((APIError) t).display();
 		} else {
 			API.getInstance().getLogger().debug("APIError: " + t);
@@ -58,8 +54,8 @@ public class APIError extends Exception {
 		}
 	}
 
-	public static void displayOrElse(Throwable t, ByteBuf buf, Consumer<ByteBuf> action){
-		if(t != null){
+	public static void displayOrElse(Throwable t, ByteBuf buf, Consumer<ByteBuf> action) {
+		if (t != null) {
 			display(t);
 		} else {
 			action.accept(buf);
@@ -84,6 +80,10 @@ public class APIError extends Exception {
 		}
 	}
 
+	public void display() {
+		API.getInstance().getNotificationProvider().addStatus("api.error.requestGeneric", getMessage());
+	}
+
 	@AllArgsConstructor
 	private enum ErrorCode {
 		USER_NOT_FOUND("api.error.userNotFound", 0x01),
@@ -92,11 +92,10 @@ public class APIError extends Exception {
 		USER_ALREADY_BLOCKED("api.error.userAlreadyBlocked", 0x04),
 		USER_ALREADY_FRIENDS("api.error.userAlreadyFriends", 0x05),
 		MALFORMED_PACKET("api.error.packetMalformed", 0x06);
+		private static final Map<Integer, ErrorCode> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
 		@Getter
 		private final String translationKey;
 		private final int code;
-
-		private static final Map<Integer, ErrorCode> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
 
 		public static ErrorCode fromCode(int code) {
 			return CODES.get(code);

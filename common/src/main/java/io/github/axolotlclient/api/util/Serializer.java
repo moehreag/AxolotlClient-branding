@@ -30,6 +30,12 @@ import java.lang.annotation.Target;
 import io.netty.buffer.ByteBuf;
 
 public interface Serializer<T> {
+	default ByteBuf serialize(T t) {
+		return BufferUtil.serialize(t);
+	}
+
+	T deserialize(ByteBuf buf);
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.PARAMETER, ElementType.FIELD})
 	@interface Length {
@@ -43,10 +49,4 @@ public interface Serializer<T> {
 	@interface Exclude {
 
 	}
-
-	default ByteBuf serialize(T t){
-		return BufferUtil.serialize(t);
-	}
-
-	T deserialize(ByteBuf buf);
 }

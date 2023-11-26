@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -52,10 +51,10 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private final List<ChatMessage> messages = new ArrayList<>();
 	private final Channel channel;
 	private final MinecraftClient client;
+	private final ContextMenuScreen screen;
 	@Setter
 	@Getter
 	private int x, y, width, height;
-	private final ContextMenuScreen screen;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
 		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);

@@ -44,7 +44,7 @@ public class Skyblock implements AbstractHypixelMod {
 		KeyBinding binding = new KeyBinding("lockRotation", GLFW.GLFW_KEY_UNKNOWN, "category.axolotlclient");
 		KeyBindingHelper.registerKeyBinding(binding);
 		ClientTickEvents.END_CLIENT_TICK.register(c -> {
-			if (binding.wasPressed()){
+			if (binding.wasPressed()) {
 				rotationLocked.toggle();
 			}
 		});

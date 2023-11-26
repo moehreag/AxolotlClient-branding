@@ -32,12 +32,9 @@ import io.github.axolotlclient.util.ThreadExecuter;
 
 public abstract class Options implements Module {
 
-	protected Consumer<Consumer<Boolean>> openPrivacyNoteScreen = v -> {
-	};
-
-	public StringArrayOption privacyAccepted = new StringArrayOption("privacyPolicyAccepted", new String[]{"unset", "accepted", "denied"}, "unset");
-
-	public final BooleanOption enabled = new BooleanOption("enabled", true, value -> {
+	public final BooleanOption statusUpdateNotifs = new BooleanOption("statusUpdateNotifs", true);
+	public final BooleanOption friendRequestsEnabled = new BooleanOption("friendRequestsEnabled", true);
+	public final BooleanOption detailedLogging = new BooleanOption("detailedLogging", false);	public final BooleanOption enabled = new BooleanOption("enabled", true, value -> {
 		if (value) {
 			if (!privacyAccepted.get().equals("accepted")) {
 				openPrivacyNoteScreen.accept(v -> {
@@ -50,15 +47,17 @@ public abstract class Options implements Module {
 			ThreadExecuter.scheduleTask(() -> API.getInstance().shutdown());
 		}
 	});
-	public final BooleanOption statusUpdateNotifs = new BooleanOption("statusUpdateNotifs", true);
-	public final BooleanOption friendRequestsEnabled = new BooleanOption("friendRequestsEnabled", true);
-	public final BooleanOption detailedLogging = new BooleanOption("detailedLogging", false);
 	public final BooleanOption updateNotifications = new BooleanOption("api.update_notifications", true);
 	public final BooleanOption displayNotes = new BooleanOption("api.display_notes", true);
 	protected final OptionCategory category = OptionCategory.create("api.category");
+	public StringArrayOption privacyAccepted = new StringArrayOption("privacyPolicyAccepted", new String[]{"unset", "accepted", "denied"}, "unset");
+	protected Consumer<Consumer<Boolean>> openPrivacyNoteScreen = v -> {
+	};
 
 	@Override
 	public void init() {
 		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, detailedLogging, updateNotifications, displayNotes);
 	}
+
+
 }

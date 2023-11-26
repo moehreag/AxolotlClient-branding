@@ -29,6 +29,7 @@ import lombok.Getter;
 public class ForceableBooleanOption extends BooleanOption {
 	private boolean forceOff;
 	private String reason;
+
 	public ForceableBooleanOption(String name, Boolean defaultValue) {
 		super(name, defaultValue);
 	}
@@ -37,7 +38,7 @@ public class ForceableBooleanOption extends BooleanOption {
 		super(name, defaultValue, changeListener);
 	}
 
-	public void setForceOff(boolean value, String reason){
+	public void setForceOff(boolean value, String reason) {
 		this.forceOff = value;
 		this.reason = reason;
 	}

@@ -22,7 +22,8 @@
 
 package io.github.axolotlclient.api.types;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class EncodedVersion {
 	private final Flag flag;
 
 
-	public EncodedVersion(byte major, byte minor, byte patch, byte flag){
+	public EncodedVersion(byte major, byte minor, byte patch, byte flag) {
 		this.major = major;
 		this.minor = minor;
 		this.patch = patch;
@@ -47,38 +48,39 @@ public class EncodedVersion {
 	}
 
 	@Override
-	public String toString(){
-		return major +"."+ minor +"."+ patch + "-" + flag.getName();
+	public String toString() {
+		return major + "." + minor + "." + patch + "-" + flag.getName();
 	}
 
-	public boolean isNewerThan(String other){
+	public boolean isNewerThan(String other) {
 		String[] parts = other.split("\\.");
 		int major = Integer.parseInt(parts[0]);
 
-		if(this.major > major){
+		if (this.major > major) {
 			return true;
-		} else if (this.major < major){
+		} else if (this.major < major) {
 			return false;
 		}
 
 		int minor = Integer.parseInt(parts[1]);
 
-		if(this.minor > minor){
+		if (this.minor > minor) {
 			return true;
-		} else if (this.minor < minor){
+		} else if (this.minor < minor) {
 			return false;
 		}
 
 		int patch = Integer.parseInt(parts[2].split("-")[0].split("\\+")[0]);
 
-		if (this.patch > patch){
+		if (this.patch > patch) {
 			return true;
-		} else if (this.patch < patch){
+		} else if (this.patch < patch) {
 			return false;
 		}
 
 		return false;
 	}
+
 	@RequiredArgsConstructor
 	@Getter
 	public enum Flag {
@@ -87,16 +89,14 @@ public class EncodedVersion {
 		RELEASE(0x04, ""),
 		DEBUG(0x08, "DEBUG"),
 		EXPERIMENTAL(0x10, "EXPERIMENTAL"),
-		CUSTOM(0x20, "CUSTOM")
-		;
+		CUSTOM(0x20, "CUSTOM");
 
+		private static final Map<Integer, Flag> map = Arrays.stream(values()).collect(Collectors.toMap(Flag::getId, f -> f));
 		private final int id;
 		private final String name;
 
-		private static final Map<Integer, Flag> map = Arrays.stream(values()).collect(Collectors.toMap(Flag::getId, f -> f));
-
-		public static Flag get(byte b){
-			return map.get((int)b);
+		public static Flag get(byte b) {
+			return map.get((int) b);
 		}
 	}
 }

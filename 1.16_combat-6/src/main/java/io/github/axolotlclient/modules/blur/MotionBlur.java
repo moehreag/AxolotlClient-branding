@@ -56,6 +56,14 @@ public class MotionBlur extends AbstractModule {
 	private int lastWidth;
 	private int lastHeight;
 
+	private static float getBlur() {
+		return MotionBlur.getInstance().strength.get() / 100F;
+	}
+
+	public static MotionBlur getInstance() {
+		return Instance;
+	}
+
 	@Override
 	public void init() {
 		category.add(enabled, strength, inGuis);
@@ -91,14 +99,6 @@ public class MotionBlur extends AbstractModule {
 
 		lastWidth = MinecraftClient.getInstance().getWindow().getWidth();
 		lastHeight = MinecraftClient.getInstance().getWindow().getHeight();
-	}
-
-	private static float getBlur() {
-		return MotionBlur.getInstance().strength.get() / 100F;
-	}
-
-	public static MotionBlur getInstance() {
-		return Instance;
 	}
 
 	private static class MotionBlurShader implements Resource {

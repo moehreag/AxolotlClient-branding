@@ -51,6 +51,10 @@ public class Particles extends AbstractModule {
 	private final OptionCategory cat = OptionCategory.create("particles");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 
+	public static Particles getInstance() {
+		return Instance;
+	}
+
 	@Override
 	public void init() {
 		cat.add(enabled);
@@ -114,10 +118,6 @@ public class Particles extends AbstractModule {
 	public boolean getAlwaysOn(ParticleType<?> type) {
 		return enabled.get() && particleOptions.containsKey(type)
 			&& ((BooleanOption) Particles.getInstance().particleOptions.get(type).get("alwaysCrit")).get();
-	}
-
-	public static Particles getInstance() {
-		return Instance;
 	}
 
 	public boolean getShowParticle(ParticleType<?> type) {

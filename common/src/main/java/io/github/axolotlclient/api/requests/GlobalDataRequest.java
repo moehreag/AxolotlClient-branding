@@ -34,16 +34,16 @@ public class GlobalDataRequest {
 
 	private static WeakReference<GlobalData> cachedData = new WeakReference<>(null);
 
-	public static GlobalData get(){
-		if (cachedData.get() != null){
+	public static GlobalData get() {
+		if (cachedData.get() != null) {
 			return cachedData.get();
 		}
 		return (cachedData = new WeakReference<>(API.getInstance().send(new Request(Request.Type.GLOBAL_DATA)).handleAsync((buf, th) -> {
-					if(th != null){
-						APIError.display(th);
-						return GlobalData.EMPTY;
-					}
-					return BufferUtil.unwrap(buf, GlobalData.class);
-				}).getNow(GlobalData.EMPTY))).get();
+			if (th != null) {
+				APIError.display(th);
+				return GlobalData.EMPTY;
+			}
+			return BufferUtil.unwrap(buf, GlobalData.class);
+		}).getNow(GlobalData.EMPTY))).get();
 	}
 }

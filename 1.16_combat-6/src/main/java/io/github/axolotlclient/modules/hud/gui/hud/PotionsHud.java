@@ -129,7 +129,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (iconsOnly.get()) {
 				return 20;
 			}
-			if (!showEffectName.get()){
+			if (!showEffectName.get()) {
 				return 50;
 			}
 			return effects.stream()

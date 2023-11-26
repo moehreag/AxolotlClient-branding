@@ -57,18 +57,18 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	}
 
 	@Override
-	public void setFocused(boolean focused) {
-		if (menu != null) {
-			menu.setFocused(focused);
-		}
-	}
-
-	@Override
 	public boolean isFocused() {
 		if (menu != null) {
 			return menu.isFocused();
 		}
 		return false;
+	}
+
+	@Override
+	public void setFocused(boolean focused) {
+		if (menu != null) {
+			menu.setFocused(focused);
+		}
 	}
 
 	@Override

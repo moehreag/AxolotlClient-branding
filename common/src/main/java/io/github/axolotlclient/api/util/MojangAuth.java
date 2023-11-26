@@ -117,18 +117,18 @@ public class MojangAuth {
 		return null;
 	}
 
-	@Data
-	@Builder(builderClassName = "Builder")
-	public static class Result {
-		private final Status status;
-		private final String serverId;
-	}
-
 	public enum Status {
 		SUCCESS,
 		MULTIPLAYER_DISABLED,
 		USER_BANNED,
 		FAILURE
+	}
+
+	@Data
+	@Builder(builderClassName = "Builder")
+	public static class Result {
+		private final Status status;
+		private final String serverId;
 	}
 
 }

@@ -111,5 +111,6 @@ public abstract class Accounts {
 	}
 
 	abstract void showAccountsExpiredScreen(Account account);
+
 	abstract void displayDeviceCode(DeviceFlowData data);
 }

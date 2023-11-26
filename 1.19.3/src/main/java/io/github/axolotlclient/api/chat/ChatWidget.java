@@ -51,10 +51,10 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private final List<ChatMessage> messages = new ArrayList<>();
 	private final Channel channel;
 	private final MinecraftClient client;
+	private final ContextMenuScreen screen;
 	@Setter
 	@Getter
 	private int x, y, width, height;
-	private final ContextMenuScreen screen;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
 		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);

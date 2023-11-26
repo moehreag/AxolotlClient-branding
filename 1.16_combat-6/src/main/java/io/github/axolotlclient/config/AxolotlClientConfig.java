@@ -111,10 +111,8 @@ public class AxolotlClientConfig {
 	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
 	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
 	public final OptionCategory searchFilters = OptionCategory.create("searchFilters");
-
-	private final List<Option<?>> options = new ArrayList<>();
-
 	public final OptionCategory config = OptionCategory.create("config");
+	private final List<Option<?>> options = new ArrayList<>();
 
 	public void add(Option<?> option) {
 		options.add(option);

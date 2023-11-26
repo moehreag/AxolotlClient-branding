@@ -152,15 +152,15 @@ public class API {
 	public CompletableFuture<ByteBuf> send(Request request) {
 		CompletableFuture<ByteBuf> future = new CompletableFuture<>();
 		if (isConnected()) {
-				requests.put(request.getId(), future);
-				ThreadExecuter.scheduleTask(() -> {
-					ByteBuf buf = request.getData();
-					if (apiOptions.detailedLogging.get()) {
-						logDetailed("Sending Request: " + buf.toString(StandardCharsets.UTF_8));
-					}
-					channel.writeAndFlush(buf);
-					buf.release();
-				});
+			requests.put(request.getId(), future);
+			ThreadExecuter.scheduleTask(() -> {
+				ByteBuf buf = request.getData();
+				if (apiOptions.detailedLogging.get()) {
+					logDetailed("Sending Request: " + buf.toString(StandardCharsets.UTF_8));
+				}
+				channel.writeAndFlush(buf);
+				buf.release();
+			});
 		} else {
 			if (Constants.ENABLED && apiOptions.enabled.get()) {
 				logger.warn("Not sending request because API is closed: " + request);
@@ -197,14 +197,14 @@ public class API {
 
 			APIError error;
 
-			if(requestFailed(response)){
+			if (requestFailed(response)) {
 				error = new APIError(response);
 			} else {
 				error = null;
 			}
 
 			if (requests.containsKey(id)) {
-				if(error != null){
+				if (error != null) {
 					requests.get(id).completeExceptionally(error);
 				} else {
 					requests.get(id).complete(response);
@@ -237,7 +237,7 @@ public class API {
 	}
 
 	private void createSession() {
-		if(!Constants.TESTING) {
+		if (!Constants.TESTING) {
 			new ClientEndpoint().run(Constants.API_URL, Constants.PORT);
 		}
 	}
@@ -256,11 +256,11 @@ public class API {
 	public void startup(Account account) {
 		this.uuid = account.getUuid();
 		this.account = account;
-		if (!Constants.ENABLED){
+		if (!Constants.ENABLED) {
 			return;
 		}
 
-		if(account.isOffline()){
+		if (account.isOffline()) {
 			return;
 		}
 
@@ -284,7 +284,7 @@ public class API {
 		if (!isConnected()) {
 			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN);
 
-			if(Constants.TESTING){
+			if (Constants.TESTING) {
 				return;
 			}
 
@@ -335,9 +335,9 @@ public class API {
 		return validateUUID(uuid);
 	}
 
-	private String validateUUID(String uuid){
-		if (uuid.length() != 32){
-			throw new IllegalArgumentException("Not a valid UUID (undashed): "+uuid);
+	private String validateUUID(String uuid) {
+		if (uuid.length() != 32) {
+			throw new IllegalArgumentException("Not a valid UUID (undashed): " + uuid);
 		}
 		return uuid;
 	}

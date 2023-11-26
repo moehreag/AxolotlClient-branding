@@ -51,16 +51,16 @@ public abstract class GameMenuScreenMixin extends Screen {
 		super(title);
 	}
 
+	private static boolean axolotlclient$hasModMenu() {
+		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
+	}
+
 	@Inject(method = "initWidgets", at = @At("TAIL"))
 	private void axolotlclient$friendsSidebarButton(CallbackInfo ci) {
 		if (API.getInstance().isConnected()) {
 			addButton(new ButtonWidget(10, height - (axolotlclient$hasModMenu() ? 50 : 30), 75, 20, new TranslatableText("api.friends"),
 				buttonWidget -> client.openScreen(new FriendsSidebar(this))));
 		}
-	}
-
-	private static boolean axolotlclient$hasModMenu() {
-		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
 
 	@ModifyArgs(method = "initWidgets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V", ordinal = 3))

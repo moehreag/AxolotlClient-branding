@@ -26,10 +26,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.common.collect.Lists;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
 import io.github.axolotlclient.api.Keyword;
@@ -76,7 +74,7 @@ public class FriendHandler implements RequestHandler {
 	public void blockUser(String uuid) {
 		api.send(new Request(Request.Type.BLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
 			APIError.displayOrElse(throwable, buf, b -> {
-				if(b.getBoolean(0x09)) {
+				if (b.getBoolean(0x09)) {
 					api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", UUIDHelper.getUsername(uuid));
 				}
 			});
@@ -86,7 +84,7 @@ public class FriendHandler implements RequestHandler {
 	public void unblockUser(String uuid) {
 		api.send(new Request(Request.Type.UNBLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
 			APIError.displayOrElse(throwable, buf, b -> {
-				if(b.getBoolean(0x09)) {
+				if (b.getBoolean(0x09)) {
 					api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", UUIDHelper.getUsername(uuid));
 				}
 			});
@@ -151,7 +149,7 @@ public class FriendHandler implements RequestHandler {
 			int count = buf.getInt(0x09);
 
 			List<User> users = new ArrayList<>();
-			for(int i = 0;i<count;i++){
+			for (int i = 0; i < count; i++) {
 				users.add(new User(BufferUtil.getString(buf, 0x0C + (i * 16), 16), Status.UNKNOWN));
 			}
 			return users;
@@ -165,22 +163,22 @@ public class FriendHandler implements RequestHandler {
 	public void acceptFriendRequest(User from) {
 		api.send(new Request(Request.Type.FRIEND_REQUEST_REACTION, new Request.Data(from.getUuid()).add((byte) 1)))
 			.whenCompleteAsync((object, t) -> {
-			if (t != null) {
-				APIError.display(t);
-			} else {
-				api.getNotificationProvider().addStatus("api.success.acceptFriend", "api.success.acceptFriend.desc", from.getName());
-			}
-		});
+				if (t != null) {
+					APIError.display(t);
+				} else {
+					api.getNotificationProvider().addStatus("api.success.acceptFriend", "api.success.acceptFriend.desc", from.getName());
+				}
+			});
 	}
 
 	public void denyFriendRequest(User from) {
 		api.send(new Request(Request.Type.FRIEND_REQUEST_REACTION, new Request.Data(from.getUuid()).add((byte) 0)))
 			.whenCompleteAsync((object, t) -> {
-			if (t != null) {
-				APIError.display(t);
-			} else {
-				api.getNotificationProvider().addStatus("api.success.denyFriend", "api.success.denyFriend.desc", from.getName());
-			}
-		});
+				if (t != null) {
+					APIError.display(t);
+				} else {
+					api.getNotificationProvider().addStatus("api.success.denyFriend", "api.success.denyFriend.desc", from.getName());
+				}
+			});
 	}
 }

@@ -38,6 +38,13 @@ public class ClientEndpoint {
 
 	private static EventLoopGroup group;
 
+	public static void shutdown() {
+		if (group != null && !group.isTerminated()) {
+			group.shutdownGracefully();
+			group = null;
+		}
+	}
+
 	public void run(String url, int port) {
 		boolean epollAvailable = Epoll.isAvailable();
 		group = epollAvailable ?
@@ -76,7 +83,6 @@ public class ClientEndpoint {
 		}
 	}
 
-
 	public void onMessage(ByteBuf message) {
 		API.getInstance().onMessage(message);
 	}
@@ -91,12 +97,5 @@ public class ClientEndpoint {
 
 	public void onClose() {
 		API.getInstance().onClose();
-	}
-
-	public static void shutdown() {
-		if (group != null && !group.isTerminated()) {
-			group.shutdownGracefully();
-			group = null;
-		}
 	}
 }

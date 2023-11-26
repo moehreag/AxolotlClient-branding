@@ -28,9 +28,8 @@ import java.io.InputStream;
 import com.google.gson.JsonSyntaxException;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
-import io.github.axolotlclient.util.options.GenericOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
 import net.minecraft.client.MinecraftClient;
@@ -56,6 +55,14 @@ public class MotionBlur extends AbstractModule {
 
 	private int lastWidth;
 	private int lastHeight;
+
+	private static float getBlur() {
+		return MotionBlur.getInstance().strength.get() / 100F;
+	}
+
+	public static MotionBlur getInstance() {
+		return Instance;
+	}
 
 	@Override
 	public void init() {
@@ -92,14 +99,6 @@ public class MotionBlur extends AbstractModule {
 
 		lastWidth = MinecraftClient.getInstance().getWindow().getWidth();
 		lastHeight = MinecraftClient.getInstance().getWindow().getHeight();
-	}
-
-	private static float getBlur() {
-		return MotionBlur.getInstance().strength.get() / 100F;
-	}
-
-	public static MotionBlur getInstance() {
-		return Instance;
 	}
 
 	private static class MotionBlurShader implements Resource {

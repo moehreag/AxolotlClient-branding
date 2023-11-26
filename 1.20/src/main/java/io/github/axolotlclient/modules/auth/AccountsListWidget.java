@@ -24,14 +24,11 @@ package io.github.axolotlclient.modules.auth;
 
 import java.util.List;
 
-import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.PlayerFaceRenderer;
 import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.texture.PlayerSkin;
-import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -96,7 +93,7 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 				graphics.drawTexture(warningSign, x - 35, y + 1, 0, 0, 32, 32, 32, 32);
 			}
 			Identifier texture = Auth.getInstance().getSkinTexture(account);
-			PlayerFaceRenderer.draw(graphics, texture, x-1, y-1, 33);
+			PlayerFaceRenderer.draw(graphics, texture, x - 1, y - 1, 33);
 
 			graphics.drawText(client.textRenderer, account.getName(), x + 3 + 33, y + 1, -1, false);
 			graphics.drawText(client.textRenderer, account.getUuid(), x + 3 + 33, y + 12, 8421504, false);

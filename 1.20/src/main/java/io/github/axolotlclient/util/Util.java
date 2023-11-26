@@ -107,7 +107,7 @@ public class Util {
 		Scoreboard scoreboard = client.world.getScoreboard();
 		if (scoreboard == null)
 			return lines;
-		ScoreboardObjective sidebar = scoreboard.getObjectiveForSlot( ScoreboardDisplaySlot.SIDEBAR);
+		ScoreboardObjective sidebar = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
 		if (sidebar == null)
 			return lines;
 

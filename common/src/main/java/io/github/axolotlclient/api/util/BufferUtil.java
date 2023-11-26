@@ -55,31 +55,31 @@ public class BufferUtil {
 		return bytes;
 	}
 
-	public ByteBuf removeMetadata(ByteBuf buf){
+	public ByteBuf removeMetadata(ByteBuf buf) {
 		if (buf.getCharSequence(0x00, 3, StandardCharsets.UTF_8).equals("AXO")) {
-			return buf.slice(0x09, buf.readableBytes()-0x09);
+			return buf.slice(0x09, buf.readableBytes() - 0x09);
 		}
 		return buf;
 	}
 
-	public <T> void registerSerializer(Class<T> clazz, Serializer<T> serializer){
+	public <T> void registerSerializer(Class<T> clazz, Serializer<T> serializer) {
 		serializers.put(clazz, serializer);
 	}
 
 	/**
 	 * Serializes an object into a ByteBuf.
 	 *
+	 * @param o Object that should be serialized
+	 * @return the serialized ByteBuf
 	 * @implNote Strings that have a set length should be annotated with <code>@Serializable.Length</code>, otherwise
 	 * it is assumed that the string fills the entire ByteBuf and terminates it. Fields that should be excluded should
 	 * be annotated with <code>@Serializable.Exclude</code>. Static fields are excluded by default. For more control
 	 * over the serialization process the <code>Serializable</code> interface may be implemented.
-	 * @param o Object that should be serialized
-	 * @return the serialized ByteBuf
 	 */
 	@SuppressWarnings("unchecked")
 	public ByteBuf wrap(Object o) {
 
-		if(serializers.containsKey(o.getClass())){
+		if (serializers.containsKey(o.getClass())) {
 			return ((Serializer<Object>) serializers.get(o.getClass())).serialize(o);
 		}
 
@@ -87,7 +87,7 @@ public class BufferUtil {
 
 	}
 
-	ByteBuf serialize(Object o){
+	ByteBuf serialize(Object o) {
 		ByteBuf buf = Unpooled.buffer();
 
 		Class<?> c = o.getClass();
@@ -99,7 +99,7 @@ public class BufferUtil {
 			buf.writeCharSequence((CharSequence) o, StandardCharsets.UTF_8);
 			return buf;
 		} else if (c.isArray()) {
-			for (int i=0;i<Array.getLength(o);i++){
+			for (int i = 0; i < Array.getLength(o); i++) {
 				buf.writeBytes(wrap(Array.get(o, i)));
 			}
 		}
@@ -136,7 +136,7 @@ public class BufferUtil {
 				} else if (cl.isArray()) {
 					int arrayLength = Array.getLength(obj);
 					buf.writeInt(arrayLength);
-					for (int i=0;i<arrayLength;i++){
+					for (int i = 0; i < arrayLength; i++) {
 						buf.writeBytes(wrap(Array.get(obj, i)));
 					}
 				} else {
@@ -170,20 +170,20 @@ public class BufferUtil {
 	/**
 	 * Deserializes a ByteBuf into an object.
 	 *
+	 * @param buf   the buffer
+	 * @param clazz the target object's class
+	 * @param <T>   the target object
+	 * @return the deserialized object
 	 * @implNote Strings in the target class' constructor with the least parameters <strong>should</strong>
 	 * be annotated with the <code>@Serializable.Length</code> annotation to be deserialized correctly,
 	 * otherwise it is assumed that they consume the entire rest length of the ByteBuf. Other Constructors can be marked
 	 * with <code>@Serializable.Exclude</code> to exclude them from being used in this process.
 	 * @apiNote Does not support arrays.
-	 * @param buf the buffer
-	 * @param clazz the target object's class
-	 * @return the deserialized object
-	 * @param <T> the target object
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T unwrap(ByteBuf buf, Class<T> clazz) {
 
-		if(serializers.containsKey(clazz)){
+		if (serializers.containsKey(clazz)) {
 			return ((Serializer<T>) serializers.get(clazz)).deserialize(buf);
 		}
 
@@ -238,7 +238,7 @@ public class BufferUtil {
 			} else if (f.getType().isArray()) {
 				int arrayLength = buf.readInt();
 				Object array = Array.newInstance(f.getType(), arrayLength);
-				for (int i=0;i<arrayLength;i++){
+				for (int i = 0; i < arrayLength; i++) {
 					Array.set(array, i, unwrap(buf.slice(), f.getType().getComponentType()));
 				}
 				params.add(array);
@@ -259,7 +259,7 @@ public class BufferUtil {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Constructor<T> getConstructor(Class<T> clazz){
+	private <T> Constructor<T> getConstructor(Class<T> clazz) {
 		return (Constructor<T>) Arrays.stream(clazz.getDeclaredConstructors()).filter(c -> Modifier.isPublic(c.getModifiers()))
 			.filter(c -> !c.isAnnotationPresent(Serializer.Exclude.class))
 			.sorted(Comparator.comparingInt(Constructor::getParameterCount)).toArray(Constructor[]::new)[0];

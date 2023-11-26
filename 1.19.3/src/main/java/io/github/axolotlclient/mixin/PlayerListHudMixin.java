@@ -66,6 +66,9 @@ public abstract class PlayerListHudMixin {
 	@Shadow
 	private Text footer;
 	private GameProfile profile;
+	@Shadow
+	@Final
+	private MinecraftClient client;
 
 	@Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$nickHider(PlayerListEntry playerEntry, CallbackInfoReturnable<Text> cir) {
@@ -81,10 +84,6 @@ public abstract class PlayerListHudMixin {
 
 	@Shadow
 	protected abstract Text applyGameModeFormatting(PlayerListEntry entry, MutableText name);
-
-	@Shadow
-	@Final
-	private MinecraftClient client;
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"))
 	public PlayerListEntry axolotlclient$getPlayer(PlayerListEntry playerEntry) {

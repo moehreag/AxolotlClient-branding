@@ -50,22 +50,20 @@ import org.jetbrains.annotations.Nullable;
  */
 
 public class BedwarsGame {
+	private final Map<String, BedwarsPlayer> players = new HashMap<>();
+	private final Map<UUID, BedwarsPlayer> playersById = new HashMap<>();
+	private final MinecraftClient mc;
+	private final BedwarsMod mod;
+	@Getter
+	private final BedwarsTeamUpgrades upgrades = new BedwarsTeamUpgrades();
 	private BedwarsTeam won = null;
 	private int wonTick = -1;
 	private int seconds = 0;
 	private Text topBarText = new LiteralText("");
 	private Text bottomBarText = new LiteralText("");
-
 	private BedwarsPlayer me = null;
-
-	private final Map<String, BedwarsPlayer> players = new HashMap<>();
-	private final Map<UUID, BedwarsPlayer> playersById = new HashMap<>();
-	private final MinecraftClient mc;
 	@Getter
 	private boolean started = false;
-	private final BedwarsMod mod;
-	@Getter
-	private final BedwarsTeamUpgrades upgrades = new BedwarsTeamUpgrades();
 	private BedwarsPlayer lastKill;
 	private BedwarsPlayer lastKiller;
 

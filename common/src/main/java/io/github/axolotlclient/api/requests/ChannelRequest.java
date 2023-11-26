@@ -23,11 +23,9 @@
 package io.github.axolotlclient.api.requests;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,7 +34,6 @@ import io.github.axolotlclient.api.APIError;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
-import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.BufferUtil;
 import io.netty.buffer.ByteBuf;

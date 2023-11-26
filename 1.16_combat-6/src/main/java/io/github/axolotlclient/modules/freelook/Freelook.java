@@ -40,11 +40,10 @@ import org.lwjgl.glfw.GLFW;
 public class Freelook extends AbstractModule {
 
 	private static final Freelook Instance = new Freelook();
-
+	private static KeyBinding KEY = new KeyBinding("key.freelook", GLFW.GLFW_KEY_V, "category.axolotlclient");
 	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final OptionCategory category = OptionCategory.create("freelook");
-	private static KeyBinding KEY = new KeyBinding("key.freelook", GLFW.GLFW_KEY_V, "category.axolotlclient");
 	private final StringArrayOption mode = new StringArrayOption("mode",
 		new String[]{"snap_perspective", "freelook"},
 		"freelook", value -> FeatureDisabler.update());

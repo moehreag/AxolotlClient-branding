@@ -38,19 +38,19 @@ public class User {
 
 	public static boolean getOnline(String uuid) {
 
-		if(uuid == null){
+		if (uuid == null) {
 			return false;
 		}
 
 		uuid = API.getInstance().sanitizeUUID(uuid);
 
-		if(uuid.equals(API.getInstance().getUuid())){
+		if (uuid.equals(API.getInstance().getUuid())) {
 			return true;
 		}
 
 		return onlineCache.computeIfAbsent(uuid, u ->
 			API.getInstance().send(new Request(Request.Type.USER, u)).handleAsync((buf, t) ->
-			buf.getBoolean(0x09)).getNow(false));
+				buf.getBoolean(0x09)).getNow(false));
 	}
 
 	public static CompletableFuture<io.github.axolotlclient.api.types.User> get(String uuid) {

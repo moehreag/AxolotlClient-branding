@@ -98,6 +98,20 @@ public class KeystrokeHud extends TextHudEntry {
 		Events.PLAYER_DIRECTION_CHANGE.register(this::onPlayerDirectionChange);
 	}
 
+	public static Optional<String> getMouseKeyBindName(KeyBinding keyBinding) {
+		if (keyBinding.getBoundKeyTranslationKey().equalsIgnoreCase(
+			InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_1).getTranslationKey())) {
+			return Optional.of("LMB");
+		} else if (keyBinding.getBoundKeyTranslationKey().equalsIgnoreCase(
+			InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_2).getTranslationKey())) {
+			return Optional.of("RMB");
+		} else if (keyBinding.getBoundKeyTranslationKey().equalsIgnoreCase(
+			InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_3).getTranslationKey())) {
+			return Optional.of("MMB");
+		}
+		return Optional.empty();
+	}
+
 	public void setKeystrokes() {
 		if (client.getWindow() == null) {
 			keystrokes = null;
@@ -163,20 +177,6 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 		height = baseHeight;
 		onBoundsUpdate();
-	}
-
-	public static Optional<String> getMouseKeyBindName(KeyBinding keyBinding) {
-		if (keyBinding.getBoundKeyTranslationKey().equalsIgnoreCase(
-			InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_1).getTranslationKey())) {
-			return Optional.of("LMB");
-		} else if (keyBinding.getBoundKeyTranslationKey().equalsIgnoreCase(
-			InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_2).getTranslationKey())) {
-			return Optional.of("RMB");
-		} else if (keyBinding.getBoundKeyTranslationKey().equalsIgnoreCase(
-			InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_3).getTranslationKey())) {
-			return Optional.of("MMB");
-		}
-		return Optional.empty();
 	}
 
 	public Keystroke createFromString(Rectangle bounds, DrawPosition offset, KeyBinding key, String word) {

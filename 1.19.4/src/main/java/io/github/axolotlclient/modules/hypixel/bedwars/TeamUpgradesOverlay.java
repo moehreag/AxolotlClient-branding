@@ -42,12 +42,10 @@ import net.minecraft.util.Identifier;
 public class TeamUpgradesOverlay extends BoxHudEntry {
 
 	public final static Identifier ID = new Identifier("axolotlclient", "bedwars_teamupgrades");
-
-	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath() + ".renderWhenRelevant", true);
-
-	private BedwarsTeamUpgrades upgrades = null;
-	private final BedwarsMod mod;
 	private final static TrapUpgrade.TrapType[] trapEdit = {TrapUpgrade.TrapType.MINER_FATIGUE, TrapUpgrade.TrapType.ITS_A_TRAP};
+	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath() + ".renderWhenRelevant", true);
+	private final BedwarsMod mod;
+	private BedwarsTeamUpgrades upgrades = null;
 
 	public TeamUpgradesOverlay(BedwarsMod mod) {
 		super(60, 40, true);

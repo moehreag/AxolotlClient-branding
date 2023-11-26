@@ -44,6 +44,15 @@ public interface Positionable {
 	}
 
 	/**
+	 * Set the true x value, this is equivalent to pixels
+	 *
+	 * @param trueX Pixel value of x
+	 */
+	default void setTrueX(int trueX) {
+		setX((int) (trueX / getScale()));
+	}
+
+	/**
 	 * Gets the x value of this object in pixels (so it's scaled). This may not be accurate so use {@link #getTrueX()}
 	 *
 	 * @return True X position
@@ -85,21 +94,21 @@ public interface Positionable {
 	int getRawX();
 
 	/**
-	 * Set the true x value, this is equivalent to pixels
-	 *
-	 * @param trueX Pixel value of x
-	 */
-	default void setTrueX(int trueX) {
-		setX((int) (trueX / getScale()));
-	}
-
-	/**
 	 * Gets the y value of this object in pixels (so it's scaled)
 	 *
 	 * @return True Y position
 	 */
 	default int getTrueY() {
 		return getRawTrueY();
+	}
+
+	/**
+	 * Set the true y value, this is equivalent to pixels
+	 *
+	 * @param trueY Pixel value of y
+	 */
+	default void setTrueY(int trueY) {
+		setX((int) (trueY / getScale()));
 	}
 
 	/**
@@ -121,13 +130,6 @@ public interface Positionable {
 	}
 
 	/**
-	 * Gets the y value of this object. This may not be correct so use {@link #getY()}
-	 *
-	 * @return Y Unscaled Y position
-	 */
-	int getRawY();
-
-	/**
 	 * Set the raw y value (this does not mean pixels!)
 	 *
 	 * @param y Raw y value
@@ -135,13 +137,11 @@ public interface Positionable {
 	void setY(int y);
 
 	/**
-	 * Set the true y value, this is equivalent to pixels
+	 * Gets the y value of this object. This may not be correct so use {@link #getY()}
 	 *
-	 * @param trueY Pixel value of y
+	 * @return Y Unscaled Y position
 	 */
-	default void setTrueY(int trueY) {
-		setX((int) (trueY / getScale()));
-	}
+	int getRawY();
 
 	/**
 	 * Returns the rectangle that represents the boundaries of where this object will be rendered when scaled
@@ -170,6 +170,11 @@ public interface Positionable {
 	int getWidth();
 
 	/**
+	 * Sets the raw width (this is unscaled)
+	 */
+	void setWidth(int width);
+
+	/**
 	 * The height of the object, unscaled
 	 *
 	 * @return The height of this object
@@ -180,11 +185,6 @@ public interface Positionable {
 	 * Sets the raw height (this is unscaled)
 	 */
 	void setHeight(int height);
-
-	/**
-	 * Sets the raw width (this is unscaled)
-	 */
-	void setWidth(int width);
 
 	/**
 	 * Returns the rectangle that represents the boundaries of where this object will be rendered on the screen. This is unscaled
