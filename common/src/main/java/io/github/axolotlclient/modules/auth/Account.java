@@ -22,13 +22,12 @@
 
 package io.github.axolotlclient.modules.auth;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -36,13 +35,19 @@ public class Account {
 
 	public static final String OFFLINE_TOKEN = "AxolotlClient/Offline";
 
+	@Getter
 	private final String uuid;
-	private String name;
+	@Getter
+	private final String name;
 
-	private String authToken;
 	@Getter(AccessLevel.PACKAGE)
-	private String refreshToken;
-	private Instant expiration;
+	private final String msaToken;
+
+	@Getter
+	private final String authToken;
+	@Getter(AccessLevel.PACKAGE)
+	private final String refreshToken;
+	private final Instant expiration;
 
 	public Account(String name, String uuid, String accessToken) {
 		this.name = name;
@@ -50,20 +55,23 @@ public class Account {
 		this.authToken = accessToken;
 		expiration = Instant.EPOCH;
 		refreshToken = "";
+		msaToken = "";
 	}
 
-	public Account(JsonObject profile, String authToken, String refreshToken) {
+	public Account(JsonObject profile, String authToken, String msaToken, String refreshToken) {
 		uuid = profile.get("id").getAsString();
 		name = profile.get("name").getAsString();
 		this.authToken = authToken;
+		this.msaToken = msaToken;
 		this.refreshToken = refreshToken;
 		expiration = Instant.now().plus(1, ChronoUnit.DAYS);
 	}
 
-	private Account(String uuid, String name, String authToken, String refreshToken, long expiration) {
+	private Account(String uuid, String name, String authToken, String msaToken, String refreshToken, long expiration) {
 		this.uuid = uuid;
 		this.name = name;
 		this.authToken = authToken;
+		this.msaToken = msaToken;
 		this.refreshToken = refreshToken;
 		this.expiration = Instant.ofEpochSecond(expiration);
 	}
@@ -73,28 +81,13 @@ public class Account {
 		String name = object.get("name").getAsString();
 		String authToken = object.get("authToken").getAsString();
 		String refreshToken = object.get("refreshToken").getAsString();
+		String msaToken = object.has("msToken") ? object.get("msToken").getAsString() : "";
 		long expiration = object.get("expiration").getAsLong();
-		return new Account(uuid, name, authToken, refreshToken, expiration);
+		return new Account(uuid, name, authToken, msaToken, refreshToken, expiration);
 	}
 
 	public void refresh(MSAuth auth, Runnable runAfter) {
-		new Thread(() -> {
-			Map.Entry<String, String> tokens = auth.refreshToken(refreshToken, this);
-			if (tokens.getKey() != null) {
-				authToken = tokens.getKey();
-				refreshToken = tokens.getValue();
-				expiration = Instant.now().plus(1, ChronoUnit.DAYS);
-				try {
-					JsonObject object = auth.getMCProfile(authToken);
-					System.out.println(object);
-					name = object.get("name").getAsString();
-				} catch (IOException ignored) {
-				}
-				runAfter.run();
-			} else {
-				auth.startAuth(runAfter);
-			}
-		}).start();
+		ThreadExecuter.scheduleTask(() -> auth.refreshToken(refreshToken, this, runAfter));
 	}
 
 	public boolean isOffline() {
@@ -106,6 +99,7 @@ public class Account {
 		object.add("uuid", new JsonPrimitive(uuid));
 		object.add("name", new JsonPrimitive(name));
 		object.add("authToken", new JsonPrimitive(authToken));
+		object.add("msToken", new JsonPrimitive(msaToken));
 		object.add("refreshToken", new JsonPrimitive(refreshToken == null ? "" : refreshToken));
 		object.add("expiration", new JsonPrimitive(expiration == null ? 0 : expiration.getEpochSecond()));
 		return object;
@@ -115,16 +109,8 @@ public class Account {
 		return expiration.isBefore(Instant.now());
 	}
 
-	public String getUuid() {
-		return uuid;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getAuthToken() {
-		return authToken;
+	public boolean needsRefresh() {
+		return expiration.isBefore(Instant.now().minus(12, ChronoUnit.HOURS));
 	}
 
 	@Override

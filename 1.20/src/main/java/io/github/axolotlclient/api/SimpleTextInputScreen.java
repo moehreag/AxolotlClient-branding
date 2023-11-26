@@ -59,7 +59,6 @@ public class SimpleTextInputScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int i, int j, float f) {
-		renderBackground(graphics, i, j, f);
 		super.render(graphics, i, j, f);
 		graphics.drawShadowedText(client.textRenderer, inputLabel, (int) (width / 2F - 100), (int) (height / 2f - 20), -1);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);

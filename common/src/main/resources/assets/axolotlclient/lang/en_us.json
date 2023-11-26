@@ -73,6 +73,7 @@
 	"attackindicatorbg": "Attack Indicator (Background)",
 	"attackindicatorfg": "Attack Indicator (Foreground)",
 	"auth": "Authentication",
+	"auth.accountExpiredNotice": "Your Account %s has expired. Would you like to log in again?",
 	"auth.add": "Add Account",
 	"auth.add.choose": "Choose Account Type to add",
 	"auth.add.ms": "Add Microsoft Account",
@@ -502,5 +503,9 @@
 	"api.notes.title": "News",
 	"configStyle": "Config UI Style",
 	"configStyle.rounded": "Rounded",
-	"configStyle.vanilla": "Vanilla"
+	"configStyle.vanilla": "Vanilla",
+	"auth.copy_and_open": "Copy and Open",
+	"auth.time_left": "Time Left: %s",
+	"auth.working": "Working...",
+	"auth.finished": "Done!"
 }

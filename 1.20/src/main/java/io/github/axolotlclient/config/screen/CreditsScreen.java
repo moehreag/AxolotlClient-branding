@@ -71,12 +71,7 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
-		if (AxolotlClient.CONFIG.creditsBGM.get() && !MinecraftClient.getInstance().getSoundManager().isPlaying(bgm)) {
-			MinecraftClient.getInstance().getSoundManager().play(bgm);
-		}
-
-		renderBackground(graphics, mouseX, mouseY, tickDelta);
+	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		if (AxolotlClient.someNiceBackground.get()) { // Credit to pridelib for the colors
 			graphics.fill(0, 0, width, height / 6, 0xFFff0018);
 			graphics.fill(0, height / 6, width, height * 2 / 6, 0xFFffa52c);
@@ -84,6 +79,15 @@ public class CreditsScreen extends Screen {
 			graphics.fill(0, height * 2 / 3, width, height * 5 / 6, 0xFF0000f9);
 			graphics.fill(0, height / 2, width, height * 2 / 3, 0xFF008018);
 			graphics.fill(0, height * 5 / 6, width, height, 0xFF86007d);
+		} else {
+			super.renderBackground(graphics, mouseX, mouseY, delta);
+		}
+	}
+
+	@Override
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
+		if (AxolotlClient.CONFIG.creditsBGM.get() && !MinecraftClient.getInstance().getSoundManager().isPlaying(bgm)) {
+			MinecraftClient.getInstance().getSoundManager().play(bgm);
 		}
 
 		super.render(graphics, mouseX, mouseY, tickDelta);

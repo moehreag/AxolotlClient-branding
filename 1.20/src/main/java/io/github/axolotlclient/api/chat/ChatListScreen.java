@@ -46,7 +46,6 @@ public class ChatListScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics, mouseX, mouseY, delta);
 		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawCenteredShadowedText(client.textRenderer, Text.translatable("api.chats"), width / 2, 20, -1);

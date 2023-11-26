@@ -61,6 +61,10 @@ import net.minecraft.world.World;
  */
 
 public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositionable {
+	private static final Identifier CROSSHAIR_TEXTURE = new Identifier("hud/crosshair");
+	private static final Identifier ATTACK_INDICATOR_FULL = new Identifier("hud/crosshair_attack_indicator_full");
+	private static final Identifier ATTACK_INDICATOR_BACKGROUND = new Identifier("hud/crosshair_attack_indicator_background");
+	private static final Identifier ATTACK_INDICATOR_PROGRESS = new Identifier("hud/crosshair_attack_indicator_progress");
 
 	public static final Identifier ID = new Identifier("kronhud", "crosshairhud");
 
@@ -194,9 +198,9 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				// Draw crosshair
 				RenderSystem.setShaderColor((float) color.getRed() / 255, (float) color.getGreen() / 255,
 					(float) color.getBlue() / 255, (float) color.getAlpha() / 255);
-				graphics.drawTexture(ICONS_TEXTURE,
+				graphics.drawGuiTexture(CROSSHAIR_TEXTURE,
 					(int) (((client.getWindow().getScaledWidth() / getScale()) - 15) / 2),
-					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 0, 0, 15, 15);
+					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 15, 15);
 			} else {
 				// Draw crosshair
 				RenderSystem.setShaderColor((float) color.getRed() / 255, (float) color.getGreen() / 255,
@@ -205,7 +209,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				graphics.drawTexture(Util.getTexture(customTextureGraphics), (int) (((client.getWindow().getScaledWidth() / getScale()) - 15) / 2),
 					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 0, 0, 15, 15, 15, 15);
 
-				RenderSystem.setShaderTexture(0, ICONS_TEXTURE);
+				RenderSystem.setShaderTexture(0, CROSSHAIR_TEXTURE);
 			}
 
 			RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -226,11 +230,11 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				y = (int) ((client.getWindow().getScaledHeight() / getScale()) / 2 - 7 + 16);
 
 				if (targetingEntity) {
-					graphics.drawTexture(ICONS_TEXTURE, x, y, 68, 94, 16, 16);
+					graphics.drawGuiTexture(ATTACK_INDICATOR_FULL, x, y, 16, 16);
 				} else if (progress < 1.0F) {
 					int k = (int) (progress * 17.0F);
-					graphics.drawTexture(ICONS_TEXTURE, x, y, 36, 94, 16, 4);
-					graphics.drawTexture(ICONS_TEXTURE, x, y, 52, 94, k, 4);
+					graphics.drawGuiTexture(ATTACK_INDICATOR_BACKGROUND, x, y, 16, 4);
+					graphics.drawGuiTexture(ATTACK_INDICATOR_PROGRESS, 16, 4, 0, 0, x, y, k, 4);
 				}
 			}
 		}

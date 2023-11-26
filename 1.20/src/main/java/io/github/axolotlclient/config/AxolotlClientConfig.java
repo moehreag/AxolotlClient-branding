@@ -171,8 +171,8 @@ public class AxolotlClientConfig {
 		/*searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase,
 			AxolotlClientConfigConfig.searchForOptions,
 			AxolotlClientConfigConfig.searchSort,
-			AxolotlClientConfigConfig.searchSortOrder);*/
-		general.add(searchFilters);
+			AxolotlClientConfigConfig.searchSortOrder);
+		general.add(searchFilters);*/
 
 		rendering.add(customSky,
 			showSunMoon,

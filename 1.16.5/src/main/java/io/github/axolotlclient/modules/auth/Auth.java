@@ -33,18 +33,19 @@ import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.util.UUIDTypeAdapter;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
-import io.github.axolotlclient.util.options.GenericOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.Notifications;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.SocialInteractionsManager;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.util.Session;
@@ -67,10 +68,10 @@ public class Auth extends Accounts implements Module {
 	@Override
 	public void init() {
 		load();
-		this.auth = new MSAuth(AxolotlClient.LOGGER, this);
+		this.auth = new MSAuth(AxolotlClient.LOGGER, this, () -> client.options.language);
 		if (isContained(client.getSession().getUuid())) {
 			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).collect(Collectors.toList()).get(0);
-			if (current.isExpired()) {
+			if (current.needsRefresh()) {
 				current.refresh(auth, () -> {
 				});
 			}
@@ -113,8 +114,10 @@ public class Auth extends Accounts implements Module {
 			}
 		};
 
-		if (account.isExpired() && !account.isOffline()) {
-			Notifications.getInstance().addStatus(new TranslatableText("auth.notif.title"), new TranslatableText("auth.notif.refreshing", account.getName()));
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus(new TranslatableText("auth.notif.title"), new TranslatableText("auth.notif.refreshing", account.getName()));
+			}
 			account.refresh(auth, runnable);
 		} else {
 			new Thread(runnable).start();
@@ -126,7 +129,6 @@ public class Auth extends Accounts implements Module {
 		return AxolotlClient.LOGGER;
 	}
 
-	@Override
 	public void loadTextures(String uuid, String name) {
 		if (!textures.containsKey(uuid) && !loadingTexture.contains(uuid)) {
 			ThreadExecuter.scheduleTask(() -> {
@@ -152,6 +154,24 @@ public class Auth extends Accounts implements Module {
 				}), false);
 			});
 		}
+	}
+
+	@Override
+	void showAccountsExpiredScreen(Account account) {
+		Screen current = client.currentScreen;
+		client.execute(() -> client.openScreen(new ConfirmScreen((bl) -> {
+			client.openScreen(current);
+			if (bl) {
+				auth.startDeviceAuth(() -> {
+				});
+			}
+		}, new TranslatableText("auth"), new TranslatableText("auth.accountExpiredNotice", account.getName()))));
+	}
+
+	@Override
+	void displayDeviceCode(DeviceFlowData data) {
+		Screen display = new DeviceCodeDisplayScreen(client.currentScreen, data);
+		client.openScreen(display);
 	}
 
 	public Identifier getSkinTexture(Account account) {

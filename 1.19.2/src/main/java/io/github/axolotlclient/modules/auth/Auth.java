@@ -43,6 +43,8 @@ import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
 import net.minecraft.client.mutliplayer.report.ReportEnvironment;
 import net.minecraft.client.network.SocialInteractionsManager;
@@ -68,10 +70,10 @@ public class Auth extends Accounts implements Module {
 	@Override
 	public void init() {
 		load();
-		this.auth = new MSAuth(AxolotlClient.LOGGER, this);
+		this.auth = new MSAuth(AxolotlClient.LOGGER, this, () -> client.options.language);
 		if (isContained(client.getSession().getUuid())) {
 			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).toList().get(0);
-			if (current.isExpired()) {
+			if (current.needsRefresh()) {
 				current.refresh(auth, () -> {
 				});
 			}
@@ -121,8 +123,10 @@ public class Auth extends Accounts implements Module {
 			}
 		};
 
-		if (account.isExpired() && !account.isOffline()) {
-			Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
+			}
 			account.refresh(auth, runnable);
 		} else {
 			runnable.run();
@@ -134,7 +138,6 @@ public class Auth extends Accounts implements Module {
 		return AxolotlClient.LOGGER;
 	}
 
-	@Override
 	public void loadTextures(final String uuid, final String name) {
 		if (!textures.containsKey(uuid) && !loadingTexture.contains(uuid)) {
 			ThreadExecuter.scheduleTask(() -> {
@@ -160,6 +163,24 @@ public class Auth extends Accounts implements Module {
 				}), false);
 			});
 		}
+	}
+
+	@Override
+	void showAccountsExpiredScreen(Account account) {
+		Screen current = client.currentScreen;
+		client.execute(() -> client.setScreen(new ConfirmScreen((bl) -> {
+			client.setScreen(current);
+			if (bl) {
+				auth.startDeviceAuth(() -> {
+				});
+			}
+		}, Text.translatable("auth"), Text.translatable("auth.accountExpiredNotice", account.getName()))));
+	}
+
+	@Override
+	void displayDeviceCode(DeviceFlowData data) {
+		Screen display = new DeviceCodeDisplayScreen(client.currentScreen, data);
+		client.setScreen(display);
 	}
 
 	public Identifier getSkinTexture(Account account) {

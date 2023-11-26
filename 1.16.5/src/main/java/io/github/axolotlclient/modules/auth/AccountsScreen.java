@@ -87,8 +87,8 @@ public class AccountsScreen extends Screen {
 				} else {
 					client.openScreen(new ConfirmScreen(result -> {
 						if (!result) {
-							initMSAuth();
 							client.openScreen(this);
+							initMSAuth();
 						} else {
 							client.openScreen(new AddOfflineScreen(this));
 						}
@@ -119,7 +119,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startAuth(() -> client.execute(this::refresh));
+		Auth.getInstance().getAuth().startDeviceAuth(() -> client.execute(this::refresh));
 	}
 
 	private void refreshAccount() {

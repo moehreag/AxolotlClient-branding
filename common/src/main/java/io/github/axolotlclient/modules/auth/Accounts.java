@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,5 +110,6 @@ public abstract class Accounts {
 		return !accounts.isEmpty() && !accounts.stream().allMatch(Account::isOffline);
 	}
 
-	public abstract void loadTextures(String uuid, String name);
+	abstract void showAccountsExpiredScreen(Account account);
+	abstract void displayDeviceCode(DeviceFlowData data);
 }

@@ -76,8 +76,6 @@ public class ImageViewerScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics, mouseX, mouseY, delta);
-
 		super.render(graphics, mouseX, mouseY, delta);
 
 		if (imageId != null) {

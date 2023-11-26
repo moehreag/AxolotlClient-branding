@@ -52,7 +52,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics, mouseX, mouseY, delta);
+		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawShadowedText(client.textRenderer, title, width/2, 20, -1);
 
@@ -76,9 +76,6 @@ public class NewsScreen extends Screen {
 		graphics.fill(width-15, 35, width-9, height-65, -16777216);
 		graphics.fill(width-15, scrollbarY, width-9, scrollbarY + scrollbarHeight, -8355712);
 		graphics.fill(width-15, scrollbarY, width-10, scrollbarY + scrollbarHeight-1, -4144960);
-
-		super.render(graphics, mouseX, mouseY, delta);
-
 
 	}
 

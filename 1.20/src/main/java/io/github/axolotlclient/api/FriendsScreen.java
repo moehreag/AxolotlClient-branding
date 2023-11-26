@@ -55,10 +55,8 @@ public class FriendsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		this.renderBackground(graphics, mouseX, mouseY, delta);
-		this.widget.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
 		super.render(graphics, mouseX, mouseY, delta);
+		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
 	}
 
 	@Override
@@ -82,7 +80,7 @@ public class FriendsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addSelectableElement(widget = new UserListWidget(this, client, width, height, 32, height - 64, 35));
+		addDrawableSelectableElement(widget = new UserListWidget(this, client, width, height, 32, height - 64, 35));
 
 		widget.children().clear();
 

@@ -87,13 +87,6 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		if (MinecraftClient.getInstance().world != null)
-			graphics.fillGradient(0, 0, width, height, new Color(0xB0100E0E, true).hashCode(),
-				new Color(0x46212020, true).hashCode());
-		else {
-			renderBackgroundTexture(graphics);
-		}
-
 		super.render(graphics, mouseX, mouseY, delta);
 
 		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY(mouseX, mouseY);

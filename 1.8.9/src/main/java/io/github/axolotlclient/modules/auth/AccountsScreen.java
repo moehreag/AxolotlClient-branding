@@ -116,7 +116,6 @@ public class AccountsScreen extends Screen {
 					minecraft.openScreen(new ConfirmScreen(this, I18n.translate("auth.add.choose"), "", I18n.translate("auth.add.offline"), I18n.translate("auth.add.ms"), 234));
 				} else {
 					initMSAuth();
-					minecraft.openScreen(this);
 				}
 				break;
 			case 3:
@@ -169,6 +168,7 @@ public class AccountsScreen extends Screen {
 	public void confirmResult(boolean bl, int i) {
 		if (i == 234) {
 			if (!bl) {
+				minecraft.openScreen(this);
 				initMSAuth();
 			} else {
 				minecraft.openScreen(new AddOfflineScreen(this));
@@ -202,10 +202,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startAuth(() -> minecraft.submit(() -> {
-			refresh();
-			return null;
-		}));
+		Auth.getInstance().getAuth().startDeviceAuth(() -> minecraft.submit(this::refresh));
 	}
 
 	private void refreshAccount() {

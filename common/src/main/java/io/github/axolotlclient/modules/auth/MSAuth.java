@@ -23,24 +23,17 @@
 package io.github.axolotlclient.modules.auth;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.sun.net.httpserver.HttpServer;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.NetworkUtil;
-import io.github.axolotlclient.util.OSUtil;
-import org.apache.commons.io.IOUtils;
+import io.github.axolotlclient.util.ThreadExecuter;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.RequestBuilder;
@@ -53,70 +46,90 @@ import org.apache.http.message.BasicNameValuePair;
 public class MSAuth {
 
 	private static final String CLIENT_ID = "938592fc-8e01-4c6d-b56d-428c7d9cf5ea"; // AxolotlClient MSA ClientID
-	private static final int PORT = 59281;
-	private static final String FALLBACK_RESPONSE = "You may now close this tab.";
+	private static final String SCOPES = "XboxLive.signin offline_access";
 
+	private final Supplier<String> languageSupplier;
 	private final Logger logger;
 	private final Accounts accounts;
-	private HttpServer server;
 
-	public MSAuth(Logger logger, Accounts accounts) {
+	public MSAuth(Logger logger, Accounts accounts, Supplier<String> languageSupplier) {
 		this.logger = logger;
 		this.accounts = accounts;
+		this.languageSupplier = languageSupplier;
 	}
 
-	public void startAuth(Runnable whenFinished) {
+	public void startDeviceAuth(Runnable whenFinished) {
 		try {
-			OSUtil.getOS().open(new URI("https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize" +
-				"?client_id=" + CLIENT_ID +
-				"&response_type=code" +
-				"&scope=XboxLive.signin%20XboxLive.offline_access" +
-				"&redirect_uri=http://localhost:" + PORT +
-				"&prompt=select_account"), logger);
-			msAuthCode(whenFinished);
-		} catch (URISyntaxException e) {
+			String[] lang = languageSupplier.get().replace("_", "-").split("-");
+			logger.debug("starting ms device auth flow");
+			// https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code#device-authorization-response
+			RequestBuilder builder = RequestBuilder.post()
+				.setEntity(new UrlEncodedFormEntity(ImmutableList.of(
+					new BasicNameValuePair("client_id", CLIENT_ID),
+					new BasicNameValuePair("scope", SCOPES)), StandardCharsets.UTF_8))
+				.addHeader("ContentType", "application/x-www-form-urlencoded")
+				.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode?mkt=" + lang[0] + "-" + lang[1].toUpperCase(Locale.ROOT));
+			JsonObject object = NetworkUtil.request(builder.build(), getHttpClient()).getAsJsonObject();
+			int expiresIn = object.get("expires_in").getAsInt();
+			String deviceCode = object.get("device_code").getAsString();
+			String userCode = object.get("user_code").getAsString();
+			String verificationUri = object.get("verification_uri").getAsString();
+			int interval = object.get("interval").getAsInt();
+			String message = object.get("message").getAsString();
+			logger.debug("displaying device code to user");
+			DeviceFlowData data = new DeviceFlowData(message, verificationUri, deviceCode, userCode, expiresIn, interval);
+			accounts.displayDeviceCode(data);
+
+			ThreadExecuter.scheduleTask(() -> {
+				logger.debug("waiting for user authorization...");
+				long start = System.currentTimeMillis();
+				try {
+					while (System.currentTimeMillis() < expiresIn * 1000L + start) {
+						if ((System.currentTimeMillis() - start) % interval == 0) {
+							List<NameValuePair> form = new ArrayList<>();
+							form.add(new BasicNameValuePair("client_id", CLIENT_ID));
+							form.add(new BasicNameValuePair("device_code", deviceCode));
+							form.add(new BasicNameValuePair("grant_type", "urn:ietf:params:oauth:grant-type:device_code"));
+							RequestBuilder requestBuilder = RequestBuilder.post()
+								.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/token")
+								.addHeader("ContentType", "application/x-www-form-urlencoded")
+								.setEntity(new UrlEncodedFormEntity(form, StandardCharsets.UTF_8));
+							JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
+
+							if (response.has("refresh_token") && response.has("access_token")) {
+								data.setStatus("auth.working");
+								authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
+									response.get("refresh_token").getAsString()), whenFinished);
+								data.setStatus("auth.finished");
+								break;
+							}
+
+							if (response.has("error")) {
+								String error = response.get("error").getAsString();
+								switch (error) {
+									case "authorization_pending":
+										continue;
+									case "bad_verification_code":
+										throw new IllegalStateException("Bad verification code! " + response);
+									case "authorization_declined":
+									case "expired_token":
+									default:
+										break;
+								}
+							}
+						}
+					}
+				} catch (Exception e) {
+					logger.error("Error while waiting for user authentication: ", e);
+				}
+			});
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void msAuthCode(Runnable whenFinished) {
+	public void authenticateFromMSTokens(Map.Entry<String, String> msTokens, Runnable whenFinished) {
 		try {
-			server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
-			server.createContext("/", ex -> {
-				logger.debug("Microsoft authentication callback request: " + ex.getRemoteAddress());
-				byte[] b = null;
-				try (InputStream in = this.getClass().getResourceAsStream("/assets/axolotlclient/redirect.html")) {
-					if (in != null) {
-						b = IOUtils.toByteArray(in);
-					}
-				}
-				if (b == null) {
-					b = FALLBACK_RESPONSE.getBytes(StandardCharsets.UTF_8);
-				}
-				ex.getResponseHeaders().add("Content-Type", "text/html");
-				ex.sendResponseHeaders(307, b.length);
-				ex.getResponseBody().write(b);
-				String query = ex.getRequestURI().getQuery();
-				close();
-				authenticate(query, whenFinished);
-			});
-			server.start();
-		} catch (Throwable t) {
-			close();
-		}
-	}
-
-	public void close() {
-		if (server != null) {
-			server.stop(0);
-		}
-	}
-
-	public void authenticate(String params, Runnable whenFinished) {
-		try {
-			String authCode = params.replace("code=", "");
-			logger.debug("getting ms token... ");
-			Map.Entry<String, String> msTokens = getMSTokens(authCode);
 			logger.debug("getting xbl token... ");
 			String xblToken = authXbl(msTokens.getKey());
 			logger.debug("getting xsts token... ");
@@ -125,7 +138,7 @@ public class MSAuth {
 			String accessToken = authMC(xsts.getValue(), xsts.getKey());
 			if (checkOwnership(accessToken)) {
 				logger.debug("finished auth flow!");
-				Account account = new Account(getMCProfile(accessToken), accessToken, msTokens.getValue());
+				Account account = new Account(getMCProfile(accessToken), accessToken, msTokens.getKey(), msTokens.getValue());
 				if (accounts.isContained(account.getUuid())) {
 					accounts.getAccounts().removeAll(accounts.getAccounts().stream().filter(acc -> acc.getUuid().equals(account.getUuid())).collect(Collectors.toList()));
 				}
@@ -138,22 +151,6 @@ public class MSAuth {
 		} catch (Exception e) {
 			logger.error("Failed to authenticate!", e);
 		}
-	}
-
-	public Map.Entry<String, String> getMSTokens(String authCode) throws IOException {
-		List<NameValuePair> form = new ArrayList<>();
-		form.add(new BasicNameValuePair("client_id", CLIENT_ID));
-		form.add(new BasicNameValuePair("code", authCode));
-		form.add(new BasicNameValuePair("scope", "XboxLive.signin XboxLive.offline_access"));
-		form.add(new BasicNameValuePair("redirect_uri", "http://localhost:" + PORT));
-		form.add(new BasicNameValuePair("grant_type", "authorization_code"));
-		RequestBuilder requestBuilder = RequestBuilder.post()
-			.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/token")
-			.addHeader("ContentType", "application/x-www-form-urlencoded")
-			.setEntity(new UrlEncodedFormEntity(form, StandardCharsets.UTF_8));
-		JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
-
-		return new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(), response.get("refresh_token").getAsString());
 	}
 
 	public String authXbl(String code) throws IOException {
@@ -214,13 +211,13 @@ public class MSAuth {
 		return NetworkUtil.createHttpClient("Auth");
 	}
 
-	public Map.Entry<String, String> refreshToken(String token, Account account) {
+	public void refreshToken(String token, Account account, Runnable runAfter) {
 		try {
 			logger.debug("refreshing auth code... ");
 			List<NameValuePair> form = new ArrayList<>();
 			form.add(new BasicNameValuePair("client_id", CLIENT_ID));
 			form.add(new BasicNameValuePair("refresh_token", token));
-			form.add(new BasicNameValuePair("scope", "XboxLive.signin XboxLive.offline_access"));
+			form.add(new BasicNameValuePair("scope", SCOPES));
 			form.add(new BasicNameValuePair("grant_type", "refresh_token"));
 			RequestBuilder requestBuilder = RequestBuilder.post()
 				.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/token")
@@ -230,25 +227,18 @@ public class MSAuth {
 
 			JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
 
-			if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000){
-				return new AbstractMap.SimpleImmutableEntry<>(null, null);
+			if (response.has("error_codes")) {
+				if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000) {
+					accounts.showAccountsExpiredScreen(account);
+				}
+				return;
 			}
-			String refreshToken = response.get("refresh_token").getAsString();
 
-			logger.debug("getting xbl token... ");
-			String xblToken = authXbl(response.get("access_token").getAsString());
-			logger.debug("getting xsts token... ");
-			Map.Entry<String, String> xsts = authXstsMC(xblToken);
-			logger.debug("getting mc auth token...");
-			String accessToken = authMC(xsts.getValue(), xsts.getKey());
-			if (checkOwnership(accessToken)) {
-				logger.info("Successfully refreshed token for " + account.getName() + "!");
+			authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
+				response.get("refresh_token").getAsString()), runAfter);
 
-				return new AbstractMap.SimpleImmutableEntry<>(accessToken, refreshToken);
-			}
 		} catch (Exception e) {
 			logger.error("Failed to refresh Auth token! ", e);
 		}
-		return new AbstractMap.SimpleImmutableEntry<>(null, null);
 	}
 }

@@ -42,22 +42,11 @@ public class AddOfflineScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return super.mouseClicked(mouseX, mouseY, button) || nameInput.mouseClicked(mouseX, mouseY, button);
-	}
-
-	@Override
 	public void render(GuiGraphics graphics, int i, int j, float f) {
 		renderBackground(graphics, i, j, f);
 		super.render(graphics, i, j, f);
 		graphics.drawShadowedText(textRenderer, Text.translatable("auth.add.offline.name"), (int) (width / 2F - 100), (int) (height / 2f - 20), -1);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
-		nameInput.render(graphics, i, j, f);
-	}
-
-	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		return super.keyPressed(keyCode, scanCode, modifiers) || nameInput.keyPressed(keyCode, scanCode, modifiers);
 	}
 
 	@Override

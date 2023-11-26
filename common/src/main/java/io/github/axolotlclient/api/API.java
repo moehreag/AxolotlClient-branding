@@ -282,7 +282,7 @@ public class API {
 
 	void startupAPI() {
 		if (!isConnected()) {
-			self = new User(this.uuid, Status.UNKNOWN);
+			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN);
 
 			if(Constants.TESTING){
 				return;
@@ -330,7 +330,14 @@ public class API {
 
 	public String sanitizeUUID(String uuid) {
 		if (uuid.contains("-")) {
-			return uuid.replace("-", "");
+			return validateUUID(uuid.replace("-", ""));
+		}
+		return validateUUID(uuid);
+	}
+
+	private String validateUUID(String uuid){
+		if (uuid.length() != 32){
+			throw new IllegalArgumentException("Not a valid UUID (undashed): "+uuid);
 		}
 		return uuid;
 	}

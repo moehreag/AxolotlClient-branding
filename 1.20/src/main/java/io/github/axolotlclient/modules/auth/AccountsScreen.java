@@ -45,10 +45,13 @@ public class AccountsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		this.renderBackground(graphics, mouseX, mouseY, delta);
-		this.accountsListWidget.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
 		super.render(graphics, mouseX, mouseY, delta);
+		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
+	}
+
+	@Override
+	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		renderBackgroundTexture(graphics);
 	}
 
 	@Override
@@ -74,7 +77,7 @@ public class AccountsScreen extends Screen {
 	public void init() {
 
 		accountsListWidget = new AccountsListWidget(this, client, width, height, 32, height - 64, 35);
-		addSelectableElement(accountsListWidget);
+		addDrawableSelectableElement(accountsListWidget);
 
 		accountsListWidget.setAccounts(Auth.getInstance().getAccounts());
 
@@ -88,8 +91,8 @@ public class AccountsScreen extends Screen {
 					} else {
 						client.setScreen(new ConfirmScreen(result -> {
 							if (!result) {
-								initMSAuth();
 								client.setScreen(this);
+								initMSAuth();
 							} else {
 								client.setScreen(new AddOfflineScreen(this));
 							}
@@ -121,7 +124,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startAuth(() -> client.execute(this::refresh));
+		Auth.getInstance().getAuth().startDeviceAuth(() -> client.execute(this::refresh));
 	}
 
 	private void refreshAccount() {
