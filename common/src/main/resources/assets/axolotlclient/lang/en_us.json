@@ -507,5 +507,6 @@
 	"auth.copy_and_open": "Copy and Open",
 	"auth.time_left": "Time Left: %s",
 	"auth.working": "Working...",
-	"auth.finished": "Done!"
+	"auth.finished": "Done!",
+	"api.displayNotes": "Display Notes"
 }

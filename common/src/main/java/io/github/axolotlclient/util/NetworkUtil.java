@@ -51,7 +51,7 @@ public class NetworkUtil {
 
 		if (!ignoreStatus) {
 			int status = response.getStatusLine().getStatusCode();
-			if (status != 200) {
+			if (status >= 200 && status < 300) {
 				throw new IOException("API request failed, status code " + status + "\nBody: " + EntityUtils.toString(response.getEntity()));
 			}
 		}

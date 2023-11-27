@@ -25,6 +25,7 @@ package io.github.axolotlclient.api;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -107,6 +108,7 @@ public class API {
 		AtomicReference<String> serverId = new AtomicReference<>();
 
 		send(new Request(Request.Type.GET_PUBLIC_KEY)).whenCompleteAsync((buf, t) -> {
+			logDetailed("Successfully fetched the server's Public Key");
 			MojangAuth.Result result = MojangAuth.authenticate(account, BufferUtil.toArray(buf.slice(0x09, buf.readableBytes() - 9)));
 			if (result.getStatus() != MojangAuth.Status.SUCCESS) {
 				logger.error("Authentication with Mojang failed, aborting!");
@@ -155,14 +157,14 @@ public class API {
 	public CompletableFuture<ByteBuf> send(Request request) {
 		CompletableFuture<ByteBuf> future = new CompletableFuture<>();
 		if (isConnected()) {
-			requests.put(request.getId(), future);
 			ThreadExecuter.scheduleTask(() -> {
+				requests.put(request.getId(), future);
+				logDetailed("Sending: "+request);
 				ByteBuf buf = request.getData();
-				if (apiOptions.detailedLogging.get()) {
-					logDetailed("Sending Request: " + buf.toString(StandardCharsets.UTF_8));
-				}
-				channel.writeAndFlush(buf);
-				buf.release();
+
+				channel.writeAndFlush(buf).addListener(f ->
+					logDetailed("Sent message "+request.getId()+" "+(f.isSuccess() ? "successfully" : "with errors")));
+				// no need to release the buffer, this is the responsibility of the channel.
 			});
 		} else {
 			if (Constants.ENABLED && apiOptions.enabled.get()) {
@@ -196,7 +198,6 @@ public class API {
 				id = response.getInt(0x05);
 			} catch (IndexOutOfBoundsException ignored) {
 			}
-
 
 			APIError error;
 
@@ -242,10 +243,17 @@ public class API {
 	private void createSession() {
 		if (!Constants.TESTING) {
 			try {
-				JsonObject object = NetworkUtil.getRequest(Constants.API_INFO_URL, NetworkUtil.createHttpClient("API"))
-					.getAsJsonObject();
-				String[] apiUrl = object.get("api_url").getAsString().split(":");
-				new ClientEndpoint().run(apiUrl[1], Integer.parseInt(apiUrl[0]));
+				String url;
+				if (Constants.API_URL_OVERRIDE.isEmpty()) {
+					JsonObject object = NetworkUtil.getRequest(Constants.API_INFO_URL, NetworkUtil.createHttpClient("API"))
+						.getAsJsonObject();
+					url = object.get("api_url").getAsString();
+				} else {
+					url = Constants.API_URL_OVERRIDE;
+				}
+				String[] apiUrl = url.split(":");
+				logDetailed("Connecting to "+ Arrays.toString(apiUrl));
+				new ClientEndpoint().run(apiUrl[0], Integer.parseInt(apiUrl[1]));
 			} catch (IOException e) {
 				logger.error("Failed to retrieve API url! ", e);
 			}

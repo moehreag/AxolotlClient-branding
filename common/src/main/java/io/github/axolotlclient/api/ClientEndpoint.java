@@ -48,22 +48,27 @@ public class ClientEndpoint {
 	public void run(String url, int port) {
 		boolean epollAvailable = Epoll.isAvailable();
 		group = epollAvailable ?
-			new EpollEventLoopGroup(0,
+			new EpollEventLoopGroup(3,
 				new ThreadFactoryBuilder().setNameFormat("AxolotlClient Netty Epoll Client IO #%d").setDaemon(true).build()) :
 			new NioEventLoopGroup(3,
 				new ThreadFactoryBuilder().setNameFormat("AxolotlClient Netty Client IO #%d").setDaemon(true).build());
 
 		try {
 			Bootstrap b = new Bootstrap();
+			b.option(ChannelOption.SO_KEEPALIVE, true);
 			b.group(group).channel(epollAvailable ? EpollSocketChannel.class : NioSocketChannel.class)
 				.handler(new ChannelInitializer<SocketChannel>() {
 					@Override
 					protected void initChannel(@NonNull SocketChannel ch) {
-						ChannelPipeline pipeline = ch.pipeline();
-						pipeline.addLast(new SimpleChannelInboundHandler<ByteBuf>() {
+						ch.pipeline().addLast("handler", new SimpleChannelInboundHandler<ByteBuf>() {
 							@Override
-							protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
+							public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
 								onMessage(msg);
+							}
+
+							@Override
+							public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+								onError(cause);
 							}
 						});
 					}
@@ -72,15 +77,17 @@ public class ClientEndpoint {
 				});
 			ChannelFuture f = b.connect(url, port).sync();
 
-			Channel channel = f.channel();
-			onOpen(channel);
+			if (f.isSuccess()) {
+				Channel channel = f.channel();
+				onOpen(channel);
+			}
 
 		} catch (Throwable e) {
 			onError(e);
-		} finally {
+		} /*finally {
 			group.shutdownGracefully();
 			onClose();
-		}
+		}*/
 	}
 
 	public void onMessage(ByteBuf message) {

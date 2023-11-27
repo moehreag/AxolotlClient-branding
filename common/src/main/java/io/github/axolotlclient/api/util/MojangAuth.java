@@ -34,6 +34,7 @@ import java.util.Arrays;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.GsonHelper;
+import io.github.axolotlclient.util.NetworkUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.http.HttpEntity;
@@ -41,14 +42,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 public class MojangAuth {
 
 	public static Result authenticate(Account account, byte[] publicKey) {
 		Result.Builder result = Result.builder();
-		try (CloseableHttpClient client = HttpClients.createDefault()) {
+		try (CloseableHttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
 
 			SecretKey secretKey = generateSecretKey();
 

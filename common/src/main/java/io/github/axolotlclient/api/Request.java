@@ -76,11 +76,11 @@ public class Request {
 
 	public ByteBuf getData() {
 		return Unpooled.buffer()
-			.setBytes(0x00, PACKET_MAGIC)
-			.setByte(0x03, type.getType())
-			.setByte(0x04, PROTOCOL_VERSION)
-			.setInt(0x05, id)
-			.setBytes(0x09, data.getData());
+			.writeBytes(PACKET_MAGIC)
+			.writeByte(type.getType())
+			.writeByte(PROTOCOL_VERSION)
+			.writeInt(id)
+			.writeBytes(data.getData());
 	}
 
 	/**
@@ -121,15 +121,13 @@ public class Request {
 	}
 
 	public static class Data {
-		private final ByteBuf buf = Unpooled.buffer();
+		private final ByteBuf buf = Unpooled.buffer().clear();
 
 		public Data() {
 		}
 
 		public Data(String... data) {
-			for (String s : data) {
-				add(s);
-			}
+			add(data);
 		}
 
 		public Data(byte b) {
@@ -178,12 +176,21 @@ public class Request {
 		}
 
 		ByteBuf getData() {
-			return buf.setIndex(0, buf.capacity());
+			return buf.clear();
 		}
 
 		@Override
 		public String toString() {
-			return Arrays.toString(BufferUtil.toArray(buf));
+			byte[] data = BufferUtil.toArray(buf);
+			StringBuilder builder = new StringBuilder("[");
+			for (int i=0;i<data.length;i++){
+				if (i>0){
+					builder.append(" ");
+				}
+				builder.append(String.format("%02X", data[i]));
+			}
+			builder.append("]");
+			return builder.toString();
 		}
 	}
 }
