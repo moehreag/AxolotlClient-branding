@@ -43,7 +43,8 @@ public abstract class RPCCommon implements Module {
 	private static final long CLIENT_ID = 875835666729152573L;
 	private static boolean running;
 	public final OptionCategory category = OptionCategory.create("rpc");
-	public final BooleanOption showActivity = new BooleanOption("showActivity", true);	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false, value -> {
+	public final BooleanOption showActivity = new BooleanOption("showActivity", true);
+	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false, value -> {
 		if (value) {
 			initRPC();
 		} else {

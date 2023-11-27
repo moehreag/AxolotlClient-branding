@@ -100,10 +100,10 @@ public class API {
 
 	private void sendHandshake(Account account) {
 		logger.debug("Starting Handshake");
-		logger.debug("Authenticating with Mojang");
 
 		send(new Request(Request.Type.GET_PUBLIC_KEY)).whenCompleteAsync((buf, t) -> {
 			logDetailed("Successfully fetched the server's Public Key");
+			logger.debug("Authenticating with Mojang");
 			MojangAuth.Result result = MojangAuth.authenticate(account, BufferUtil.toArray(buf.slice(0x09, buf.readableBytes() - 9)));
 			if (result.getStatus() != MojangAuth.Status.SUCCESS) {
 				logger.error("Authentication with Mojang failed, aborting!");

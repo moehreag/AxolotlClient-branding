@@ -508,5 +508,5 @@
 	"auth.time_left": "Time Left: %s",
 	"auth.working": "Working...",
 	"auth.finished": "Done!",
-	"api.displayNotes": "Display Notes"
+	"api.display_notes": "Display Notes"
 }

@@ -154,9 +154,9 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (showEffectName.get()) {
 				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()));
 
-				drawText(matrices, string, (float) (x + 19), (float) (y + 6), 16777215, shadow.get());
+				drawText(matrices, string, (float) (x + 19), (float) (y + 1), 16777215, shadow.get());
 				Text duration = StatusEffectUtil.durationToString(effect, 1);
-				drawText(matrices, duration, (float) (x + 19), (float) (y + 6 + 10), textColor.get().toInt(), shadow.get());
+				drawText(matrices, duration, (float) (x + 19), (float) (y + 1 + 10), textColor.get().toInt(), shadow.get());
 			} else {
 				drawText(matrices, StatusEffectUtil.durationToString(effect, 1), x + 19, y + 5,
 					textColor.get().toInt(), shadow.get());
