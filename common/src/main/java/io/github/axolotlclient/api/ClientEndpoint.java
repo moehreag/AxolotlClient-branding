@@ -84,10 +84,7 @@ public class ClientEndpoint {
 
 		} catch (Throwable e) {
 			onError(e);
-		} /*finally {
-			group.shutdownGracefully();
-			onClose();
-		}*/
+		}
 	}
 
 	public void onMessage(ByteBuf message) {

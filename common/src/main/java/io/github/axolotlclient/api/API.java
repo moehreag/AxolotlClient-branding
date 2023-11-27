@@ -134,6 +134,7 @@ public class API {
 					if (apiOptions.detailedLogging.get()) {
 						notificationProvider.addStatus("api.success.handshake", "api.success.handshake.desc");
 					}
+					startStatusUpdateThread();
 				}
 			});
 		}
@@ -307,43 +308,34 @@ public class API {
 			}
 
 			logger.debug("Starting API...");
-			ThreadExecuter.scheduleTask(() -> {
-				createSession();
-
-				while (channel == null) {
-					try {
-						//noinspection BusyWait
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-
-				new Thread("Status Update Thread") {
-					@Override
-					public void run() {
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException ignored) {
-						}
-						while (API.getInstance().isConnected()) {
-							Request statusUpdate = statusUpdateProvider.getStatus();
-							if (statusUpdate != null) {
-								send(statusUpdate);
-							}
-							try {
-								//noinspection BusyWait
-								Thread.sleep(Constants.STATUS_UPDATE_DELAY * 1000);
-							} catch (InterruptedException ignored) {
-
-							}
-						}
-					}
-				}.start();
-			});
+			ThreadExecuter.scheduleTask(this::createSession);
 		} else {
 			logger.warn("API is already running!");
 		}
+	}
+
+	private void startStatusUpdateThread(){
+		new Thread("Status Update Thread") {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException ignored) {
+				}
+				while (API.getInstance().isConnected()) {
+					Request statusUpdate = statusUpdateProvider.getStatus();
+					if (statusUpdate != null) {
+						send(statusUpdate);
+					}
+					try {
+						//noinspection BusyWait
+						Thread.sleep(Constants.STATUS_UPDATE_DELAY * 1000);
+					} catch (InterruptedException ignored) {
+
+					}
+				}
+			}
+		}.start();
 	}
 
 	public String sanitizeUUID(String uuid) {
