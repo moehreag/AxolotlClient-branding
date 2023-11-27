@@ -54,6 +54,13 @@ dependencies {
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
 
+	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9") {
+		exclude group: 'org.apache.logging.log4j', module: "log4j-api"
+		exclude group: 'org.apache.logging.log4j', module: "log4j-core"
+	}
+	implementation include("org.slf4j:slf4j-api:1.7.36")
+	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+
 	modCompileOnly("com.github.zarzelcow:legacy-lwjgl3:1.1.2") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'

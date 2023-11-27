@@ -72,8 +72,6 @@ public class ClientEndpoint {
 							}
 						});
 					}
-
-
 				});
 			ChannelFuture f = b.connect(url, port).sync();
 

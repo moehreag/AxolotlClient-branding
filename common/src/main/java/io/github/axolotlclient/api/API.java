@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.handlers.*;
@@ -104,9 +102,6 @@ public class API {
 		logger.debug("Starting Handshake");
 		logger.debug("Authenticating with Mojang");
 
-		AtomicBoolean mojangAuthSuccessful = new AtomicBoolean();
-		AtomicReference<String> serverId = new AtomicReference<>();
-
 		send(new Request(Request.Type.GET_PUBLIC_KEY)).whenCompleteAsync((buf, t) -> {
 			logDetailed("Successfully fetched the server's Public Key");
 			MojangAuth.Result result = MojangAuth.authenticate(account, BufferUtil.toArray(buf.slice(0x09, buf.readableBytes() - 9)));
@@ -114,30 +109,25 @@ public class API {
 				logger.error("Authentication with Mojang failed, aborting!");
 				shutdown();
 			} else {
-				mojangAuthSuccessful.set(true);
-				serverId.set(result.getServerId());
+				logDetailed("Successfully authenticated with Mojang!");
+				Request request = new Request(Request.Type.HANDSHAKE, account.getUuid(), result.getServerId(), account.getName());
+				send(request).whenCompleteAsync((object, th) -> {
+					if (th != null) {
+						logger.error("Handshake failed, closing API!", th);
+						if (apiOptions.detailedLogging.get()) {
+							notificationProvider.addStatus("api.error.handshake", th.getMessage());
+						}
+						shutdown();
+					} else if (object.getByte(0x09) == 0) {
+						logger.debug("Handshake successful!");
+						if (apiOptions.detailedLogging.get()) {
+							notificationProvider.addStatus("api.success.handshake", "api.success.handshake.desc");
+						}
+						startStatusUpdateThread();
+					}
+				});
 			}
 		});
-
-		if (mojangAuthSuccessful.get()) {
-			Request request = new Request(Request.Type.HANDSHAKE, account.getUuid(), serverId.get(), account.getName());
-			send(request).whenCompleteAsync((object, t) -> {
-				if (t != null) {
-					logger.error("Handshake failed, closing API!");
-					if (apiOptions.detailedLogging.get()) {
-						notificationProvider.addStatus("api.error.handshake", t.getMessage());
-					}
-					shutdown();
-				} else if (object.getByte(0x09) == 0) {
-
-					logger.debug("Handshake successful!");
-					if (apiOptions.detailedLogging.get()) {
-						notificationProvider.addStatus("api.success.handshake", "api.success.handshake.desc");
-					}
-					startStatusUpdateThread();
-				}
-			});
-		}
 	}
 
 	public boolean requestFailed(ByteBuf object) {
@@ -160,11 +150,11 @@ public class API {
 		if (isConnected()) {
 			ThreadExecuter.scheduleTask(() -> {
 				requests.put(request.getId(), future);
-				logDetailed("Sending: "+request);
+				logDetailed("Sending: " + request);
 				ByteBuf buf = request.getData();
 
 				channel.writeAndFlush(buf).addListener(f ->
-					logDetailed("Sent message "+request.getId()+" "+(f.isSuccess() ? "successfully" : "with errors")));
+					logDetailed("Sent message " + request.getId() + " " + (f.isSuccess() ? "successfully" : "with errors")));
 				// no need to release the buffer, this is the responsibility of the channel.
 			});
 		} else {
@@ -253,7 +243,7 @@ public class API {
 					url = Constants.API_URL_OVERRIDE;
 				}
 				String[] apiUrl = url.split(":");
-				logDetailed("Connecting to "+ Arrays.toString(apiUrl));
+				logDetailed("Connecting to " + Arrays.toString(apiUrl));
 				new ClientEndpoint().run(apiUrl[0], Integer.parseInt(apiUrl[1]));
 			} catch (IOException e) {
 				logger.error("Failed to retrieve API url! ", e);
@@ -314,7 +304,7 @@ public class API {
 		}
 	}
 
-	private void startStatusUpdateThread(){
+	private void startStatusUpdateThread() {
 		new Thread("Status Update Thread") {
 			@Override
 			public void run() {

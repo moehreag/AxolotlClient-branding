@@ -31,11 +31,10 @@ import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@Getter
 public class APIError extends Exception {
 
-	@Getter
 	private final ErrorCode code;
-	@Getter
 	private final ByteBuf buf;
 
 	public APIError(ByteBuf buf) {

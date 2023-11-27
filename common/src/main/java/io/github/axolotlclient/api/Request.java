@@ -23,7 +23,6 @@
 package io.github.axolotlclient.api;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.github.axolotlclient.api.util.BufferUtil;
