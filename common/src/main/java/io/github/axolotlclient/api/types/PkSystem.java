@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,12 +15,17 @@ import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.util.BufferUtil;
 import io.github.axolotlclient.api.util.Serializer;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.util.EntityUtils;
 
 @Data
 @AllArgsConstructor
@@ -134,15 +138,25 @@ public class PkSystem {
 		return "";
 	}
 
-	@SuppressWarnings("UnstableApiUsage")
 	static class PluralKitApi {
-		private static final RateLimiter limiter = RateLimiter.create(2);
 
-		public static CompletableFuture<JsonObject> request(HttpUriRequest request) {
+		@Getter
+		private static final PluralKitApi instance = new PluralKitApi();
+
+		private PluralKitApi() {
+		}
+		
+		private final HttpClient client = NetworkUtil.createHttpClient("PluralKit Integration; contact: moehreag<at>gmail.com");
+		private int remaining = 1;
+		private long resetsInMillis = 0;
+		private int limit = 2;
+
+
+		public CompletableFuture<JsonObject> request(HttpUriRequest request) {
 			CompletableFuture<JsonObject> cF = new CompletableFuture<>();
 			ThreadExecuter.scheduleTask(() -> {
-				limiter.acquire();
-				cF.complete(query(request));
+				cF.complete(schedule(request));
+				System.out.println(cF.join());
 			});
 			return cF;
 		}
@@ -152,13 +166,31 @@ public class PkSystem {
 			if (!token.isEmpty()) {
 				builder.addHeader("Authorization", token);
 			}
-			return request(builder.build());
+			return getInstance().request(builder.build());
 		}
 
-		private static JsonObject query(HttpUriRequest request) {
+		private synchronized JsonObject schedule(HttpUriRequest request) {
+			if (remaining == 0) {
+				try {
+					Thread.sleep(resetsInMillis);
+				} catch (InterruptedException ignored) {
+				}
+				remaining = limit;
+			}
+			return query(request);
+		}
+
+		private JsonObject query(HttpUriRequest request) {
 			try {
-				return NetworkUtil.request(request,
-					NetworkUtil.createHttpClient("PluralKit Integration; contact: moehreag<at>gmail.com")).getAsJsonObject();
+				HttpResponse response = client.execute(request);
+
+				String responseBody = EntityUtils.toString(response.getEntity());
+
+				remaining = Integer.parseInt(response.getFirstHeader("X-RateLimit-Remaining").getValue());
+				resetsInMillis = System.currentTimeMillis() - Long.parseLong(response.getFirstHeader("X-RateLimit-Reset").getValue());
+				limit = Integer.parseInt(response.getFirstHeader("X-RateLimit-Reset").getValue());
+
+				return GsonHelper.GSON.fromJson(responseBody, JsonObject.class);
 			} catch (IOException e) {
 				return new JsonObject();
 			}
