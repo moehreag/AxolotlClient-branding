@@ -41,10 +41,10 @@ public class StatusUpdateHandler implements RequestHandler {
 
 	@Override
 	public void handle(ByteBuf object, APIError error) {
-		String uuid = getString(object, 0x09, 16);
+		String uuid = getString(object, 0x09, 32);
 		AtomicReference<User> user = new AtomicReference<>();
 		FriendHandler.getInstance().getFriends().whenCompleteAsync((list, t) -> user.set(list.stream().filter(u -> u.getUuid().equals(uuid)).collect(Collectors.toList()).get(0)));
-		StatusUpdate.Type type = StatusUpdate.Type.fromCode(object.getByte(0x19));
+		StatusUpdate.Type type = StatusUpdate.Type.fromCode(object.getByte(0x29));
 		if (type == StatusUpdate.Type.ONLINE) {
 			API.getInstance().getNotificationProvider()
 				.addStatus("api.friends", "api.friends.statusChange.online",

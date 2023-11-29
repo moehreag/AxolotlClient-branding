@@ -39,17 +39,18 @@ public class User {
 
 	@Serializer.Exclude
 	protected String name;
-	@Serializer.Length(16)
+	@Serializer.Length(32)
 	private String uuid;
 	private Status status;
 	@Nullable
+	@Serializer.Exclude
 	private PkSystem system;
 
 	public User(String name, String uuid, Status status){
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
 		this.name = name;
-		system = PkSystem.fromMinecraftUuid(uuid);
+		PkSystem.fromMinecraftUuid(uuid).thenAccept(this::setSystem);
 	}
 
 	public User(String uuid, Status status) {

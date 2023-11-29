@@ -39,7 +39,7 @@ public interface Serializer<T> {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.PARAMETER, ElementType.FIELD})
 	@interface Length {
-		int value();
+		int value() default 0;
 
 		boolean usesIndex() default false;
 	}

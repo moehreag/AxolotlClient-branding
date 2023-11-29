@@ -39,7 +39,7 @@ public class FriendRequestHandler implements RequestHandler {
 	@Override
 	public void handle(ByteBuf object, APIError error) {
 		if (API.getInstance().getApiOptions().friendRequestsEnabled.get()) {
-			String fromUUID = getString(object, 0x09, 16);
+			String fromUUID = getString(object, 0x09, 32);
 			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request", UUIDHelper.getUsername(fromUUID));
 		} else {
 			API.getInstance().send(new Request(Request.Type.FRIEND_REQUEST_REACTION, (byte) 0)).whenCompleteAsync((o, t) -> {

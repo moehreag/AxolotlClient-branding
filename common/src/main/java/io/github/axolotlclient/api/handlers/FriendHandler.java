@@ -98,8 +98,8 @@ public class FriendHandler implements RequestHandler {
 				return Collections.emptyList();
 			} else {
 				List<User> list = new ArrayList<>();
-				for (int i = 0x0E; i <= object.getInt(0x0A); i += 16) {
-					getFriendInfo(getString(object, i, 16)).whenCompleteAsync((u, th) -> list.add(u));
+				for (int i = 0x0E; i <= object.getInt(0x0A); i += 32) {
+					getFriendInfo(getString(object, i, 32)).whenCompleteAsync((u, th) -> list.add(u));
 				}
 				return list;
 			}
@@ -128,14 +128,14 @@ public class FriendHandler implements RequestHandler {
 				List<User> out = new ArrayList<>();
 				int i = 0x0E;
 				while (i < object.getInt(0x0A)) {
-					getFriendInfo(getString(object, i, 16)).whenCompleteAsync((u, t) -> in.add(u));
-					i += 16;
+					getFriendInfo(getString(object, i, 32)).whenCompleteAsync((u, t) -> in.add(u));
+					i += 32;
 				}
 				int offset = i;
 				i += 4;
 				while (i < object.getInt(offset)) {
-					getFriendInfo(getString(object, i, 16)).whenCompleteAsync((u, t) -> out.add(u));
-					i += 16;
+					getFriendInfo(getString(object, i, 32)).whenCompleteAsync((u, t) -> out.add(u));
+					i += 32;
 				}
 
 				return BiContainer.of(in, out);
@@ -150,14 +150,14 @@ public class FriendHandler implements RequestHandler {
 
 			List<User> users = new ArrayList<>();
 			for (int i = 0; i < count; i++) {
-				users.add(new User(BufferUtil.getString(buf, 0x0C + (i * 16), 16), Status.UNKNOWN));
+				users.add(new User(BufferUtil.getString(buf, 0x0C + (i * 32), 32), Status.UNKNOWN));
 			}
 			return users;
 		});
 	}
 
 	public boolean isBlocked(String uuid) {
-		return getBlocked().getNow(Collections.emptyList()).stream().map(User::getUuid).anyMatch(uuid::equals);
+		return getBlocked().join().stream().map(User::getUuid).anyMatch(uuid::equals);
 	}
 
 	public void acceptFriendRequest(User from) {

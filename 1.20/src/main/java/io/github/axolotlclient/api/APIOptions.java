@@ -43,7 +43,6 @@ public class APIOptions extends Options {
 
 		openPrivacyNoteScreen = n ->
 			client.execute(() -> client.setScreen(new PrivacyNoticeScreen(client.currentScreen, n)));
-
 		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("api.friends.sidebar.open",
 				InputUtil.KEY_O_CODE, "category.axolotlclient"),
 			() -> client.setScreen(new FriendsSidebar(client.currentScreen)));
@@ -51,6 +50,7 @@ public class APIOptions extends Options {
 			() -> MinecraftClient.getInstance().setScreen(new FriendsScreen(MinecraftClient.getInstance().currentScreen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
 			() -> MinecraftClient.getInstance().setScreen(new ChatListScreen(MinecraftClient.getInstance().currentScreen))));
+		category.add(pkToken);
 		if (Constants.ENABLED) {
 			AxolotlClient.CONFIG.addCategory(category);
 			AxolotlClient.config.add(privacyAccepted);

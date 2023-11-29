@@ -37,9 +37,9 @@ public class FriendRequestReactionHandler implements RequestHandler {
 
 	@Override
 	public void handle(ByteBuf object, APIError error) {
-		String fromUUID = getString(object, 0x09, 16);
+		String fromUUID = getString(object, 0x09, 32);
 
-		if (object.getBoolean(0x19)) {
+		if (object.getBoolean(0x29)) {
 			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.accepted", UUIDHelper.getUsername(fromUUID));
 		} else {
 			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.declined", UUIDHelper.getUsername(fromUUID));

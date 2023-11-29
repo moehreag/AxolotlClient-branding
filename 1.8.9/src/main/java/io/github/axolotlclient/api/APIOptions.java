@@ -55,6 +55,7 @@ public class APIOptions extends Options {
 			() -> client.openScreen(new FriendsScreen(Minecraft.getInstance().screen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
 			() -> client.openScreen(new ChatListScreen(Minecraft.getInstance().screen))));
+		category.add(pkToken);
 		if (Constants.ENABLED) {
 			AxolotlClient.CONFIG.addCategory(category);
 			AxolotlClient.config.add(privacyAccepted);

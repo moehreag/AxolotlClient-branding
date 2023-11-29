@@ -115,6 +115,7 @@ public class Request {
 		REPORT_MESSAGE(0x19),
 		REPORT_USER(0x1A),
 		QUERY_PK_INFO(0x1B),
+		UPDATE_PK_INFO(0x1C),
 		ERROR(0xFF);
 
 		private final int type;
@@ -136,6 +137,10 @@ public class Request {
 
 		public Data(byte[] data) {
 			add(data);
+		}
+
+		public Data(int i){
+			add(i);
 		}
 
 		public Data add(int i) {

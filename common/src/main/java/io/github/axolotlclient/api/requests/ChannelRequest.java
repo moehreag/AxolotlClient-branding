@@ -59,9 +59,9 @@ public class ChannelRequest {
 		List<User> users = new ArrayList<>();
 		int i = 0x4E;
 		while (i < channel.getInt(0x53)) {
-			String uuid = BufferUtil.getString(channel, i, 16);
+			String uuid = BufferUtil.getString(channel, i, 32);
 			io.github.axolotlclient.api.requests.User.get(uuid).whenCompleteAsync((user, throwable) -> users.add(user));
-			i += 16;
+			i += 32;
 		}
 		List<ChatMessage> messages = new ArrayList<>();
 		int offset = i + 8;
@@ -81,11 +81,10 @@ public class ChannelRequest {
 	}
 
 	private static ChatMessage parseMessage(ByteBuf buf) {
-		AtomicReference<User> u = new AtomicReference<>();
-		io.github.axolotlclient.api.requests.User.get(BufferUtil.getString(buf, 0x00, 16)).whenCompleteAsync((us, t) -> u.set(us));
+		User u = io.github.axolotlclient.api.requests.User.get(BufferUtil.getString(buf, 0x00, 16)).join();
 
-		return new ChatMessage(u.get(), BufferUtil.getString(buf, 0x1D, buf.getInt(0x19)),
-			buf.getLong(0x10), ChatMessage.Type.fromCode(buf.getByte(0x18)));
+		return new ChatMessage(u, BufferUtil.getString(buf, 0x2D, buf.getInt(0x29)),
+			buf.getLong(0x20), ChatMessage.Type.fromCode(buf.getByte(0x28)));
 	}
 
 	public static CompletableFuture<List<Channel>> getChannelList() {
@@ -110,7 +109,7 @@ public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getOrCreateGroup(String... users) {
 		return API.getInstance().send(new Request(Request.Type.GET_OR_CREATE_CHANNEL,
-			new Request.Data((byte) users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);
+			new Request.Data(users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);
 	}
 
 	public static CompletableFuture<Channel> getOrCreateDM(String uuid) {
@@ -120,6 +119,6 @@ public class ChannelRequest {
 
 	public static void createGroup(String... uuids) {
 		API.getInstance().send(new Request(Request.Type.CREATE_CHANNEL,
-			new Request.Data((byte) uuids.length).add(uuids)));
+			new Request.Data(uuids.length).add(uuids)));
 	}
 }

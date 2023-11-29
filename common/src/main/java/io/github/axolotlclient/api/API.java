@@ -34,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.types.ChatMessage;
+import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.*;
@@ -147,6 +148,7 @@ public class API {
 
 	public CompletableFuture<ByteBuf> send(Request request) {
 		CompletableFuture<ByteBuf> future = new CompletableFuture<>();
+
 		if (isConnected()) {
 			ThreadExecuter.scheduleTask(() -> {
 				requests.put(request.getId(), future);
@@ -227,7 +229,7 @@ public class API {
 	public void onClose() {
 		logDetailed("Session closed!");
 		logDetailed("Restarting API session...");
-		createSession();
+		startup(account);
 		logDetailed("Restarted API session!");
 	}
 
@@ -273,25 +275,27 @@ public class API {
 			return;
 		}
 
-		if (apiOptions.enabled.get()) {
-			switch (apiOptions.privacyAccepted.get()) {
-				case "unset":
-					apiOptions.openPrivacyNoteScreen.accept(v -> {
-						if (v) startupAPI();
-					});
-					break;
-				case "accepted":
-					startupAPI();
-					break;
-				default:
-					break;
+		ThreadExecuter.scheduleTask(() -> {
+			if (apiOptions.enabled.get()) {
+				switch (apiOptions.privacyAccepted.get()) {
+					case "unset":
+						apiOptions.openPrivacyNoteScreen.accept(v -> {
+							if (v) startupAPI();
+						});
+						break;
+					case "accepted":
+						startupAPI();
+						break;
+					default:
+						break;
+				}
 			}
-		}
+		});
 	}
 
 	void startupAPI() {
 		if (!isConnected()) {
-			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN);
+			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN, PkSystem.fromToken(apiOptions.pkToken.get()).join());
 
 			if (Constants.TESTING) {
 				return;
@@ -305,6 +309,7 @@ public class API {
 	}
 
 	private void startStatusUpdateThread() {
+		statusUpdateProvider.initialize();
 		new Thread("Status Update Thread") {
 			@Override
 			public void run() {

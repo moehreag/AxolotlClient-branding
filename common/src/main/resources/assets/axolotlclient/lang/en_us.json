@@ -508,5 +508,6 @@
 	"auth.time_left": "Time Left: %s",
 	"auth.working": "Working...",
 	"auth.finished": "Done!",
-	"api.display_notes": "Display Notes"
+	"api.display_notes": "Display Notes",
+	"api.pk_token": "PluralKit Token"
 }
