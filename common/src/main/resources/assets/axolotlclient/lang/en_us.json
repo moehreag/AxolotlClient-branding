@@ -417,6 +417,8 @@
 	"zoomScrollStep": "Scroll Step",
 	"zoomScrolling": "Zoom Scrolling",
 	"zoomScrolling.tooltip": "Whether to allow scrolling to modify the zoom factor.",
+	"removeLobbyJoinMessages": "Remove Lobby Join Messages",
+	"removeMysteryBoxFindings": "Remove Mystery Box Findings Messages",
 	"zoomSpeed": "Animation Speed",
 	"api.error.handshake": "Handshake failed!",
 	"api.success.handshake": "Handshake successful!",

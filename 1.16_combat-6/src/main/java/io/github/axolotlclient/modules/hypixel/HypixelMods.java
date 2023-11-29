@@ -27,6 +27,7 @@ import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hypixel.autoboop.AutoBoop;
@@ -36,6 +37,9 @@ import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHead;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.modules.hypixel.skyblock.Skyblock;
+import io.github.axolotlclient.util.events.Events;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resource.ResourceType;
 
 public class HypixelMods extends AbstractModule {
 
@@ -46,6 +50,8 @@ public class HypixelMods extends AbstractModule {
 
 	private final OptionCategory category = OptionCategory.create("hypixel-mods");
 	private final List<AbstractHypixelMod> subModules = new ArrayList<>();
+	private final BooleanOption removeLobbyJoinMessages = new BooleanOption("removeLobbyJoinMessages", false);
+	private final BooleanOption removeMysteryBoxFindings = new BooleanOption("removeMysteryBoxFindings", false);
 
 	public static HypixelMods getInstance() {
 		return INSTANCE;
@@ -54,6 +60,8 @@ public class HypixelMods extends AbstractModule {
 	@Override
 	public void init() {
 		category.add(cacheMode);
+		category.add(removeLobbyJoinMessages);
+		category.add(removeMysteryBoxFindings);
 
 		addSubModule(LevelHead.getInstance());
 		addSubModule(AutoGG.getInstance());
@@ -66,6 +74,13 @@ public class HypixelMods extends AbstractModule {
 		subModules.forEach(AbstractHypixelMod::init);
 
 		AxolotlClient.CONFIG.addCategory(category);
+
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(HypixelMessages.getInstance());
+
+		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(event -> {
+			HypixelMessages.getInstance().process(removeLobbyJoinMessages, "lobby_join", event);
+			HypixelMessages.getInstance().process(removeMysteryBoxFindings, "mysterybox_find", event);
+		});
 	}
 
 	public void tick() {

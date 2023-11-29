@@ -1,0 +1,4 @@
+{
+	"lobby_join": ".*§f §6joined the lobby!( §a<§c<§b<)?",
+	"mysterybox_find": "✦ .* found a(n)? .*Mystery Box(.*)?!"
+}
