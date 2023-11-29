@@ -36,9 +36,7 @@ import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import io.github.moehreag.searchInResources.SearchableResourceManager;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.manager.ResourceManager;
-import net.minecraft.resource.ResourceManager;
 
 public class HypixelMessages implements Runnable {
 
