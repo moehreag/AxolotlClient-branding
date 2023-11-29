@@ -63,7 +63,6 @@ public class PkSystem {
 	public static CompletableFuture<PkSystem> fromToken(String token) {
 		PkSystem.token = token;
 		if (token.length() != 64) {
-			System.out.println(token.length() + ": " + token.getBytes(StandardCharsets.UTF_8).length);
 			return CompletableFuture.completedFuture(null);
 		}
 		return queryPkAPI("systems/@me")
@@ -145,7 +144,7 @@ public class PkSystem {
 
 		private PluralKitApi() {
 		}
-		
+
 		private final HttpClient client = NetworkUtil.createHttpClient("PluralKit Integration; contact: moehreag<at>gmail.com");
 		private int remaining = 1;
 		private long resetsInMillis = 0;
@@ -156,7 +155,6 @@ public class PkSystem {
 			CompletableFuture<JsonObject> cF = new CompletableFuture<>();
 			ThreadExecuter.scheduleTask(() -> {
 				cF.complete(schedule(request));
-				System.out.println(cF.join());
 			});
 			return cF;
 		}
