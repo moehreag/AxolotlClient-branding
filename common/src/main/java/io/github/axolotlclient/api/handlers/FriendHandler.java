@@ -113,7 +113,7 @@ public class FriendHandler implements RequestHandler {
 
 			return new User(uuid,
 				new Status(buf.getBoolean(0x0D),
-					Keyword.get(getString(buf, 0x0E, 64).trim()),
+					getString(buf, 0x0E, 64).trim(),
 					Keyword.get(getString(buf, 0x4E, 64).trim()),
 					Keyword.get(getString(buf, 0x8E, 32).trim()), startTime));
 		});

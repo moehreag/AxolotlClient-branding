@@ -24,8 +24,10 @@ package io.github.axolotlclient.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
@@ -124,7 +126,14 @@ public class UserListWidget extends EntryListWidget {
 
 		@Override
 		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
-			client.textRenderer.draw(user.getName(), x + 3 + 33, y + 1, -1);
+			if (user.isSystem()){
+				String fronters = user.getSystem().getFronters().stream()
+					.map(PkSystem.Member::getDisplayName).collect(Collectors.joining("/"));
+				String tag = Formatting.ITALIC + Formatting.GRAY.toString() + "("+user.getSystem().getName()+"/"+user.getName()+")";
+				client.textRenderer.draw(fronters+" "+tag, x+3, y+1, -1);
+			} else {
+				client.textRenderer.draw(user.getName(), x + 3 + 33, y + 1, -1);
+			}
 			client.textRenderer.draw(user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
 				client.textRenderer.draw(user.getStatus().getDescription(), x + 3 + 40, y + 23, 8421504);

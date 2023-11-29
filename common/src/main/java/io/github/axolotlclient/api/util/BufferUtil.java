@@ -32,6 +32,7 @@ import com.google.common.primitives.Primitives;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.ArrayUtils;
 
 @UtilityClass
 public class BufferUtil {
@@ -102,9 +103,17 @@ public class BufferUtil {
 			for (int i = 0; i < Array.getLength(o); i++) {
 				buf.writeBytes(wrap(Array.get(o, i)));
 			}
+			return buf;
 		}
 
-		for (Field f : o.getClass().getDeclaredFields()) {
+		Field[] allFields = ArrayUtils.addAll(o.getClass().getFields(), o.getClass().getDeclaredFields());
+		List<Field> fields = new ArrayList<>();
+		for (Field f : allFields){
+			if (fields.stream().map(Field::getName).noneMatch(s -> s.equals(f.getName()))) {
+				fields.add(f);
+			}
+		}
+		for (Field f : fields) {
 			f.setAccessible(true);
 
 			if (Modifier.isStatic(f.getModifiers()) ||
@@ -145,7 +154,7 @@ public class BufferUtil {
 			} catch (IllegalAccessException ignored) {
 			}
 		}
-		return buf.setIndex(0, buf.capacity());
+		return buf;
 	}
 
 	private byte[] getPrimitiveBytes(Object o, int length) {
@@ -192,7 +201,6 @@ public class BufferUtil {
 
 	<T> T deserialize(ByteBuf buf, Class<T> clazz) {
 		T object;
-		buf.setIndex(0, buf.capacity());
 		List<Object> params = new ArrayList<>();
 
 		Constructor<T> con = getConstructor(clazz);

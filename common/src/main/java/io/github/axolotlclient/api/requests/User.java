@@ -27,6 +27,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Keyword;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.util.BufferUtil;
@@ -64,8 +65,8 @@ public class User {
 			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User(uuid,
 				new Status(buf.getBoolean(0x09),
 					BufferUtil.getString(buf, 0x0A, 64).trim(),
-					BufferUtil.getString(buf, 0x4A, 64).trim(),
-					BufferUtil.getString(buf, 0x8A, 32).trim(), startTime));
+					Keyword.get(BufferUtil.getString(buf, 0x4A, 64).trim()),
+					Keyword.get(BufferUtil.getString(buf, 0x8A, 32).trim()), startTime));
 			userCache.put(uuid, user);
 			return user;
 		});

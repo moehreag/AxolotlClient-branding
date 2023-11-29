@@ -29,6 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -37,15 +38,26 @@ import lombok.ToString;
 public class User {
 
 	@Serializer.Exclude
-	private String name;
+	protected String name;
 	@Serializer.Length(16)
 	private String uuid;
 	private Status status;
+	@Nullable
+	private PkSystem system;
 
-	public User(String uuid, Status status) {
+	public User(String name, String uuid, Status status){
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
-		this.name = UUIDHelper.getUsername(uuid);
+		this.name = name;
+		system = PkSystem.fromMinecraftUuid(uuid);
+	}
+
+	public User(String uuid, Status status) {
+		this(UUIDHelper.getUsername(uuid), uuid, status);
+	}
+
+	public boolean isSystem(){
+		return system != null;
 	}
 
 	@Override

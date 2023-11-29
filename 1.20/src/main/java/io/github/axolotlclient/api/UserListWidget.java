@@ -23,8 +23,10 @@
 package io.github.axolotlclient.api;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
@@ -32,6 +34,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -101,7 +104,15 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 
 		@Override
 		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			graphics.drawText(client.textRenderer, user.getName(), x + 3 + 33, y + 1, -1, false);
+			if (user.isSystem()){
+				MutableText fronters = Text.literal(user.getSystem().getFronters().stream()
+					.map(PkSystem.Member::getDisplayName).collect(Collectors.joining("/")));
+				Text tag = Text.literal("("+user.getSystem().getName()+"/"+user.getName()+")")
+					.setStyle(Style.EMPTY.withItalic(true).withColor(Formatting.GRAY));
+				graphics.drawText(client.textRenderer, fronters.append(tag), x+3, y+1, -1, false);
+			} else {
+				graphics.drawText(client.textRenderer, user.getName(), x + 3 + 33, y + 1, -1, false);
+			}
 			graphics.drawText(client.textRenderer, user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504, false);
 			if (user.getStatus().isOnline()) {
 				graphics.drawText(client.textRenderer, user.getStatus().getDescription(), x + 3 + 40, y + 23, 8421504, false);

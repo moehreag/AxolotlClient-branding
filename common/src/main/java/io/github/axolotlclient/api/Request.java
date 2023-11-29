@@ -114,6 +114,7 @@ public class Request {
 		DOWNLOAD_SCREENSHOT(0x18),
 		REPORT_MESSAGE(0x19),
 		REPORT_USER(0x1A),
+		QUERY_PK_INFO(0x1B),
 		ERROR(0xFF);
 
 		private final int type;
