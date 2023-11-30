@@ -83,4 +83,11 @@ public class User {
 		}
 		return false;
 	}
+
+	public String getDisplayName(String message){
+		if (!isSystem()){
+			return getName();
+		}
+		return getSystem().getProxy(message).getDisplayName();
+	}
 }

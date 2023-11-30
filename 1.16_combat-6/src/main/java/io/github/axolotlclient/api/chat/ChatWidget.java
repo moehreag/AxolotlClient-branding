@@ -219,14 +219,12 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		private final String formattedTime;
 
 		public NameChatLine(ChatMessage message) {
-			super(message.getSender().isSystem() ?
-				new LiteralText(message.getSender().getSystem().getProxy(message.getContent()).getDisplayName())
-					.setStyle(Style.EMPTY.withBold(true))
-					.append(" ").append(
-						new LiteralText("( "+message.getSender().getSystem().getName()+"/"+message.getSender().getName()+")")
-							.setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true)))
-					.asOrderedText() :
-				new LiteralText(message.getSender().getName()).setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
+			super(new LiteralText(message.getSenderDisplayName())
+				.setStyle(Style.EMPTY.withBold(true)).append(message.getSender().isSystem() ?
+					new LiteralText(" ").append(
+							new LiteralText("( "+message.getSender().getSystem().getName()+"/"+message.getSender().getName()+")")
+								.setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true))) :
+					LiteralText.EMPTY).asOrderedText(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));

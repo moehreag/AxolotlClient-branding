@@ -58,6 +58,8 @@ public class PkSystem {
 	@Serializer.Exclude
 	private String name;
 	@Serializer.Exclude
+	private List<Member> members;
+	@Serializer.Exclude
 	private List<Member> fronters;
 	@Serializer.Exclude
 	private Member firstFronter;
@@ -75,7 +77,15 @@ public class PkSystem {
 				list.add(Member.fromObject(e.getAsJsonObject()))
 			);
 			return list;
-		}).thenApply(list -> new PkSystem(id, name, list, list.get(0)));
+		}).thenApply(list -> {
+			JsonObject object = queryPkAPI("systems/"+id+"/members").join();
+			JsonArray array = object.getAsJsonArray("members");
+			List<Member> members = new ArrayList<>();
+			array.forEach(e ->
+				members.add(Member.fromObject(e.getAsJsonObject()))
+			);
+			return new PkSystem(id, name, members, list, list.get(0));
+		});
 	}
 
 	public static CompletableFuture<JsonObject> queryPkAPI(String route) {
@@ -117,7 +127,7 @@ public class PkSystem {
 	}
 
 	public Member getProxy(String message) {
-		return fronters.stream().filter(m -> m.proxyTags.stream()
+		return members.stream().filter(m -> m.proxyTags.stream()
 			.anyMatch(p -> p.matcher(message).matches())).findFirst().orElse(getFirstFronter());
 	}
 

@@ -26,19 +26,35 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.github.axolotlclient.api.util.Serializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-@AllArgsConstructor
 @Getter
 public class ChatMessage {
 
 	private final User sender;
+	private final String senderDisplayName;
 	private final String content;
 	private final long timestamp;
 	private Type type;
+
+	public ChatMessage(User sender, String senderDisplayName, String content, long timestamp, Type type) {
+		this.sender = sender;
+		this.senderDisplayName = senderDisplayName;
+		this.content = content;
+		this.timestamp = timestamp;
+		this.type = type;
+	}
+
+	public ChatMessage(User sender, @Serializer.Length(usesIndex = true) String senderDisplayName,
+					   @Serializer.Length(usesIndex = true) String content, long timestamp) {
+		this.sender = sender;
+		this.senderDisplayName = senderDisplayName;
+		this.content = content;
+		this.timestamp = timestamp;
+	}
 
 	@AllArgsConstructor
 	public enum Type {

@@ -63,7 +63,7 @@ public class ChatHandler implements RequestHandler {
 	@Override
 	public void handle(ByteBuf buf, APIError error) {
 
-		ChatMessage message = BufferUtil.unwrap(BufferUtil.removeMetadata(buf), ChatMessage.class);
+		ChatMessage message = unwrap(BufferUtil.removeMetadata(buf));
 
 		if (enableNotifications.showNotification(message)) {
 			API.getInstance().getNotificationProvider().addStatus(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.getSender().getName()), message.getContent());
@@ -72,10 +72,12 @@ public class ChatHandler implements RequestHandler {
 	}
 
 	public void sendMessage(Channel channel, String message) {
+		String displayName = API.getInstance().getSelf().getDisplayName(message);
 		API.getInstance().send(new Request(Request.Type.SEND_MESSAGE,
 			new Request.Data(channel.getId()).add(
-				Instant.now().getEpochSecond()).add(message.length()).add(message)));
-		messageConsumer.accept(new ChatMessage(API.getInstance().getSelf(), message, Instant.now().getEpochSecond()));
+				Instant.now().getEpochSecond()).add(displayName.length()).add(displayName)
+				.add(message.length()).add(message)));
+		messageConsumer.accept(new ChatMessage(API.getInstance().getSelf(), displayName, message, Instant.now().getEpochSecond()));
 	}
 
 	public void getMessagesBefore(Channel channel, long getBefore) {
@@ -90,7 +92,7 @@ public class ChatHandler implements RequestHandler {
 			int i = 0x16;
 			while (i < object.getInt(0x0E)) {
 				int length = 0x1d + object.getInt(i + 0x19);
-				list.add(BufferUtil.unwrap(object.slice(i, length), ChatMessage.class));
+				list.add(unwrap(object.slice(i, length)));
 				i += length;
 			}
 			messagesConsumer.accept(list);
@@ -98,6 +100,18 @@ public class ChatHandler implements RequestHandler {
 		} else {
 			APIError.display(t);
 		}
+	}
+
+	private ChatMessage unwrap(ByteBuf buf) {
+		String uuid = BufferUtil.getString(buf, 0x00, 32);
+		long timestamp = buf.getLong(0x20);
+		ChatMessage.Type type = ChatMessage.Type.fromCode(buf.getByte(0x28));
+		int nameLength = buf.getInt(0x29);
+		String displayName = BufferUtil.getString(buf, 0x2D, nameLength);
+		int contentLength = buf.getInt(0x2D+nameLength);
+		String content = BufferUtil.getString(buf, 0x2D+nameLength, contentLength);
+		User sender = io.github.axolotlclient.api.requests.User.get(uuid).join();
+		return new ChatMessage(sender, displayName, content, timestamp, type);
 	}
 
 	public void getMessagesAfter(Channel channel, long getAfter) {
@@ -108,6 +122,7 @@ public class ChatHandler implements RequestHandler {
 	public void reportMessage(ChatMessage message) {
 		API.getInstance().send(new Request(Request.Type.REPORT_MESSAGE,
 			new Request.Data(message.getSender().getUuid()).add(message.getTimestamp())
+				.add(message.getSenderDisplayName().length()).add(message.getSenderDisplayName())
 				.add(message.getContent().length()).add(message.getContent())));
 	}
 

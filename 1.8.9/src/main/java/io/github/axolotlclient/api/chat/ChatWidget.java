@@ -246,14 +246,12 @@ public class ChatWidget extends EntryListWidget {
 		private final String formattedTime;
 
 		public NameChatLine(ChatMessage message) {
-			super(message.getSender().isSystem() ?
-				new LiteralText(message.getSender().getSystem().getProxy(message.getContent()).getDisplayName())
-					.setStyle(new Style().setBold(true))
-					.append(" ").append(
+			super(new LiteralText(message.getSenderDisplayName())
+				.setStyle(new Style().setBold(true)).append(message.getSender().isSystem() ?
+				new LiteralText(" ").append(
 						new LiteralText("( "+message.getSender().getSystem().getName()+"/"+message.getSender().getName()+")")
 							.setStyle(new Style().setColor(Formatting.GRAY).setItalic(true)))
-					.getFormattedString() :
-				new LiteralText(message.getSender().getName()).setStyle(new Style().setBold(true)).getFormattedString(), message);
+					.getFormattedString() : "").getFormattedString(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));
