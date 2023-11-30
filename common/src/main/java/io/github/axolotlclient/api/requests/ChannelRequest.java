@@ -81,10 +81,7 @@ public class ChannelRequest {
 	}
 
 	private static ChatMessage parseMessage(ByteBuf buf) {
-		User u = io.github.axolotlclient.api.requests.User.get(BufferUtil.getString(buf, 0x00, 16)).join();
-
-		return new ChatMessage(u, BufferUtil.getString(buf, 0x2D, buf.getInt(0x29)),
-			buf.getLong(0x20), ChatMessage.Type.fromCode(buf.getByte(0x28)));
+		return BufferUtil.unwrap(buf, ChatMessage.class);
 	}
 
 	public static CompletableFuture<List<Channel>> getChannelList() {
