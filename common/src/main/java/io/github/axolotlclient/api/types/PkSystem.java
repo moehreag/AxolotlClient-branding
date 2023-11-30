@@ -22,8 +22,6 @@
 
 package io.github.axolotlclient.api.types;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -65,30 +63,31 @@ public class PkSystem {
 	private Member firstFronter;
 
 	private static CompletableFuture<PkSystem> create(String id) {
-		return queryPkAPI("systems/" + id).thenApply(object -> getString(object, "name"))
+		return queryPkAPI("systems/" + id).thenApply(JsonElement::getAsJsonObject)
+			.thenApply(object -> getString(object, "name"))
 			.thenApply(name -> create(id, name).join());
 	}
 
 	private static CompletableFuture<PkSystem> create(String id, String name) {
-		return queryPkAPI("systems/" + id + "/fronters").thenApply(object -> {
+		return queryPkAPI("systems/" + id + "/fronters")
+			.thenApply(JsonElement::getAsJsonObject).thenApply(object -> {
 			JsonArray fronters = object.getAsJsonArray("members");
 			List<Member> list = new ArrayList<>();
 			fronters.forEach(e ->
 				list.add(Member.fromObject(e.getAsJsonObject()))
 			);
 			return list;
-		}).thenApply(list -> {
-			JsonObject object = queryPkAPI("systems/"+id+"/members").join();
-			JsonArray array = object.getAsJsonArray("members");
-			List<Member> members = new ArrayList<>();
+		}).thenCombine(queryPkAPI("systems/"+id+"/members").thenApply(object -> {
+			JsonArray array = object.getAsJsonArray();
+			List<Member> list = new ArrayList<>();
 			array.forEach(e ->
-				members.add(Member.fromObject(e.getAsJsonObject()))
+				list.add(Member.fromObject(e.getAsJsonObject()))
 			);
-			return new PkSystem(id, name, members, list, list.get(0));
-		});
+			return list;
+		}), (members, fronters) -> new PkSystem(id, name, members, fronters, fronters.get(0)));
 	}
 
-	public static CompletableFuture<JsonObject> queryPkAPI(String route) {
+	public static CompletableFuture<JsonElement> queryPkAPI(String route) {
 		return PluralKitApi.request("https://api.pluralkit.me/v2/" + route);
 	}
 
@@ -97,7 +96,7 @@ public class PkSystem {
 		if (token.length() != 64) {
 			return CompletableFuture.completedFuture(null);
 		}
-		return queryPkAPI("systems/@me")
+		return queryPkAPI("systems/@me").thenApply(JsonElement::getAsJsonObject)
 			.thenApply(object -> {
 				if (object.has("id")) {
 					PkSystem system = create(object.get("id").getAsString(), object.get("name").getAsString()).join();
@@ -139,7 +138,8 @@ public class PkSystem {
 		private List<Pattern> proxyTags;
 
 		public static Member fromId(String id) {
-			return fromObject(queryPkAPI("members/" + id).join());
+			return fromObject(queryPkAPI("members/" + id)
+				.thenApply(JsonElement::getAsJsonObject).join());
 		}
 
 		public static Member fromObject(JsonObject object) {
@@ -183,15 +183,13 @@ public class PkSystem {
 		private int limit = 2;
 
 
-		public CompletableFuture<JsonObject> request(HttpUriRequest request) {
-			CompletableFuture<JsonObject> cF = new CompletableFuture<>();
-			ThreadExecuter.scheduleTask(() -> {
-				cF.complete(schedule(request));
-			});
+		public CompletableFuture<JsonElement> request(HttpUriRequest request) {
+			CompletableFuture<JsonElement> cF = new CompletableFuture<>();
+			ThreadExecuter.scheduleTask(() -> cF.complete(schedule(request)));
 			return cF;
 		}
 
-		public static CompletableFuture<JsonObject> request(String url) {
+		public static CompletableFuture<JsonElement> request(String url) {
 			RequestBuilder builder = RequestBuilder.get().setUri(url);
 			if (!token.isEmpty()) {
 				builder.addHeader("Authorization", token);
@@ -199,7 +197,7 @@ public class PkSystem {
 			return getInstance().request(builder.build());
 		}
 
-		private synchronized JsonObject schedule(HttpUriRequest request) {
+		private synchronized JsonElement schedule(HttpUriRequest request) {
 			if (remaining == 0) {
 				try {
 					Thread.sleep(resetsInMillis);
@@ -210,18 +208,25 @@ public class PkSystem {
 			return query(request);
 		}
 
-		private JsonObject query(HttpUriRequest request) {
+		private JsonElement query(HttpUriRequest request) {
 			try {
+				API.getInstance().logDetailed("Requesting: "+request);
 				HttpResponse response = client.execute(request);
 
 				String responseBody = EntityUtils.toString(response.getEntity());
+				API.getInstance().logDetailed("Response: "+responseBody);
 
 				remaining = Integer.parseInt(response.getFirstHeader("X-RateLimit-Remaining").getValue());
-				resetsInMillis = System.currentTimeMillis() - Long.parseLong(response.getFirstHeader("X-RateLimit-Reset").getValue());
-				limit = Integer.parseInt(response.getFirstHeader("X-RateLimit-Reset").getValue());
+				long resetsInMillisHeader = (Long.parseLong(response.getFirstHeader("X-RateLimit-Reset")
+					.getValue())*1000)-System.currentTimeMillis();
+				// If the header value is bogus just reset at the next full second
+				this.resetsInMillis = resetsInMillisHeader < 0 ?
+					System.currentTimeMillis() - (System.currentTimeMillis() /1000L)*1000 :
+					resetsInMillisHeader;
+				limit = Integer.parseInt(response.getFirstHeader("X-RateLimit-Limit").getValue());
 
-				return GsonHelper.GSON.fromJson(responseBody, JsonObject.class);
-			} catch (IOException e) {
+				return GsonHelper.GSON.fromJson(responseBody, JsonElement.class);
+			} catch (Exception e) {
 				return new JsonObject();
 			}
 		}

@@ -74,7 +74,6 @@ public class Auth extends Accounts implements Module {
 			}
 		} else {
 			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
-			System.out.println(current.getUuid());
 		}
 
 		OptionCategory category = OptionCategory.create("auth");

@@ -181,7 +181,7 @@ public class Request {
 		}
 
 		ByteBuf getData() {
-			return buf.clear();
+			return buf;
 		}
 
 		@Override

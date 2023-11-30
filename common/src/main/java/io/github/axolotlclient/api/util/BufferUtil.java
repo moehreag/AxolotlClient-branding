@@ -40,7 +40,7 @@ public class BufferUtil {
 	private final Map<Class<?>, Serializer<?>> serializers = new HashMap<>();
 
 	public String getString(ByteBuf buffer, int index, int byteLength) {
-		return buffer.toString(index, byteLength, StandardCharsets.UTF_8);
+		return buffer.getCharSequence(index, byteLength, StandardCharsets.UTF_8).toString();
 	}
 
 	public String padString(String s, int length) {
@@ -205,6 +205,8 @@ public class BufferUtil {
 
 		Constructor<T> con = getConstructor(clazz);
 		for (Parameter f : con.getParameters()) {
+			System.out.println("Deserializing: "+f.getType().getSimpleName()+" "+f.getName());
+			System.out.println("Buffer: Reader: "+buf.readerIndex()+" Writer: "+buf.writerIndex());
 
 			int length;
 			if ((length = getPrimitiveByteLength(f.getType())) != 0) {
@@ -229,18 +231,16 @@ public class BufferUtil {
 					assert s != null;
 					int stringLength = s.value();
 					if (stringLength > 0) {
-						params.add(getString(buf, buf.readerIndex(), stringLength).trim());
-						buf.setIndex(buf.readerIndex() + stringLength, buf.writerIndex());
+						params.add(buf.readCharSequence(stringLength, StandardCharsets.UTF_8).toString().trim());
 					} else if (s.usesIndex()) {
 						stringLength = buf.readInt();
-						params.add(getString(buf, buf.readerIndex(), stringLength).trim());
-						buf.setIndex(buf.readerIndex() + stringLength, buf.writerIndex());
+						params.add(buf.readCharSequence(stringLength, StandardCharsets.UTF_8).toString().trim());
 					} else {
 						params.add(getString(buf, buf.readerIndex(), buf.readableBytes()).trim());
 						break;
 					}
 				} else {
-					params.add(getString(buf, buf.readerIndex(), buf.readableBytes()).trim());
+					params.add(buf.toString(StandardCharsets.UTF_8).trim());
 					break;
 				}
 			} else if (f.getType().isArray()) {
@@ -262,7 +262,6 @@ public class BufferUtil {
 			return null;
 		}
 
-		buf.clear();
 		return object;
 	}
 

@@ -102,20 +102,21 @@ public class API {
 	private void sendHandshake(Account account) {
 		logger.debug("Starting Handshake");
 
-		send(new Request(Request.Type.GET_PUBLIC_KEY)).whenCompleteAsync((buf, t) -> {
+		send(new Request(Request.Type.GET_PUBLIC_KEY)).whenComplete((buf, t) -> {
 			logDetailed("Successfully fetched the server's Public Key");
 			logger.debug("Authenticating with Mojang");
 			MojangAuth.Result result = MojangAuth.authenticate(account, BufferUtil.toArray(buf.slice(0x09, buf.readableBytes() - 9)));
 			if (result.getStatus() != MojangAuth.Status.SUCCESS) {
+				logDetailed("Mojang Auth status: "+result.getStatus());
 				logger.error("Authentication with Mojang failed, aborting!");
 				shutdown();
 			} else {
 				logDetailed("Successfully authenticated with Mojang!");
 				Request request = new Request(Request.Type.HANDSHAKE, account.getUuid(), result.getServerId(), account.getName());
-				send(request).whenCompleteAsync((object, th) -> {
-					if (th != null) {
+				send(request).whenComplete((object, th) -> {
+					if (th != null || object.getByte(0x09) == 1) {
 						logger.error("Handshake failed, closing API!", th);
-						if (apiOptions.detailedLogging.get()) {
+						if (apiOptions.detailedLogging.get() && th != null) {
 							notificationProvider.addStatus("api.error.handshake", th.getMessage());
 						}
 						shutdown();
@@ -178,20 +179,15 @@ public class API {
 	}
 
 	public void onMessage(ByteBuf message) {
-		if (apiOptions.detailedLogging.get()) {
-			logDetailed("Handling response: " + message.toString(StandardCharsets.UTF_8));
-		}
+		logDetailed("Handling response: ", message.toString(StandardCharsets.UTF_8));
 		handleResponse(message);
 	}
 
 	private void handleResponse(ByteBuf response) {
 		try {
-			Integer id = null;
-			try {
-				id = response.getInt(0x05);
-			} catch (IndexOutOfBoundsException ignored) {
-			}
+			int id = response.getInt(0x05);
 
+			logDetailed("Got response with id: "+id);
 			APIError error;
 
 			if (requestFailed(response)) {
@@ -207,19 +203,17 @@ public class API {
 					requests.get(id).complete(response);
 				}
 				requests.remove(id);
-			} else if (id == null || id == 0) {
+			} else if (id == 0) {
 				int type = response.getByte(0x03);
 				handlers.stream().filter(handler -> handler.isApplicable(type)).forEach(handler ->
 					handler.handle(response, error));
 			} else {
-				logger.error("Unknown response: " + response.toString(StandardCharsets.UTF_8));
+				logger.error("Unknown response: ", response.toString(StandardCharsets.UTF_8));
 			}
 
 		} catch (RuntimeException e) {
-			logger.error("Invalid response: " + response, e);
+			logger.error("Invalid response: ", response.toString(StandardCharsets.UTF_8), e);
 		}
-
-		response.release();
 	}
 
 	public void onError(Throwable throwable) {
@@ -295,6 +289,7 @@ public class API {
 
 	void startupAPI() {
 		if (!isConnected()) {
+			logger.debug("Creating self user..");
 			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN, PkSystem.fromToken(apiOptions.pkToken.get()).join());
 
 			if (Constants.TESTING) {

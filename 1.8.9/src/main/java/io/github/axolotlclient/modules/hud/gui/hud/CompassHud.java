@@ -177,7 +177,6 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 			}
 
 			float targetOpacity = 1 - Math.abs((halfWidth - trueDist)) / halfWidth;
-			//System.out.println(targetOpacity);
 			GlStateManager.color4f(1, 1, 1, targetOpacity);
 			if (indicator == Indicator.CARDINAL) {
 				// We have to call .color() here so that transparency stays

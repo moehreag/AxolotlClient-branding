@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import com.google.gson.JsonObject;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
@@ -46,7 +47,7 @@ import org.apache.http.util.EntityUtils;
 
 public class MojangAuth {
 
-	public static Result authenticate(Account account, byte[] publicKey) {
+	public static  Result authenticate(Account account, byte[] publicKey) {
 		Result.Builder result = Result.builder();
 		try (CloseableHttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
 
@@ -67,6 +68,7 @@ public class MojangAuth {
 			body.addProperty("serverId", serverId);
 
 			builder.setEntity(new StringEntity(body.toString()));
+			builder.setUri("https://sessionserver.mojang.com/session/minecraft/join");
 
 			HttpResponse response = client.execute(builder.build());
 
@@ -75,6 +77,7 @@ public class MojangAuth {
 				return result.status(Status.SUCCESS).build();
 			} else if (entity != null) {
 				JsonObject element = GsonHelper.fromJson(EntityUtils.toString(entity));
+				API.getInstance().logDetailed(element.toString());
 
 				if (element.get("error").getAsString().equals("InsufficientPrivilegesException")) {
 					return result.status(Status.MULTIPLAYER_DISABLED).build();
@@ -83,7 +86,8 @@ public class MojangAuth {
 				}
 			}
 
-		} catch (IOException ignored) {
+		} catch (IOException e) {
+			API.getInstance().logDetailed("MojangAuth Exception: ", e);
 		}
 		return result.status(Status.FAILURE).build();
 	}

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.exceptions.InvalidCredentialsException;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.util.UndashedUuid;
@@ -104,7 +105,12 @@ public class Auth extends Accounts implements Module {
 				if (account.isOffline()) {
 					service = UserApiService.OFFLINE;
 				} else {
-					service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
+					try {
+						service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
+					} catch (InvalidCredentialsException e){
+						account.refresh(getAuth(), () -> login(account));
+						return;
+					}
 					API.getInstance().startup(account);
 				}
 				((MinecraftClientAccessor) client).axolotlclient$setUserApiService(service);
