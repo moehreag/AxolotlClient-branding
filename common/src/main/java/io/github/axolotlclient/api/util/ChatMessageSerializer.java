@@ -37,6 +37,8 @@ public class ChatMessageSerializer implements Serializer<ChatMessage> {
 		buf.writeCharSequence(message.getSender().getUuid(), StandardCharsets.UTF_8);
 		buf.writeLong(message.getTimestamp());
 		buf.writeByte(message.getType().getValue());
+		buf.writeInt(message.getSenderDisplayName().length());
+		buf.writeCharSequence(message.getSenderDisplayName(), StandardCharsets.UTF_8);
 		buf.writeInt(message.getContent().length());
 		buf.writeCharSequence(message.getContent(), StandardCharsets.UTF_8);
 		return buf;
@@ -44,11 +46,15 @@ public class ChatMessageSerializer implements Serializer<ChatMessage> {
 
 	@Override
 	public ChatMessage deserialize(ByteBuf buf) {
-		AtomicReference<User> u = new AtomicReference<>();
-		io.github.axolotlclient.api.requests.User.get(BufferUtil.getString(buf, 0x00, 16)).whenCompleteAsync((us, t) -> u.set(us));
-
-		return new ChatMessage(u.get(), BufferUtil.getString(buf, 0x1D, buf.getInt(0x19)),
-			buf.getLong(0x10), ChatMessage.Type.fromCode(buf.getByte(0x18)));
+		String uuid = BufferUtil.getString(buf, 0x00, 32);
+		long timestamp = buf.getLong(0x20);
+		ChatMessage.Type type = ChatMessage.Type.fromCode(buf.getByte(0x28));
+		int nameLength = buf.getInt(0x29);
+		String displayName = BufferUtil.getString(buf, 0x2D, nameLength);
+		int contentLength = buf.getInt(0x2D+nameLength);
+		String content = BufferUtil.getString(buf, 0x2D+nameLength, contentLength);
+		User sender = io.github.axolotlclient.api.requests.User.get(uuid).join();
+		return new ChatMessage(sender, displayName, content, timestamp, type);
 	}
 
 	public static class ChatMessageTypeSerializer implements Serializer<ChatMessage.Type> {
@@ -60,7 +66,7 @@ public class ChatMessageSerializer implements Serializer<ChatMessage> {
 
 		@Override
 		public ChatMessage.Type deserialize(ByteBuf buf) {
-			return ChatMessage.Type.fromCode(buf.readInt());
+			return ChatMessage.Type.fromCode(buf.readByte());
 		}
 	}
 }

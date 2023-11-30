@@ -103,15 +103,7 @@ public class ChatHandler implements RequestHandler {
 	}
 
 	private ChatMessage unwrap(ByteBuf buf) {
-		String uuid = BufferUtil.getString(buf, 0x00, 32);
-		long timestamp = buf.getLong(0x20);
-		ChatMessage.Type type = ChatMessage.Type.fromCode(buf.getByte(0x28));
-		int nameLength = buf.getInt(0x29);
-		String displayName = BufferUtil.getString(buf, 0x2D, nameLength);
-		int contentLength = buf.getInt(0x2D+nameLength);
-		String content = BufferUtil.getString(buf, 0x2D+nameLength, contentLength);
-		User sender = io.github.axolotlclient.api.requests.User.get(uuid).join();
-		return new ChatMessage(sender, displayName, content, timestamp, type);
+		return BufferUtil.unwrap(buf, ChatMessage.class);
 	}
 
 	public void getMessagesAfter(Channel channel, long getAfter) {
