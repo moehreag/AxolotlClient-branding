@@ -219,9 +219,9 @@ public class PkSystem {
 				remaining = Integer.parseInt(response.getFirstHeader("X-RateLimit-Remaining").getValue());
 				long resetsInMillisHeader = (Long.parseLong(response.getFirstHeader("X-RateLimit-Reset")
 					.getValue())*1000)-System.currentTimeMillis();
-				// If the header value is bogus just reset at the next full second
+				// If the header value is bogus just reset in 0.5 seconds
 				this.resetsInMillis = resetsInMillisHeader < 0 ?
-					System.currentTimeMillis() - (System.currentTimeMillis() /1000L)*1000 :
+					500 : // System.currentTimeMillis() - (System.currentTimeMillis() /1000L)*1000
 					resetsInMillisHeader;
 				limit = Integer.parseInt(response.getFirstHeader("X-RateLimit-Limit").getValue());
 

@@ -108,7 +108,7 @@ public class Auth extends Accounts implements Module {
 					try {
 						service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
 					} catch (InvalidCredentialsException e){
-						account.refresh(getAuth(), () -> login(account));
+						account.refresh(getAuth(), () -> {});
 						return;
 					}
 					API.getInstance().startup(account);

@@ -72,6 +72,19 @@ public class ClientEndpoint {
 							}
 						});
 					}
+
+					@Override
+					public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+						onError(cause);
+					}
+
+					@Override
+					public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+						super.channelInactive(ctx);
+						if (!ctx.channel().isOpen()){
+							onClose();
+						}
+					}
 				});
 			ChannelFuture f = b.connect(url, port).sync();
 

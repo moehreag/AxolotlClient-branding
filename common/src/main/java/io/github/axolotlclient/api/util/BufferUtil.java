@@ -205,8 +205,6 @@ public class BufferUtil {
 
 		Constructor<T> con = getConstructor(clazz);
 		for (Parameter f : con.getParameters()) {
-			System.out.println("Deserializing: "+f.getType().getSimpleName()+" "+f.getName());
-			System.out.println("Buffer: Reader: "+buf.readerIndex()+" Writer: "+buf.writerIndex());
 
 			int length;
 			if ((length = getPrimitiveByteLength(f.getType())) != 0) {
