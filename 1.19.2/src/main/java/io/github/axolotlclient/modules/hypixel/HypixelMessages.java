@@ -24,6 +24,7 @@ package io.github.axolotlclient.modules.hypixel;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -56,7 +57,7 @@ public class HypixelMessages implements SimpleSynchronousResourceReloader {
 
 		AxolotlClient.LOGGER.debug("Loading Hypixel Messages");
 		ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
-		manager.findResources("assets/lang", id -> id.getPath().endsWith(".hypixel.json"))
+		manager.findResources("lang", id -> id.getPath().endsWith(".hypixel.json"))
 			.forEach((id, resource) -> {
 				int i = id.getPath().lastIndexOf("/") + 1;
 				String lang = id.getPath().substring(i, i + 5);
@@ -87,11 +88,14 @@ public class HypixelMessages implements SimpleSynchronousResourceReloader {
 	}
 
 	public boolean matchesAnyLanguage(String key, String message) {
-		return messageLanguageMap.get(key).values().stream().map(pattern -> pattern.matcher(message)).anyMatch(Matcher::matches);
+		return messageLanguageMap.getOrDefault(key, Collections.emptyMap()).values().stream()
+			.map(pattern -> pattern.matcher(message))
+			.anyMatch(Matcher::matches);
 	}
 
 	public boolean matchesAnyMessage(String lang, String message) {
-		return languageMessageMap.get(lang).values().stream().map(pattern -> pattern.matcher(message)).anyMatch(Matcher::matches);
+		return languageMessageMap.getOrDefault(lang, Collections.emptyMap())
+			.values().stream().map(pattern -> pattern.matcher(message)).anyMatch(Matcher::matches);
 	}
 
 	public boolean matchesAny(String message) {
