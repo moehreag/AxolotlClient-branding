@@ -47,10 +47,6 @@ public class ApiTestServer {
 		getInstance().startup();
 	}
 
-	public ApiTestServer() {
-
-	}
-
 	private void startup() {
 		logger.info("Starting Api Test Server on port 8081");
 		try {

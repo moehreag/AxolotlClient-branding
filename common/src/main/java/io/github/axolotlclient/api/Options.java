@@ -58,7 +58,7 @@ public abstract class Options implements Module {
 	public final StringOption pkToken = new StringOption("api.pk_token", "", s ->
 		PkSystem.fromToken(s).thenAccept(sys -> {
 			if (sys != null) {
-				API.getInstance().send(new Request(Request.Type.UPDATE_PK_INFO, sys.getId()));
+				API.getInstance().getSelf().setSystem(sys);
 			}
 		}));
 	protected final OptionCategory category = OptionCategory.create("api.category");

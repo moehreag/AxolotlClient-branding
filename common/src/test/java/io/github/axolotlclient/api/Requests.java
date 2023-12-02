@@ -64,8 +64,6 @@ public enum Requests {
 	DOWNLOAD_SCREENSHOT(0x18, DownloadScreenshotC2S.class, DownloadScreenshotS2C.class),
 	REPORT_MESSAGE(0x19, ReportMessageC2S.class, null),
 	REPORT_USER(0x1A, ReportUserC2S.class, null),
-	QUERY_PLURALKIT_INFO(0x1B, QueryPkInformationC2S.class, QueryPkInformationS2C.class),
-	UPDATE_PLURALKIT_INFO(0x1C, UpdatePkInformationC2S.class, null),
 	ERROR(0xFF, null, ErrorS2C.class);
 
 	private final int type;

@@ -32,8 +32,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.Request;
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.github.axolotlclient.api.util.Serializer;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
@@ -71,20 +69,20 @@ public class PkSystem {
 	private static CompletableFuture<PkSystem> create(String id, String name) {
 		return queryPkAPI("systems/" + id + "/fronters")
 			.thenApply(JsonElement::getAsJsonObject).thenApply(object -> {
-			JsonArray fronters = object.getAsJsonArray("members");
-			List<Member> list = new ArrayList<>();
-			fronters.forEach(e ->
-				list.add(Member.fromObject(e.getAsJsonObject()))
-			);
-			return list;
-		}).thenCombine(queryPkAPI("systems/"+id+"/members").thenApply(object -> {
-			JsonArray array = object.getAsJsonArray();
-			List<Member> list = new ArrayList<>();
-			array.forEach(e ->
-				list.add(Member.fromObject(e.getAsJsonObject()))
-			);
-			return list;
-		}), (members, fronters) -> new PkSystem(id, name, members, fronters, fronters.get(0)));
+				JsonArray fronters = object.getAsJsonArray("members");
+				List<Member> list = new ArrayList<>();
+				fronters.forEach(e ->
+					list.add(Member.fromObject(e.getAsJsonObject()))
+				);
+				return list;
+			}).thenCombine(queryPkAPI("systems/" + id + "/members").thenApply(object -> {
+				JsonArray array = object.getAsJsonArray();
+				List<Member> list = new ArrayList<>();
+				array.forEach(e ->
+					list.add(Member.fromObject(e.getAsJsonObject()))
+				);
+				return list;
+			}), (members, fronters) -> new PkSystem(id, name, members, fronters, fronters.get(0)));
 	}
 
 	public static CompletableFuture<JsonElement> queryPkAPI(String route) {
@@ -105,24 +103,6 @@ public class PkSystem {
 				}
 				return null;
 			});
-	}
-
-	public static CompletableFuture<PkSystem> fromMinecraftUuid(String uuid) {
-		return getPkId(uuid).thenApply(pkId -> {
-			if (!pkId.isEmpty()) {
-				return create(pkId).join();
-			}
-			return null;
-		});
-	}
-
-	public static CompletableFuture<String> getPkId(String uuid) {
-		return API.getInstance().send(new Request(Request.Type.QUERY_PK_INFO, uuid)).thenApply(buf -> {
-			if (buf.readableBytes() > 0x09) {
-				return BufferUtil.getString(buf, 0x09, 5);
-			}
-			return "";
-		});
 	}
 
 	public Member getProxy(String message) {
@@ -210,15 +190,15 @@ public class PkSystem {
 
 		private JsonElement query(HttpUriRequest request) {
 			try {
-				API.getInstance().logDetailed("Requesting: "+request);
+				API.getInstance().logDetailed("Requesting: " + request);
 				HttpResponse response = client.execute(request);
 
 				String responseBody = EntityUtils.toString(response.getEntity());
-				API.getInstance().logDetailed("Response: "+responseBody);
+				API.getInstance().logDetailed("Response: " + responseBody);
 
 				remaining = Integer.parseInt(response.getFirstHeader("X-RateLimit-Remaining").getValue());
 				long resetsInMillisHeader = (Long.parseLong(response.getFirstHeader("X-RateLimit-Reset")
-					.getValue())*1000)-System.currentTimeMillis();
+					.getValue()) * 1000) - System.currentTimeMillis();
 				// If the header value is bogus just reset in 0.5 seconds
 				this.resetsInMillis = resetsInMillisHeader < 0 ?
 					500 : // System.currentTimeMillis() - (System.currentTimeMillis() /1000L)*1000

@@ -50,7 +50,6 @@ public class User {
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
 		this.name = name;
-		PkSystem.fromMinecraftUuid(uuid).thenAccept(this::setSystem);
 	}
 
 	public User(String uuid, Status status) {
