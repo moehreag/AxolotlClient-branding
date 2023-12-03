@@ -26,6 +26,7 @@ import java.util.logging.Level;
 
 import io.github.axolotlclient.api.requests.ServerRequest;
 import io.github.axolotlclient.api.requests.ServerResponse;
+import io.github.axolotlclient.api.requests.c2s.HandshakeC2S;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -49,12 +50,16 @@ public class MessageHandler extends SimpleChannelInboundHandler<ServerRequest> {
 
 		ApiTestServer.getInstance().getLogger().info("Received: " + msg.getClass().getSimpleName());
 
+		if (msg instanceof HandshakeC2S){
+			Connections.put(((HandshakeC2S) msg).uuid, ctx.channel());
+		}
+
 		ApiTestServer.getInstance().getLogger().info("Handling message with id: "+msg.identifier);
-		ServerResponse response = msg.handle();
+		ServerResponse response = msg.handle(Connections.get(ctx.channel()));
 		if (response != null) {
 			response.identifier = msg.identifier;
 			ByteBuf data = ApiTestServer.getInstance().prependMetadata(response);
-			ApiTestServer.getInstance().getLogger().info("Replying: " + response.getClass().getSimpleName() + ":");
+			ApiTestServer.getInstance().getLogger().info("Replying: " + response.getClass().getSimpleName() + ":"+msg.identifier);
 			ctx.writeAndFlush(data);
 		}
 	}

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.github.axolotlclient.api.requests.s2c.GetChannelByIdS2C;
 import io.github.axolotlclient.api.requests.ServerRequest;
 import io.github.axolotlclient.api.requests.ServerResponse;
 import io.github.axolotlclient.api.requests.c2s.*;

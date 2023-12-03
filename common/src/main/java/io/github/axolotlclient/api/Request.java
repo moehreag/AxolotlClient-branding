@@ -37,8 +37,7 @@ import lombok.*;
 @ToString(doNotUseGetters = true)
 public class Request {
 
-	private static final byte[] PACKET_MAGIC = "AXO".getBytes(StandardCharsets.UTF_8);
-	private static final int PROTOCOL_VERSION = 0x01;
+	private static final byte[] PACKET_MAGIC = Constants.PACKET_MAGIC.getBytes(StandardCharsets.UTF_8);
 
 	@EqualsAndHashCode.Include
 	private final Type type;
@@ -77,7 +76,7 @@ public class Request {
 		return Unpooled.buffer()
 			.writeBytes(PACKET_MAGIC)
 			.writeByte(type.getType())
-			.writeByte(PROTOCOL_VERSION)
+			.writeByte(Constants.PROTOCOL_VERSION)
 			.writeInt(id)
 			.writeBytes(data.getData());
 	}
@@ -120,7 +119,7 @@ public class Request {
 	}
 
 	public static class Data {
-		private final ByteBuf buf = Unpooled.buffer().clear();
+		private final ByteBuf buf = Unpooled.buffer();
 
 		public Data() {
 		}

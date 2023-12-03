@@ -63,10 +63,10 @@ public class User {
 			Instant startTime = Instant.ofEpochSecond(buf.getLong(0x09));
 
 			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User(uuid,
-				new Status(buf.getBoolean(0x09),
-					BufferUtil.getString(buf, 0x0A, 64).trim(),
-					Keyword.get(BufferUtil.getString(buf, 0x4A, 64).trim()),
-					Keyword.get(BufferUtil.getString(buf, 0x8A, 32).trim()), startTime));
+				new Status(buf.getBoolean(0x11),
+					BufferUtil.getString(buf, 0x12, 64).trim(),
+					Keyword.get(BufferUtil.getString(buf, 0x52, 64).trim()),
+					Keyword.get(BufferUtil.getString(buf, 0x92, 32).trim()), startTime));
 			userCache.put(uuid, user);
 			return user;
 		});

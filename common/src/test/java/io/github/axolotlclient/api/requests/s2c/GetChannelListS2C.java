@@ -22,7 +22,24 @@
 
 package io.github.axolotlclient.api.requests.s2c;
 
-import io.github.axolotlclient.api.requests.ServerResponse;
+import java.nio.charset.StandardCharsets;
 
+import io.github.axolotlclient.api.requests.ServerResponse;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class GetChannelListS2C extends ServerResponse {
+
+	private final String uuid;
+
+
+	@Override
+	public ByteBuf serialize() {
+		ByteBuf buf = Unpooled.buffer();
+		buf.writeInt(1);
+		buf.writeBytes("00000".getBytes(StandardCharsets.UTF_8));
+		return buf;
+	}
 }

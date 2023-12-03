@@ -39,6 +39,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
 
 		int readableBytes = in.readableBytes();
 		if (readableBytes < 9) {
+			System.out.println(in.toString(StandardCharsets.UTF_8));
 			return;
 		}
 
@@ -47,8 +48,11 @@ public class MessageDecoder extends ByteToMessageDecoder {
 		byte protocolVersion = in.readByte();
 		int identifier = in.readInt();
 		if (!magic.equals("AXO")) {
+			System.out.println("Unrecognized magic: "+magic);
 			return;
 		}
+
+		System.out.println("Got packet: "+identifier+"("+(c == null ? "null" : c.getSimpleName())+")");
 
 		if (c != null) {
 			ApiTestServer.getInstance().getLogger().info("Unwrapping packet: "+c.getSimpleName());
@@ -62,6 +66,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
 		} else {
 			ApiTestServer.getInstance().getLogger().warning("Unrecognized packet type: " + identifier);
 		}
+		in.setIndex(readableBytes, readableBytes);
 	}
 
 }

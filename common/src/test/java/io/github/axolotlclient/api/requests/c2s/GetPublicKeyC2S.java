@@ -28,7 +28,7 @@ import io.github.axolotlclient.api.requests.s2c.GetPublicKeyS2C;
 
 public class GetPublicKeyC2S extends ServerRequest {
 	@Override
-	public ServerResponse handle() {
+	public ServerResponse handle(String senderUuid) {
 		return new GetPublicKeyS2C();
 	}
 }

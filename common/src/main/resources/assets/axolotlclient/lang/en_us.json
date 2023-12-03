@@ -511,5 +511,13 @@
 	"auth.working": "Working...",
 	"auth.finished": "Done!",
 	"api.display_notes": "Display Notes",
-	"api.pk_token": "PluralKit Token"
+	"api.pk_token": "PluralKit Token",
+	"api.pluralkit": "PluralKit Options",
+	"api.pk_autoproxy": "Autoproxy",
+	"api.pk_proxymode": "Autoproxy Mode",
+	"api.pk_autoproxy_member": "Autoproxy Member",
+	"PROXY_FRONT": "Front",
+	"PROXY_OFF": "Off",
+	"PROXY_MEMBER": "Member",
+	"PROXY_LATCH": "Latch"
 }

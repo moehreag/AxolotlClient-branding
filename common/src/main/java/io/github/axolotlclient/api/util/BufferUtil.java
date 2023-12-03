@@ -29,6 +29,7 @@ import java.util.*;
 
 import com.google.common.base.Strings;
 import com.google.common.primitives.Primitives;
+import io.github.axolotlclient.api.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.experimental.UtilityClass;
@@ -57,7 +58,7 @@ public class BufferUtil {
 	}
 
 	public ByteBuf removeMetadata(ByteBuf buf) {
-		if (buf.getCharSequence(0x00, 3, StandardCharsets.UTF_8).equals("AXO")) {
+		if (buf.getCharSequence(0x00, 3, StandardCharsets.UTF_8).equals(Constants.PACKET_MAGIC)) {
 			return buf.slice(0x09, buf.readableBytes() - 0x09);
 		}
 		return buf;

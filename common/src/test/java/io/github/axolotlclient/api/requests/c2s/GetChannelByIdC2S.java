@@ -24,10 +24,19 @@ package io.github.axolotlclient.api.requests.c2s;
 
 import io.github.axolotlclient.api.requests.ServerRequest;
 import io.github.axolotlclient.api.requests.ServerResponse;
+import io.github.axolotlclient.api.requests.s2c.GetChannelByIdS2C;
+import io.github.axolotlclient.api.util.Serializer;
 
 public class GetChannelByIdC2S extends ServerRequest {
+
+	private final String channelId;
+
+	public GetChannelByIdC2S(@Serializer.Length(5) String channelId) {
+		this.channelId = channelId;
+	}
+
 	@Override
-	public ServerResponse handle() {
-		return null;
+	public ServerResponse handle(String senderUuid) {
+		return new GetChannelByIdS2C(senderUuid, channelId);
 	}
 }

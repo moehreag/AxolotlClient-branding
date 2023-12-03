@@ -24,10 +24,11 @@ package io.github.axolotlclient.api.requests.c2s;
 
 import io.github.axolotlclient.api.requests.ServerRequest;
 import io.github.axolotlclient.api.requests.ServerResponse;
+import io.github.axolotlclient.api.requests.s2c.GetChannelListS2C;
 
 public class GetChannelListC2S extends ServerRequest {
 	@Override
-	public ServerResponse handle() {
-		return null;
+	public ServerResponse handle(String senderUuid) {
+		return new GetChannelListS2C(senderUuid);
 	}
 }

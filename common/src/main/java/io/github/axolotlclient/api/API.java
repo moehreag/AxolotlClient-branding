@@ -132,9 +132,9 @@ public class API {
 		});
 	}
 
-	public boolean requestFailed(ByteBuf object) {
+	public boolean requestFailed(byte type) {
 		try {
-			return object.getByte(0x03) == Request.Type.ERROR.getType();
+			return type == Request.Type.ERROR.getType();
 		} catch (IndexOutOfBoundsException e) {
 			return true;
 		}
@@ -153,8 +153,10 @@ public class API {
 		if (isConnected()) {
 			ThreadExecuter.scheduleTask(() -> {
 				requests.put(request.getId(), future);
-				logDetailed("Sending: " + request);
 				ByteBuf buf = request.getData();
+
+				ByteBuf pre = buf.copy();
+				logDetailed("Sending: " + request+"\n"+BufferUtil.getString(pre, 0x09, pre.readableBytes()-9));
 
 				channel.writeAndFlush(buf).addListener(f ->
 					logDetailed("Sent message " + request.getId() + " " + (f.isSuccess() ? "successfully" : "with errors")));
@@ -185,18 +187,30 @@ public class API {
 
 	private void handleResponse(ByteBuf response) {
 		try {
-			int id = response.getInt(0x05);
+			String magic = response.readCharSequence(3, StandardCharsets.UTF_8).toString();
+			if (!Constants.PACKET_MAGIC.equals(magic)){
+				logger.warn("Unsupported packet magic "+magic+"!");
+				return;
+			}
+			byte type = response.readByte();
+			int version = response.readByte();
+			if (version != Constants.PROTOCOL_VERSION){
+				logger.warn("Unsupported protocol version "+version+"!");
+				return;
+			}
+			int id = response.readInt();
 
 			logDetailed("Got response with id: "+id);
 			APIError error;
 
-			if (requestFailed(response)) {
+			if (requestFailed(type)) {
 				error = new APIError(response);
 			} else {
 				error = null;
 			}
 
 			if (requests.containsKey(id)) {
+				logDetailed("Got reply to request!");
 				if (error != null) {
 					requests.get(id).completeExceptionally(error);
 				} else {
@@ -204,9 +218,10 @@ public class API {
 				}
 				requests.remove(id);
 			} else if (id == 0) {
-				int type = response.getByte(0x03);
-				handlers.stream().filter(handler -> handler.isApplicable(type)).forEach(handler ->
-					handler.handle(response, error));
+				handlers.stream().filter(handler -> handler.isApplicable(type)).forEach(handler -> {
+					logDetailed("Applying handler: "+handler.getClass().getSimpleName());
+					handler.handle(response, error);
+				});
 			} else {
 				logger.error("Unknown response: ", response.toString(StandardCharsets.UTF_8));
 			}

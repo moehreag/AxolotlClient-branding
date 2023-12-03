@@ -22,15 +22,35 @@
 
 package io.github.axolotlclient.api;
 
-import lombok.experimental.UtilityClass;
+import java.util.HashMap;
+import java.util.Map;
 
-@UtilityClass
-public class Constants {
-	public final boolean ENABLED = true;
-	public final String PACKET_MAGIC = "AXO";
-	public final int PROTOCOL_VERSION = 0x01;
-	public final String API_INFO_URL = "https://axolotlclient.xyz/api/info"; // Where to retrieve the endpoint url/port from
-	public final String API_URL_OVERRIDE = "127.0.0.1:8081";
-	public final int STATUS_UPDATE_DELAY = 15; // The Delay between Status updates, in seconds. Discord uses 15 seconds so we will as well.
-	public final boolean TESTING = false; // When set to true, no requests will be sent
+import io.netty.channel.Channel;
+
+public class Connections {
+	private static final Map<String, Channel> uuidToChannel = new HashMap<>();
+	private static final Map<Channel, String> channelToUuid = new HashMap<>();
+
+	public static void put(String uuid, Channel channel){
+		uuidToChannel.put(uuid, channel);
+		channelToUuid.put(channel, uuid);
+	}
+
+	public static Channel get(String uuid){
+		return uuidToChannel.get(uuid);
+	}
+
+	public static String get(Channel channel){
+		return channelToUuid.get(channel);
+	}
+
+	public static void remove(String uuid){
+		channelToUuid.remove(get(uuid));
+		uuidToChannel.remove(uuid);
+	}
+
+	public static void remove(Channel channel){
+		uuidToChannel.remove(get(channel));
+		channelToUuid.remove(channel);
+	}
 }

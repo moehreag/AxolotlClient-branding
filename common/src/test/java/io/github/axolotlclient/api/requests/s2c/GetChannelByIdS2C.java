@@ -22,7 +22,30 @@
 
 package io.github.axolotlclient.api.requests.s2c;
 
-import io.github.axolotlclient.api.requests.ServerResponse;
+import java.nio.charset.StandardCharsets;
 
+import io.github.axolotlclient.api.requests.ServerResponse;
+import io.github.axolotlclient.api.util.BufferUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class GetChannelByIdS2C extends ServerResponse {
+
+	private final String uuid;
+	private final String channelId;
+
+	@Override
+	public ByteBuf serialize() {
+		System.out.println();
+		ByteBuf buf = Unpooled.buffer();
+		buf.writeCharSequence(channelId, StandardCharsets.UTF_8);
+		buf.writeCharSequence(BufferUtil.padString("Loopback Channel", 64), StandardCharsets.UTF_8);
+		buf.writeInt(2);
+		buf.writeCharSequence(uuid, StandardCharsets.UTF_8);
+		buf.writeCharSequence(uuid, StandardCharsets.UTF_8);
+		buf.writeInt(0);
+		return buf;
+	}
 }

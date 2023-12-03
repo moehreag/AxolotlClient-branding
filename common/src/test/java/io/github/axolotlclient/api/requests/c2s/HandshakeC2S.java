@@ -22,7 +22,10 @@
 
 package io.github.axolotlclient.api.requests.c2s;
 
+import java.util.logging.Level;
+
 import com.google.gson.JsonObject;
+import io.github.axolotlclient.api.ApiTestServer;
 import io.github.axolotlclient.api.requests.ServerRequest;
 import io.github.axolotlclient.api.requests.ServerResponse;
 import io.github.axolotlclient.api.requests.s2c.HandshakeS2C;
@@ -47,7 +50,8 @@ public class HandshakeC2S extends ServerRequest {
 	}
 
 	@Override
-	public ServerResponse handle() {
+	public ServerResponse handle(String senderUuid) {
+		System.out.printf("Handshake: "+senderUuid+" (%s); serverId=%s%n", name, serverId);
 		RequestBuilder builder = RequestBuilder.get();
 		builder.setUri("https://sessionserver.mojang.com/session/minecraft/hasJoined");
 		builder.addParameter("username", name);
@@ -59,7 +63,8 @@ public class HandshakeC2S extends ServerRequest {
 			if (object.has("id") && object.get("id").getAsString().equals(uuid)) {
 				return new HandshakeS2C((byte) 0);
 			}
-		} catch (Exception ignored) {
+		} catch (Exception e) {
+			ApiTestServer.getInstance().getLogger().log(Level.WARNING, "", e);
 		}
 		return new HandshakeS2C((byte) 1);
 	}

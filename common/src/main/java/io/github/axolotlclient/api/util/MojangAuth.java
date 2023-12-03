@@ -62,8 +62,8 @@ public class MojangAuth {
 			body.addProperty("accessToken", account.getAuthToken());
 			body.addProperty("selectedProfile", account.getUuid());
 			assert secretKey != null;
-			String serverId = minecraftSha1(account.getName().getBytes(StandardCharsets.US_ASCII), publicKey,
-				secretKey.getEncoded());
+			String serverId = BufferUtil.padString(minecraftSha1(account.getName().getBytes(StandardCharsets.US_ASCII), publicKey,
+				secretKey.getEncoded()), 40);
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
 

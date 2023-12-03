@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
@@ -56,11 +55,13 @@ public class ChannelRequest {
 		String id = BufferUtil.getString(channel, 0x09, 5);
 		String name = BufferUtil.getString(channel, 0x0E, 64).trim();
 
+		API.getInstance().logDetailed("Parsing channel: "+id+" ("+name+")");
+
 		List<User> users = new ArrayList<>();
 		int i = 0x4E;
 		while (i < channel.getInt(0x53)) {
 			String uuid = BufferUtil.getString(channel, i, 32);
-			io.github.axolotlclient.api.requests.User.get(uuid).whenCompleteAsync((user, throwable) -> users.add(user));
+			io.github.axolotlclient.api.requests.User.get(uuid).thenAccept(users::add);
 			i += 32;
 		}
 		List<ChatMessage> messages = new ArrayList<>();
@@ -85,7 +86,7 @@ public class ChannelRequest {
 	}
 
 	public static CompletableFuture<List<Channel>> getChannelList() {
-		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_LIST)).handleAsync(ChannelRequest::parseChannels);
+		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_LIST)).handle(ChannelRequest::parseChannels);
 	}
 
 	private static List<Channel> parseChannels(ByteBuf object, Throwable t) {
@@ -95,9 +96,11 @@ public class ChannelRequest {
 		}
 		List<Channel> channelList = new ArrayList<>();
 
-		int i = object.getInt(0x0D);
+		int i = 0;
 		while (i < object.getInt(0x09)) {
-			getById(BufferUtil.getString(object, i, 5)).whenCompleteAsync((channel, throwable) -> channelList.add(channel));
+			String channelId = BufferUtil.getString(object, i+0x0D, 5);
+			API.getInstance().logDetailed("Processing channelId: "+channelId);
+			getById(channelId).thenAccept(channelList::add).join();
 			i += 5;
 		}
 

@@ -23,6 +23,15 @@
 package io.github.axolotlclient.api.requests.s2c;
 
 import io.github.axolotlclient.api.requests.ServerResponse;
+import io.github.axolotlclient.api.util.Serializer;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class GetFriendS2C extends ServerResponse {
+	private final long lastSeen;
+	private final boolean online;
+	@Serializer.Length(64) private final String title;
+	@Serializer.Length(64) private final String desc;
+	@Serializer.Length(32) private final String icon;
+
 }

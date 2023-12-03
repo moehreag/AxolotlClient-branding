@@ -87,6 +87,6 @@ public class User {
 		if (!isSystem()){
 			return getName();
 		}
-		return getSystem().getProxy(message).getDisplayName();
+		return getSystem().getProxy(message).orElse(getName());
 	}
 }

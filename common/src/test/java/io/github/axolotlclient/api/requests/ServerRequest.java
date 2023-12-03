@@ -26,7 +26,7 @@ public abstract class ServerRequest {
 
 	public int identifier;
 
-	public ServerResponse handle(){
+	public ServerResponse handle(String senderUuid){
 		return null;
 	}
 

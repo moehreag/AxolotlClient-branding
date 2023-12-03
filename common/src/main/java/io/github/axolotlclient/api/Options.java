@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.api.types.PkSystem;
@@ -61,11 +62,21 @@ public abstract class Options implements Module {
 				API.getInstance().getSelf().setSystem(sys);
 			}
 		}));
+	public final BooleanOption autoproxy = new BooleanOption("api.pk_autoproxy", false);
+	public final EnumOption<PkSystem.ProxyMode> autoproxyMode = new EnumOption<>("api.pk_proxymode", PkSystem.ProxyMode.class, PkSystem.ProxyMode.PROXY_OFF);
+	public final StringOption autoproxyMember = new StringOption("api.pk_autoproxy_member", "", s -> {
+		if (API.getInstance().getSelf().getSystem() != null){
+			API.getInstance().getSelf().getSystem().updateAutoproxyMember(s);
+		}
+	});
 	protected final OptionCategory category = OptionCategory.create("api.category");
+	protected final OptionCategory pluralkit = OptionCategory.create("api.pluralkit");
 
 	@Override
 	public void init() {
 		pkToken.setMaxLength(65);
+		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
+		category.add(pluralkit);
 		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, detailedLogging, updateNotifications, displayNotes);
 	}
 }

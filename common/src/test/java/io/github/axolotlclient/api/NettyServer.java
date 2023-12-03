@@ -90,6 +90,11 @@ public class NettyServer {
 					"handler", handler);
 			}
 
+			@Override
+			public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+				Connections.remove(ctx.channel());
+				super.channelUnregistered(ctx);
+			}
 		});
 
 		try {

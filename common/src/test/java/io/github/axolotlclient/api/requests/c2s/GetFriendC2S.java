@@ -24,10 +24,17 @@ package io.github.axolotlclient.api.requests.c2s;
 
 import io.github.axolotlclient.api.requests.ServerRequest;
 import io.github.axolotlclient.api.requests.ServerResponse;
+import io.github.axolotlclient.api.requests.StatusUpdate;
+import io.github.axolotlclient.api.requests.s2c.GetFriendS2C;
 
 public class GetFriendC2S extends ServerRequest {
+
+	private String uuid;
+	public GetFriendC2S(String uuid){
+		this.uuid = uuid;
+	}
 	@Override
-	public ServerResponse handle() {
-		return null;
+	public ServerResponse handle(String senderUuid) {
+	return new GetFriendS2C(System.currentTimeMillis(), true, "online", StatusUpdate.MenuId.SETTINGS.getIdentifier(), "online");
 	}
 }

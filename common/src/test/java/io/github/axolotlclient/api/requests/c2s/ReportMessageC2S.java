@@ -27,7 +27,7 @@ import io.github.axolotlclient.api.requests.ServerResponse;
 
 public class ReportMessageC2S extends ServerRequest {
 	@Override
-	public ServerResponse handle() {
+	public ServerResponse handle(String senderUuid) {
 		return null;
 	}
 }
