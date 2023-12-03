@@ -34,6 +34,7 @@ import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.moehreag.searchInResources.SearchableResourceManager;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resource.Resource;
 import net.minecraft.client.resource.manager.ResourceManager;
@@ -49,16 +50,13 @@ import net.ornithemc.osl.resource.loader.api.ResourceLoaderEvents;
 
 public class SkyResourceManager extends AbstractModule {
 
-	private static final SkyResourceManager Instance = new SkyResourceManager();
+	@Getter
+	private static final SkyResourceManager instance = new SkyResourceManager();
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-	public static SkyResourceManager getInstance() {
-		return Instance;
-	}
 
 	public void reload(ResourceManager resourceManager) {
 		SkyboxManager.getInstance().clearSkyboxes();
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager)resourceManager)
 			.findResources("fabricskyboxes", "sky", identifier -> identifier.getPath().endsWith(".json"))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());
@@ -68,14 +66,14 @@ public class SkyResourceManager extends AbstractModule {
 				JsonObject.class)));
 		}
 
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager)resourceManager)
 			.findResources("minecraft", "optifine/sky", identifier -> isMCPSky(identifier.getPath()))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());
 			loadMCPSky("optifine", entry.getKey(), entry.getValue());
 		}
 
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager)resourceManager)
 			.findResources("minecraft", "mcpatcher/sky", identifier -> isMCPSky(identifier.getPath()))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());

@@ -43,7 +43,6 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 
@@ -247,11 +246,7 @@ public class ChatWidget extends EntryListWidget {
 
 		public NameChatLine(ChatMessage message) {
 			super(new LiteralText(message.getSenderDisplayName())
-				.setStyle(new Style().setBold(true)).append(message.getSender().isSystem() ?
-				new LiteralText(" ").append(
-						new LiteralText("( "+message.getSender().getSystem().getName()+"/"+message.getSender().getName()+")")
-							.setStyle(new Style().setColor(Formatting.GRAY).setItalic(true)))
-					.getFormattedString() : "").getFormattedString(), message);
+				.setStyle(new Style().setBold(true)).getFormattedString(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));

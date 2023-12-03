@@ -54,7 +54,7 @@ public class HypixelMessages implements Runnable {
 
 		AxolotlClient.LOGGER.debug("Loading Hypixel Messages");
 		ResourceManager manager = Minecraft.getInstance().getResourceManager();
-		((SearchableResourceManager) manager).findResources("lang",
+		((SearchableResourceManager)manager).findResources("", "lang",
 			identifier -> identifier.getPath().endsWith(".hypixel.json")).values().forEach(resource -> {
 			int i = resource.getLocation().getPath().lastIndexOf("/") + 1;
 			String lang = resource.getLocation().getPath().substring(i, i + 5);

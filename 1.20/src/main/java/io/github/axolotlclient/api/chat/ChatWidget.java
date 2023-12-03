@@ -44,7 +44,6 @@ import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLine> {
@@ -224,11 +223,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 		public NameChatLine(ChatMessage message) {
 			super(Text.literal(message.getSenderDisplayName())
-				.setStyle(Style.EMPTY.withBold(true)).append(message.getSender().isSystem() ?
-					Text.literal(" ").append(
-						Text.literal("( "+message.getSender().getSystem().getName()+"/"+message.getSender().getName()+")")
-							.setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true))) :
-					Text.empty()).asOrderedText(), message);
+				.setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));

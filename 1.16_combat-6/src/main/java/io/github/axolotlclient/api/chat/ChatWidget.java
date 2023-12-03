@@ -43,7 +43,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 
 public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLine> {
 
@@ -220,11 +219,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 		public NameChatLine(ChatMessage message) {
 			super(new LiteralText(message.getSenderDisplayName())
-				.setStyle(Style.EMPTY.withBold(true)).append(message.getSender().isSystem() ?
-					new LiteralText(" ").append(
-							new LiteralText("( "+message.getSender().getSystem().getName()+"/"+message.getSender().getName()+")")
-								.setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true))) :
-					LiteralText.EMPTY).asOrderedText(), message);
+				.setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));

@@ -44,7 +44,7 @@ dependencies {
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 
-	modImplementation include("io.github.moehreag:search-in-resources:1.0.3+1.8.9")
+	modImplementation include("io.github.moehreag:search-in-resources:1.0.5+1.8.9")
 
 	api("org.lwjgl:lwjgl-nanovg:3.3.2")
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')

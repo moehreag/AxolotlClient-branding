@@ -73,6 +73,11 @@ public class ChatHandler implements RequestHandler {
 
 	public void sendMessage(Channel channel, String message) {
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
+		if (API.getInstance().getSelf().isSystem()){
+			displayName += (" §r§o§7("+API.getInstance() // gray + italic
+				.getSelf().getSystem().getName()+
+				"/"+API.getInstance().getSelf().getName()+")§r");
+		}
 		API.getInstance().send(new Request(Request.Type.SEND_MESSAGE,
 			new Request.Data(channel.getId()).add(
 				Instant.now().getEpochSecond()).add(displayName.length()).add(displayName)
