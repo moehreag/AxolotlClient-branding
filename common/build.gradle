@@ -33,7 +33,7 @@ dependencies {
 	testRuntimeOnly compileOnly("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
 		transitive = false
 	}
-	testImplementation compileOnly("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}")
+	testRuntimeOnly testCompileOnly(compileOnly("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"))
 
 	testRuntimeOnly compileOnly("com.google.guava:guava:17.0")
 	testImplementation compileOnly("org.apache.httpcomponents:httpclient:4.3.3")
