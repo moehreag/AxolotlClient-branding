@@ -40,7 +40,7 @@ dependencies {
 
 	ploceus.dependOsl(osl)
 
-	modCompileOnlyApi("com.terraformersmc:modmenu:0.1.0+mc1.8.9")
+	modImplementation("com.terraformersmc:modmenu:0.1.1+mc1.8.9")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 
@@ -61,7 +61,7 @@ dependencies {
 	implementation include("org.slf4j:slf4j-api:1.7.36")
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
 
-	modCompileOnly("com.github.zarzelcow:legacy-lwjgl3:1.1.2") {
+	modCompileOnly("com.github.zarzelcow:legacy-lwjgl3:$legacy_lwgjl3") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
 		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'
@@ -69,7 +69,7 @@ dependencies {
 		exclude group: 'net.fabricmc'
 		exclude group: 'org.javassist'
 	}
-	modLocalRuntime("com.github.zarzelcow:legacy-lwjgl3:1.1.2:all-remapped") {
+	modLocalRuntime("com.github.zarzelcow:legacy-lwjgl3:$legacy_lwgjl3:all-remapped") {
 		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
 		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
 		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'
