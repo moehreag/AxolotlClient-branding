@@ -22,9 +22,6 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
-import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -54,10 +51,7 @@ public class ScreenshotUtils extends AbstractModule {
 		List<Action> actions = new ArrayList<>();
 		actions.add(new Action("copyAction", Formatting.AQUA,
 			"copy_image",
-			new CustomClickEvent((file) -> {
-				FileTransferable selection = new FileTransferable(file);
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-			})));
+			new CustomClickEvent(ScreenshotCopying::copy)));
 
 		actions.add(new Action("deleteAction", Formatting.LIGHT_PURPLE,
 			"delete_image",
@@ -136,7 +130,7 @@ public class ScreenshotUtils extends AbstractModule {
 		return message;
 	}
 
-	interface OnActionCall {
+	public interface OnActionCall {
 
 		void doAction(File file);
 	}
@@ -156,29 +150,6 @@ public class ScreenshotUtils extends AbstractModule {
 
 		public String getName() {
 			return translationKey;
-		}
-	}
-
-	@AllArgsConstructor
-	protected static class FileTransferable implements Transferable {
-
-		private final File file;
-
-		@Override
-		public DataFlavor[] getTransferDataFlavors() {
-			return new DataFlavor[]{DataFlavor.javaFileListFlavor};
-		}
-
-		@Override
-		public boolean isDataFlavorSupported(DataFlavor flavor) {
-			return DataFlavor.javaFileListFlavor.equals(flavor);
-		}
-
-		@Override
-		public Object getTransferData(DataFlavor flavor) {
-			final ArrayList<File> files = new ArrayList<>();
-			files.add(file);
-			return files;
 		}
 	}
 

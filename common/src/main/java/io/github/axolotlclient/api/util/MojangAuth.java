@@ -31,6 +31,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Account;
@@ -62,8 +63,10 @@ public class MojangAuth {
 			body.addProperty("accessToken", account.getAuthToken());
 			body.addProperty("selectedProfile", account.getUuid());
 			assert secretKey != null;
-			String serverId = BufferUtil.padString(minecraftSha1(account.getName().getBytes(StandardCharsets.US_ASCII), publicKey,
-				secretKey.getEncoded()), 40);
+			String sha = minecraftSha1(account.getName().getBytes(StandardCharsets.US_ASCII), publicKey,
+				secretKey.getEncoded());
+			assert sha != null;
+			String serverId = Strings.padEnd(sha, 40, 'a').substring(0, 40);
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
 

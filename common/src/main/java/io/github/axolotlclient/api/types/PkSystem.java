@@ -80,15 +80,10 @@ public class PkSystem {
 		updateAutoproxyMember(API.getInstance().getApiOptions().autoproxyMember.get());
 	}
 
-	public void updateAutoproxyMember(String value){
+	public void updateAutoproxyMember(String value) {
 		this.autoproxyMember = members.stream().filter(m -> value.toLowerCase(Locale.ROOT).equals(m.getDisplayName()) ||
 				value.toLowerCase(Locale.ROOT).equals(m.getId()))
 			.findFirst().orElse(null);
-	}
-
-	private static CompletableFuture<PkSystem> create(String id) {
-		return queryPkAPI("systems/" + id).thenApply(JsonElement::getAsJsonObject)
-			.thenCompose(PkSystem::create);
 	}
 
 	private static CompletableFuture<PkSystem> create(JsonObject system) {
@@ -106,20 +101,31 @@ public class PkSystem {
 					list.add(Member.fromObject(e.getAsJsonObject()))
 				);
 				builder.fronters(list);
-			}).thenRun(() -> queryPkAPI("systems/@me/members").thenAccept(object -> {
+				log("Fetched fronters list");
+			}).thenCompose(v -> queryPkAPI("systems/@me/members").thenAccept(object -> {
 				JsonArray array = object.getAsJsonArray();
 				List<Member> list = new ArrayList<>();
 				array.forEach(e ->
 					list.add(Member.fromObject(e.getAsJsonObject()))
 				);
 				builder.members(list);
-			})).thenRun(() -> queryPkAPI("systems/@me/settings").thenApply(JsonElement::getAsJsonObject)
+				log("Fetched Members list");
+			})).thenCompose(v -> queryPkAPI("systems/@me/settings").thenApply(JsonElement::getAsJsonObject)
 				.thenAccept(object -> {
-					if (object.has("latch_timeout")) {
+					log("Fetched Latch Timeout Settings");
+					if (object.has("latch_timeout") && !object.get("latch_timeout").isJsonNull()) {
 						builder.latchTimeout(object.get("latch_timeout").getAsInt());
 					}
 				}))
-			.thenApply(v -> builder.build());
+			.thenApply(v -> {
+				PkSystem sys = builder.build();
+				log("Logged in as system: " + sys.getName());
+				return sys;
+			});
+	}
+
+	private static void log(String message){
+		API.getInstance().getLogger().debug("[PluralKit] "+message);
 	}
 
 	public static CompletableFuture<JsonElement> queryPkAPI(String route) {
@@ -134,9 +140,7 @@ public class PkSystem {
 		return queryPkAPI("systems/@me").thenApply(JsonElement::getAsJsonObject)
 			.thenCompose(object -> {
 				if (object.has("id")) {
-					return create(object)
-						.whenComplete((pkSystem, th) ->
-							API.getInstance().getLogger().debug("Logged in as system: " + pkSystem.getName()));
+					return create(object);
 				}
 				return null;
 			});
@@ -148,7 +152,7 @@ public class PkSystem {
 	}
 
 	private Optional<Member> getProxyMember(String message) {
-		if (!API.getInstance().getApiOptions().autoproxy.get()){
+		if (!API.getInstance().getApiOptions().autoproxy.get()) {
 			return Optional.empty();
 		}
 		Optional<Member> proxy = members.stream().filter(m -> m.proxyTags.stream()
@@ -157,7 +161,7 @@ public class PkSystem {
 			case PROXY_FRONT:
 				return Optional.ofNullable(proxy.orElse(getFirstFronter()));
 			case PROXY_LATCH:
-				if ((lastLatchProxyTime - System.currentTimeMillis()) / 1000 > latchTimeout){
+				if ((lastLatchProxyTime - System.currentTimeMillis()) / 1000 > latchTimeout) {
 					lastLatchProxy = null;
 					return proxy;
 				}
@@ -279,11 +283,11 @@ public class PkSystem {
 
 		private JsonElement query(HttpUriRequest request) {
 			try {
-				API.getInstance().logDetailed("Requesting: " + request);
+				log("Requesting: " + request);
 				HttpResponse response = client.execute(request);
 
 				String responseBody = EntityUtils.toString(response.getEntity());
-				API.getInstance().logDetailed("Response: " + responseBody);
+				log("Response: " + responseBody);
 
 				remaining = Integer.parseInt(response.getFirstHeader("X-RateLimit-Remaining").getValue());
 				long resetsInMillisHeader = (Long.parseLong(response.getFirstHeader("X-RateLimit-Reset")

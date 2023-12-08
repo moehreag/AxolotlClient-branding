@@ -39,7 +39,7 @@ public class GetChannelListS2C extends ServerResponse {
 	public ByteBuf serialize() {
 		ByteBuf buf = Unpooled.buffer();
 		buf.writeInt(1);
-		buf.writeBytes("00000".getBytes(StandardCharsets.UTF_8));
+		buf.writeBytes("11111".getBytes(StandardCharsets.UTF_8));
 		return buf;
 	}
 }

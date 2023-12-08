@@ -103,7 +103,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (direction.isXAxis()) {
 				renderPotion(matrices, effect, x + lastPos + 1, y + 1);
 				lastPos += (iconsOnly.get() ? 20 : (showEffectName.get() ? 20 + client.textRenderer.getWidth(Text.translatable(effect.getTranslationKey()).append(" ")
-					.append(Util.toRoman(effect.getAmplifier()))) : 50));
+					.append(Util.toRoman(effect.getAmplifier()+1))) : 50));
 			} else {
 				renderPotion(matrices, effect, x + 1, y + 1 + lastPos);
 				lastPos += 20;

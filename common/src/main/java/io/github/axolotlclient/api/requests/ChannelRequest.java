@@ -40,7 +40,7 @@ import io.netty.buffer.ByteBuf;
 public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getById(String id) {
-		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_BY_ID, id)).handleAsync(ChannelRequest::parseChannelResponse);
+		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_BY_ID, id)).handle(ChannelRequest::parseChannelResponse);
 	}
 
 	private static Channel parseChannelResponse(ByteBuf object, Throwable t) {

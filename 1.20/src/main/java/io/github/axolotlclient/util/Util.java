@@ -86,7 +86,7 @@ public class Util {
 			game = "Playing " + sidebar.get(0);
 		}
 
-		if (!Objects.equals(lastgame, game) && game.equals(""))
+		if (!Objects.equals(lastgame, game) && game.isEmpty())
 			game = lastgame;
 		else
 			lastgame = game;
@@ -223,7 +223,7 @@ public class Util {
 
 	public static String toRoman(int number) {
 		if (number > 0) {
-			return String.join("", Collections.nCopies(number, "I")).replace("IIIII", "V").replace("IIII", "IV")
+			return "I".repeat(number).replace("IIIII", "V").replace("IIII", "IV")
 				.replace("VV", "X").replace("VIV", "IX").replace("XXXXX", "L").replace("XXXX", "XL")
 				.replace("LL", "C").replace("LXL", "XC").replace("CCCCC", "D").replace("CCCC", "CD")
 				.replace("DD", "M").replace("DCD", "CM");

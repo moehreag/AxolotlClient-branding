@@ -40,6 +40,7 @@ dependencies {
 	testImplementation compileOnly("com.google.code.gson:gson:2.2.4")
 	testRuntimeOnly compileOnly("commons-io:commons-io:2.4")
 	testRuntimeOnly compileOnly("org.apache.commons:commons-lang3:3.3.2")
+	testRuntimeOnly compileOnly("org.lwjgl:lwjgl-glfw:3.3.2")
 
 	shadow implementation("io.github.CDAGaming:DiscordIPC:0.6.5")
 	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.2")

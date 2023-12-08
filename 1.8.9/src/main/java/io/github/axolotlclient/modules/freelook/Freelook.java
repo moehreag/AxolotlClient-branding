@@ -93,6 +93,7 @@ public class Freelook extends AbstractModule {
 	private void stop() {
 		active = false;
 		client.worldRenderer.onViewChanged();
+		client.gameRenderer.updateShader(client.getCamera());
 		client.options.perspective = previousPerspective;
 	}
 

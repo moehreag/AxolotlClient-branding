@@ -517,7 +517,7 @@
 	"api.pk_proxymode": "Autoproxy Mode",
 	"api.pk_autoproxy_member": "Autoproxy Member",
 	"PROXY_FRONT": "Front",
-	"PROXY_OFF": "Off",
+	"PROXY_OFF": "OFF",
 	"PROXY_MEMBER": "Member",
 	"PROXY_LATCH": "Latch"
 }

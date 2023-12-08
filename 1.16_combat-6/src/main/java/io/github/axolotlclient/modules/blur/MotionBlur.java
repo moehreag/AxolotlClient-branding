@@ -73,15 +73,15 @@ public class MotionBlur extends AbstractModule {
 	}
 
 	public void onUpdate() {
-		if ((shader == null || MinecraftClient.getInstance().getWindow().getWidth() != lastWidth
+		if ((shader == null || MinecraftClient.getInstance().getFramebuffer().textureWidth != lastWidth
 			|| MinecraftClient.getInstance().getWindow().getHeight() != lastHeight)
-			&& MinecraftClient.getInstance().getWindow().getWidth() > 0
+			&& MinecraftClient.getInstance().getFramebuffer().textureWidth > 0
 			&& MinecraftClient.getInstance().getWindow().getHeight() > 0) {
 			currentBlur = getBlur();
 			try {
 				shader = new ShaderEffect(client.getTextureManager(), client.getResourceManager(),
 					client.getFramebuffer(), shaderLocation);
-				shader.setupDimensions(MinecraftClient.getInstance().getWindow().getWidth(),
+				shader.setupDimensions(MinecraftClient.getInstance().getFramebuffer().textureWidth,
 					MinecraftClient.getInstance().getWindow().getHeight());
 			} catch (JsonSyntaxException | IOException e) {
 				AxolotlClient.LOGGER.error("Could not load motion blur: ", e);
@@ -97,7 +97,7 @@ public class MotionBlur extends AbstractModule {
 			currentBlur = getBlur();
 		}
 
-		lastWidth = MinecraftClient.getInstance().getWindow().getWidth();
+		lastWidth = MinecraftClient.getInstance().getFramebuffer().textureWidth;
 		lastHeight = MinecraftClient.getInstance().getWindow().getHeight();
 	}
 
