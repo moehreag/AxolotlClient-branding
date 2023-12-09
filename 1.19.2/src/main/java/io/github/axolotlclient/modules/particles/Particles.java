@@ -71,8 +71,10 @@ public class Particles extends AbstractModule {
 						.map(StringUtils::capitalize).collect(Collectors.joining(" ")));
 				HashMap<String, Option<?>> optionsByKey = new LinkedHashMap<>();
 
-				populateMap(optionsByKey, new BooleanOption("showParticle", true), new IntegerOption("count", 1, 1, 20),
-					new BooleanOption("customColor", false), new ColorOption("color", ClientColors.WHITE));
+				populateMap(optionsByKey, new BooleanOption("showParticle", true),
+					new IntegerOption("count", 1, 1, 20),
+					new BooleanOption("customColor", false),
+					new ColorOption("color", "particles.color.tooltip", ClientColors.WHITE));
 
 				if (type == ParticleTypes.CRIT || type == ParticleTypes.ENCHANTED_HIT) {
 					populateMap(optionsByKey, new BooleanOption("alwaysCrit", false));

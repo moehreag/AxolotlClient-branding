@@ -70,8 +70,7 @@ public class Particles extends AbstractModule {
 			populateMap(optionsByKey, new BooleanOption("showParticle", true),
 				new IntegerOption("count", 1, 1, 20),
 				new BooleanOption("customColor", false),
-				// tooltip: "particles
-				new ColorOption("color", ClientColors.WHITE));
+				new ColorOption("color", "particles.color.tooltip", ClientColors.WHITE));
 
 			if (type == ParticleType.CRIT || type == ParticleType.CRIT_MAGIC) {
 				populateMap(optionsByKey, new BooleanOption("alwaysCrit", false));

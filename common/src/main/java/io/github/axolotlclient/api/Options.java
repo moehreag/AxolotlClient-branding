@@ -65,7 +65,7 @@ public abstract class Options implements Module {
 	public final BooleanOption autoproxy = new BooleanOption("api.pk_autoproxy", false);
 	public final EnumOption<PkSystem.ProxyMode> autoproxyMode = new EnumOption<>("api.pk_proxymode", PkSystem.ProxyMode.class, PkSystem.ProxyMode.PROXY_OFF);
 	public final StringOption autoproxyMember = new StringOption("api.pk_autoproxy_member", "", s -> {
-		if (API.getInstance().getSelf().getSystem() != null){
+		if (API.getInstance().getSelf() != null && API.getInstance().getSelf().getSystem() != null){
 			API.getInstance().getSelf().getSystem().updateAutoproxyMember(s);
 		}
 	});

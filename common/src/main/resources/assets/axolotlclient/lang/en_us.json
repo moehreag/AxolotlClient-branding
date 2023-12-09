@@ -226,8 +226,6 @@
 	"hud.clientOptions": "Client Options",
 	"hud.snapping": "Snapping",
 	"hypixel-mods": "Hypixel Mods",
-	"hypixel_api_key": "Hypixel API Key Override",
-	"hypixel_api_key.tooltip": "If you want to use your own API key, enter it here. <br>Otherwise just leave it empty! <br>Entering a key is required if social features are disabled since <br>the client's key is fetched via the same backend.",
 	"iconhud": "Icon HUD",
 	"iconsonly": "Icons only",
 	"imageSaved": "Saved!",

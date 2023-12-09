@@ -39,7 +39,7 @@ public class AutoBoop implements AbstractHypixelMod {
 	private final static AutoBoop Instance = new AutoBoop();
 
 	protected final OptionCategory cat = OptionCategory.create("autoBoop");
-	protected final BooleanOption enabled = new BooleanOption("enabled", false);
+	protected final BooleanOption enabled = new BooleanOption("enabled", "autoBoop.enabled.tooltip", false);
 
 	@Override
 	public void init() {
