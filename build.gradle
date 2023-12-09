@@ -53,7 +53,6 @@ subprojects {
 	apply plugin: "io.freefair.lombok"
 	apply plugin: 'com.modrinth.minotaur'
 	apply plugin: "dev.yumi.gradle.licenser"
-	apply plugin: 'io.github.p03w.machete'
 
 	java {
 		withSourcesJar()
