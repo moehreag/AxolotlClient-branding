@@ -1,6 +1,7 @@
 plugins {
 	id 'java'
 	id 'com.github.johnrengelman.shadow' version '8.+'
+	id 'io.github.p03w.machete' apply false
 }
 
 group = maven_group
