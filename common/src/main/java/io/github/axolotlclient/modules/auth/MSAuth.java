@@ -99,7 +99,7 @@ public class MSAuth {
 							if (response.has("refresh_token") && response.has("access_token")) {
 								data.setStatus("auth.working");
 								authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
-									response.get("refresh_token").getAsString()), whenFinished);
+									response.get("refresh_token").getAsString()), true, whenFinished);
 								data.setStatus("auth.finished");
 								break;
 							}
@@ -128,7 +128,7 @@ public class MSAuth {
 		}
 	}
 
-	public void authenticateFromMSTokens(Map.Entry<String, String> msTokens, Runnable whenFinished) {
+	public void authenticateFromMSTokens(Map.Entry<String, String> msTokens, boolean login, Runnable whenFinished) {
 		try {
 			logger.debug("getting xbl token... ");
 			String xblToken = authXbl(msTokens.getKey());
@@ -143,7 +143,9 @@ public class MSAuth {
 					accounts.getAccounts().removeAll(accounts.getAccounts().stream().filter(acc -> acc.getUuid().equals(account.getUuid())).collect(Collectors.toList()));
 				}
 				accounts.addAccount(account);
-				accounts.login(account);
+				if (login) {
+					accounts.login(account);
+				}
 				whenFinished.run();
 			} else {
 				throw new IllegalStateException("Do you actually own the game?");
@@ -235,7 +237,7 @@ public class MSAuth {
 			}
 
 			authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
-				response.get("refresh_token").getAsString()), runAfter);
+				response.get("refresh_token").getAsString()), false, runAfter);
 
 		} catch (Exception e) {
 			logger.error("Failed to refresh Auth token! ", e);

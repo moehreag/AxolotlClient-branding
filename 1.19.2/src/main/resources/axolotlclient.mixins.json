@@ -54,6 +54,7 @@
 		"ScreenshotRecorderMixin",
 		"ShaderEffectAccessor",
 		"SplashOverlayMixin",
+		"SplashTextResourceSupplierMixin",
 		"TitleScreenMixin",
 		"TntEntityRendererMixin",
 		"WorldListWidgetEntryMixin",

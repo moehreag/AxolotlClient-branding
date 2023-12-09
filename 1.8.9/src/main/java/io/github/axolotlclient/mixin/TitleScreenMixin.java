@@ -22,7 +22,11 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
@@ -42,10 +46,13 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.resource.Identifier;
+import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(TitleScreen.class)
@@ -120,6 +127,16 @@ public abstract class TitleScreenMixin extends Screen {
 				x, y, color);
 		} else {
 			instance.drawString(textRenderer, s, x, y, color);
+		}
+	}
+
+	@Inject(method = "<init>",
+		at = @At(value = "INVOKE",
+			target = "Ljava/util/List;isEmpty()Z", remap = false), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	private void axolotlclient$customSplashTexts(CallbackInfo ci, BufferedReader bufferedReader, List<String> list) throws IOException {
+		try (InputStream input = Minecraft.getInstance().getResourceManager()
+			.getResource(new Identifier("axolotlclient", "texts/splashes.txt")).asStream()) {
+			list.addAll(IOUtils.readLines(input));
 		}
 	}
 }

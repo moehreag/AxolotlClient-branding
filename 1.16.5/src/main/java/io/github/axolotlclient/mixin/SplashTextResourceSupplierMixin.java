@@ -22,8 +22,9 @@
 
 package io.github.axolotlclient.mixin;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import net.minecraft.client.MinecraftClient;
@@ -31,6 +32,7 @@ import net.minecraft.client.resource.SplashTextResourceSupplier;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
+import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,9 +46,8 @@ public class SplashTextResourceSupplierMixin {
 
 	@Inject(method = "apply(Ljava/util/List;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At("HEAD"))
 	private void axolotlclient$addCustomSplashes(List<String> list, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
-		try (BufferedReader reader = MinecraftClient.getInstance().getResourceManager().openAsReader(EXTRA_SPLASHES)) {
-			list.addAll(reader.lines().toList());
-
+		try (InputStream reader = MinecraftClient.getInstance().getResourceManager().getResource(EXTRA_SPLASHES).getInputStream()) {
+			list.addAll(IOUtils.readLines(reader, StandardCharsets.UTF_8));
 		} catch (IOException ignored) {
 		}
 	}

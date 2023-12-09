@@ -1,7 +1,6 @@
 plugins {
 	id 'org.quiltmc.loom'
 	id 'ploceus'
-	id 'io.github.p03w.machete'
 }
 
 group = maven_group
