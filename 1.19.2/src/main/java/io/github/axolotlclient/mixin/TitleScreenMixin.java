@@ -78,7 +78,7 @@ public abstract class TitleScreenMixin extends Screen {
 				Text.translatable("api.new_version_available"), widget ->
 				MinecraftClient.getInstance().setScreen(new ConfirmChatLinkScreen(r -> {
 					if (r) {
-						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 					}
 				}, "https://modrinth.com/mod/axolotlclient/versions", true))));
 		}

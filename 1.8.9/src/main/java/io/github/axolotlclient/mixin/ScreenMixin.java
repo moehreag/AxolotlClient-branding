@@ -24,7 +24,6 @@ package io.github.axolotlclient.mixin;
 
 import java.net.URI;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.screenshotUtils.ScreenshotUtils;
 import io.github.axolotlclient.modules.scrollableTooltips.ScrollableTooltips;
@@ -72,7 +71,7 @@ public abstract class ScreenMixin {
 
 	@Inject(method = "openLink", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$openLink(URI link, CallbackInfo ci) {
-		OSUtil.getOS().open(link, AxolotlClient.LOGGER);
+		OSUtil.getOS().open(link);
 		ci.cancel();
 	}
 

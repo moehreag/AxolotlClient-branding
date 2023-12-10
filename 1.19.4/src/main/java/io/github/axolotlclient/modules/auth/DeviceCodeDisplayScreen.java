@@ -25,7 +25,6 @@ package io.github.axolotlclient.modules.auth;
 import java.net.URI;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -66,7 +65,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 		addDrawableChild(ButtonWidget.builder(Text.translatable("auth.copy_and_open"),
 			buttonWidget -> {
 				client.keyboard.setClipboard(userCode);
-				OSUtil.getOS().open(URI.create(verificationUri), AxolotlClient.LOGGER);
+				OSUtil.getOS().open(URI.create(verificationUri));
 			}).positionAndSize(width / 2 - 100, height / 2, 200, 20).build());
 	}
 

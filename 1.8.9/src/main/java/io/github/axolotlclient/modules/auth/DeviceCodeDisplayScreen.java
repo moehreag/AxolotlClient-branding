@@ -25,7 +25,6 @@ package io.github.axolotlclient.modules.auth;
 import java.net.URI;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -93,7 +92,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 1) {
 			setClipboard(userCode);
-			OSUtil.getOS().open(URI.create(verificationUri), AxolotlClient.LOGGER);
+			OSUtil.getOS().open(URI.create(verificationUri));
 		}
 	}
 }

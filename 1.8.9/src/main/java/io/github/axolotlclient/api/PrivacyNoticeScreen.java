@@ -26,7 +26,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.function.Consumer;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -90,7 +89,7 @@ public class PrivacyNoticeScreen extends Screen {
 			APIOptions.getInstance().privacyAccepted.set("accepted");
 			accepted.accept(true);
 		} else if (buttonWidget.id == 2) {
-			OSUtil.getOS().open(PRIVACY_POLICY_URL, AxolotlClient.LOGGER);
+			OSUtil.getOS().open(PRIVACY_POLICY_URL);
 		}
 	}
 

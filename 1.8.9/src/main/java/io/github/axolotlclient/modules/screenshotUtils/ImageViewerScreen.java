@@ -157,7 +157,7 @@ public class ImageViewerScreen extends Screen {
 				AxolotlClient.LOGGER.info("Copied image " + imageName + " to the clipboard!");
 				break;
 			case 28:
-				OSUtil.getOS().open(aboutPage, AxolotlClient.LOGGER);
+				OSUtil.getOS().open(aboutPage);
 				break;
 		}
 	}

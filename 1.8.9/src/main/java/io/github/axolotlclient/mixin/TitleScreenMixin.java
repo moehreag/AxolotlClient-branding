@@ -111,7 +111,7 @@ public abstract class TitleScreenMixin extends Screen {
 		else if (button.id == 182)
 			Minecraft.getInstance().openScreen(new ConfirmChatLinkScreen((bl, i) -> {
 				if (bl && i == 353) {
-					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 				}
 				Minecraft.getInstance().openScreen(this);
 			}, "https://modrinth.com/mod/axolotlclient/versions", 353, true));

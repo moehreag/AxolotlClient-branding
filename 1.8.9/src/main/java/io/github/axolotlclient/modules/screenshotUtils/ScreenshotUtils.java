@@ -86,7 +86,7 @@ public class ScreenshotUtils extends AbstractModule {
 		actions.add(new Action("openAction",
 			Formatting.WHITE,
 			"open_image",
-			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toURI(), AxolotlClient.LOGGER))
+			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toURI()))
 		));
 
 		actions.add(new Action("uploadAction", Formatting.LIGHT_PURPLE,

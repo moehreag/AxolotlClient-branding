@@ -25,7 +25,6 @@ package io.github.axolotlclient.api;
 import java.net.URI;
 import java.util.function.Consumer;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.screen.Screen;
@@ -85,7 +84,7 @@ public class PrivacyNoticeScreen extends Screen {
 			accepted.accept(false);
 		}).positionAndSize(width / 2 + 55, y, 100, 20).build());
 		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.openPolicy"), buttonWidget -> {
-			OSUtil.getOS().open(PRIVACY_POLICY_URL, AxolotlClient.LOGGER);
+			OSUtil.getOS().open(PRIVACY_POLICY_URL);
 		}).positionAndSize(width / 2 - 155, y, 100, 20).build());
 	}
 

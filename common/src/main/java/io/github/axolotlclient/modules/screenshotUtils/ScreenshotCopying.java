@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.github.axolotlclient.AxolotlClientCommon;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 import org.lwjgl.glfw.GLFW;
@@ -61,6 +62,7 @@ public class ScreenshotCopying {
 			Process p = builder.start();
 			p.waitFor();
 		} catch (IOException | InterruptedException ignored) {
+			AxolotlClientCommon.getInstance().getLogger().error("Failed to invoke 'wl-copy'!\nMake sure 'wl-clipboard' is installed and accessible!");
 		}
 	}
 
