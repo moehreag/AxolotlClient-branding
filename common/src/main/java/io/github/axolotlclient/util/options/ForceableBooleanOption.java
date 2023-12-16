@@ -38,6 +38,11 @@ public class ForceableBooleanOption extends BooleanOption {
 		super(name, defaultValue, changeListener);
 	}
 
+	@Override
+	public Boolean get() {
+		return !isForceOff() && super.get();
+	}
+
 	public void setForceOff(boolean value, String reason) {
 		this.forceOff = value;
 		this.reason = reason;

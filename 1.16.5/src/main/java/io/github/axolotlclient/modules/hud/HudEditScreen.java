@@ -118,7 +118,7 @@ public class HudEditScreen extends Screen {
 
 		this.addButton(new ButtonWidget(width / 2 - 75, height / 2 - 10, 150, 20, new TranslatableText("hud.clientOptions"),
 			buttonWidget -> {
-				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager, AxolotlClient.configManager.getRoot());
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager.getRoot());
 				MinecraftClient.getInstance().openScreen(screen);
 			}));
 
@@ -148,7 +148,7 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(hudEntry -> {
-				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager, hudEntry.getOptionsAsCategory());
+				Screen screen = ConfigStyles.createScreen(this, hudEntry.getOptionsAsCategory());
 				MinecraftClient.getInstance().openScreen(screen);
 			});
 		}
