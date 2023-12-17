@@ -62,7 +62,7 @@ public class FeatureDisabler {
 	public static void init() {
 		setServers(AxolotlClient.CONFIG.fullBright, NONE, "gommehd");
 		setServers(AxolotlClient.CONFIG.lowFire, NONE, "gommehd");
-		setServers(Freelook.getInstance().enabled, () -> Freelook.getInstance().needsDisabling(), "hypixel", "mineplex", "gommehd", "nucleoid");
+		setServers(Freelook.getInstance().enabled, () -> Freelook.getInstance().needsDisabling(), "hypixel", "mineplex", "gommehd", "nucleoid", "mccisland");
 		setServers(((ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID)).toggleSneak, NONE, "hypixel");
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
