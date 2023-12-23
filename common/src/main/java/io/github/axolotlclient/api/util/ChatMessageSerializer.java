@@ -23,7 +23,6 @@
 package io.github.axolotlclient.api.util;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.api.types.User;
@@ -37,10 +36,8 @@ public class ChatMessageSerializer implements Serializer<ChatMessage> {
 		buf.writeCharSequence(message.getSender().getUuid(), StandardCharsets.UTF_8);
 		buf.writeLong(message.getTimestamp());
 		buf.writeByte(message.getType().getValue());
-		buf.writeInt(message.getSenderDisplayName().length());
-		buf.writeCharSequence(message.getSenderDisplayName(), StandardCharsets.UTF_8);
-		buf.writeInt(message.getContent().length());
-		buf.writeCharSequence(message.getContent(), StandardCharsets.UTF_8);
+		BufferUtil.writeString(buf, message.getSenderDisplayName(), true);
+		BufferUtil.writeString(buf, message.getContent(), true);
 		return buf;
 	}
 

@@ -1,6 +1,4 @@
 plugins {
-	id 'java'
-	id 'maven-publish'
 	id "io.freefair.lombok" version '8.0.1' apply false
 	id 'com.modrinth.minotaur' version '2.+' apply false
 	id "dev.yumi.gradle.licenser" version "1.0.+"
@@ -9,7 +7,6 @@ plugins {
 	id 'ploceus' version "1.4.+" apply false
 }
 
-base.archivesName = project.archives_base_name
 version = "${project.version}"
 group = project.maven_group
 
@@ -68,14 +65,6 @@ subprojects {
 		rule file('../HEADER')
 		include '**/*.java'
 	}
-}
-
-build {
-	tasks.jar.enabled = false
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = 'UTF-8'
 }
 
 

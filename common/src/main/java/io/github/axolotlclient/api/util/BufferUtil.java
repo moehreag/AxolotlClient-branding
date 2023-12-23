@@ -44,6 +44,14 @@ public class BufferUtil {
 		return buffer.getCharSequence(index, byteLength, StandardCharsets.UTF_8).toString();
 	}
 
+	public void writeString(ByteBuf buf, String s, boolean prefixLength){
+		byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+		if (prefixLength) {
+			buf.writeInt(bytes.length);
+		}
+		buf.writeBytes(bytes);
+	}
+
 	public String padString(String s, int length) {
 		return Strings.padEnd(s, length, Character.MIN_VALUE).substring(0, length);
 	}
@@ -101,6 +109,7 @@ public class BufferUtil {
 			buf.writeCharSequence((CharSequence) o, StandardCharsets.UTF_8);
 			return buf;
 		} else if (c.isArray()) {
+			buf.writeInt(Array.getLength(o));
 			for (int i = 0; i < Array.getLength(o); i++) {
 				buf.writeBytes(wrap(Array.get(o, i)));
 			}
@@ -128,14 +137,22 @@ public class BufferUtil {
 				int l = getPrimitiveByteLength(cl);
 				if (l != 0) {
 					buf.writeBytes(getPrimitiveBytes(obj, l));
-				} else if (obj instanceof String) {
+				} else if (obj instanceof CharSequence) {
 					if (f.isAnnotationPresent(Serializer.Length.class)) {
 						Serializer.Length s = f.getAnnotation(Serializer.Length.class);
 						int stringLength = s.value();
 						if (stringLength > 0) {
-							buf.writeCharSequence(padString((String) obj, stringLength), StandardCharsets.UTF_8);
+							if(s.usesIndex()){
+								buf.writeInt(stringLength);
+							}
+							buf.writeCharSequence(padString(((CharSequence) obj).toString(), stringLength), StandardCharsets.UTF_8);
 						} else {
-							buf.writeCharSequence((CharSequence) obj, StandardCharsets.UTF_8);
+							CharSequence seq = (CharSequence) obj;
+							byte[] bytes = seq.toString().getBytes(StandardCharsets.UTF_8);
+							if(s.usesIndex()){
+								buf.writeInt(bytes.length);
+							}
+							buf.writeBytes(bytes);
 							break;
 						}
 					} else {
