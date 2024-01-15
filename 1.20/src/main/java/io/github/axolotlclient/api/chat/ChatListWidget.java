@@ -38,9 +38,8 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 	protected final Screen screen;
 
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
-		super(MinecraftClient.getInstance(), screenWidth, screenHeight, y, y + height, 25);
-		left = x;
-		right = x + width;
+		super(MinecraftClient.getInstance(), y, width, height, 25);
+		setX(x);
 		this.screen = screen;
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
 			list.stream().filter(filter).forEach(c -> addEntryToTop(new ChatListEntry(c)))

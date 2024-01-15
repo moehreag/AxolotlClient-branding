@@ -39,6 +39,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.scoreboard.*;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.ChatUtil;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -111,9 +112,9 @@ public class Util {
 		if (sidebar == null)
 			return lines;
 
-		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(sidebar);
-		List<ScoreboardPlayerScore> list = scores.stream().filter(
-				input -> input != null && input.getPlayerName() != null && !input.getPlayerName().startsWith("#"))
+		Collection<C_lfemghur> scores = scoreboard.method_1184(sidebar);
+		List<C_lfemghur> list = scores.stream().filter(
+				input -> input != null && input.owner() != null && !input.method_55385())
 			.collect(Collectors.toList());
 
 		if (list.size() > 15) {
@@ -122,12 +123,12 @@ public class Util {
 			scores = list;
 		}
 
-		for (ScoreboardPlayerScore score : scores) {
-			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
+		for (C_lfemghur score : scores) {
+			Team team = scoreboard.getPlayerTeam(score.owner());
 			if (team == null)
 				return lines;
 			String text = team.getPrefix().getString() + team.getSuffix().getString();
-			if (text.trim().length() > 0)
+			if (!text.trim().isEmpty())
 				lines.add(text);
 		}
 

@@ -45,7 +45,7 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 	private final FriendsScreen screen;
 
 	public UserListWidget(FriendsScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
-		super(client, width, height, top, bottom, entryHeight);
+		super(client, top, width, bottom-top, entryHeight);
 		this.screen = screen;
 	}
 

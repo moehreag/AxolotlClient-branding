@@ -11,6 +11,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 loom {
+	accessWidenerPath.set(file("src/main/resources/axolotlclient.accesswidener"))
 	mods {
 		"axolotlclient" {
 			sourceSet("main")
@@ -27,7 +28,7 @@ dependencies {
 
 	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
 
-	modImplementation("org.quiltmc.qsl.core:networking:${project.qsl_120}+${project.minecraft_120}-SNAPSHOT")
+	modImplementation("org.quiltmc.qsl.core:networking:${project.qsl_120}+${project.minecraft_120}")
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_120}") {
 		exclude group: "com.terraformersmc"

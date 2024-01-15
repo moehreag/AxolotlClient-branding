@@ -73,10 +73,10 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		if (effects.isEmpty()) {
 			return;
 		}
-		renderEffects(graphics, effects);
+		renderEffects(graphics, effects, delta);
 	}
 
-	private void renderEffects(GuiGraphics graphics, List<StatusEffectInstance> effects) {
+	private void renderEffects(GuiGraphics graphics, List<StatusEffectInstance> effects, float tickDelta) {
 		int calcWidth = calculateWidth(effects);
 		int calcHeight = calculateHeight(effects);
 		boolean changed = false;
@@ -100,11 +100,11 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		for (int i = 0; i < effects.size(); i++) {
 			StatusEffectInstance effect = effects.get(direction.getDirection() == -1 ? i : effects.size() - i - 1);
 			if (direction.isXAxis()) {
-				renderPotion(graphics, effect, x + lastPos + 1, y + 1);
+				renderPotion(graphics, effect, x + lastPos + 1, y + 1, tickDelta);
 				lastPos += (iconsOnly.get() ? 20 : (showEffectName.get() ? 20 + client.textRenderer.getWidth(Text.translatable(effect.getTranslationKey()).append(" ")
 					.append(Util.toRoman(effect.getAmplifier()+1))) : 50));
 			} else {
-				renderPotion(graphics, effect, x + 1, y + 1 + lastPos);
+				renderPotion(graphics, effect, x + 1, y + 1 + lastPos, tickDelta);
 				lastPos += 20;
 			}
 		}
@@ -142,7 +142,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		}
 	}
 
-	private void renderPotion(GuiGraphics graphics, StatusEffectInstance effect, int x, int y) {
+	private void renderPotion(GuiGraphics graphics, StatusEffectInstance effect, int x, int y, float tickDelta) {
 		StatusEffect type = effect.getEffectType();
 		Sprite sprite = client.getStatusEffectSpriteManager().getSprite(type);
 
@@ -154,10 +154,10 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()));
 
 				graphics.drawText(client.textRenderer, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
-				Text duration = StatusEffectUtil.durationToString(effect, 1);
+				Text duration = StatusEffectUtil.durationToString(effect, 1, tickDelta);
 				graphics.drawText(client.textRenderer, duration, x + 19, y + 1 + 10, 8355711, shadow.get());
 			} else {
-				graphics.drawText(client.textRenderer, StatusEffectUtil.durationToString(effect, 1), x + 19, y + 5,
+				graphics.drawText(client.textRenderer, StatusEffectUtil.durationToString(effect, 1, tickDelta), x + 19, y + 5,
 					textColor.get().toInt(), shadow.get());
 			}
 		}
@@ -168,7 +168,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		StatusEffectInstance effect = new StatusEffectInstance(StatusEffects.SPEED, 9999);
 		StatusEffectInstance jump = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 99999);
 		StatusEffectInstance haste = new StatusEffectInstance(StatusEffects.HASTE, -1);
-		renderEffects(graphics, List.of(effect, jump, haste));
+		renderEffects(graphics, List.of(effect, jump, haste), delta);
 	}
 
 	@Override

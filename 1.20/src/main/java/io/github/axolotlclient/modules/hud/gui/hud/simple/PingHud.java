@@ -113,7 +113,7 @@ public class PingHud extends SimpleTextHudEntry {
 						}
 
 						@Override
-						public void method_12666(QueryPongS2CPacket packet) {
+						public void onQueryPong(QueryPongS2CPacket packet) {
 							var time = this.currentSystemTime;
 							var latency = net.minecraft.util.Util.getMeasuringTimeMs();
 							currentServerPing = (int) (latency - time);

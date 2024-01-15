@@ -36,11 +36,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.scoreboard.*;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 
@@ -366,17 +364,17 @@ public class BedwarsGame {
 
 	public void onScoreboardRender(ScoreboardRenderEvent event) {
 		Scoreboard scoreboard = event.getObjective().getScoreboard();
-		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(event.getObjective());
-		List<ScoreboardPlayerScore> filteredScores = scores.stream()
-			.filter(p_apply_1_ -> p_apply_1_.getPlayerName() != null && !p_apply_1_.getPlayerName().startsWith("#"))
+		Collection<C_lfemghur> scores = scoreboard.method_1184(event.getObjective());
+		List<C_lfemghur> filteredScores = scores.stream()
+			.filter(p_apply_1_ -> p_apply_1_.owner() != null && !p_apply_1_.method_55385())
 			.collect(Collectors.toList());
 		Collections.reverse(filteredScores);
 		if (filteredScores.size() < 3) {
 			return;
 		}
-		ScoreboardPlayerScore score = filteredScores.get(2);
-		Team team = scoreboard.getPlayerTeam(score.getPlayerName());
-		String timer = Team.decorateName(team, Text.literal(score.getPlayerName())).getString();
+		C_lfemghur score = filteredScores.get(2);
+		Team team = scoreboard.getPlayerTeam(score.owner());
+		String timer = Team.decorateName(team, Text.literal(score.owner())).getString();
 		if (!timer.contains(":")) {
 			return;
 		}
@@ -460,7 +458,7 @@ public class BedwarsGame {
 			render = String.format("%.1f", secondsTillLive) + "s";
 			color = new Color(200, 200, 200).toInt();
 		} else {
-			int health = objective.getScoreboard().getPlayerScore(playerName, objective).getScore();
+			int health = objective.getScoreboard().method_1180(ScoreHolder.of(playerName), objective).method_55409();
 			color = ClientColors.blend(new Color(255, 255, 255), new Color(215, 0, 64), (int) (1 - (health / 20f))).toInt();
 			render = String.valueOf(health);
 		}

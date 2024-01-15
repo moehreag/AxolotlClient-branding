@@ -56,7 +56,7 @@ public class ReachHud extends SimpleTextHudEntry {
 	private long lastTime = 0;
 
 	public static double getAttackDistance(Entity attacking, Entity receiving) {
-		Vec3d camera = attacking.getCameraPosVec(1);
+		Vec3d camera = attacking.getEyePos();
 		Vec3d rotation = attacking.getRotationVec(1);
 
 		Vec3d maxPos = receiving.getPos();

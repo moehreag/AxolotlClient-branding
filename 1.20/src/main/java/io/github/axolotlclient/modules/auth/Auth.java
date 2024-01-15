@@ -25,8 +25,6 @@ package io.github.axolotlclient.modules.auth;
 import java.nio.file.Path;
 import java.util.*;
 
-import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.exceptions.InvalidCredentialsException;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.util.UndashedUuid;
@@ -44,8 +42,8 @@ import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.multiplayer.report.ReportEnvironment;
-import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
+import net.minecraft.client.multiplayer.report.AbuseReportContext;
+import net.minecraft.client.multiplayer.report.AbuseReportEnvironment;
 import net.minecraft.client.network.SocialInteractionsManager;
 import net.minecraft.client.texture.PlayerSkin;
 import net.minecraft.client.util.DefaultSkinHelper;
@@ -116,12 +114,11 @@ public class Auth extends Accounts implements Module {
 				((MinecraftClientAccessor) client).axolotlclient$setUserApiService(service);
 				((MinecraftClientAccessor) client).axolotlclient$setSocialInteractionsManager(new SocialInteractionsManager(client, service));
 				((MinecraftClientAccessor) client).axolotlclient$setPlayerKeyPairManager(PlayerKeyPairManager.create(service, client.getSession(), client.runDirectory.toPath()));
-				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(ChatReportingContext.create(ReportEnvironment.createLocal(), service));
+				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(AbuseReportContext.create(AbuseReportEnvironment.createLocal(), service));
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.successful", (Object) current.getName()));
-			} catch (AuthenticationException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.failed"));
 			}
 		};

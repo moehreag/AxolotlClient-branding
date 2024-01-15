@@ -215,7 +215,7 @@ public class CreditsScreen extends Screen {
 
 		public CreditsList(MinecraftClient minecraftClient, int width, int height, int top, int bottom,
 						   int entryHeight) {
-			super(minecraftClient, width, height, top, bottom, entryHeight);
+			super(minecraftClient, top, width, bottom-top, entryHeight);
 
 			this.setRenderBackground(false);
 			this.setRenderHeader(false, 0);
@@ -226,7 +226,7 @@ public class CreditsScreen extends Screen {
 		}
 
 		@Override
-		public void appendNarrations(NarrationMessageBuilder builder) {
+		public void updateNarration(NarrationMessageBuilder builder) {
 			builder.put(NarrationPart.TITLE, "credits");
 			super.appendNarrations(builder);
 			if (creditOverlay != null) {
@@ -241,7 +241,7 @@ public class CreditsScreen extends Screen {
 
 		@Override
 		protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-			Util.applyScissor(0, top, this.width, bottom - top);
+			Util.applyScissor(0, getY(), this.width, getHeight());
 			super.renderList(graphics, mouseX, mouseY, delta);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}

@@ -57,10 +57,10 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
-		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);
+		super(MinecraftClient.getInstance(), y, width, height, 13);
 		this.channel = channel;
 		this.client = MinecraftClient.getInstance();
-		setLeftPos(x + 5);
+		setX(x + 5);
 
 		setRenderHeader(false, 0);
 		this.screen = screen;
@@ -139,8 +139,8 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	protected void drawEntrySelectionHighlight(GuiGraphics graphics, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
-		int i = this.left + (this.width - entryWidth) / 2;
-		int j = this.left + (this.width + entryWidth) / 2;
+		int i = this.getX() + (this.width - entryWidth) / 2;
+		int j = this.getX() + (this.width + entryWidth) / 2;
 		graphics.fill(i, y - 2, j, y + entryHeight, borderColor);
 		graphics.fill(i + 1, y - 1, j - 1, y + entryHeight - 1, fillColor);
 	}

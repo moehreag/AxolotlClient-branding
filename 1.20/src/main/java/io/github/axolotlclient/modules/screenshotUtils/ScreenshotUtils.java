@@ -158,7 +158,7 @@ public class ScreenshotUtils extends AbstractModule {
 		private File file;
 
 		public CustomClickEvent(OnActionCall action) {
-			super(Action.byName(""), "");
+			super(Action.OPEN_FILE, "");
 			this.action = action;
 		}
 
@@ -170,6 +170,8 @@ public class ScreenshotUtils extends AbstractModule {
 					+ "Now there's a screenshot ClickEvent without a File attached to it!");
 			}
 		}
+
+
 
 		public CustomClickEvent setFile(File file) {
 			this.file = file;
