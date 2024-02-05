@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 import io.github.axolotlclient.api.requests.ServerRequest;
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

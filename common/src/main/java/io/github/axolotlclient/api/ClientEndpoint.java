@@ -22,94 +22,27 @@
 
 package io.github.axolotlclient.api;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import lombok.NonNull;
+import jakarta.websocket.*;
 
+@jakarta.websocket.ClientEndpoint
 public class ClientEndpoint {
 
-	private static EventLoopGroup group;
-
-	public static void shutdown() {
-		if (group != null && !group.isTerminated()) {
-			group.shutdownGracefully();
-			group = null;
-		}
-	}
-
-	public void run(String url, int port) {
-		boolean epollAvailable = Epoll.isAvailable();
-		group = epollAvailable ?
-			new EpollEventLoopGroup(3,
-				new ThreadFactoryBuilder().setNameFormat("AxolotlClient Netty Epoll Client IO #%d").setDaemon(true).build()) :
-			new NioEventLoopGroup(3,
-				new ThreadFactoryBuilder().setNameFormat("AxolotlClient Netty Client IO #%d").setDaemon(true).build());
-
-		try {
-			Bootstrap b = new Bootstrap();
-			b.option(ChannelOption.SO_KEEPALIVE, true);
-			b.group(group).channel(epollAvailable ? EpollSocketChannel.class : NioSocketChannel.class)
-				.handler(new ChannelInitializer<SocketChannel>() {
-					@Override
-					protected void initChannel(@NonNull SocketChannel ch) {
-						ch.pipeline().addLast("handler", new SimpleChannelInboundHandler<ByteBuf>() {
-							@Override
-							public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
-								onMessage(msg);
-							}
-
-							@Override
-							public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-								onError(cause);
-							}
-						});
-					}
-
-					@Override
-					public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-						onError(cause);
-					}
-
-					@Override
-					public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-						super.channelInactive(ctx);
-						if (!ctx.channel().isOpen()){
-							onClose();
-						}
-					}
-				});
-			ChannelFuture f = b.connect(url, port).sync();
-
-			if (f.isSuccess()) {
-				Channel channel = f.channel();
-				onOpen(channel);
-			}
-
-		} catch (Throwable e) {
-			onError(e);
-		}
-	}
-
-	public void onMessage(ByteBuf message) {
+	@OnMessage
+	public void onMessage(String message) {
 		API.getInstance().onMessage(message);
 	}
 
-	public void onOpen(Channel channel) {
+	@OnOpen
+	public void onOpen(Session channel) {
 		API.getInstance().onOpen(channel);
 	}
 
+	@OnError
 	public void onError(Throwable throwable) {
 		API.getInstance().onError(throwable);
 	}
 
+	@OnClose
 	public void onClose() {
 		API.getInstance().onClose();
 	}

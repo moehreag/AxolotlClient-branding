@@ -29,11 +29,10 @@ import java.util.function.Consumer;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.api.types.User;
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.github.axolotlclient.api.util.RequestHandler;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -57,7 +56,7 @@ public class ChatHandler implements RequestHandler {
 
 	@Override
 	public boolean isApplicable(int packetType) {
-		return packetType == Request.Type.SEND_MESSAGE.getType();
+		return packetType == RequestOld.Type.SEND_MESSAGE.getType();
 	}
 
 	@Override
@@ -74,20 +73,20 @@ public class ChatHandler implements RequestHandler {
 	public void sendMessage(Channel channel, String message) {
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
 		if (API.getInstance().getSelf().isSystem()){
-			displayName += (" §r§o§7("+API.getInstance() // gray + italic
+			displayName += (" §r§o§7("+ API.getInstance() // gray + italic
 				.getSelf().getSystem().getName()+
-				"/"+API.getInstance().getSelf().getName()+")§r");
+				"/"+ API.getInstance().getSelf().getName()+")§r");
 		}
-		API.getInstance().send(new Request(Request.Type.SEND_MESSAGE,
-			new Request.Data(channel.getId()).add(
+		API.getInstance().send(new RequestOld(RequestOld.Type.SEND_MESSAGE,
+			new RequestOld.Data(channel.getId()).add(
 				Instant.now().getEpochSecond()).add(displayName.length()).add(displayName)
 				.add(message.length()).add(message)));
 		messageConsumer.accept(new ChatMessage(API.getInstance().getSelf(), displayName, message, Instant.now().getEpochSecond()));
 	}
 
 	public void getMessagesBefore(Channel channel, long getBefore) {
-		API.getInstance().send(new Request(Request.Type.GET_MESSAGES,
-			new Request.Data(channel.getId()).add(25).add(getBefore).add(0x00))).whenCompleteAsync(this::handleMessages);
+		API.getInstance().send(new RequestOld(RequestOld.Type.GET_MESSAGES,
+			new RequestOld.Data(channel.getId()).add(25).add(getBefore).add(0x00))).whenCompleteAsync(this::handleMessages);
 	}
 
 	private void handleMessages(ByteBuf object, Throwable t) {
@@ -112,19 +111,19 @@ public class ChatHandler implements RequestHandler {
 	}
 
 	public void getMessagesAfter(Channel channel, long getAfter) {
-		API.getInstance().send(new Request(Request.Type.GET_MESSAGES,
-			new Request.Data(channel.getId()).add(25).add(getAfter).add(0x01))).whenCompleteAsync(this::handleMessages);
+		API.getInstance().send(new RequestOld(RequestOld.Type.GET_MESSAGES,
+			new RequestOld.Data(channel.getId()).add(25).add(getAfter).add(0x01))).whenCompleteAsync(this::handleMessages);
 	}
 
 	public void reportMessage(ChatMessage message) {
-		API.getInstance().send(new Request(Request.Type.REPORT_MESSAGE,
-			new Request.Data(message.getSender().getUuid()).add(message.getTimestamp())
+		API.getInstance().send(new RequestOld(RequestOld.Type.REPORT_MESSAGE,
+			new RequestOld.Data(message.getSender().getUuid()).add(message.getTimestamp())
 				.add(message.getSenderDisplayName().length()).add(message.getSenderDisplayName())
 				.add(message.getContent().length()).add(message.getContent())));
 	}
 
 	public void reportUser(User user) {
-		API.getInstance().send(new Request(Request.Type.REPORT_USER, user.getUuid()));
+		API.getInstance().send(new RequestOld(RequestOld.Type.REPORT_USER, user.getUuid()));
 	}
 
 	public interface NotificationsEnabler {

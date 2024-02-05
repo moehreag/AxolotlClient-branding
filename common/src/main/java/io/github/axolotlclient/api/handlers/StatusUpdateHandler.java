@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.requests.StatusUpdate;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.RequestHandler;
@@ -36,7 +36,7 @@ import io.netty.buffer.ByteBuf;
 public class StatusUpdateHandler implements RequestHandler {
 	@Override
 	public boolean isApplicable(int packetType) {
-		return packetType == Request.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();
+		return packetType == RequestOld.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();
 	}
 
 	@Override

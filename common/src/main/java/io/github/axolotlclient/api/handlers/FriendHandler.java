@@ -31,11 +31,10 @@ import java.util.concurrent.CompletableFuture;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
 import io.github.axolotlclient.api.Keyword;
-import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.BiContainer;
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.github.axolotlclient.api.util.RequestHandler;
 import io.github.axolotlclient.api.util.UUIDHelper;
 import lombok.Getter;
@@ -51,7 +50,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void addFriend(String uuid) {
-		api.send(new Request(Request.Type.CREATE_FRIEND_REQUEST, uuid)).whenCompleteAsync((object, t) -> {
+		api.send(new RequestOld(RequestOld.Type.CREATE_FRIEND_REQUEST, uuid)).whenCompleteAsync((object, t) -> {
 			if (t == null) {
 				api.getNotificationProvider()
 					.addStatus("api.success.requestSent", "api.success.requestSent.desc", UUIDHelper.getUsername(uuid));
@@ -62,7 +61,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void removeFriend(User user) {
-		api.send(new Request(Request.Type.REMOVE_FRIEND, API.getInstance().sanitizeUUID(user.getUuid()))).whenCompleteAsync((object, t) -> {
+		api.send(new RequestOld(RequestOld.Type.REMOVE_FRIEND, API.getInstance().sanitizeUUID(user.getUuid()))).whenCompleteAsync((object, t) -> {
 			if (t == null) {
 				APIError.display(object);
 			} else {
@@ -72,7 +71,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void blockUser(String uuid) {
-		api.send(new Request(Request.Type.BLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
+		api.send(new RequestOld(RequestOld.Type.BLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
 			APIError.displayOrElse(throwable, buf, b -> {
 				if (b.getBoolean(0x09)) {
 					api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", UUIDHelper.getUsername(uuid));
@@ -82,7 +81,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void unblockUser(String uuid) {
-		api.send(new Request(Request.Type.UNBLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
+		api.send(new RequestOld(RequestOld.Type.UNBLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
 			APIError.displayOrElse(throwable, buf, b -> {
 				if (b.getBoolean(0x09)) {
 					api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", UUIDHelper.getUsername(uuid));
@@ -92,7 +91,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public CompletableFuture<List<User>> getFriends() {
-		return api.send(new Request(Request.Type.FRIENDS_LIST)).handleAsync((object, t) -> {
+		return api.send(new RequestOld(RequestOld.Type.FRIENDS_LIST)).handleAsync((object, t) -> {
 			if (t != null) {
 				APIError.display(object);
 				return Collections.emptyList();
@@ -107,7 +106,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public CompletableFuture<User> getFriendInfo(String uuid) {
-		return api.send(new Request(Request.Type.GET_FRIEND, uuid)).thenApply(buf -> {
+		return api.send(new RequestOld(RequestOld.Type.GET_FRIEND, uuid)).thenApply(buf -> {
 
 			Instant startTime = Instant.ofEpochSecond(buf.getLong(0x09));
 
@@ -120,7 +119,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public CompletableFuture<BiContainer<List<User>, List<User>>> getFriendRequests() {
-		return api.send(new Request(Request.Type.GET_FRIEND_REQUESTS)).handleAsync((object, th) -> {
+		return api.send(new RequestOld(RequestOld.Type.GET_FRIEND_REQUESTS)).handleAsync((object, th) -> {
 			if (th != null) {
 				APIError.display(th);
 			} else {
@@ -145,7 +144,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public CompletableFuture<List<User>> getBlocked() {
-		return api.send(new Request(Request.Type.GET_BLOCKED)).handleAsync((buf, th) -> {
+		return api.send(new RequestOld(RequestOld.Type.GET_BLOCKED)).handleAsync((buf, th) -> {
 			int count = buf.getInt(0x09);
 
 			List<User> users = new ArrayList<>();
@@ -161,7 +160,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void acceptFriendRequest(User from) {
-		api.send(new Request(Request.Type.FRIEND_REQUEST_REACTION, new Request.Data(from.getUuid()).add((byte) 1)))
+		api.send(new RequestOld(RequestOld.Type.FRIEND_REQUEST_REACTION, new RequestOld.Data(from.getUuid()).add((byte) 1)))
 			.whenCompleteAsync((object, t) -> {
 				if (t != null) {
 					APIError.display(t);
@@ -172,7 +171,7 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void denyFriendRequest(User from) {
-		api.send(new Request(Request.Type.FRIEND_REQUEST_REACTION, new Request.Data(from.getUuid()).add((byte) 0)))
+		api.send(new RequestOld(RequestOld.Type.FRIEND_REQUEST_REACTION, new RequestOld.Data(from.getUuid()).add((byte) 0)))
 			.whenCompleteAsync((object, t) -> {
 				if (t != null) {
 					APIError.display(t);

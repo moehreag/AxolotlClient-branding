@@ -52,7 +52,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "init", at = @At("RETURN"))
 	public void axolotlclient$addConfigButton(CallbackInfo ci) {
-		if (API.getInstance().isConnected()) {
+		if (API.getInstance().isSocketConnected()) {
 			buttons.add(new ButtonWidget(234, 10, height - 30, 75, 20, I18n.translate("api.friends")));
 		}
 

@@ -25,7 +25,6 @@ package io.github.axolotlclient.api.requests.s2c;
 import java.nio.charset.StandardCharsets;
 
 import io.github.axolotlclient.api.requests.ServerResponse;
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.RequiredArgsConstructor;

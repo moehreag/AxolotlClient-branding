@@ -43,9 +43,9 @@ dependencies {
 	testRuntimeOnly compileOnly("org.lwjgl:lwjgl-glfw:3.3.2")
 
 	shadow implementation("io.github.CDAGaming:DiscordIPC:0.6.5")
-	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.2")
+	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.8.3")
 
-	shadow implementation("io.netty:netty-all:4.1.101.Final")
+	shadow implementation("org.glassfish.tyrus:tyrus-container-grizzly-client:2.1.5")
 }
 
 build {

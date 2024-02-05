@@ -26,12 +26,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Account;
@@ -39,6 +37,7 @@ import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
@@ -48,11 +47,9 @@ import org.apache.http.util.EntityUtils;
 
 public class MojangAuth {
 
-	public static  Result authenticate(Account account, byte[] publicKey) {
+	public static  Result authenticate(Account account) {
 		Result.Builder result = Result.builder();
 		try (CloseableHttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
-
-			SecretKey secretKey = generateSecretKey();
 
 			RequestBuilder builder = RequestBuilder.post();
 			builder.addHeader("Content-Type", "application/json");
@@ -62,11 +59,9 @@ public class MojangAuth {
 			JsonObject body = new JsonObject();
 			body.addProperty("accessToken", account.getAuthToken());
 			body.addProperty("selectedProfile", account.getUuid());
-			assert secretKey != null;
-			String sha = minecraftSha1(account.getName().getBytes(StandardCharsets.US_ASCII), publicKey,
-				secretKey.getEncoded());
-			assert sha != null;
-			String serverId = Strings.padEnd(sha, 40, 'a').substring(0, 40);
+
+			String serverId = RandomStringUtils.random(40);
+
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
 

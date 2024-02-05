@@ -57,7 +57,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "initWidgets", at = @At("TAIL"))
 	private void axolotlclient$addFriendsSidebarButton(CallbackInfo ci) {
-		if (API.getInstance().isConnected()) {
+		if (API.getInstance().isSocketConnected()) {
 			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends"),
 				button -> MinecraftClient.getInstance().setScreen(new FriendsSidebar(this))).positionAndSize(10, height - 30, 75, 20).build());
 		}

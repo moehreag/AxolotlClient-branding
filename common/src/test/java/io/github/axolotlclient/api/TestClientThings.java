@@ -43,7 +43,7 @@ public class TestClientThings extends Options implements Logger, StatusUpdatePro
 
 	@Override
 	public Request getStatus() {
-		return new Request(Request.Type.STATUS_UPDATE, "Playing around with the API!");
+		return new RequestOld(RequestOld.Type.STATUS_UPDATE, "Playing around with the API!");
 	}
 
 	@Override

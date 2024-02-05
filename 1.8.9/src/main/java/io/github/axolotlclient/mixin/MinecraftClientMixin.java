@@ -133,7 +133,7 @@ public abstract class MinecraftClientMixin {
 	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/texture/TextureManager;close(Lnet/minecraft/resource/Identifier;)V"))
 	private void axolotlclient$onLaunch(CallbackInfo ci) {
 		HudManager.getInstance().refreshAllBounds();
-		if (!API.getInstance().isConnected() && !Auth.getInstance().getCurrent().isOffline()) {
+		if (!API.getInstance().isSocketConnected() && !Auth.getInstance().getCurrent().isOffline()) {
 			API.getInstance().startup(Auth.getInstance().getCurrent());
 		}
 	}

@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.api.requests;
 
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.github.axolotlclient.api.util.Serializer;
 import io.netty.buffer.ByteBuf;
 

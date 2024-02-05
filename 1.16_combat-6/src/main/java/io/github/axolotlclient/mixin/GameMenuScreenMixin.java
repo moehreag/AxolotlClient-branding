@@ -57,7 +57,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "initWidgets", at = @At("TAIL"))
 	private void axolotlclient$friendsSidebarButton(CallbackInfo ci) {
-		if (API.getInstance().isConnected()) {
+		if (API.getInstance().isSocketConnected()) {
 			addButton(new ButtonWidget(10, height - (axolotlclient$hasModMenu() ? 50 : 30), 75, 20, new TranslatableText("api.friends"),
 				buttonWidget -> client.openScreen(new FriendsSidebar(this))));
 		}

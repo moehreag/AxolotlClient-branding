@@ -28,8 +28,7 @@ import java.util.function.Supplier;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
-import io.github.axolotlclient.api.util.BufferUtil;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
@@ -103,7 +102,7 @@ public class HypixelAbstractionLayer {
 	}
 
 	private CompletableFuture<ByteBuf> getHypixelApiData(String uuid, RequestDataType type) {
-		return API.getInstance().send(new Request(Request.Type.GET_HYPIXEL_API_DATA, new Request.Data(uuid).add(type.getId())));
+		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_HYPIXEL_API_DATA, new RequestOld.Data(uuid).add(type.getId())));
 	}
 
 	public static void clearPlayerData() {

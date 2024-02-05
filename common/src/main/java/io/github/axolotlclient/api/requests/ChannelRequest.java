@@ -30,17 +30,16 @@ import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.api.types.User;
-import io.github.axolotlclient.api.util.BufferUtil;
 import io.netty.buffer.ByteBuf;
 
 public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getById(String id) {
-		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_BY_ID, id)).handle(ChannelRequest::parseChannelResponse);
+		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_CHANNEL_BY_ID, id)).handle(ChannelRequest::parseChannelResponse);
 	}
 
 	private static Channel parseChannelResponse(ByteBuf object, Throwable t) {
@@ -86,7 +85,7 @@ public class ChannelRequest {
 	}
 
 	public static CompletableFuture<List<Channel>> getChannelList() {
-		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_LIST)).handle(ChannelRequest::parseChannels);
+		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_CHANNEL_LIST)).handle(ChannelRequest::parseChannels);
 	}
 
 	private static List<Channel> parseChannels(ByteBuf object, Throwable t) {
@@ -108,17 +107,17 @@ public class ChannelRequest {
 	}
 
 	public static CompletableFuture<Channel> getOrCreateGroup(String... users) {
-		return API.getInstance().send(new Request(Request.Type.GET_OR_CREATE_CHANNEL,
-			new Request.Data(users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);
+		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_OR_CREATE_CHANNEL,
+			new RequestOld.Data(users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);
 	}
 
 	public static CompletableFuture<Channel> getOrCreateDM(String uuid) {
-		return API.getInstance().send(new Request(Request.Type.GET_OR_CREATE_CHANNEL,
-			new Request.Data((byte) 1).add(uuid))).handleAsync(ChannelRequest::parseChannelResponse);
+		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_OR_CREATE_CHANNEL,
+			new RequestOld.Data((byte) 1).add(uuid))).handleAsync(ChannelRequest::parseChannelResponse);
 	}
 
 	public static void createGroup(String... uuids) {
-		API.getInstance().send(new Request(Request.Type.CREATE_CHANNEL,
-			new Request.Data(uuids.length).add(uuids)));
+		API.getInstance().send(new RequestOld(RequestOld.Type.CREATE_CHANNEL,
+			new RequestOld.Data(uuids.length).add(uuids)));
 	}
 }

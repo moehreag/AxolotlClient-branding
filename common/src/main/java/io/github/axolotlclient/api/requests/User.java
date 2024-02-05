@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Keyword;
 import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.types.Status;
-import io.github.axolotlclient.api.util.BufferUtil;
 
 public class User {
 
@@ -50,15 +50,14 @@ public class User {
 		}
 
 		return onlineCache.computeIfAbsent(uuid, u ->
-			API.getInstance().send(new Request(Request.Type.USER, u)).handleAsync((buf, t) ->
-				buf.getBoolean(0x09)).getNow(false));
+			API.getInstance().get(Request.builder().route(Request.Route.USER).path(u).build()).);
 	}
 
 	public static CompletableFuture<io.github.axolotlclient.api.types.User> get(String uuid) {
 		if (userCache.containsKey(uuid)) {
 			return CompletableFuture.completedFuture(userCache.get(uuid));
 		}
-		return API.getInstance().send(new Request(Request.Type.GET_FRIEND, uuid)).thenApply(buf -> {
+		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_FRIEND, uuid)).thenApply(buf -> {
 
 			Instant startTime = Instant.ofEpochSecond(buf.getLong(0x09));
 
