@@ -46,7 +46,7 @@ public class Particles extends AbstractModule {
 	private static final Particles Instance = new Particles();
 
 	public final HashMap<ParticleType<?>, HashMap<String, Option<?>>> particleOptions = new HashMap<>();
-	public final HashMap<Particle, ParticleType<?>> particleMap = new HashMap<>();
+	public final WeakHashMap<Particle, ParticleType<?>> particleMap = new WeakHashMap<>();
 
 	private final OptionCategory cat = OptionCategory.create("particles");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
