@@ -43,9 +43,9 @@ public class AccountsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		super.render(graphics, mouseX, mouseY, delta);
 		this.accountsListWidget.render(graphics, mouseX, mouseY, delta);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
-		super.render(graphics, mouseX, mouseY, delta);
 	}
 
 	@Override
