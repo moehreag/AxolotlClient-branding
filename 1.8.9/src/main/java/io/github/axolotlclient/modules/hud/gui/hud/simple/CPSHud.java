@@ -63,7 +63,7 @@ public class CPSHud extends SimpleTextHudEntry {
 			if (fromKeybindings.get()) {
 				if (key.equals(client.options.attackKey)) {
 					ClickList.LEFT.click();
-				} else if (key.equals(client.options.usekey)) {
+				} else if (key.equals(client.options.useKey)) {
 					ClickList.RIGHT.click();
 				}
 			}

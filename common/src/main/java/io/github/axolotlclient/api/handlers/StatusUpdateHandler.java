@@ -22,19 +22,10 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.RequestOld;
-import io.github.axolotlclient.api.requests.StatusUpdate;
-import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.RequestHandler;
-import io.netty.buffer.ByteBuf;
 
 public class StatusUpdateHandler implements RequestHandler {
-	@Override
+	/*@Override
 	public boolean isApplicable(int packetType) {
 		return packetType == RequestOld.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();
 	}
@@ -58,5 +49,5 @@ public class StatusUpdateHandler implements RequestHandler {
 				.addStatus("api.friends", "api.friends.statusChange.inGame",
 					user.get().getName(), user.get().getStatus().getTitle());
 		}
-	}
+	}*/
 }

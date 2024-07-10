@@ -22,19 +22,12 @@
 
 package io.github.axolotlclient.api;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 public class APIError extends Exception {
 
-	private final ErrorCode code;
+	/*private final ErrorCode code;
 	private final ByteBuf buf;
 
 	public APIError(ByteBuf buf) {
@@ -81,9 +74,9 @@ public class APIError extends Exception {
 
 	public void display() {
 		API.getInstance().getNotificationProvider().addStatus("api.error.requestGeneric", getMessage());
-	}
+	}*/
 
-	@AllArgsConstructor
+	/*@AllArgsConstructor
 	private enum ErrorCode {
 		USER_NOT_FOUND("api.error.userNotFound", 0x01),
 		FRIEND_REQUEST_NOT_FOUND("api.error.friendRequestNotFound", 0x02),
@@ -99,5 +92,5 @@ public class APIError extends Exception {
 		public static ErrorCode fromCode(int code) {
 			return CODES.get(code);
 		}
-	}
+	}*/
 }

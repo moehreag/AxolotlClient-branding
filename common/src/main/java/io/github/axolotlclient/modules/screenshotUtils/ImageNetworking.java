@@ -27,9 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.RequestOld;
 import lombok.Data;
 
 public abstract class ImageNetworking {
@@ -45,7 +42,7 @@ public abstract class ImageNetworking {
 	}
 
 	protected CompletableFuture<String> upload(String name, byte[] data) {
-		return API.getInstance().send(new RequestOld(RequestOld.Type.UPLOAD_SCREENSHOT,
+		/*return API.getInstance().send(new RequestOld(RequestOld.Type.UPLOAD_SCREENSHOT,
 			new RequestOld.Data().add(name.length()).add(name).add(data))).handleAsync((buf, throwable) -> {
 			if (throwable != null) {
 				APIError.display(throwable);
@@ -53,14 +50,16 @@ public abstract class ImageNetworking {
 			} else {
 				return BufferUtil.getString(buf, 0x09, buf.readableBytes() - 0x09);
 			}
-		});
+		});*/
+		return new CompletableFuture<>();
 	}
 
 	protected ImageData download(String url) {
-		return API.getInstance().send(new RequestOld(RequestOld.Type.DOWNLOAD_SCREENSHOT, url)).handleAsync((buf, throwable) -> {
+		/*return API.getInstance().send(new RequestOld(RequestOld.Type.DOWNLOAD_SCREENSHOT, url)).handleAsync((buf, throwable) -> {
 			int nameLength = buf.getInt(0x09);
 			return new ImageData(BufferUtil.getString(buf, 0x0C, nameLength), BufferUtil.toArray(buf.slice(0x0C + nameLength, buf.readableBytes() - (0x0C + nameLength))));
-		}).getNow(ImageData.EMPTY);
+		}).getNow(ImageData.EMPTY);*/
+		return ImageData.EMPTY;
 	}
 
 	@Data

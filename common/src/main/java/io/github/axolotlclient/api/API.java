@@ -29,18 +29,17 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import com.google.gson.stream.JsonReader;
 import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.*;
 import io.github.axolotlclient.modules.auth.Account;
-import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.NotificationProvider;
 import io.github.axolotlclient.util.translation.TranslationProvider;
 import jakarta.websocket.DeploymentException;
+import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
 import lombok.Getter;
 import org.glassfish.tyrus.container.grizzly.client.GrizzlyContainerProvider;
@@ -80,10 +79,9 @@ public class API {
 	public void onOpen(Session channel) {
 		this.session = channel;
 		logger.debug("API connected!");
-		authenticate(account);
 	}
 
-	private void authenticate(Account account){
+	private void authenticate(){
 
 		MojangAuth.Result result = MojangAuth.authenticate(account);
 
@@ -104,10 +102,18 @@ public class API {
 				logger.error("Failed to authenticate!", response.getError().getDescription());
 			}
 
-			this.account = account;
-
 			token = (String) response.getBody().get("access_token");
+			checkGateway();
 			startStatusUpdateThread();
+		});
+	}
+
+	private void checkGateway(){
+
+		get(Request.builder().route(Request.Route.GATEWAY).build()).thenAccept(response -> {
+			if (response.getStatus() == 101){
+				createSession();
+			}
 		});
 
 	}
@@ -168,7 +174,7 @@ public class API {
 
 				int code = connection.getResponseCode();
 				connection.disconnect();
-				return Response.builder().body(parseJson(body)).status(code).build();
+				return Response.builder().body(body).status(code).build();
 			} catch (IOException e) {
 				handleError(e);
 				return Response.CLIENT_ERROR;
@@ -196,13 +202,6 @@ public class API {
 			});
 		}
 		return url.toString();
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, ?> parseJson(String json) throws IOException {
-		try (JsonReader reader = new JsonReader(new StringReader(json))) {
-			return (Map<String, ?>) GsonHelper.read(reader);
-		}
 	}
 
 	public void shutdown() {
@@ -305,7 +304,7 @@ public class API {
 			}
 
 			logger.debug("Starting API...");
-			ThreadExecuter.scheduleTask(this::createSession);
+			ThreadExecuter.scheduleTask(this::authenticate);
 		} else {
 			logger.warn("API is already running!");
 		}
@@ -348,5 +347,13 @@ public class API {
 			throw new IllegalArgumentException("Not a valid UUID (undashed): " + uuid);
 		}
 		return uuid;
+	}
+
+	public void onPong(PongMessage pong) {
+		try {
+			session.getBasicRemote().sendPong(pong.getApplicationData());
+		} catch (IOException e) {
+			onError(e);
+		}
 	}
 }

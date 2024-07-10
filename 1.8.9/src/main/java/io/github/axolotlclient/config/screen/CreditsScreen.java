@@ -401,7 +401,7 @@ public class CreditsScreen extends Screen {
 				if ((mouseY >= integer && mouseY < integer + 11)
 					&& mouseX >= x + width / 2 - Minecraft.getInstance().textRenderer.getWidth(s) / 2
 					&& mouseX <= x + width / 2 + Minecraft.getInstance().textRenderer.getWidth(s) / 2) {
-					m_9528629(
+					handleClickEvent(
 						new LiteralText(s).setStyle(new Style().setClickEvent(effects.get(Formatting.strip(s)))));
 				}
 			});

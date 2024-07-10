@@ -24,6 +24,8 @@ package io.github.axolotlclient.mixin;
 
 import java.nio.FloatBuffer;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
@@ -248,14 +250,14 @@ public abstract class GameRendererMixin {
 		this.minecraft.profiler.pop();
 	}
 
-	@Redirect(method = "render(FJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/LocalClientPlayerEntity;updateSmoothCamera(FF)V"))
-	public void axolotlclient$updateRotation(LocalClientPlayerEntity entity, float yaw, float pitch) {
+	@WrapOperation(method = "render(FJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/LocalClientPlayerEntity;updateLocalPlayerCamera(FF)V"))
+	public void axolotlclient$updateRotation(LocalClientPlayerEntity instance, float yaw, float pitch, Operation<Void> original) {
 		Freelook freelook = Freelook.getInstance();
 
 		if (freelook.consumeRotation(yaw, pitch) || Skyblock.getInstance().rotationLocked.get())
 			return;
 
-		entity.updateSmoothCamera(yaw, pitch);
+		original.call(instance, yaw, pitch);
 	}
 
 	@Redirect(method = "transformCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"))

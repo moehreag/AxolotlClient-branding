@@ -1,24 +1,33 @@
 package io.github.axolotlclient.api;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import com.google.gson.stream.JsonReader;
+import io.github.axolotlclient.util.GsonHelper;
 import lombok.*;
 
 @Getter
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Response {
-	public static final Response CLIENT_ERROR = new Response(Collections.emptyMap(), 0, new Error(0, 1, "Client Request Error!"));
+	public static final Response CLIENT_ERROR = new Response(Collections.emptyMap(), "", 0, new Error(0, "Client Request Error!"));
 
-	private final Map<String, ?> body;
+	private Map<String, ?> body;
+	private final String plainBody;
 	private final int status;
 	private final Error error;
 
 	@Builder
-	private Response(Map<String, ?> body, int status) {
-		this.body = body;
+	private Response(String body, int status) {
+		try {
+			this.body = parseJson(body);
+		} catch (IOException ignored) {
+		}
+		plainBody = body;
 		this.status = status;
 		this.error = Error.of(this);
 	}
@@ -29,9 +38,7 @@ public class Response {
 
 	private String mapToString(Map<?, ?> map) {
 		StringBuilder builder = new StringBuilder(map.toString() + "{");
-		map.forEach((o, o2) -> {
-			builder.append(o).append(": ").append(o2).append("\n");
-		});
+		map.forEach((o, o2) -> builder.append(o).append(": ").append(o2).append("\n"));
 		builder.append("}");
 		return builder.toString();
 	}
@@ -43,27 +50,28 @@ public class Response {
 		return builder.toString();
 	}
 
+	@SuppressWarnings("unchecked")
+	private Map<String, ?> parseJson(String json) throws IOException {
+		try (JsonReader reader = new JsonReader(new StringReader(json))) {
+			return (Map<String, ?>) GsonHelper.read(reader);
+		}
+	}
+
 	public String toString() {
-		return "Response(body=" + mapToString(this.getBody()) + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
+		return "Response(body=" + mapToString(this.getBody()) + ", plainBody=" + getPlainBody() + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
 	}
 
 	@Data
 	public static class Error {
 		private final int httpCode;
-		private final int apiCode;
 		private final String description;
 
 		public static Error of(Response response) {
 			if (response.status >= 200 && response.status < 300) {
 				return null;
 			}
-			if (!response.body.containsKey("error_code")) {
-				return null;
-			}
-			int http = (int) response.body.get("status_code");
-			int error = (int) response.body.get("error_code");
 			String description = (String) response.body.get("description");
-			return new Error(http, error, description);
+			return new Error(response.status, description);
 		}
 	}
 }

@@ -22,21 +22,16 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.util.RequestHandler;
-import io.github.axolotlclient.api.util.UUIDHelper;
-import io.netty.buffer.ByteBuf;
 
 public class FriendRequestHandler implements RequestHandler {
 
-	@Override
+	/*@Override
 	public boolean isApplicable(int packetType) {
 		return packetType == RequestOld.Type.INCOMING_FRIEND_REQUEST.getType();
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public void handle(ByteBuf object, APIError error) {
 		if (API.getInstance().getApiOptions().friendRequestsEnabled.get()) {
 			String fromUUID = getString(object, 0x09, 32);
@@ -48,5 +43,5 @@ public class FriendRequestHandler implements RequestHandler {
 				}
 			});
 		}
-	}
+	}*/
 }

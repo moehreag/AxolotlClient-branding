@@ -32,6 +32,11 @@ public class ClientEndpoint {
 		API.getInstance().onMessage(message);
 	}
 
+	@OnMessage
+	public void onMessage(PongMessage pong){
+		API.getInstance().onPong(pong);
+	}
+
 	@OnOpen
 	public void onOpen(Session channel) {
 		API.getInstance().onOpen(channel);

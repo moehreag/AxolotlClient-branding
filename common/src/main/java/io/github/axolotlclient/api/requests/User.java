@@ -23,6 +23,7 @@
 package io.github.axolotlclient.api.requests;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,22 +51,20 @@ public class User {
 		}
 
 		return onlineCache.computeIfAbsent(uuid, u ->
-			API.getInstance().get(Request.builder().route(Request.Route.USER).path(u).build()).);
+			API.getInstance().get(Request.builder().route(Request.Route.USER).path(u).build()).thenApply(response ->
+				((Map<?, ?>) response.getBody().get("status")).get("type").equals("online")).getNow(false));
 	}
 
 	public static CompletableFuture<io.github.axolotlclient.api.types.User> get(String uuid) {
 		if (userCache.containsKey(uuid)) {
 			return CompletableFuture.completedFuture(userCache.get(uuid));
 		}
-		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_FRIEND, uuid)).thenApply(buf -> {
-
-			Instant startTime = Instant.ofEpochSecond(buf.getLong(0x09));
-
-			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User(uuid,
-				new Status(buf.getBoolean(0x11),
-					BufferUtil.getString(buf, 0x12, 64).trim(),
-					Keyword.get(BufferUtil.getString(buf, 0x52, 64).trim()),
-					Keyword.get(BufferUtil.getString(buf, 0x92, 32).trim()), startTime));
+		return API.getInstance().get(Request.builder().route(Request.Route.USER).path(uuid).build()).thenApply(response -> {
+			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User((String) response.getBody().get("uuid"),
+					(String) response.getBody().get("username"),
+				new Status(((Map<?, ?>) response.getBody().get("status")).get("type").equals("online"),
+					"", "", "", Instant.parse("") // TODO
+				));
 			userCache.put(uuid, user);
 			return user;
 		});

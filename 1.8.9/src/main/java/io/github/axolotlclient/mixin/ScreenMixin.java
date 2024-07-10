@@ -75,7 +75,7 @@ public abstract class ScreenMixin {
 		ci.cancel();
 	}
 
-	@Inject(method = "m_9528629", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
+	@Inject(method = "handleClickEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
 	public void axolotlclient$customClickEvents(Text text, CallbackInfoReturnable<Boolean> cir) {
 		ClickEvent event = text.getStyle().getClickEvent();
 		if (event instanceof ScreenshotUtils.CustomClickEvent) {

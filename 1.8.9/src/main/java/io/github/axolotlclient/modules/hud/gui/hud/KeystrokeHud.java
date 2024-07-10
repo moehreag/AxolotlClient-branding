@@ -98,7 +98,7 @@ public class KeystrokeHud extends TextHudEntry {
 	public static Optional<String> getMouseKeyBindName(KeyBinding keyBinding) {
 		if (keyBinding.getName().equalsIgnoreCase(client.options.attackKey.getName())) {
 			return Optional.of("LMB");
-		} else if (keyBinding.getName().equalsIgnoreCase(client.options.usekey.getName())) {
+		} else if (keyBinding.getName().equalsIgnoreCase(client.options.useKey.getName())) {
 			return Optional.of("RMB");
 		} else if (keyBinding.getName().equalsIgnoreCase(client.options.pickItemKey.getName())) {
 			return Optional.of("MMB");
@@ -117,7 +117,7 @@ public class KeystrokeHud extends TextHudEntry {
 		// LMB
 		keystrokes.add(createFromKey(new Rectangle(0, 36, 26, 17), pos, client.options.attackKey));
 		// RMB
-		keystrokes.add(createFromKey(new Rectangle(27, 36, 26, 17), pos, client.options.usekey));
+		keystrokes.add(createFromKey(new Rectangle(27, 36, 26, 17), pos, client.options.useKey));
 		// W
 		keystrokes.add(createFromKey(new Rectangle(18, 0, 17, 17), pos, client.options.forwardKey));
 		// A

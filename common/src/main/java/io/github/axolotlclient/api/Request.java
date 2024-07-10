@@ -2,9 +2,7 @@ package io.github.axolotlclient.api;
 
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
-import jakarta.websocket.Session;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -24,12 +22,14 @@ public class Request {
 	}
 
 
-	@ToString @Getter
+	@ToString
+	@Getter
 	public enum Route {
 		AUTHENTICATE("authenticate", false),
 		USER("user", false),
 		ACCOUNT("account"),
-		ACCOUNT_USER("account/user"),
+		GATEWAY("gateway"),
+		CHANNEL("channel"),
 		ACCOUNT_SETTINGS("account/settings"),
 		ACCOUNT_DATA("account/data");
 
@@ -88,6 +88,14 @@ public class Request {
 			return this;
 		}
 
+		public Request.RequestBuilder field(String key, Map<String, ?> value) {
+			if (bodyFields == null) {
+				bodyFields = new HashMap<>();
+			}
+			bodyFields.put(key, mapToString(value));
+			return this;
+		}
+
 		public Request build() {
 			return new Request(this.route, this.path, this.query, this.bodyFields);
 		}
@@ -96,8 +104,8 @@ public class Request {
 			return "Request.RequestBuilder(route=" + this.route + ", path=" + listToString(path) + ", query=" + mapToString(this.query) + ", bodyFields=" + mapToString(this.bodyFields) + ")";
 		}
 
-		private String mapToString(Map<?, ?> map){
-			StringBuilder builder = new StringBuilder(map.toString()+"{");
+		private String mapToString(Map<?, ?> map) {
+			StringBuilder builder = new StringBuilder(map.toString() + "{");
 			map.forEach((o, o2) -> {
 				builder.append(o).append(": ").append(o2).append("\n");
 			});
@@ -105,8 +113,8 @@ public class Request {
 			return builder.toString();
 		}
 
-		private String listToString(Collection<?> c){
-			StringBuilder builder = new StringBuilder(c.toString()+"{");
+		private String listToString(Collection<?> c) {
+			StringBuilder builder = new StringBuilder(c.toString() + "{");
 			c.forEach(o -> builder.append(o).append("\n"));
 			builder.append("}");
 			return builder.toString();

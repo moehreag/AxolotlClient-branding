@@ -22,15 +22,10 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.util.RequestHandler;
-import io.github.axolotlclient.api.util.UUIDHelper;
-import io.netty.buffer.ByteBuf;
 
 public class FriendRequestReactionHandler implements RequestHandler {
-	@Override
+	/*@Override
 	public boolean isApplicable(int packetType) {
 		return packetType == RequestOld.Type.FRIEND_REQUEST_REACTION.getType();
 	}
@@ -44,5 +39,5 @@ public class FriendRequestReactionHandler implements RequestHandler {
 		} else {
 			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.declined", UUIDHelper.getUsername(fromUUID));
 		}
-	}
+	}*/
 }

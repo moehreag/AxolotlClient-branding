@@ -58,10 +58,6 @@ public class RequestOld {
 		this(type, new Data(data));
 	}
 
-	public RequestOld(Type type, byte... data) {
-		this(type, new Data(data));
-	}
-
 	private int generateId() {
 		int id = 0;
 		while (id == 0) {
@@ -71,16 +67,7 @@ public class RequestOld {
 	}
 
 	public String getData() {
-		JsonObject object = new JsonObject();
-		object.addProperty("type", type.getType());
-		object.addProperty("id", id);
-		object.ad
-		return Unpooled.buffer()
-			.writeBytes(PACKET_MAGIC)
-			.writeByte(type.getType())
-			.writeByte(Constants.PROTOCOL_VERSION)
-			.writeInt(id)
-			.writeBytes(data.getData());
+		throw new UnsupportedOperationException();
 	}
 
 	/**

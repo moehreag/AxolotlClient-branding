@@ -34,7 +34,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.util.Serializer;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.ThreadExecuter;
@@ -50,17 +49,11 @@ import org.apache.http.util.EntityUtils;
 @Getter
 public class PkSystem {
 	private static String token;
-	@Serializer.Length(5)
 	private final String id;
-	@Serializer.Exclude
 	private final String name;
-	@Serializer.Exclude
 	private final List<Member> members;
-	@Serializer.Exclude
 	private final List<Member> fronters;
-	@Serializer.Exclude
 	private final Member firstFronter;
-	@Serializer.Exclude
 	private final String tag;
 	private final int latchTimeout;
 
@@ -293,9 +286,7 @@ public class PkSystem {
 				long resetsInMillisHeader = (Long.parseLong(response.getFirstHeader("X-RateLimit-Reset")
 					.getValue()) * 1000) - System.currentTimeMillis();
 				// If the header value is bogus just reset in 0.5 seconds
-				this.resetsInMillis = resetsInMillisHeader < 0 ?
-					500 : // System.currentTimeMillis() - (System.currentTimeMillis() /1000L)*1000
-					resetsInMillisHeader;
+				this.resetsInMillis = resetsInMillisHeader < 0 ? 500 : resetsInMillisHeader;
 				limit = Integer.parseInt(response.getFirstHeader("X-RateLimit-Limit").getValue());
 
 				return GsonHelper.GSON.fromJson(responseBody, JsonElement.class);

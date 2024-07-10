@@ -26,11 +26,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
-import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
@@ -70,14 +66,15 @@ public class HypixelAbstractionLayer {
 	}
 
 	private int getLevel(String uuid, RequestDataType type) {
-		return cache(uuid, type, () ->
+		/*return cache(uuid, type, () ->
 			getHypixelApiData(uuid, type).handleAsync((buf, throwable) -> {
 				if (throwable != null) {
 					APIError.display(throwable);
 					return -1;
 				}
 				return buf.getInt(0x09);
-			}).getNow(-1));
+			}).getNow(-1));*/
+		return -1;
 	}
 
 	public int getBedwarsLevel(String uuid) {
@@ -85,7 +82,7 @@ public class HypixelAbstractionLayer {
 	}
 
 	public BedwarsData getBedwarsData(String playerUuid) {
-		return cache(playerUuid, RequestDataType.BEDWARS_DATA, () ->
+		/*return cache(playerUuid, RequestDataType.BEDWARS_DATA, () ->
 			getHypixelApiData(playerUuid, RequestDataType.BEDWARS_DATA).handleAsync(((buf, throwable) -> {
 				if (throwable != null) {
 					APIError.display(throwable);
@@ -93,7 +90,8 @@ public class HypixelAbstractionLayer {
 				}
 				ByteBuf data = buf.slice(0x09, buf.readableBytes() - 0x09);
 				return BufferUtil.unwrap(data, BedwarsData.class);
-			})).getNow(BedwarsData.EMPTY));
+			})).getNow(BedwarsData.EMPTY));*/
+		return BedwarsData.EMPTY;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -101,8 +99,9 @@ public class HypixelAbstractionLayer {
 		return (T) cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>()).computeIfAbsent(type, t -> dataSupplier.get());
 	}
 
-	private CompletableFuture<ByteBuf> getHypixelApiData(String uuid, RequestDataType type) {
-		return API.getInstance().send(new RequestOld(RequestOld.Type.GET_HYPIXEL_API_DATA, new RequestOld.Data(uuid).add(type.getId())));
+	private CompletableFuture<?> getHypixelApiData(String uuid, RequestDataType type) {
+		//return API.getInstance().send(new RequestOld(RequestOld.Type.GET_HYPIXEL_API_DATA, new RequestOld.Data(uuid).add(type.getId())));
+		return new CompletableFuture<>();
 	}
 
 	public static void clearPlayerData() {

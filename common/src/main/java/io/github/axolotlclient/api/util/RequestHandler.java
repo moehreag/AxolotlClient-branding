@@ -22,26 +22,6 @@
 
 package io.github.axolotlclient.api.util;
 
-import io.github.axolotlclient.api.APIError;
-import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.Nullable;
-
 public interface RequestHandler {
 
-	default boolean isApplicable(int packetType) {
-		return false;
-	}
-
-	/**
-	 * Handles an incoming API message.
-	 *
-	 * @param object the raw data object
-	 * @param error  APIError object for easy access to error information
-	 */
-	default void handle(ByteBuf object, @Nullable APIError error) {
-	}
-
-	default String getString(ByteBuf buffer, int index, int byteLength) {
-		return BufferUtil.getString(buffer, index, byteLength);
-	}
 }

@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.api.types;
 
-import io.github.axolotlclient.api.util.Serializer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -39,7 +38,7 @@ public class GlobalData {
 	private final EncodedVersion latestVersion;
 	private final String notes;
 
-	public GlobalData(boolean success, int totalPlayers, int onlinePlayers, EncodedVersion latestVersion, @Serializer.Length(usesIndex = true) String notes) {
+	public GlobalData(boolean success, int totalPlayers, int onlinePlayers, EncodedVersion latestVersion, String notes) {
 		this.success = success;
 		this.totalPlayers = totalPlayers;
 		this.onlinePlayers = onlinePlayers;
