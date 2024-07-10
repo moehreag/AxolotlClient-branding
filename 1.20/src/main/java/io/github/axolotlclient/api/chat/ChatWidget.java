@@ -57,7 +57,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
-		super(MinecraftClient.getInstance(), y, width, height, 13);
+		super(MinecraftClient.getInstance(), width, height, y, 13);
 		this.channel = channel;
 		this.client = MinecraftClient.getInstance();
 		setX(x + 5);

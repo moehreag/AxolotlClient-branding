@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.types.PkSystem;
@@ -34,6 +35,7 @@ import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.*;
 import io.github.axolotlclient.modules.auth.Account;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.NotificationProvider;
@@ -42,6 +44,14 @@ import jakarta.websocket.DeploymentException;
 import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
 import lombok.Getter;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.glassfish.tyrus.container.grizzly.client.GrizzlyContainerProvider;
 import org.glassfish.tyrus.core.CloseReasons;
 
@@ -82,12 +92,15 @@ public class API {
 	}
 
 	private void authenticate(){
+		logDetailed("Authenticating with Mojang...");
 
 		MojangAuth.Result result = MojangAuth.authenticate(account);
 
 		if (result.getStatus() != MojangAuth.Status.SUCCESS){
 			logger.error("Failed to authenticate with Mojang! Status: ", result.getStatus());
 		}
+
+		logDetailed("Requesting authentication from backend...");
 
 		get(Request.builder().route(Request.Route.AUTHENTICATE)
 			.query("username", account.getName())
@@ -142,38 +155,30 @@ public class API {
 												boolean authenticated, String method) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
-				HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
-				connection.setRequestMethod(method);
+				logDetailed("Starting request to " + url);
+				CloseableHttpClient client = HttpClientBuilder.create().build();
+				RequestBuilder builder = RequestBuilder.create(method).setUri(url)
+					.addHeader("Content-Type", "application/json")
+					.addHeader("Accept", "application/json");
 
-				connection.addRequestProperty("Content-Type", "application/json");
-
-				connection.addRequestProperty("Accept", "application/json");
 				if (authenticated) {
-					connection.addRequestProperty("Authorization", token);
+					builder.addHeader("Authorization", token);
 				}
-				connection.connect();
 
 				if (!(payload == null || payload.isEmpty())) {
-					PrintWriter writer = new PrintWriter(connection.getOutputStream());
-					StringBuilder body = new StringBuilder("{");
-					payload.forEach((s, s2) -> {
-						if (body.charAt(body.length() - 1) == '{') {
-							body.append(",");
-						}
-						body.append("\"").append(s).append("\": \"").append(s2).append("\"");
-					});
-					body.append("}");
-					writer.println(body);
-					writer.flush();
-					writer.close();
+					StringBuilder body = new StringBuilder();
+					GsonHelper.GSON.toJson(payload, body);
+					logDetailed("Sending payload: " + body);
+					builder.setEntity(new StringEntity(body.toString()));
 				}
 
-				BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-				String body = reader.lines().collect(Collectors.joining("\n"));
-				reader.close();
+				HttpResponse response = client.execute(builder.build());
 
-				int code = connection.getResponseCode();
-				connection.disconnect();
+				String body = EntityUtils.toString(response.getEntity());
+
+				int code = response.getStatusLine().getStatusCode();
+				logDetailed("Response: code: " + code+" body: "+body);
+				client.close();
 				return Response.builder().body(body).status(code).build();
 			} catch (IOException e) {
 				handleError(e);
@@ -192,7 +197,7 @@ public class API {
 		for (String p : request.getPath()) {
 			url.append("/").append(p);
 		}
-		if (!request.getQuery().isEmpty()) {
+		if (request.getQuery() != null && !request.getQuery().isEmpty()) {
 			url.append("?");
 			request.getQuery().forEach((k, v) -> {
 				if (url.charAt(url.length() - 1) == '?') {

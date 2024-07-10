@@ -38,7 +38,7 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 	protected final Screen screen;
 
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
-		super(MinecraftClient.getInstance(), y, width, height, 25);
+		super(MinecraftClient.getInstance(), width, height, y, 25);
 		setX(x);
 		this.screen = screen;
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->

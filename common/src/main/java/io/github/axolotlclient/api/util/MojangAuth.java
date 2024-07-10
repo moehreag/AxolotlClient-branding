@@ -26,6 +26,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -60,7 +61,7 @@ public class MojangAuth {
 			body.addProperty("accessToken", account.getAuthToken());
 			body.addProperty("selectedProfile", account.getUuid());
 
-			String serverId = RandomStringUtils.random(40);
+			String serverId = minecraftSha1(RandomStringUtils.random(40).getBytes(StandardCharsets.UTF_8));
 
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);

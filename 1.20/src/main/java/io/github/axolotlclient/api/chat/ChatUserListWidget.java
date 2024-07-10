@@ -48,7 +48,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 	private final ChatScreen screen;
 
 	public ChatUserListWidget(ChatScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
-		super(client, top, width, bottom-top, entryHeight);
+		super(client, width, bottom-top, top, entryHeight);
 		this.screen = screen;
 	}
 

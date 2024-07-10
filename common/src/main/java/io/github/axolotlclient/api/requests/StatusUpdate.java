@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.Request;
-import io.github.axolotlclient.api.RequestOld;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

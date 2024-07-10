@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "1.7.+"
+	id 'org.quiltmc.loom'
 	id 'ploceus'
 	id 'io.github.p03w.machete'
 }
@@ -28,8 +28,8 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_18}"
 	mappings "net.ornithemc:feather:${project.mappings_18}"
 
-	//modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
-	modImplementation "net.fabricmc:fabric-loader:${fabric_loader}"
+	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
+	//modRuntimeOnly "net.fabricmc:fabric-loader:${fabric_loader}"
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
 		exclude group: "org.lwjgl"
