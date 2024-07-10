@@ -74,16 +74,16 @@ public class FeatureDisabler {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
 
 		ClientPlayConnectionEvents.INIT.register((handler0, client0) ->
-			ClientPlayNetworking.registerGlobalReceiver(channelName, (client, handler, buf, responseSender) -> {
-				JsonArray array = JsonParser.parseString(buf.readString()).getAsJsonArray();
-				for (JsonElement element : array) {
-					try {
-						features.get(element.getAsString()).setForceOff(true, "ban_reason");
-					} catch (Exception e) {
-						AxolotlClient.LOGGER.error("Failed to disable " + element.getAsString() + "!");
+				ClientPlayNetworking.registerGlobalReceiver(channelName, (client, handler, buf, responseSender) -> {
+					JsonArray array = JsonParser.parseString(buf.readString()).getAsJsonArray();
+					for (JsonElement element : array) {
+						try {
+							features.get(element.getAsString()).setForceOff(true, "ban_reason");
+						} catch (Exception e) {
+							AxolotlClient.LOGGER.error("Failed to disable " + element.getAsString() + "!");
+						}
 					}
-				}
-			})
+				})
 		);
 	}
 
