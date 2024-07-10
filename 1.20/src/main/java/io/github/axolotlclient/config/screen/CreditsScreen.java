@@ -29,10 +29,10 @@ import java.util.List;
 import com.mojang.blaze3d.glfw.Window;
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
 import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
@@ -41,9 +41,9 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.list.ElementListWidget;
+import net.minecraft.client.gui.widget.list.EntryListWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -71,12 +71,7 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
-		if (AxolotlClient.CONFIG.creditsBGM.get() && !MinecraftClient.getInstance().getSoundManager().isPlaying(bgm)) {
-			MinecraftClient.getInstance().getSoundManager().play(bgm);
-		}
-
-		renderBackground(graphics);
+	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		if (AxolotlClient.someNiceBackground.get()) { // Credit to pridelib for the colors
 			graphics.fill(0, 0, width, height / 6, 0xFFff0018);
 			graphics.fill(0, height / 6, width, height * 2 / 6, 0xFFffa52c);
@@ -84,6 +79,15 @@ public class CreditsScreen extends Screen {
 			graphics.fill(0, height * 2 / 3, width, height * 5 / 6, 0xFF0000f9);
 			graphics.fill(0, height / 2, width, height * 2 / 3, 0xFF008018);
 			graphics.fill(0, height * 5 / 6, width, height, 0xFF86007d);
+		} else {
+			super.renderBackground(graphics, mouseX, mouseY, delta);
+		}
+	}
+
+	@Override
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
+		if (AxolotlClient.CONFIG.creditsBGM.get() && !MinecraftClient.getInstance().getSoundManager().isPlaying(bgm)) {
+			MinecraftClient.getInstance().getSoundManager().play(bgm);
 		}
 
 		super.render(graphics, mouseX, mouseY, tickDelta);
@@ -126,9 +130,9 @@ public class CreditsScreen extends Screen {
 		initCredits();
 
 		creditsList = new CreditsList(client, width, height, 50, height - 50, 25);
-		addSelectableChild(creditsList);
+		addDrawableSelectableElement(creditsList);
 
-		this.addDrawableChild(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
+		this.addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
 			if (creditOverlay == null) {
 				MinecraftClient.getInstance().setScreen(parent);
 				stopBGM();
@@ -137,7 +141,7 @@ public class CreditsScreen extends Screen {
 			}
 		}).positionAndSize(width / 2 - 75, height - 50 + 22, 150, 20).build());
 
-		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("creditsBGM").append(": ")
+		this.addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("creditsBGM").append(": ")
 			.append(Text.translatable(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off")),
 			buttonWidget -> {
 				AxolotlClient.CONFIG.creditsBGM.toggle();
@@ -203,18 +207,17 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		return super.mouseScrolled(mouseX, mouseY, amount) || creditsList.mouseScrolled(mouseX, mouseY, amount);
+	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
+		return super.mouseScrolled(mouseX, mouseY, amountX, amountY) || creditsList.mouseScrolled(mouseX, mouseY, amountX, amountY);
 	}
 
 	private class CreditsList extends ElementListWidget<Credit> {
 
 		public CreditsList(MinecraftClient minecraftClient, int width, int height, int top, int bottom,
 						   int entryHeight) {
-			super(minecraftClient, width, height, top, bottom, entryHeight);
+			super(minecraftClient, top, width, bottom-top, entryHeight);
 
 			this.setRenderBackground(false);
-			this.setRenderHorizontalShadows(false);
 			this.setRenderHeader(false, 0);
 
 			for (Credit c : credits) {
@@ -223,7 +226,7 @@ public class CreditsScreen extends Screen {
 		}
 
 		@Override
-		public void appendNarrations(NarrationMessageBuilder builder) {
+		public void updateNarration(NarrationMessageBuilder builder) {
 			builder.put(NarrationPart.TITLE, "credits");
 			super.appendNarrations(builder);
 			if (creditOverlay != null) {
@@ -238,7 +241,7 @@ public class CreditsScreen extends Screen {
 
 		@Override
 		protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-			Util.applyScissor(0, top, this.width, bottom - top);
+			Util.applyScissor(0, getY(), this.width, getHeight());
 			super.renderList(graphics, mouseX, mouseY, delta);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}
@@ -266,11 +269,11 @@ public class CreditsScreen extends Screen {
 		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX,
 						   int mouseY, boolean hovered, float tickDelta) {
 			if (hovered || c.isFocused()) {
-				RenderUtil.drawOutline(graphics, x-100, y, 200, 20, Color.ERROR.getAsInt());
+				RenderUtil.drawOutline(graphics, x - 100, y, 200, 20, ClientColors.ERROR.toInt());
 			}
 			this.hovered = hovered;
 			DrawUtil.drawCenteredString(graphics, MinecraftClient.getInstance().textRenderer, name, x, y + 5,
-				hovered || c.isFocused() ? io.github.axolotlclient.AxolotlClientConfig.Color.SELECTOR_RED.getAsInt()
+				hovered || c.isFocused() ? ClientColors.SELECTOR_RED.toInt()
 					: -1,
 				true);
 		}
@@ -342,16 +345,16 @@ public class CreditsScreen extends Screen {
 
 		public void render(GuiGraphics graphics) {
 			RenderUtil.drawRectangle(graphics, x, y, width, height,
-				io.github.axolotlclient.AxolotlClientConfig.Color.DARK_GRAY.withAlpha(127));
+				ClientColors.DARK_GRAY.withAlpha(127));
 			DrawUtil.outlineRect(graphics, x, y, width, height,
-				io.github.axolotlclient.AxolotlClientConfig.Color.BLACK.getAsInt());
+				ClientColors.BLACK.toInt());
 
 			DrawUtil.drawCenteredString(graphics, MinecraftClient.getInstance().textRenderer, credit.name,
 				window.getScaledWidth() / 2, y + 7, -16784327, true);
 
 			lines.forEach(
 				(integer, s) -> DrawUtil.drawCenteredString(graphics, MinecraftClient.getInstance().textRenderer, s,
-					x + width / 2, integer, Color.SELECTOR_GREEN.getAsInt(), true));
+					x + width / 2, integer, ClientColors.SELECTOR_GREEN.toInt(), true));
 		}
 
 		public boolean isMouseOver(double mouseX, double mouseY) {

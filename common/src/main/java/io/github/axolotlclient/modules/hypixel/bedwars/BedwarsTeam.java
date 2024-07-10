@@ -50,10 +50,6 @@ public enum BedwarsTeam {
 	@Getter
 	private final char prefix;
 
-	public String getColorSection() {
-		return "§" + code;
-	}
-
 	public static Optional<BedwarsTeam> fromPrefix(char prefix) {
 		for (BedwarsTeam t : values()) {
 			if (t.getPrefix() == prefix) {
@@ -70,6 +66,10 @@ public enum BedwarsTeam {
 			}
 		}
 		return Optional.empty();
+	}
+
+	public String getColorSection() {
+		return "§" + code;
 	}
 
 	public String getName() {

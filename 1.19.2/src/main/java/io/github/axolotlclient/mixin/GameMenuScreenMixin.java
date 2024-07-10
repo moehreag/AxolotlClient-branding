@@ -50,9 +50,13 @@ public abstract class GameMenuScreenMixin extends Screen {
 		super(title);
 	}
 
+	private static boolean axolotlclient$hasModMenu() {
+		return QuiltLoader.isModLoaded("modmenu") && !QuiltLoader.isModLoaded("axolotlclient-modmenu");
+	}
+
 	@Inject(method = "initWidgets", at = @At("TAIL"))
 	private void axolotlclient$friendsSidebarButton(CallbackInfo ci) {
-		if (API.getInstance().isConnected()) {
+		if (API.getInstance().isSocketConnected()) {
 			addDrawableChild(new ButtonWidget(10, height - 30, 75, 20, Text.translatable("api.friends"),
 				buttonWidget -> client.setScreen(new FriendsSidebar(this))));
 		}
@@ -66,10 +70,6 @@ public abstract class GameMenuScreenMixin extends Screen {
 		args.set(4, Text.translatable("title_short"));
 		args.set(5, (ButtonWidget.PressAction) (buttonWidget) -> MinecraftClient.getInstance()
 			.setScreen(new HudEditScreen(((GameMenuScreen) (Object) this))));
-	}
-
-	private static boolean axolotlclient$hasModMenu() {
-		return QuiltLoader.isModLoaded("modmenu") && !QuiltLoader.isModLoaded("axolotlclient-modmenu");
 	}
 
 	@ModifyArg(method = "initWidgets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIIILnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)V", ordinal = 1), index = 5)

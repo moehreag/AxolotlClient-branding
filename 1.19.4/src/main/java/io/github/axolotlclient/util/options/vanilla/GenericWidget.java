@@ -20,33 +20,14 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.api.util;
+package io.github.axolotlclient.util.options.vanilla;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.github.axolotlclient.util.options.GenericOption;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
 
-import io.netty.buffer.ByteBuf;
-
-public interface Serializer<T> {
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ElementType.PARAMETER, ElementType.FIELD})
-	@interface Length {
-		int value() default 0;
-
-		boolean usesIndex() default false;
+public class GenericWidget extends ButtonWidget {
+	public GenericWidget(int x, int y, int width, int height, GenericOption option) {
+		super(x, y, width, height, Text.translatable(option.getLabel()), w -> option.get().onClick(), DEFAULT_NARRATION);
 	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ElementType.FIELD, ElementType.CONSTRUCTOR})
-	@interface Exclude {
-
-	}
-
-	default ByteBuf serialize(T t){
-		return BufferUtil.serialize(t);
-	}
-
-	T deserialize(ByteBuf buf);
 }

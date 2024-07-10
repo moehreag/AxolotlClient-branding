@@ -34,9 +34,9 @@ import net.minecraft.text.Text;
 public class SimpleTextInputScreen extends Screen {
 
 	private final Screen parent;
-	private TextFieldWidget input;
 	private final Text inputLabel;
 	private final Consumer<String> consumer;
+	private TextFieldWidget input;
 
 	public SimpleTextInputScreen(Screen parent, Text title, Text inputLabel, Consumer<String> consumer) {
 		super(title);

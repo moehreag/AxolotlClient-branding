@@ -95,11 +95,28 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 			this.user = user;
 		}
 
+		protected static void drawScrollableText(MatrixStack matrices, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
+			int i = textRenderer.getWidth(text);
+			int j = (top + bottom - 9) / 2 + 1;
+			int k = right - left;
+			if (i > k) {
+				int l = i - k;
+				double d = (double) Util.getMeasuringTimeMs() / 1000.0;
+				double e = Math.max((double) l * 0.5, 3.0);
+				double f = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d / e)) / 2.0 + 0.5;
+				double g = MathHelper.lerp(f, 0.0, l);
+				enableScissor(left, top, right, bottom);
+				drawTextWithShadow(matrices, textRenderer, text, left - (int) g, j, color);
+				disableScissor();
+			} else {
+				drawTextWithShadow(matrices, textRenderer, text, left, j, color);
+			}
+		}
+
 		public UserListEntry init(ChatScreen screen) {
 			this.screen = screen;
 			return this;
 		}
-
 
 		@Override
 		public Text getNarration() {
@@ -127,24 +144,6 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 			drawTexture(matrices, x, y, entryHeight, entryHeight, 8, 8, 8, 8, 64, 64);
 			drawTexture(matrices, x, y, entryHeight, entryHeight, 40, 8, 8, 8, 64, 64);
 			RenderSystem.disableBlend();
-		}
-
-		protected static void drawScrollableText(MatrixStack matrices, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
-			int i = textRenderer.getWidth(text);
-			int j = (top + bottom - 9) / 2 + 1;
-			int k = right - left;
-			if (i > k) {
-				int l = i - k;
-				double d = (double) Util.getMeasuringTimeMs() / 1000.0;
-				double e = Math.max((double) l * 0.5, 3.0);
-				double f = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d / e)) / 2.0 + 0.5;
-				double g = MathHelper.lerp(f, 0.0, l);
-				enableScissor(left, top, right, bottom);
-				drawTextWithShadow(matrices, textRenderer, text, left - (int) g, j, color);
-				disableScissor();
-			} else {
-				drawTextWithShadow(matrices, textRenderer, text, left, j, color);
-			}
 		}
 
 		@Override

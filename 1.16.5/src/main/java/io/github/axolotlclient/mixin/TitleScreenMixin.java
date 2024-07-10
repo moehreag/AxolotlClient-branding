@@ -70,20 +70,20 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addButton(new AuthWidget());
 		}
-		if(APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addButton(new ButtonWidget(width - 125, 10, 120, 20,
 				new TranslatableText("api.new_version_available"), widget ->
 				MinecraftClient.getInstance().openScreen(new ConfirmChatLinkScreen(r -> {
-					if (r){
-						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+					if (r) {
+						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 					}
 				}, "https://modrinth.com/mod/axolotlclient/versions", true))));
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
-			addButton(new ButtonWidget(width-125, 25, 120, 20,
+			addButton(new ButtonWidget(width - 125, 25, 120, 20,
 				new TranslatableText("api.notes"), buttonWidget ->
 				MinecraftClient.getInstance().openScreen(new NewsScreen(this))));
 		}

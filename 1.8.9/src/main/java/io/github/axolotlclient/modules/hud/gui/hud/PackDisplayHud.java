@@ -28,16 +28,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.resource.ResourcePack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.client.render.texture.DynamicTexture;
+import net.minecraft.client.resource.pack.ResourcePack;
+import net.minecraft.resource.Identifier;
 
 public class PackDisplayHud extends TextHudEntry {
 
@@ -93,7 +93,7 @@ public class PackDisplayHud extends TextHudEntry {
 
 		AtomicInteger w = new AtomicInteger(20);
 		widgets.forEach(packWidget -> {
-			int textW = MinecraftClient.getInstance().textRenderer.getStringWidth(packWidget.getName()) + 20;
+			int textW = Minecraft.getInstance().textRenderer.getWidth(packWidget.getName()) + 20;
 			if (textW > w.get())
 				w.set(textW);
 		});
@@ -118,7 +118,7 @@ public class PackDisplayHud extends TextHudEntry {
 			onBoundsUpdate();
 		}
 		if (placeholder == null) {
-			placeholder = new PackWidget(MinecraftClient.getInstance().getResourcePackLoader().defaultResourcePack);
+			placeholder = new PackWidget(Minecraft.getInstance().getResourcePacks().defaultPack);
 		}
 		placeholder.render(getPos().x + 1, getPos().y + 1);
 	}
@@ -149,7 +149,7 @@ public class PackDisplayHud extends TextHudEntry {
 		public PackWidget(ResourcePack pack) {
 			this.name = pack.getName();
 			try {
-				this.texture = new NativeImageBackedTexture(pack.getIcon()).getGlId();
+				this.texture = new DynamicTexture(pack.getIcon()).getGlId();
 			} catch (Exception e) {
 				AxolotlClient.LOGGER.warn("Pack " + pack.getName()
 					+ " somehow threw an error! Please investigate... Does it have an icon?");
@@ -158,11 +158,11 @@ public class PackDisplayHud extends TextHudEntry {
 
 		public void render(int x, int y) {
 			if (!iconsOnly.get()) {
-				GlStateManager.color(1, 1, 1, 1F);
+				GlStateManager.color4f(1, 1, 1, 1F);
 				GlStateManager.bindTexture(texture);
-				DrawableHelper.drawTexture(x, y, 0, 0, 16, 16, 16, 16);
+				GuiElement.drawTexture(x, y, 0, 0, 16, 16, 16, 16);
 			}
-			drawString(name, x + 18, y + 6, textColor.get().getAsInt(), shadow.get());
+			drawString(name, x + 18, y + 6, textColor.get().toInt(), shadow.get());
 		}
 	}
 }

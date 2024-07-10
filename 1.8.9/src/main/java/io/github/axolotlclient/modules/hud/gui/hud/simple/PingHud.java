@@ -25,24 +25,24 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 import java.net.InetAddress;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import io.github.axolotlclient.util.ThreadExecuter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.ServerAddress;
-import net.minecraft.network.listener.ClientQueryPacketListener;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.ServerAddress;
+import net.minecraft.client.network.handler.ClientQueryPacketHandler;
+import net.minecraft.network.Connection;
+import net.minecraft.network.NetworkProtocol;
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
-import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
-import net.minecraft.network.packet.c2s.query.QueryRequestC2SPacket;
-import net.minecraft.network.packet.s2c.query.QueryPongS2CPacket;
-import net.minecraft.network.packet.s2c.query.QueryResponseS2CPacket;
+import net.minecraft.network.packet.c2s.query.PingC2SPacket;
+import net.minecraft.network.packet.c2s.query.ServerStatusC2SPacket;
+import net.minecraft.network.packet.s2c.query.PingS2CPacket;
+import net.minecraft.network.packet.s2c.query.ServerStatusS2CPacket;
+import net.minecraft.resource.Identifier;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -82,18 +82,18 @@ public class PingHud extends SimpleTextHudEntry {
 	}
 
 	private void updatePing() {
-		if (MinecraftClient.getInstance().getCurrentServerEntry() != null) {
-			if (MinecraftClient.getInstance().getCurrentServerEntry().ping <= 1) {
+		if (Minecraft.getInstance().getCurrentServerEntry() != null) {
+			if (Minecraft.getInstance().getCurrentServerEntry().ping <= 1) {
 				ServerAddress address = ServerAddress
-					.parse(MinecraftClient.getInstance().getCurrentServerEntry().address);
+					.parse(Minecraft.getInstance().getCurrentServerEntry().address);
 				getRealTimeServerPing(address.getAddress(), address.getPort());
 			} else {
-				currentServerPing = (int) MinecraftClient.getInstance().getCurrentServerEntry().ping;
+				currentServerPing = (int) Minecraft.getInstance().getCurrentServerEntry().ping;
 			}
-		} else if (((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerAddress() != null) {
-			getRealTimeServerPing(((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerAddress(),
-				((MinecraftClientAccessor) MinecraftClient.getInstance()).getServerPort());
-		} else if (MinecraftClient.getInstance().isIntegratedServerRunning()) {
+		} else if (((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress() != null) {
+			getRealTimeServerPing(((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress(),
+				((MinecraftClientAccessor) Minecraft.getInstance()).getServerPort());
+		} else if (Minecraft.getInstance().isIntegratedServerRunning()) {
 			currentServerPing = 1;
 		}
 	}
@@ -103,32 +103,33 @@ public class PingHud extends SimpleTextHudEntry {
 	private void getRealTimeServerPing(String address, int port) {
 		ThreadExecuter.scheduleTask(() -> {
 			try {
-				final ClientConnection manager = ClientConnection.connect(InetAddress.getByName(address), port, false);
+				final Connection manager = Connection.connect(InetAddress.getByName(address), port, false);
 
-				manager.setPacketListener(new ClientQueryPacketListener() {
+				manager.setListener(new ClientQueryPacketHandler() {
 
 					private long currentSystemTime = 0L;
 
 					@Override
-					public void onResponse(QueryResponseS2CPacket packet) {
-						this.currentSystemTime = MinecraftClient.getTime();
-						manager.send(new QueryPingC2SPacket(this.currentSystemTime));
+					public void onDisconnect(Text text) {
+
 					}
 
 					@Override
-					public void onPong(QueryPongS2CPacket packet) {
+					public void handleServerStatus(ServerStatusS2CPacket serverStatusS2CPacket) {
+						this.currentSystemTime = Minecraft.getTime();
+						manager.send(new PingC2SPacket(this.currentSystemTime));
+					}
+
+					@Override
+					public void handlePing(PingS2CPacket pingS2CPacket) {
 						long time = this.currentSystemTime;
-						long latency = MinecraftClient.getTime();
+						long latency = Minecraft.getTime();
 						currentServerPing = (int) (latency - time);
 						manager.disconnect(new LiteralText(""));
 					}
-
-					@Override
-					public void onDisconnected(Text reason) {
-					}
 				});
-				manager.send(new HandshakeC2SPacket(47, address, port, NetworkState.STATUS));
-				manager.send(new QueryRequestC2SPacket());
+				manager.send(new HandshakeC2SPacket(47, address, port, NetworkProtocol.STATUS));
+				manager.send(new ServerStatusC2SPacket());
 			} catch (Exception ignored) {
 			}
 		});

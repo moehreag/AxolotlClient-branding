@@ -71,20 +71,20 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@Inject(method = "initWidgetsNormal", at = @At("HEAD"))
 	public void axolotlclient$inMenu(int y, int spacingY, CallbackInfo ci) {
-		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key.get())) {
+		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key)) {
 			MinecraftClient.getInstance().options.saveToolbarActivatorKey.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
 		if (Auth.getInstance().showButton.get()) {
 			addDrawableChild(new AuthWidget());
 		}
-		if(APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
 					MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
-						if (r){
-							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+						if (r) {
+							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 						}
 					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
 				.positionAndSize(width - 125, 10, 120, 20).build());
@@ -93,7 +93,7 @@ public abstract class TitleScreenMixin extends Screen {
 			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
 					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
-				.positionAndSize(width-125, 25, 120, 20).build());
+				.positionAndSize(width - 125, 25, 120, 20).build());
 		}
 	}
 

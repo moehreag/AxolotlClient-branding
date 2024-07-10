@@ -1,0 +1,16 @@
+{
+	"styles": {
+		"vanilla": {
+			"widgets": {
+				"forceableboolean": "io.github.axolotlclient.util.options.vanilla.ForceableBooleanWidget",
+				"generic": "io.github.axolotlclient.util.options.vanilla.GenericWidget"
+			}
+		},
+		"rounded": {
+			"widgets": {
+				"forceableboolean": "io.github.axolotlclient.util.options.rounded.ForceableBooleanWidget",
+				"generic": "io.github.axolotlclient.util.options.rounded.GenericWidget"
+			}
+		}
+	}
+}

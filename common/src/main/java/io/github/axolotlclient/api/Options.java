@@ -24,10 +24,12 @@ package io.github.axolotlclient.api;
 
 import java.util.function.Consumer;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
+import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.util.ThreadExecuter;
 
@@ -35,10 +37,11 @@ public abstract class Options implements Module {
 
 	protected Consumer<Consumer<Boolean>> openPrivacyNoteScreen = v -> {
 	};
-
-	public EnumOption privacyAccepted = new EnumOption("privacyPolicyAccepted", new String[]{"unset", "accepted", "denied"}, "unset");
-
-	public final BooleanOption enabled = new BooleanOption("enabled", value -> {
+	public StringArrayOption privacyAccepted = new StringArrayOption("privacyPolicyAccepted", new String[]{"unset", "accepted", "denied"}, "unset");
+	public final BooleanOption statusUpdateNotifs = new BooleanOption("statusUpdateNotifs", true);
+	public final BooleanOption friendRequestsEnabled = new BooleanOption("friendRequestsEnabled", true);
+	public final BooleanOption detailedLogging = new BooleanOption("detailedLogging", false);
+	public final BooleanOption enabled = new BooleanOption("enabled", true, value -> {
 		if (value) {
 			if (!privacyAccepted.get().equals("accepted")) {
 				openPrivacyNoteScreen.accept(v -> {
@@ -50,17 +53,30 @@ public abstract class Options implements Module {
 		} else {
 			ThreadExecuter.scheduleTask(() -> API.getInstance().shutdown());
 		}
-	}, true);
-	public final BooleanOption statusUpdateNotifs = new BooleanOption("statusUpdateNotifs", true);
-	public final BooleanOption friendRequestsEnabled = new BooleanOption("friendRequestsEnabled", true);
-	public final BooleanOption detailedLogging = new BooleanOption("detailedLogging", false);
+	});
 	public final BooleanOption updateNotifications = new BooleanOption("api.update_notifications", true);
 	public final BooleanOption displayNotes = new BooleanOption("api.display_notes", true);
-	protected final OptionCategory category = new OptionCategory("api.category");
-	public KeyBindOption openSidebar;
+	public final StringOption pkToken = new StringOption("api.pk_token", "", s ->
+		PkSystem.fromToken(s).thenAccept(sys -> {
+			if (sys != null) {
+				API.getInstance().getSelf().setSystem(sys);
+			}
+		}));
+	public final BooleanOption autoproxy = new BooleanOption("api.pk_autoproxy", false);
+	public final EnumOption<PkSystem.ProxyMode> autoproxyMode = new EnumOption<>("api.pk_proxymode", PkSystem.ProxyMode.class, PkSystem.ProxyMode.PROXY_OFF);
+	public final StringOption autoproxyMember = new StringOption("api.pk_autoproxy_member", "", s -> {
+		if (API.getInstance().getSelf() != null && API.getInstance().getSelf().getSystem() != null){
+			API.getInstance().getSelf().getSystem().updateAutoproxyMember(s);
+		}
+	});
+	protected final OptionCategory category = OptionCategory.create("api.category");
+	protected final OptionCategory pluralkit = OptionCategory.create("api.pluralkit");
 
 	@Override
 	public void init() {
+		pkToken.setMaxLength(65);
+		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
+		category.add(pluralkit);
 		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, detailedLogging, updateNotifications, displayNotes);
 	}
 }

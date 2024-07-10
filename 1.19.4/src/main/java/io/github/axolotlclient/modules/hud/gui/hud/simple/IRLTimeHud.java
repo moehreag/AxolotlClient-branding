@@ -27,8 +27,8 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import net.minecraft.util.Identifier;
 
@@ -47,7 +47,7 @@ public class IRLTimeHud extends SimpleTextHudEntry {
 	private DateTimeFormatter formatter = null;
 	private boolean error = false;
 
-	private final StringOption format = new StringOption("dateformat", this::updateDateTimeFormatter, "HH:mm:ss");
+	private final StringOption format = new StringOption("dateformat", "HH:mm:ss", this::updateDateTimeFormatter);
 
 	@Override
 	public Identifier getId() {

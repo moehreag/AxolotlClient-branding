@@ -22,9 +22,16 @@
 
 package io.github.axolotlclient.util;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 
 public class GsonHelper {
 
@@ -32,5 +39,50 @@ public class GsonHelper {
 
 	public static JsonObject fromJson(String s) {
 		return GSON.fromJson(s, JsonObject.class);
+	}
+
+	public static Object read(JsonReader reader) throws IOException {
+		switch (reader.peek()) {
+			case BEGIN_ARRAY:
+				List<Object> list = new ArrayList<>();
+
+				reader.beginArray();
+
+				while (reader.hasNext()) {
+					list.add(read(reader));
+				}
+
+				reader.endArray();
+
+				return list;
+			case BEGIN_OBJECT:
+				Map<String, Object> object = new LinkedHashMap<>();
+
+				reader.beginObject();
+
+				while (reader.hasNext()) {
+					String key = reader.nextName();
+					object.put(key, read(reader));
+				}
+
+				reader.endObject();
+
+				return object;
+			case STRING:
+				return reader.nextString();
+			case NUMBER:
+				return reader.nextDouble();
+			case BOOLEAN:
+				return reader.nextBoolean();
+			case NULL:
+				return null;
+			// Unused, probably a sign of malformed json
+			case NAME:
+			case END_DOCUMENT:
+			case END_ARRAY:
+			case END_OBJECT:
+			default:
+				throw new IllegalStateException();
+		}
 	}
 }

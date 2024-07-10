@@ -50,7 +50,7 @@ public class LoggerImpl implements Logger {
 
 	public void debug(String message, Object... args) {
 		if (AxolotlClient.CONFIG.debugLogOutput.get()) {
-			info(modId + "[DEBUG] " + message, args);
+			LOGGER.info(modId + "[DEBUG] " + message, args);
 		}
 	}
 }

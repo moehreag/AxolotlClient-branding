@@ -22,14 +22,21 @@
 
 package io.github.axolotlclient.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.glfw.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.texture.NativeImage;
+import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.ChatPreview;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
@@ -38,6 +45,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ChatUtil;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
@@ -192,13 +200,36 @@ public class Util {
 			(int) (width * scale), (int) (height * scale));
 	}
 
+	public static void bindTexture(GraphicsOption option) {
+		Identifier id = new Identifier("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
+		try {
+			NativeImageBackedTexture texture;
+			if (MinecraftClient.getInstance().getTextureManager().getOrDefault(id, null) == null) {
+				texture = new NativeImageBackedTexture(NativeImage.read(new ByteArrayInputStream(option.get().getPixelData())));
+				MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
+			} else {
+				texture = (NativeImageBackedTexture) MinecraftClient.getInstance().getTextureManager().getTexture(id);
+				for (int x = 0; x < option.get().getWidth(); x++) {
+					for (int y = 0; y < option.get().getHeight(); y++) {
+						texture.getImage().setPixelColor(x, y, option.get().getPixelColor(x, y));
+					}
+				}
+			}
+
+			texture.upload();
+			RenderSystem.setShaderTexture(0, id);
+		} catch (IOException e) {
+			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
+		}
+	}
+
 	public static double lerp(double start, double end, double percent) {
 		return start + ((end - start) * percent);
 	}
 
 	public static String toRoman(int number) {
 		if (number > 0) {
-			return String.join("", Collections.nCopies(number, "I")).replace("IIIII", "V").replace("IIII", "IV")
+			return "I".repeat(number).replace("IIIII", "V").replace("IIII", "IV")
 				.replace("VV", "X").replace("VIV", "IX").replace("XXXXX", "L").replace("XXXX", "XL")
 				.replace("LL", "C").replace("LXL", "XC").replace("CCCCC", "D").replace("CCCC", "CD")
 				.replace("DD", "M").replace("DCD", "CM");

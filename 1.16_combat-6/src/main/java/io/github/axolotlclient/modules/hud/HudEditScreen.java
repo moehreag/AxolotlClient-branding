@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Optional;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.screen.OptionsScreenBuilder;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.ConfigStyles;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
@@ -52,11 +52,11 @@ import net.minecraft.text.TranslatableText;
 public class HudEditScreen extends Screen {
 
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
-	private static final OptionCategory hudEditScreenCategory = new OptionCategory("hudEditScreen");
+	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
 	static {
 		hudEditScreenCategory.add(snapping);
-		AxolotlClient.config.addSubCategory(hudEditScreenCategory);
+		AxolotlClient.config.add(hudEditScreenCategory);
 	}
 
 	private final Screen parent;
@@ -117,9 +117,10 @@ public class HudEditScreen extends Screen {
 			}));
 
 		this.addButton(new ButtonWidget(width / 2 - 75, height / 2 - 10, 150, 20, new TranslatableText("hud.clientOptions"),
-			buttonWidget -> MinecraftClient.getInstance().openScreen(new OptionsScreenBuilder(this,
-				(OptionCategory) new OptionCategory("config", false).addSubCategories(AxolotlClient.CONFIG.getCategories()),
-				AxolotlClient.MODID))));
+			buttonWidget -> {
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager.getRoot());
+				MinecraftClient.getInstance().openScreen(screen);
+			}));
 
 		if (parent != null)
 			addButton(new ButtonWidget(width / 2 - 75, height - 50 + 22, 150, 20, ScreenTexts.BACK,
@@ -146,8 +147,10 @@ public class HudEditScreen extends Screen {
 				current = null;
 			}
 		} else if (button == 1) {
-			entry.ifPresent(abstractHudEntry -> MinecraftClient.getInstance().openScreen(
-				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.MODID)));
+			entry.ifPresent(abstractHudEntry -> {
+				Screen screen = ConfigStyles.createScreen(this, abstractHudEntry.getOptionsAsCategory());
+				MinecraftClient.getInstance().openScreen(screen);
+			});
 		}
 		return false;
 	}

@@ -25,27 +25,27 @@ package io.github.axolotlclient.modules.auth;
 import java.nio.file.Path;
 import java.util.*;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.UserApiService;
-import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
-import com.mojang.util.UUIDTypeAdapter;
+import com.mojang.authlib.yggdrasil.ProfileResult;
+import com.mojang.util.UndashedUuid;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.Notifications;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.multiplayer.report.ReportEnvironment;
-import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.multiplayer.report.AbuseReportContext;
+import net.minecraft.client.multiplayer.report.AbuseReportEnvironment;
 import net.minecraft.client.network.SocialInteractionsManager;
+import net.minecraft.client.texture.PlayerSkin;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.util.PlayerKeyPairManager;
 import net.minecraft.client.util.Session;
@@ -59,27 +59,25 @@ public class Auth extends Accounts implements Module {
 	private final static Auth Instance = new Auth();
 	public final BooleanOption showButton = new BooleanOption("auth.showButton", false);
 	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", (x, y) -> client.setScreen(new AccountsScreen(client.currentScreen)));
-
-	private final Map<String, Identifier> textures = new HashMap<>();
+	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", () -> client.setScreen(new AccountsScreen(client.currentScreen)));
 	private final Set<String> loadingTexture = new HashSet<>();
-	private final Map<String, GameProfile> profileCache = new WeakHashMap<>();
+	private final Map<String, Identifier> textures = new HashMap<>();
 
 	@Override
 	public void init() {
 		load();
-		this.auth = new MSAuth(AxolotlClient.LOGGER, this);
-		if (isContained(client.getSession().getUuid())) {
-			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).toList().get(0);
-			if (current.isExpired()) {
+		this.auth = new MSAuth(AxolotlClient.LOGGER, this, () -> client.options.language);
+		if (isContained(client.getSession().getSessionId())) {
+			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getPlayerUuid())).toList().get(0);
+			if (current.needsRefresh()) {
 				current.refresh(auth, () -> {
 				});
 			}
 		} else {
-			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
+			current = new Account(client.getSession().getUsername(), UndashedUuid.toString(client.getSession().getPlayerUuid()), client.getSession().getAccessToken());
 		}
 
-		OptionCategory category = new OptionCategory("auth");
+		OptionCategory category = OptionCategory.create("auth");
 		category.add(showButton, viewAccounts);
 		AxolotlClient.CONFIG.general.add(category);
 	}
@@ -98,31 +96,37 @@ public class Auth extends Accounts implements Module {
 		Runnable runnable = () -> {
 			try {
 				API.getInstance().shutdown();
-				((MinecraftClientAccessor) client).axolotlclient$setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(),
+				((MinecraftClientAccessor) client).axolotlclient$setSession(new Session(account.getName(), UndashedUuid.fromString(account.getUuid()), account.getAuthToken(),
 					Optional.empty(), Optional.empty(),
 					Session.AccountType.MSA));
 				UserApiService service;
 				if (account.isOffline()) {
 					service = UserApiService.OFFLINE;
 				} else {
-					service = ((YggdrasilMinecraftSessionService) MinecraftClient.getInstance().getSessionService()).getAuthenticationService().createUserApiService(client.getSession().getAccessToken());
+					//try {
+						service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
+					//} catch (InvalidCredentialsException e){
+					//	account.refresh(getAuth(), () -> {});
+					//	return;
+					//}
 					API.getInstance().startup(account);
 				}
 				((MinecraftClientAccessor) client).axolotlclient$setUserApiService(service);
 				((MinecraftClientAccessor) client).axolotlclient$setSocialInteractionsManager(new SocialInteractionsManager(client, service));
 				((MinecraftClientAccessor) client).axolotlclient$setPlayerKeyPairManager(PlayerKeyPairManager.create(service, client.getSession(), client.runDirectory.toPath()));
-				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(ChatReportingContext.create(ReportEnvironment.createLocal(), service));
+				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(AbuseReportContext.create(AbuseReportEnvironment.createLocal(), service));
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.successful", (Object) current.getName()));
-			} catch (AuthenticationException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.failed"));
 			}
 		};
 
-		if (account.isExpired() && !account.isOffline()) {
-			Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", (Object) account.getName()));
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
+			}
 			account.refresh(auth, runnable);
 		} else {
 			new Thread(runnable).start();
@@ -135,29 +139,34 @@ public class Auth extends Accounts implements Module {
 	}
 
 	@Override
-	public void loadTextures(String uuid, String name) {
-		if (!textures.containsKey(uuid) && !loadingTexture.contains(uuid)) {
+	void showAccountsExpiredScreen(Account account) {
+		Screen current = client.currentScreen;
+		client.execute(() -> client.setScreen(new ConfirmScreen((bl) -> {
+			client.setScreen(current);
+			if (bl) {
+				auth.startDeviceAuth(() -> {
+				});
+			}
+		}, Text.translatable("auth"), Text.translatable("auth.accountExpiredNotice", account.getName()))));
+	}
+
+	@Override
+	void displayDeviceCode(DeviceFlowData data) {
+		Screen display = new DeviceCodeDisplayScreen(client.currentScreen, data);
+		client.setScreen(display);
+	}
+
+	private void loadTexture(String uuid) {
+		if (!loadingTexture.contains(uuid)) {
+			loadingTexture.add(uuid);
 			ThreadExecuter.scheduleTask(() -> {
-				loadingTexture.add(uuid);
-				GameProfile gameProfile;
-				if (profileCache.containsKey(uuid)) {
-					gameProfile = profileCache.get(uuid);
-				} else {
-					try {
-						UUID uUID = UUIDTypeAdapter.fromString(uuid);
-						gameProfile = new GameProfile(uUID, name);
-						gameProfile = client.getSessionService().fillProfileProperties(gameProfile, false);
-					} catch (IllegalArgumentException var2) {
-						gameProfile = new GameProfile(null, name);
-					}
-					profileCache.put(uuid, gameProfile);
+				UUID uUID = UndashedUuid.fromString(uuid);
+				ProfileResult profileResult = client.getSessionService().fetchProfile(uUID, false);
+				if (profileResult != null) {
+					PlayerSkin playerSkin = client.getSkinProvider().getSkin(profileResult.profile());
+					textures.put(uuid, playerSkin.texture());
+					loadingTexture.remove(uuid);
 				}
-				client.getSkinProvider().loadSkin(gameProfile, ((type, id, tex) -> {
-					if (type == MinecraftProfileTexture.Type.SKIN) {
-						textures.put(uuid, id);
-						loadingTexture.remove(uuid);
-					}
-				}), false);
 			});
 		}
 	}
@@ -167,16 +176,10 @@ public class Auth extends Accounts implements Module {
 	}
 
 	public Identifier getSkinTexture(String uuid, String name) {
-		loadTextures(uuid, name);
-		Identifier id;
-		if ((id = textures.get(uuid)) != null) {
-			return id;
+		if (!textures.containsKey(uuid)) {
+			loadTexture(uuid);
+			return DefaultSkinHelper.getSkin(UndashedUuid.fromString(uuid)).texture();
 		}
-		try {
-			UUID uUID = UUIDTypeAdapter.fromString(uuid);
-			return DefaultSkinHelper.getTexture(uUID);
-		} catch (IllegalArgumentException ignored) {
-			return DefaultSkinHelper.getTexture();
-		}
+		return textures.get(uuid);
 	}
 }

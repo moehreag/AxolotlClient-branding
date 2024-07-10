@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.Util;
 import io.github.axolotlclient.util.events.Events;
@@ -53,7 +53,7 @@ public class AutoGG implements AbstractHypixelMod {
 	public final StringOption gfString = new StringOption("gfString", "gf");
 	public final BooleanOption glhf = new BooleanOption("printGLHF", false);
 	public final StringOption glhfString = new StringOption("glhfString", "glhf");
-	private final OptionCategory category = new OptionCategory("autogg");
+	private final OptionCategory category = OptionCategory.create("autogg");
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final BooleanOption onHypixel = new BooleanOption("onHypixel", false);
 	private final BooleanOption onBWP = new BooleanOption("onBWP", false);

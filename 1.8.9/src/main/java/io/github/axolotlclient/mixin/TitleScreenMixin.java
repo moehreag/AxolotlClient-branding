@@ -22,7 +22,11 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
@@ -35,17 +39,20 @@ import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.ClientBrandRetriever;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.resource.Identifier;
+import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(TitleScreen.class)
@@ -64,14 +71,14 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(new AuthWidget());
 		}
-		if(APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			buttons.add(new ButtonWidget(182, width - 125, 10, 120, 20, I18n.translate("api.new_version_available")));
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
-			buttons.add(new ButtonWidget(253, width-125, 25, 120, 20,
+			buttons.add(new ButtonWidget(253, width - 125, 25, 120, 20,
 				I18n.translate("api.notes")));
 		}
 	}
@@ -98,28 +105,38 @@ public abstract class TitleScreenMixin extends Screen {
 	@Inject(method = "buttonClicked", at = @At("TAIL"))
 	public void axolotlclient$onClick(ButtonWidget button, CallbackInfo ci) {
 		if (button.id == 192)
-			MinecraftClient.getInstance().setScreen(new HudEditScreen(this));
+			Minecraft.getInstance().openScreen(new HudEditScreen(this));
 		else if (button.id == 242)
-			MinecraftClient.getInstance().setScreen(new AccountsScreen(MinecraftClient.getInstance().currentScreen));
+			Minecraft.getInstance().openScreen(new AccountsScreen(Minecraft.getInstance().screen));
 		else if (button.id == 182)
-			MinecraftClient.getInstance().setScreen(new ConfirmChatLinkScreen((bl, i) -> {
-				if(bl && i == 353){
-					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+			Minecraft.getInstance().openScreen(new ConfirmChatLinkScreen((bl, i) -> {
+				if (bl && i == 353) {
+					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 				}
-				MinecraftClient.getInstance().setScreen(this);
+				Minecraft.getInstance().openScreen(this);
 			}, "https://modrinth.com/mod/axolotlclient/versions", 353, true));
 		else if (button.id == 253)
-			MinecraftClient.getInstance().setScreen(new NewsScreen(this));
+			Minecraft.getInstance().openScreen(new NewsScreen(this));
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
 	public void axolotlclient$customBranding(TitleScreen instance, TextRenderer textRenderer, String s, int x, int y, int color) {
 		if (FabricLoader.getInstance().getModContainer("axolotlclient").isPresent()) {
-			instance.drawWithShadow(textRenderer,
+			instance.drawString(textRenderer,
 				"Minecraft 1.8.9/" + ClientBrandRetriever.getClientModName() + " " + AxolotlClient.VERSION,
 				x, y, color);
 		} else {
-			instance.drawWithShadow(textRenderer, s, x, y, color);
+			instance.drawString(textRenderer, s, x, y, color);
+		}
+	}
+
+	@Inject(method = "<init>",
+		at = @At(value = "INVOKE",
+			target = "Ljava/util/List;isEmpty()Z", remap = false), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	private void axolotlclient$customSplashTexts(CallbackInfo ci, BufferedReader bufferedReader, List<String> list) throws IOException {
+		try (InputStream input = Minecraft.getInstance().getResourceManager()
+			.getResource(new Identifier("axolotlclient", "texts/splashes.txt")).asStream()) {
+			list.addAll(IOUtils.readLines(input));
 		}
 	}
 }

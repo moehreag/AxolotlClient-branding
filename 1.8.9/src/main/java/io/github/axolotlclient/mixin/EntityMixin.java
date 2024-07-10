@@ -41,7 +41,7 @@ public abstract class EntityMixin {
 	@Shadow
 	public float pitch;
 
-	@Inject(method = "increaseTransforms", at = @At("HEAD"))
+	@Inject(method = "updateLocalPlayerCamera", at = @At("HEAD"))
 	private void axolotlclient$updateLookDirection(float yaw, float pitch, CallbackInfo ci) {
 		if (yaw == 0 && pitch == 0) {
 			return;

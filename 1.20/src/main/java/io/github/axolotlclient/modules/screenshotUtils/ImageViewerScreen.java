@@ -44,8 +44,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.CommonTexts;
@@ -76,8 +76,6 @@ public class ImageViewerScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics);
-
 		super.render(graphics, mouseX, mouseY, delta);
 
 		if (imageId != null) {
@@ -132,11 +130,11 @@ public class ImageViewerScreen extends Screen {
 		if (!url.isEmpty()) {
 			urlBox.setText(url);
 		}
-		addDrawableChild(urlBox);
+		addDrawableSelectableElement(urlBox);
 
 		setFocusedChild(urlBox);
 
-		addDrawableChild(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
+		addDrawableSelectableElement(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
 			20, 20, Text.translatable("download"), buttonWidget -> {
 			//Logger.info("Downloading image from "+urlBox.getText());
 			imageId = downloadImage(url = urlBox.getText());
@@ -150,7 +148,7 @@ public class ImageViewerScreen extends Screen {
 			}
 		});
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK,
+		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK,
 				buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
 			.position(width / 2 - 75, height - 50).build());
 
@@ -188,7 +186,7 @@ public class ImageViewerScreen extends Screen {
 		addImageButton(copy, true);
 
 		ButtonWidget about = ButtonWidget.builder(Text.translatable("aboutAction"), buttonWidget -> {
-			OSUtil.getOS().open(aboutPage, AxolotlClient.LOGGER);
+			OSUtil.getOS().open(aboutPage);
 		}).position(width - 60, 100).width(50).tooltip(Tooltip.create(Text.translatable("about_image"))).build();
 		addImageButton(about, true);
 	}
@@ -217,12 +215,7 @@ public class ImageViewerScreen extends Screen {
 	}
 
 	private void addImageButton(ButtonWidget button, boolean right) {
-		addSelectableChild(button);
+		addSelectableElement(button);
 		editButtons.put(button, right);
-	}
-
-	@Override
-	public void tick() {
-		urlBox.tick();
 	}
 }

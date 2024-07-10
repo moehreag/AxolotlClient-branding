@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
+import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.client.util.TextCollector;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -54,7 +54,7 @@ import net.minecraft.util.Language;
 public class ItemUpdateHud extends TextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "itemupdatehud");
-	private final IntegerOption timeout = new IntegerOption("timeout", ID.getPath(), 6, 1, 60);
+	private final IntegerOption timeout = new IntegerOption("timeout", 6, 1, 60);
 	private List<ItemUtil.ItemStorage> oldItems = new ArrayList<>();
 	private ArrayList<ItemUtil.TimedItemStorage> removed;
 	private ArrayList<ItemUtil.TimedItemStorage> added;
@@ -136,17 +136,17 @@ public class ItemUpdateHud extends TextHudEntry {
 			TextCollector message = new TextCollector();
 			message.add(new LiteralText("+ "));
 			message.add(
-				new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+				new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.add(new LiteralText(item.times + "").setStyle(Style.EMPTY.withColor(Formatting.WHITE)));
 			message.add(
-				new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+				new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.add(item.stack.getName());
 			OrderedText text = Language.getInstance().reorder(message.getCombined());
 			if (shadow.get()) {
 				client.textRenderer.drawWithShadow(matrices, text, pos.x(), pos.y() + lastY,
-					Color.SELECTOR_GREEN.getAsInt());
+					ClientColors.SELECTOR_GREEN.toInt());
 			} else {
-				client.textRenderer.draw(matrices, text, pos.x(), pos.y() + lastY, Color.SELECTOR_GREEN.getAsInt());
+				client.textRenderer.draw(matrices, text, pos.x(), pos.y() + lastY, ClientColors.SELECTOR_GREEN.toInt());
 			}
 			lastY = lastY + client.textRenderer.fontHeight + 2;
 			i++;
@@ -158,10 +158,10 @@ public class ItemUpdateHud extends TextHudEntry {
 			TextCollector message = new TextCollector();
 			message.add(new LiteralText("- "));
 			message.add(
-				new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+				new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.add(new LiteralText(item.times + "").setStyle(Style.EMPTY.withColor(Formatting.WHITE)));
 			message.add(
-				new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+				new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.add(item.stack.getName());
 			OrderedText text = Language.getInstance().reorder(message.getCombined());
 			if (shadow.get()) {
@@ -180,9 +180,9 @@ public class ItemUpdateHud extends TextHudEntry {
 		DrawPosition pos = getPos();
 		TextCollector addM = new TextCollector();
 		addM.add(new LiteralText("+ "));
-		addM.add(new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+		addM.add(new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 		addM.add(new LiteralText("2").setStyle(Style.EMPTY.withColor(Formatting.WHITE)));
-		addM.add(new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+		addM.add(new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 		addM.add(new ItemStack(Items.DIRT).getName());
 		OrderedText addText = Language.getInstance().reorder(addM.getCombined());
 		if (shadow.get()) {
@@ -193,9 +193,9 @@ public class ItemUpdateHud extends TextHudEntry {
 		}
 		TextCollector removeM = new TextCollector();
 		removeM.add(new LiteralText("- "));
-		removeM.add(new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+		removeM.add(new LiteralText("[").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 		removeM.add(new LiteralText("4").setStyle(Style.EMPTY.withColor(Formatting.WHITE)));
-		removeM.add(new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(Color.DARK_GRAY.getAsInt()))));
+		removeM.add(new LiteralText("] ").setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 		removeM.add(new ItemStack(Items.GRASS).getName());
 		OrderedText removeText = Language.getInstance().reorder(removeM.getCombined());
 		if (shadow.get()) {

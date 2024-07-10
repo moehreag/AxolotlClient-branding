@@ -26,11 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.DefaultConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.common.ConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.managers.VersionedJsonConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.StatusUpdateProviderImpl;
@@ -67,18 +66,45 @@ import net.minecraft.util.Identifier;
 public class AxolotlClient implements ClientModInitializer {
 
 	public static final String MODID = "axolotlclient";
-	public static String VERSION;
 	public static final HashMap<Identifier, Resource> runtimeResources = new HashMap<>();
 	public static final Identifier badgeIcon = new Identifier("axolotlclient", "textures/badge.png");
-	public static final OptionCategory config = new OptionCategory("storedOptions");
+	public static final OptionCategory config = OptionCategory.create("storedOptions");
 	public static final BooleanOption someNiceBackground = new BooleanOption("defNoSecret", false);
 	public static final List<Module> modules = new ArrayList<>();
+	public static String VERSION;
 	public static Logger LOGGER;
 	public static AxolotlClientConfig CONFIG;
 	public static ConfigManager configManager;
 	public static UnsupportedMod badmod;
 	public static boolean titleDisclaimer = false;
 	public static boolean showWarning = true;
+
+	public static void getModules() {
+		modules.add(SkyResourceManager.getInstance());
+		modules.add(Zoom.getInstance());
+		modules.add(HudManager.getInstance());
+		modules.add(HypixelMods.getInstance());
+		modules.add(MotionBlur.getInstance());
+		modules.add(MenuBlur.getInstance());
+		modules.add(ScrollableTooltips.getInstance());
+		modules.add(DiscordRPC.getInstance());
+		modules.add(Freelook.getInstance());
+		modules.add(TntTime.getInstance());
+		modules.add(Particles.getInstance());
+		modules.add(ScreenshotUtils.getInstance());
+		modules.add(BeaconBeam.getInstance());
+		modules.add(Tablist.getInstance());
+		modules.add(Auth.getInstance());
+		modules.add(APIOptions.getInstance());
+	}
+
+	private static void addExternalModules() {
+		modules.addAll(ModuleLoader.loadExternalModules());
+	}
+
+	public static void tickClient() {
+		modules.forEach(Module::tick);
+	}
 
 	@Override
 	public void onInitializeClient() {
@@ -116,17 +142,23 @@ public class AxolotlClient implements ClientModInitializer {
 
 		CONFIG.init();
 
+		new AxolotlClientCommon(LOGGER);
 		new API(LOGGER, Notifications.getInstance(), Translations.getInstance(), new StatusUpdateProviderImpl(), APIOptions.getInstance());
 
 		modules.forEach(Module::init);
 
-		CONFIG.getConfig().addAll(CONFIG.getCategories());
-		CONFIG.getConfig().add(config);
+		CONFIG.config.add(config);
 
-		AxolotlClientConfigManager.getInstance().registerConfig(MODID, CONFIG, configManager = new DefaultConfigManager(MODID,
-			FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"), CONFIG.getConfig()));
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "x");
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "y");
+		io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig.getInstance()
+			.register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
+				CONFIG.config, 1, (oldVersion, newVersion, config, json) -> {
+				// convert changed Options between versions here
+				return json;
+			}));
+		configManager.load();
+		configManager.suppressName("x");
+		configManager.suppressName("y");
+		configManager.suppressName(config.getName());
 
 		modules.forEach(Module::lateInit);
 
@@ -139,32 +171,5 @@ public class AxolotlClient implements ClientModInitializer {
 		LOGGER.debug("Debug Output activated, Logs will be more verbose!");
 
 		LOGGER.info("AxolotlClient Initialized");
-	}
-
-	public static void getModules() {
-		modules.add(SkyResourceManager.getInstance());
-		modules.add(Zoom.getInstance());
-		modules.add(HudManager.getInstance());
-		modules.add(HypixelMods.getInstance());
-		modules.add(MotionBlur.getInstance());
-		modules.add(MenuBlur.getInstance());
-		modules.add(ScrollableTooltips.getInstance());
-		modules.add(DiscordRPC.getInstance());
-		modules.add(Freelook.getInstance());
-		modules.add(TntTime.getInstance());
-		modules.add(Particles.getInstance());
-		modules.add(ScreenshotUtils.getInstance());
-		modules.add(BeaconBeam.getInstance());
-		modules.add(Tablist.getInstance());
-		modules.add(Auth.getInstance());
-		modules.add(APIOptions.getInstance());
-	}
-
-	private static void addExternalModules() {
-		modules.addAll(ModuleLoader.loadExternalModules());
-	}
-
-	public static void tickClient() {
-		modules.forEach(Module::tick);
 	}
 }

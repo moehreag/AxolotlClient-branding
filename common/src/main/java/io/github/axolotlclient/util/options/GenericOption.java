@@ -20,21 +20,46 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.api.util;
+package io.github.axolotlclient.util.options;
 
-import java.time.Instant;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionBase;
+import lombok.Getter;
 
-import io.netty.buffer.ByteBuf;
+@Getter
+public class GenericOption extends OptionBase<GenericOption.ActionListener> {
+	private final String label;
 
-public class InstantSerializer implements Serializer<Instant> {
-
-	@Override
-	public ByteBuf serialize(Instant instant) {
-		return BufferUtil.wrap(instant.getEpochSecond());
+	public GenericOption(String name, String label, ActionListener listener) {
+		super(name, listener);
+		this.label = label;
 	}
 
 	@Override
-	public Instant deserialize(ByteBuf buf) {
-		return Instant.ofEpochSecond(buf.readLong());
+	public void set(ActionListener value) {
+
+	}
+
+	@Override
+	public ActionListener get() {
+		return getDefault();
+	}
+
+	@Override
+	public String toSerializedValue() {
+		return "";
+	}
+
+	@Override
+	public void fromSerializedValue(String s) {
+
+	}
+
+	@Override
+	public String getWidgetIdentifier() {
+		return "generic";
+	}
+
+	public interface ActionListener {
+		void onClick();
 	}
 }

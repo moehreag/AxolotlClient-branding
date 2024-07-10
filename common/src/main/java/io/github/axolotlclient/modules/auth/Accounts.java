@@ -49,9 +49,9 @@ public abstract class Accounts {
 	}
 
 	public void load() {
-		if (getAccountsSaveFile().toFile().exists()) {
+		if (Files.exists(getAccountsSaveFile())) {
 			try {
-				JsonObject list = GsonHelper.GSON.fromJson(String.join("", Files.readAllLines(getAccountsSaveFile())), JsonObject.class);
+				JsonObject list = GsonHelper.GSON.fromJson(Files.newBufferedReader(getAccountsSaveFile()), JsonObject.class);
 				if (list != null) {
 					list.get("accounts").getAsJsonArray().forEach(jsonElement -> accounts.add(Account.deserialize(jsonElement.getAsJsonObject())));
 				}
@@ -60,8 +60,7 @@ public abstract class Accounts {
 			}
 		} else {
 			try {
-				//noinspection ResultOfMethodCallIgnored
-				getAccountsSaveFile().toFile().createNewFile();
+				Files.createFile(getAccountsSaveFile());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -108,8 +107,10 @@ public abstract class Accounts {
 	}
 
 	public boolean allowOfflineAccounts() {
-		return accounts.size() > 0 && !accounts.stream().allMatch(Account::isOffline);
+		return !accounts.isEmpty() && !accounts.stream().allMatch(Account::isOffline);
 	}
 
-	public abstract void loadTextures(String uuid, String name);
+	abstract void showAccountsExpiredScreen(Account account);
+
+	abstract void displayDeviceCode(DeviceFlowData data);
 }

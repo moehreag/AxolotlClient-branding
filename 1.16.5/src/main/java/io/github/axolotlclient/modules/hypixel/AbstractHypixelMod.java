@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.modules.hypixel;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 
 public interface AbstractHypixelMod {
 

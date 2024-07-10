@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.modules.hud.gui.layout;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.text.Text;
 
 /**
@@ -40,7 +40,7 @@ public enum Justification {
 		if (this == LEFT) {
 			return 0;
 		}
-		return getXOffset(MinecraftClient.getInstance().textRenderer.getStringWidth(text.asUnformattedString()), width);
+		return getXOffset(Minecraft.getInstance().textRenderer.getWidth(text.getString()), width);
 	}
 
 	public int getXOffset(int textWidth, int width) {
@@ -57,6 +57,6 @@ public enum Justification {
 		if (this == LEFT) {
 			return 0;
 		}
-		return getXOffset(MinecraftClient.getInstance().textRenderer.getStringWidth(text), width);
+		return getXOffset(Minecraft.getInstance().textRenderer.getWidth(text), width);
 	}
 }

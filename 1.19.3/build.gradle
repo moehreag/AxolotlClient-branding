@@ -1,9 +1,7 @@
 plugins {
-	id 'java'
-	id "org.quiltmc.loom" version "1.2.1"
+	id "org.quiltmc.loom"
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_1193}"
@@ -12,9 +10,14 @@ base.archivesName = "AxolotlClient"
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-repositories {
-	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
+loom {
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
 	}
 }
 
@@ -29,12 +32,21 @@ dependencies {
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1193}") {
 		exclude group: "com.terraformersmc"
+		exclude group: "org.lwjgl"
 	}
 	modCompileOnlyApi("com.terraformersmc:modmenu:5.0.2")
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1193}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
+
+	api("org.lwjgl:lwjgl-nanovg:3.3.1")
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-linux')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-linux-arm64')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-windows')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-windows-arm64')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-macos')
+	localRuntime('org.lwjgl:lwjgl-nanovg:3.3.1:natives-macos-arm64')
 }
 
 processResources {

@@ -22,9 +22,11 @@
 
 package io.github.axolotlclient.modules.hypixel.autoboop;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
+import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
 import net.minecraft.text.Text;
@@ -35,8 +37,8 @@ public class AutoBoop implements AbstractHypixelMod {
 	@Getter
 	private final static AutoBoop Instance = new AutoBoop();
 
-	protected final OptionCategory cat = new OptionCategory("autoBoop");
-	protected final BooleanOption enabled = new BooleanOption("enabled", "autoBoop", false);
+	protected final OptionCategory cat = OptionCategory.create("autoBoop");
+	protected final BooleanOption enabled = new BooleanOption("enabled", "autoBoop.enabled.tooltip", false);
 
 	@Override
 	public void init() {
@@ -52,7 +54,14 @@ public class AutoBoop implements AbstractHypixelMod {
 		if (enabled.get() && message.getString().contains("Friend >") && message.getString().contains("joined.")) {
 			String player = message.getString().substring(message.getString().indexOf(">"),
 				message.getString().lastIndexOf(" "));
-			Util.sendChatMessage("/boop " + player);
+			ThreadExecuter.scheduleTask(() -> {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ignored) {
+				}
+				Util.sendChatMessage("/boop " + player);
+				AxolotlClient.LOGGER.info("Booped " + player);
+			});
 		}
 	}
 }

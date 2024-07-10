@@ -26,8 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
@@ -39,6 +38,8 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.*;
 import io.github.axolotlclient.modules.hud.gui.hud.vanilla.*;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.math.MatrixStack;
@@ -55,15 +56,15 @@ import org.lwjgl.glfw.GLFW;
 public class HudManager extends AbstractModule {
 
 	private final static HudManager INSTANCE = new HudManager();
-	private final OptionCategory hudCategory = new OptionCategory("hud", false);
+	private final OptionCategory hudCategory = OptionCategory.create("hud");
 	private final Map<Identifier, HudEntry> entries;
 	private final MinecraftClient client;
+	private final KeyBinding key;
 
 	private HudManager() {
 		this.entries = new LinkedHashMap<>();
 		client = MinecraftClient.getInstance();
-		KeyBinding key = new KeyBinding("key.openHud", GLFW.GLFW_KEY_RIGHT_SHIFT, "category.axolotlclient");
-		hudCategory.add(new KeyBindOption("key.openHud", key, keyBind -> MinecraftClient.getInstance().openScreen(new HudEditScreen())));
+		key = new KeyBinding("key.openHud", GLFW.GLFW_KEY_RIGHT_SHIFT, "category.axolotlclient");
 	}
 
 	public static HudManager getInstance() {
@@ -71,7 +72,12 @@ public class HudManager extends AbstractModule {
 	}
 
 	public void init() {
-		//KeyBindingHelper.registerKeyBinding(key);
+		KeyBindingHelper.registerKeyBinding(key);
+		ClientTickEvents.END_CLIENT_TICK.register(c -> {
+			if (key.wasPressed()) {
+				client.openScreen(new HudEditScreen());
+			}
+		});
 
 		AxolotlClient.CONFIG.addCategory(hudCategory);
 
@@ -116,7 +122,7 @@ public class HudManager extends AbstractModule {
 
 	public HudManager add(AbstractHudEntry entry) {
 		entries.put(entry.getId(), entry);
-		hudCategory.addSubCategory(entry.getAllOptions());
+		hudCategory.add(entry.getAllOptions());
 		return this;
 	}
 

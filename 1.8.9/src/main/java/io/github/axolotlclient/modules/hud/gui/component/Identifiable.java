@@ -23,7 +23,7 @@
 package io.github.axolotlclient.modules.hud.gui.component;
 
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.

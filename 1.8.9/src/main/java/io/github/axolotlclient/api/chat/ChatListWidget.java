@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
@@ -41,9 +41,9 @@ public class ChatListWidget extends EntryListWidget {
 	private final List<ChatListEntry> entries = new ArrayList<>();
 
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> predicate) {
-		super(MinecraftClient.getInstance(), screenWidth, screenHeight, y, y + height, 25);
-		xStart = x;
-		xEnd = x + width;
+		super(Minecraft.getInstance(), screenWidth, screenHeight, y, y + height, 25);
+		minX = x;
+		maxX = x + width;
 		this.screen = screen;
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
 			list.stream().filter(predicate).forEach(c ->
@@ -56,23 +56,18 @@ public class ChatListWidget extends EntryListWidget {
 	}
 
 	@Override
-	protected boolean isEntrySelected(int i) {
-		return i == selectedEntry;
-	}
-
-	@Override
 	public Entry getEntry(int i) {
 		return entries.get(i);
 	}
 
 	@Override
-	protected int getEntryCount() {
+	protected int size() {
 		return entries.size();
 	}
 
 	@Override
 	protected void renderList(int x, int y, int mouseX, int mouseY) {
-		DrawUtil.enableScissor(x, this.yStart, x + this.width, y + height);
+		DrawUtil.enableScissor(x, this.minY, x + this.width, y + height);
 		super.renderList(x, y, mouseX, mouseY);
 		DrawUtil.disableScissor();
 	}
@@ -88,7 +83,7 @@ public class ChatListWidget extends EntryListWidget {
 		}
 
 		@Override
-		public void updatePosition(int i, int j, int k) {
+		public void renderOutOfBounds(int i, int j, int k) {
 
 		}
 
@@ -96,13 +91,13 @@ public class ChatListWidget extends EntryListWidget {
 		public void render(int index, int x, int y, int rowWidth, int rowHeight, int mouseX, int mouseY, boolean hovered) {
 			widget.x = (x);
 			widget.y = (y);
-			widget.render(client, mouseX, mouseY);
+			widget.render(minecraft, mouseX, mouseY);
 		}
 
 		@Override
 		public boolean mouseClicked(int i, int j, int k, int l, int m, int n) {
 			if (widget.isHovered()) {
-				client.setScreen(new ChatScreen(client.currentScreen, channel));
+				minecraft.openScreen(new ChatScreen(minecraft.screen, channel));
 			}
 			return false;
 		}

@@ -23,8 +23,10 @@
 package io.github.axolotlclient.api;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
@@ -94,7 +96,14 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 
 		@Override
 		public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			client.textRenderer.draw(matrices, user.getName(), x + 3 + 33, y + 1, -1);
+			if (user.isSystem()){
+				String fronters = user.getSystem().getFronters().stream()
+					.map(PkSystem.Member::getDisplayName).collect(Collectors.joining("/"));
+				String tag = Formatting.ITALIC + Formatting.GRAY.toString() + "("+user.getSystem().getName()+"/"+user.getName()+")";
+				client.textRenderer.draw(matrices, fronters+" "+tag, x+3, y+1, -1);
+			} else {
+				client.textRenderer.draw(matrices, user.getName(), x + 3 + 33, y + 1, -1);
+			}
 			client.textRenderer.draw(matrices, user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
 				client.textRenderer.draw(matrices, user.getStatus().getDescription(), x + 3 + 40, y + 23, 8421504);

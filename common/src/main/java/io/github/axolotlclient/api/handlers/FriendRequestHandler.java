@@ -22,31 +22,26 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.util.RequestHandler;
-import io.github.axolotlclient.api.util.UUIDHelper;
-import io.netty.buffer.ByteBuf;
 
 public class FriendRequestHandler implements RequestHandler {
 
-	@Override
+	/*@Override
 	public boolean isApplicable(int packetType) {
-		return packetType == Request.Type.INCOMING_FRIEND_REQUEST.getType();
-	}
+		return packetType == RequestOld.Type.INCOMING_FRIEND_REQUEST.getType();
+	}*/
 
-	@Override
+	/*@Override
 	public void handle(ByteBuf object, APIError error) {
 		if (API.getInstance().getApiOptions().friendRequestsEnabled.get()) {
-			String fromUUID = getString(object, 0x09, 16);
+			String fromUUID = getString(object, 0x09, 32);
 			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request", UUIDHelper.getUsername(fromUUID));
 		} else {
-			API.getInstance().send(new Request(Request.Type.FRIEND_REQUEST_REACTION, (byte) 0)).whenCompleteAsync((o, t) -> {
+			API.getInstance().send(new RequestOld(RequestOld.Type.FRIEND_REQUEST_REACTION, (byte) 0)).whenCompleteAsync((o, t) -> {
 				if (t != null) {
 					APIError.display(t);
 				}
 			});
 		}
-	}
+	}*/
 }

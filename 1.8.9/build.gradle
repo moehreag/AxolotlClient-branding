@@ -1,9 +1,8 @@
 plugins {
-	id 'io.github.juuxel.loom-quiltflower' version '1.8.+'
-	id "fabric-loom" version "1.2.1"
+	id 'fabric-loom' version "1.7.+"
+	id 'ploceus'
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_18}"
@@ -12,39 +11,48 @@ base.archivesName = "AxolotlClient"
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-repositories {
-	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
-	}
-	maven {
-		name = "legacy-fabric"
-		url = "https://repo.legacyfabric.net/repository/legacyfabric/"
-	}
-	mavenCentral()
-}
-
 loom {
-	setIntermediaryUrl('https://maven.legacyfabric.net/net/fabricmc/intermediary/%1$s/intermediary-%1$s-v2.jar')
 	accessWidenerPath.set(file("src/main/resources/axolotlclient.accesswidener"))
+
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
+	}
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_18}"
-	mappings "net.legacyfabric:yarn:${project.mappings_18}"
+	mappings "net.ornithemc:feather:${project.mappings_18}"
 
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader}"
+	//modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
+	modImplementation "net.fabricmc:fabric-loader:${fabric_loader}"
 
-	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}")
+	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
+		exclude group: "org.lwjgl"
+		exclude group: "org.slf4j"
+	}
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
-	modImplementation "net.legacyfabric.legacy-fabric-api:legacy-fabric-api:${project.lfapi}+${project.minecraft_18}"
+	ploceus.dependOsl(osl)
 
-	modCompileOnlyApi(files("libs/legacy-modmenu-1.2.0+1.8.9-dev.jar"))
+	modImplementation("com.terraformersmc:modmenu:0.1.1+mc1.8.9")
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
 
-	modImplementation include("com.github.moehreag:search-in-resources:1.0.2")
+	modImplementation include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")
+
+	api("org.lwjgl:lwjgl-nanovg:3.3.2")
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
 
 	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9") {
 		exclude group: 'org.apache.logging.log4j', module: "log4j-api"
@@ -52,6 +60,23 @@ dependencies {
 	}
 	implementation include("org.slf4j:slf4j-api:1.7.36")
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+
+	modCompileOnly("io.github.moehreag:legacy-lwjgl3:$legacy_lwgjl3") {
+		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
+		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
+		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'
+		exclude group: 'org.lwjgl', module: 'lwjgl'
+		exclude group: 'net.fabricmc'
+		exclude group: 'org.javassist'
+	}
+	modLocalRuntime("io.github.moehreag:legacy-lwjgl3:$legacy_lwgjl3:all-remapped") {
+		exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
+		exclude group: 'org.lwjgl', module: 'lwjgl-openal'
+		exclude group: 'org.lwjgl', module: 'lwjgl-opengl'
+		exclude group: 'org.lwjgl', module: 'lwjgl'
+		exclude group: 'net.fabricmc'
+		exclude group: 'org.javassist'
+	}
 }
 
 configurations.configureEach {
@@ -111,7 +136,7 @@ modrinth {
 	loaders.set(["fabric", "quilt"])
 	additionalFiles.set([remapSourcesJar])
 	dependencies {
-		required.project "legacy-fabric-api"
+		required.project "osl"
 	}
 
 	// Changelog fetching: Credit LambdAurora.

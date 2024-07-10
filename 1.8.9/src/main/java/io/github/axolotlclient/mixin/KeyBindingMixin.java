@@ -25,9 +25,9 @@ package io.github.axolotlclient.mixin;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.KeyBindChangeEvent;
 import io.github.axolotlclient.util.events.impl.KeyPressEvent;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.util.collection.IntObjectStorage;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.util.Int2ObjectHashMap;
 import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,33 +42,33 @@ public abstract class KeyBindingMixin {
 
 	@Shadow
 	@Final
-	private static IntObjectStorage<KeyBinding> KEY_MAP;
+	private static Int2ObjectHashMap<KeyBinding> BY_KEY_CODE;
 	@Shadow
 	private boolean pressed;
 	@Shadow
-	private int code;
+	private int keyCode;
 
-	@Inject(method = "setKeyPressed", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/KeyBinding;pressed:Z"))
+	@Inject(method = "set", at = @At(value = "FIELD", target = "Lnet/minecraft/client/options/KeyBinding;pressed:Z"))
 	private static void axolotlclient$onPress(int keyCode, boolean pressed, CallbackInfo ci) {
 		if (pressed) {
-			Events.KEY_PRESS.invoker().invoke(new KeyPressEvent(KEY_MAP.get(keyCode)));
+			Events.KEY_PRESS.invoker().invoke(new KeyPressEvent(BY_KEY_CODE.get(keyCode)));
 		}
 	}
 
 	@Inject(method = "isPressed", at = @At("HEAD"))
 	public void axolotlclient$noMovementFixAfterInventory(CallbackInfoReturnable<Boolean> cir) {
-		if (this.code == MinecraftClient.getInstance().options.sneakKey.getCode()
-			|| code == MinecraftClient.getInstance().options.forwardKey.getCode()
-			|| code == MinecraftClient.getInstance().options.backKey.getCode()
-			|| code == MinecraftClient.getInstance().options.rightKey.getCode()
-			|| code == MinecraftClient.getInstance().options.leftKey.getCode()
-			|| code == MinecraftClient.getInstance().options.jumpKey.getCode()
-			|| code == MinecraftClient.getInstance().options.sprintKey.getCode()) {
-			this.pressed = Keyboard.isKeyDown(code) && (MinecraftClient.getInstance().currentScreen == null);
+		if (this.keyCode == Minecraft.getInstance().options.sneakKey.getKeyCode()
+			|| keyCode == Minecraft.getInstance().options.forwardKey.getKeyCode()
+			|| keyCode == Minecraft.getInstance().options.backKey.getKeyCode()
+			|| keyCode == Minecraft.getInstance().options.rightKey.getKeyCode()
+			|| keyCode == Minecraft.getInstance().options.leftKey.getKeyCode()
+			|| keyCode == Minecraft.getInstance().options.jumpKey.getKeyCode()
+			|| keyCode == Minecraft.getInstance().options.sprintKey.getKeyCode()) {
+			this.pressed = Keyboard.isKeyDown(keyCode) && (Minecraft.getInstance().screen == null);
 		}
 	}
 
-	@Inject(method = "setCode", at = @At("RETURN"))
+	@Inject(method = "setKeyCode", at = @At("RETURN"))
 	public void axolotlclient$boundKeySet(int code, CallbackInfo ci) {
 		Events.KEYBIND_CHANGE.invoker().invoke(new KeyBindChangeEvent(code));
 	}

@@ -23,12 +23,12 @@
 package io.github.axolotlclient.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tessellator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.TextRenderer;
+import net.minecraft.resource.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,58 +44,58 @@ public abstract class TextRendererMixin {
 	@Shadow
 	public int fontHeight;
 	@Shadow
-	private float red;
+	private float r;
 	@Shadow
-	private float green;
+	private float g;
 	@Shadow
-	private float blue;
+	private float b;
 	@Shadow
-	private float alpha;
+	private float a;
 	@Shadow
 	private float x;
 	@Shadow
 	private float y;
 	private boolean shouldHaveShadow;
 
-	@Inject(method = "drawLayer(Ljava/lang/String;FFIZ)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Ljava/lang/String;Z)V"))
+	@Inject(method = "drawLayer(Ljava/lang/String;FFIZ)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;drawLayer(Ljava/lang/String;Z)V"))
 	public void axolotlclient$getData(String text, float x, float y, int color, boolean shadow, CallbackInfoReturnable<Integer> cir) {
 		if (text != null) {
 			shouldHaveShadow = shadow;
 		}
 	}
 
-	@Inject(method = "drawLayerUnicode", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "drawGlyph", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$gBreve(char c, boolean bl, CallbackInfoReturnable<Float> cir) {
-		if (c == 'Ğ' && !MinecraftClient.getInstance().options.forcesUnicodeFont) {
-			MinecraftClient.getInstance().getTextureManager().bindTexture(texture_g);
+		if (c == 'Ğ' && !Minecraft.getInstance().options.forceUnicodeFont) {
+			Minecraft.getInstance().getTextureManager().bind(texture_g);
 
 			if (!bl || shouldHaveShadow) {
-				GlStateManager.color(this.red / 4, this.green / 4, this.blue / 4, this.alpha);
+				GlStateManager.color4f(this.r / 4, this.g / 4, this.b / 4, this.a);
 				drawTexture(this.x + 1, this.y - this.fontHeight + 7);
 			}
 
-			GlStateManager.color(this.red, this.green, this.blue, this.alpha);
+			GlStateManager.color4f(this.r, this.g, this.b, this.a);
 			drawTexture(this.x, this.y - this.fontHeight + 6);
 
-			GlStateManager.color(this.red, this.green, this.blue, this.alpha);
+			GlStateManager.color4f(this.r, this.g, this.b, this.a);
 			cir.setReturnValue(7.0F);
 		}
 	}
 
 	private void drawTexture(float x, float y) {
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferBuilder = tessellator.getBuffer();
-		bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE);
-		bufferBuilder.vertex(x, y + 10, 0.0).texture(0, 1).next();
-		bufferBuilder.vertex((x + 5), (y + 10), 0.0).texture(1, 1).next();
-		bufferBuilder.vertex((x + 5), y, 0.0).texture(1, 0).next();
-		bufferBuilder.vertex(x, y, 0.0).texture(0, 0).next();
-		tessellator.draw();
+		BufferBuilder bufferBuilder = tessellator.getBuilder();
+		bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.vertex(x, y + 10, 0.0).texture(0, 1).nextVertex();
+		bufferBuilder.vertex((x + 5), (y + 10), 0.0).texture(1, 1).nextVertex();
+		bufferBuilder.vertex((x + 5), y, 0.0).texture(1, 0).nextVertex();
+		bufferBuilder.vertex(x, y, 0.0).texture(0, 0).nextVertex();
+		tessellator.end();
 	}
 
-	@Inject(method = "getCharWidth", at = @At(value = "HEAD"), cancellable = true)
+	@Inject(method = "getWidth(C)I", at = @At(value = "HEAD"), cancellable = true)
 	public void axolotlclient$modifiedCharWidth(char c, CallbackInfoReturnable<Integer> cir) {
-		if (c == 'Ğ' && !MinecraftClient.getInstance().options.forcesUnicodeFont) {
+		if (c == 'Ğ' && !Minecraft.getInstance().options.forceUnicodeFont) {
 			cir.setReturnValue(7);
 		}
 	}

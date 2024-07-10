@@ -28,13 +28,14 @@ import java.nio.charset.StandardCharsets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
@@ -64,8 +65,8 @@ public class MenuBlur extends AbstractModule {
 	private final Identifier shaderLocation = new Identifier("minecraft:shaders/post/menu_blur.json");
 	private final IntegerOption strength = new IntegerOption("strength", 8, 0, 100);
 	private final IntegerOption fadeTime = new IntegerOption("fadeTime", 1, 0, 10);
-	private final ColorOption bgColor = new ColorOption("bgcolor", 0x64000000);
-	private final OptionCategory category = new OptionCategory("menublur");
+	private final ColorOption bgColor = new ColorOption("bgcolor", new Color(0x64000000));
+	private final OptionCategory category = OptionCategory.create("menublur");
 
 	private final Color black = new Color(0);
 
@@ -87,8 +88,8 @@ public class MenuBlur extends AbstractModule {
 
 	public boolean renderScreen(MatrixStack matrices) {
 		if (enabled.get() && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen) && shader != null) {
-			DrawableHelper.fill(matrices, 0, 0, MinecraftClient.getInstance().getWindow().getWidth(), MinecraftClient.getInstance().getWindow().getHeight(),
-				Color.blend(black, bgColor.get(), getProgress()).getAsInt());
+			DrawableHelper.fill(matrices, 0, 0, MinecraftClient.getInstance().getFramebuffer().textureWidth, MinecraftClient.getInstance().getFramebuffer().textureHeight,
+				ClientColors.blend(black, bgColor.get(), getProgress()).toInt());
 			return true;
 		}
 		return false;
@@ -100,14 +101,14 @@ public class MenuBlur extends AbstractModule {
 
 	public void updateBlur() {
 		if (enabled.get() && MinecraftClient.getInstance().currentScreen != null && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
-			if ((shader == null || MinecraftClient.getInstance().getWindow().getWidth() != lastWidth
-				|| MinecraftClient.getInstance().getWindow().getHeight() != lastHeight)
-				&& MinecraftClient.getInstance().getWindow().getWidth() > 0
-				&& MinecraftClient.getInstance().getWindow().getHeight() > 0) {
+			if ((shader == null || MinecraftClient.getInstance().getFramebuffer().textureWidth != lastWidth
+				|| MinecraftClient.getInstance().getFramebuffer().textureHeight != lastHeight)
+				&& MinecraftClient.getInstance().getFramebuffer().textureWidth > 0
+				&& MinecraftClient.getInstance().getFramebuffer().textureHeight > 0) {
 				try {
 					shader = new ShaderEffect(client.getTextureManager(), client.getResourceManager(),
 						client.getFramebuffer(), shaderLocation);
-					shader.setupDimensions(client.getWindow().getWidth(), client.getWindow().getHeight());
+					shader.setupDimensions(client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight);
 				} catch (IOException e) {
 					AxolotlClient.LOGGER.error("Failed to load Menu Blur: ", e);
 					return;
@@ -133,8 +134,8 @@ public class MenuBlur extends AbstractModule {
 				});
 			}
 
-			lastWidth = client.getWindow().getWidth();
-			lastHeight = client.getWindow().getHeight();
+			lastWidth = client.getFramebuffer().textureWidth;
+			lastHeight = client.getFramebuffer().textureHeight;
 			renderBlur();
 		}
 	}

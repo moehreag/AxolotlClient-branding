@@ -24,7 +24,7 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -44,7 +44,7 @@ public class PlayerCountHud extends SimpleTextHudEntry {
 
 	@Override
 	public String getValue() {
-		return client.world.playerEntities.size() + " " + I18n.translate("players");
+		return client.world.players.size() + " " + I18n.translate("players");
 	}
 
 	@Override

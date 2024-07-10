@@ -24,8 +24,8 @@ package io.github.axolotlclient.modules.hypixel.autotip;
 
 import java.util.regex.Pattern;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class AutoTip implements AbstractHypixelMod {
 	@Getter
 	private final static AutoTip Instance = new AutoTip();
 
-	private final OptionCategory category = new OptionCategory("autotip");
+	private final OptionCategory category = OptionCategory.create("autotip");
 
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final BooleanOption hideMessages = new BooleanOption("hideTipMessages", false);

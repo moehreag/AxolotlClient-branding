@@ -25,12 +25,11 @@ package io.github.axolotlclient.api;
 import java.net.URI;
 import java.util.function.Consumer;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
@@ -40,8 +39,8 @@ public class PrivacyNoticeScreen extends Screen {
 	private static final URI PRIVACY_POLICY_URL = URI.create("https://axolotlclient.xyz/privacy");
 
 	private final Screen parent;
-	private MultilineText message;
 	private final Consumer<Boolean> accepted;
+	private MultilineText message;
 
 	protected PrivacyNoticeScreen(Screen parent, Consumer<Boolean> accepted) {
 		super(Text.translatable("api.privacyNotice"));
@@ -51,7 +50,7 @@ public class PrivacyNoticeScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics);
+		renderBackground(graphics, mouseX, mouseY, delta);
 		super.render(graphics, mouseX, mouseY, delta);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, getTitleY(), -1);
 		message.render(graphics, width / 2, getMessageY());
@@ -73,19 +72,19 @@ public class PrivacyNoticeScreen extends Screen {
 	}
 
 	private void addButtons(int y) {
-		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.accept"), buttonWidget -> {
+		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.privacyNotice.accept"), buttonWidget -> {
 			client.setScreen(parent);
 			APIOptions.getInstance().privacyAccepted.set("accepted");
 			accepted.accept(true);
 		}).positionAndSize(width / 2 - 50, y, 100, 20).build());
-		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.deny"), buttonWidget -> {
+		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.privacyNotice.deny"), buttonWidget -> {
 			client.setScreen(parent);
 			APIOptions.getInstance().enabled.set(false);
 			APIOptions.getInstance().privacyAccepted.set("denied");
 			accepted.accept(false);
 		}).positionAndSize(width / 2 - 50 + 105, y, 100, 20).build());
-		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.openPolicy"), buttonWidget -> {
-			OSUtil.getOS().open(PRIVACY_POLICY_URL, AxolotlClient.LOGGER);
+		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.privacyNotice.openPolicy"), buttonWidget -> {
+			OSUtil.getOS().open(PRIVACY_POLICY_URL);
 		}).positionAndSize(width / 2 - 50 - 105, y, 100, 20).build());
 	}
 

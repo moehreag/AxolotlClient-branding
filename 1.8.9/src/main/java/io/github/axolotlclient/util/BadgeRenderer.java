@@ -26,10 +26,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
 
 public class BadgeRenderer {
 	public static void renderNametagBadge(Entity entity) {
@@ -38,25 +38,25 @@ public class BadgeRenderer {
 				GlStateManager.alphaFunc(516, 0.1F);
 				GlStateManager.enableDepthTest();
 				GlStateManager.enableAlphaTest();
-				MinecraftClient.getInstance().getTextureManager().bindTexture(AxolotlClient.badgeIcon);
+				Minecraft.getInstance().getTextureManager().bind(AxolotlClient.badgeIcon);
 
-				int x = -(MinecraftClient.getInstance().textRenderer
-					.getStringWidth(entity.getUuid() == MinecraftClient.getInstance().player.getUuid()
+				int x = -(Minecraft.getInstance().textRenderer
+					.getWidth(entity.getUuid() == Minecraft.getInstance().player.getUuid()
 						? (NickHider.getInstance().hideOwnName.get() ? NickHider.getInstance().hiddenNameSelf.get()
-						: entity.getName().asFormattedString())
+						: entity.getDisplayName().getFormattedString())
 						: (NickHider.getInstance().hideOtherNames.get() ? NickHider.getInstance().hiddenNameOthers.get()
-						: entity.getName().asFormattedString()))
+						: entity.getDisplayName().getFormattedString()))
 					/ 2
-					+ (AxolotlClient.CONFIG.customBadge.get() ? MinecraftClient.getInstance().textRenderer
-					.getStringWidth(" " + AxolotlClient.CONFIG.badgeText.get()) : 10));
+					+ (AxolotlClient.CONFIG.customBadge.get() ? Minecraft.getInstance().textRenderer
+					.getWidth(" " + AxolotlClient.CONFIG.badgeText.get()) : 10));
 
-				GlStateManager.color(1, 1, 1, 1);
+				GlStateManager.color4f(1, 1, 1, 1);
 
 				if (AxolotlClient.CONFIG.customBadge.get())
-					MinecraftClient.getInstance().textRenderer.draw(AxolotlClient.CONFIG.badgeText.get(), x, 0, -1,
+					Minecraft.getInstance().textRenderer.draw(AxolotlClient.CONFIG.badgeText.get(), x, 0, -1,
 						AxolotlClient.CONFIG.useShadows.get());
 				else
-					DrawableHelper.drawTexture(x, 0, 0, 0, 8, 8, 8, 8);
+					GuiElement.drawTexture(x, 0, 0, 0, 8, 8, 8, 8);
 			}
 		}
 	}

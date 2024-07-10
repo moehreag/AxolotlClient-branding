@@ -73,7 +73,7 @@ public abstract class WorldRendererMixin {
 	@ModifyArgs(method = "drawBlockOutline", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawShapeOutline(Lnet/minecraft/client/util/math/MatrixStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V"))
 	public void axolotlclient$customOutlineColor(Args args) {
 		if (AxolotlClient.CONFIG.enableCustomOutlines.get()) {
-			int color = AxolotlClient.CONFIG.outlineColor.get().getAsInt();
+			int color = AxolotlClient.CONFIG.outlineColor.get().toInt();
 			float a = (float) (color >> 24 & 0xFF) / 255.0F;
 			float r = (float) (color >> 16 & 0xFF) / 255.0F;
 			float g = (float) (color >> 8 & 0xFF) / 255.0F;

@@ -59,9 +59,9 @@ public class ImageShare extends ImageNetworking {
 		});
 	}
 
-	public ImageInstance downloadImage(String url){
+	public ImageInstance downloadImage(String url) {
 		ImageData data = download(url);
-		if(!data.getName().isEmpty()) {
+		if (!data.getName().isEmpty()) {
 			try {
 				return new ImageInstance(NativeImage.read(new ByteArrayInputStream(data.getData())), data.getName());
 			} catch (IOException ignored) {

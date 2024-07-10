@@ -36,9 +36,9 @@ import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -101,23 +101,16 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			addDrawableChild(this.list = new ListWidget(list, 10, 30, 50, height - 60))
+			addDrawableSelectableElement(this.list = new ListWidget(list, 10, 30, 50, height - 60))
 		);
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> remove()).positionAndSize(10 - sidebarWidth, height - 30, 50, 20).build());
-		addDrawableChild(contextMenu = new ContextMenuContainer());
+		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> remove()).positionAndSize(10 - sidebarWidth, height - 30, 50, 20).build());
+		addDrawableSelectableElement(contextMenu = new ContextMenuContainer());
 	}
 
 	public void remove() {
 		remove = true;
 
-	}
-
-	@Override
-	public void tick() {
-		if (input != null) {
-			input.tick();
-		}
 	}
 
 	@Override
@@ -200,7 +193,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 		sidebarWidth = Math.max(width * 5 / 12, w + 5);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 60, this);
-		addDrawableChild(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, Text.translatable("api.friends.chat.input")) {
+		addDrawableSelectableElement(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, Text.translatable("api.friends.chat.input")) {
 			@Override
 			public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 				if (keyCode == InputUtil.KEY_ENTER_CODE) {
@@ -271,16 +264,16 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		@Override
-		public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
 			if (this.isMouseOver(mouseX, mouseY)) {
 				if (elements.size() * entryHeight > height) {
 					int a = scrollAmount;
-					a += amount * (entryHeight / 2);
+					a += (int) (amountY * (entryHeight / 2));
 					scrollAmount = MathHelper.clamp(a, 0, -elements.size() * entryHeight);
 					return true;
 				}
 			}
-			return super.mouseScrolled(mouseX, mouseY, amount);
+			return super.mouseScrolled(mouseX, mouseY, amountX, amountY);
 		}
 
 		@Override

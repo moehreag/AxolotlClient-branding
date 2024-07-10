@@ -36,7 +36,7 @@ public class AddFriendScreen extends SimpleTextInputScreen {
 		super(parent, Text.translatable("api.screen.friends.add"),
 			Text.translatable("api.screen.friends.add.name"),
 			string -> {
-				if (API.getInstance().isConnected()) {
+				if (API.getInstance().isSocketConnected()) {
 					String uuid;
 					try {
 						uuid = API.getInstance().sanitizeUUID(UUID.fromString(string).toString());

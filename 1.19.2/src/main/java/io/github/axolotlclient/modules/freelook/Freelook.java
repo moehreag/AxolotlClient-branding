@@ -24,12 +24,14 @@ package io.github.axolotlclient.modules.freelook;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.FeatureDisabler;
+import io.github.axolotlclient.util.keybinds.KeyBinds;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBind;
 import net.minecraft.client.option.Perspective;
@@ -38,18 +40,15 @@ import net.minecraft.entity.Entity;
 public class Freelook extends AbstractModule {
 
 	private static final Freelook Instance = new Freelook();
-	private static KeyBind KEY;
-	public final BooleanOption enabled = new BooleanOption("enabled", false);
+	private static KeyBind KEY = KeyBinds.getInstance().register(new KeyBind("key.freelook", InputUtil.KEY_V_CODE, "category.axolotlclient"));
+	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
 	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final OptionCategory category = new OptionCategory("freelook");
-	private final KeyBindOption keyOption = new KeyBindOption("key.freelook", KEY = new KeyBind("key.freelook", InputUtil.KEY_V_CODE, "category.axolotlclient"), (key) -> {
-	});
-	private final EnumOption mode = new EnumOption("mode",
-		value -> FeatureDisabler.update(),
+	private final OptionCategory category = OptionCategory.create("freelook");
+	private final StringArrayOption mode = new StringArrayOption("mode",
 		new String[]{"snap_perspective", "freelook"},
-		"freelook");
-	private final EnumOption perspective = new EnumOption("perspective", Perspective.values(),
-		Perspective.THIRD_PERSON_BACK.toString());
+		"freelook", value -> FeatureDisabler.update());
+	private final EnumOption<Perspective> perspective = new EnumOption<>("perspective", Perspective.class,
+		Perspective.THIRD_PERSON_BACK);
 	private final BooleanOption invert = new BooleanOption("invert", false);
 	private final BooleanOption toggle = new BooleanOption("toggle", false);
 	public boolean active;
@@ -62,8 +61,7 @@ public class Freelook extends AbstractModule {
 
 	@Override
 	public void init() {
-		//KeyBindingHelper.registerKeyBinding(KEY);
-		category.add(enabled, keyOption, mode, perspective, invert, toggle);
+		category.add(enabled, mode, perspective, invert, toggle);
 		AxolotlClient.CONFIG.addCategory(category);
 	}
 
@@ -102,7 +100,7 @@ public class Freelook extends AbstractModule {
 
 
 		previousPerspective = client.options.getPerspective();
-		setPerspective(Perspective.valueOf(perspective.get()));
+		setPerspective(perspective.get());
 
 		Entity camera = client.getCameraEntity();
 

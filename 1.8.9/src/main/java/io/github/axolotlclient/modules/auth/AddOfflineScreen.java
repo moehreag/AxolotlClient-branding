@@ -62,10 +62,10 @@ public class AddOfflineScreen extends Screen {
 	@Override
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 1) {
-			client.setScreen(parent);
+			minecraft.openScreen(parent);
 		} else if (buttonWidget.id == 2) {
 			Auth.getInstance().addAccount(new Account(nameInput.getText(), UUID.randomUUID().toString(), Account.OFFLINE_TOKEN));
-			client.setScreen(parent);
+			minecraft.openScreen(parent);
 		}
 	}
 

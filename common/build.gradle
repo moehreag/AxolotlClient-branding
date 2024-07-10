@@ -30,19 +30,22 @@ dependencies {
 	implementation 'org.jetbrains:annotations:24.0.0'
 
 	// take the oldest version just to build against
-	compileOnly("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}")
-	compileOnly("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}")
+	testRuntimeOnly compileOnly("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
+		transitive = false
+	}
+	testRuntimeOnly testCompileOnly(compileOnly("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"))
 
-	compileOnly("com.google.guava:guava:17.0")
-	compileOnly("org.apache.httpcomponents:httpclient:4.3.3")
-	compileOnly("com.google.code.gson:gson:2.2.4")
-	compileOnly("commons-io:commons-io:2.4")
-	compileOnly("org.apache.commons:commons-lang3:3.3.2")
+	testRuntimeOnly compileOnly("com.google.guava:guava:17.0")
+	testImplementation compileOnly("org.apache.httpcomponents:httpclient:4.3.3")
+	testImplementation compileOnly("com.google.code.gson:gson:2.2.4")
+	testRuntimeOnly compileOnly("commons-io:commons-io:2.4")
+	testRuntimeOnly compileOnly("org.apache.commons:commons-lang3:3.3.2")
+	testRuntimeOnly compileOnly("org.lwjgl:lwjgl-glfw:3.3.2")
 
 	shadow implementation("io.github.CDAGaming:DiscordIPC:0.6.5")
-	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.2")
+	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.8.3")
 
-	shadow implementation("io.netty:netty-all:4.1.96.Final")
+	shadow implementation("org.glassfish.tyrus:tyrus-container-grizzly-client:2.1.5")
 }
 
 build {

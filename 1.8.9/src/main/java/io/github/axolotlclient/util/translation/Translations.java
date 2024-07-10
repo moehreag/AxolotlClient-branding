@@ -31,10 +31,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resource.Resource;
+import net.minecraft.client.resource.manager.ResourceManager;
+import net.minecraft.resource.Identifier;
 
 /**
  * This file is derived from <a href="https://github.com/Sol-Client/Client">Sol Client</a>.
@@ -65,17 +65,17 @@ public class Translations implements TranslationProvider {
 		clear();
 
 		try {
-			MinecraftClient mc = MinecraftClient.getInstance();
+			Minecraft mc = Minecraft.getInstance();
 			ResourceManager resourceManager = mc.getResourceManager();
 
 			List<Resource> resources = new ArrayList<>();
 
-			resources.addAll(resourceManager.getAllResources(new Identifier("axolotlclient", "lang/en_us.json")));
-			resources.addAll(resourceManager.getAllResources(
+			resources.addAll(resourceManager.getResources(new Identifier("axolotlclient", "lang/en_us.json")));
+			resources.addAll(resourceManager.getResources(
 				new Identifier("axolotlclient", "lang/" + mc.options.language.toLowerCase(Locale.ROOT) + ".json")));
 
 			for (Resource resource : resources) {
-				try (InputStream in = resource.getInputStream()) {
+				try (InputStream in = resource.asStream()) {
 					accept(in);
 				}
 			}

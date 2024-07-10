@@ -195,7 +195,7 @@ public class ImageViewerScreen extends Screen {
 		addImageButton(copy, true);
 
 		ButtonWidget about = ButtonWidget.builder(Text.translatable("aboutAction"), buttonWidget -> {
-			OSUtil.getOS().open(aboutPage, AxolotlClient.LOGGER);
+			OSUtil.getOS().open(aboutPage);
 		}).position(width - 60, 100).width(50).tooltip(Tooltip.create(Text.translatable("about_image"))).build();
 		addImageButton(about, true);
 	}

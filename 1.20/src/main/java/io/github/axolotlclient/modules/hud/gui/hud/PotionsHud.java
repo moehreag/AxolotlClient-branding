@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
@@ -56,11 +56,11 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 
 	public static final Identifier ID = new Identifier("kronhud", "potionshud");
 
-	private final EnumOption anchor = DefaultOptions.getAnchorPoint();
+	private final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint();
 
-	private final EnumOption order = DefaultOptions.getCardinalOrder(CardinalOrder.TOP_DOWN);
+	private final EnumOption<CardinalOrder> order = DefaultOptions.getCardinalOrder(CardinalOrder.TOP_DOWN);
 
-	private final BooleanOption iconsOnly = new BooleanOption("iconsonly", ID.getPath(), false);
+	private final BooleanOption iconsOnly = new BooleanOption("iconsonly", false);
 	private final BooleanOption showEffectName = new BooleanOption("showEffectNames", true);
 
 	public PotionsHud() {
@@ -73,10 +73,10 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		if (effects.isEmpty()) {
 			return;
 		}
-		renderEffects(graphics, effects);
+		renderEffects(graphics, effects, delta);
 	}
 
-	private void renderEffects(GuiGraphics graphics, List<StatusEffectInstance> effects) {
+	private void renderEffects(GuiGraphics graphics, List<StatusEffectInstance> effects, float tickDelta) {
 		int calcWidth = calculateWidth(effects);
 		int calcHeight = calculateHeight(effects);
 		boolean changed = false;
@@ -92,7 +92,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			onBoundsUpdate();
 		}
 		int lastPos = 0;
-		CardinalOrder direction = CardinalOrder.valueOf(order.get());
+		CardinalOrder direction = (order.get());
 
 		Rectangle bounds = getBounds();
 		int x = bounds.x();
@@ -100,18 +100,18 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		for (int i = 0; i < effects.size(); i++) {
 			StatusEffectInstance effect = effects.get(direction.getDirection() == -1 ? i : effects.size() - i - 1);
 			if (direction.isXAxis()) {
-				renderPotion(graphics, effect, x + lastPos + 1, y + 1);
+				renderPotion(graphics, effect, x + lastPos + 1, y + 1, tickDelta);
 				lastPos += (iconsOnly.get() ? 20 : (showEffectName.get() ? 20 + client.textRenderer.getWidth(Text.translatable(effect.getTranslationKey()).append(" ")
-					.append(Util.toRoman(effect.getAmplifier()))) : 50));
+					.append(Util.toRoman(effect.getAmplifier()+1))) : 50));
 			} else {
-				renderPotion(graphics, effect, x + 1, y + 1 + lastPos);
+				renderPotion(graphics, effect, x + 1, y + 1 + lastPos, tickDelta);
 				lastPos += 20;
 			}
 		}
 	}
 
 	private int calculateWidth(List<StatusEffectInstance> effects) {
-		if (CardinalOrder.valueOf(order.get()).isXAxis()) {
+		if ((order.get()).isXAxis()) {
 			if (iconsOnly.get()) {
 				return 20 * effects.size() + 2;
 			}
@@ -135,14 +135,14 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 	}
 
 	private int calculateHeight(List<StatusEffectInstance> effects) {
-		if (CardinalOrder.valueOf(order.get()).isXAxis()) {
+		if ((order.get()).isXAxis()) {
 			return 22;
 		} else {
 			return 20 * effects.size() + 2;
 		}
 	}
 
-	private void renderPotion(GuiGraphics graphics, StatusEffectInstance effect, int x, int y) {
+	private void renderPotion(GuiGraphics graphics, StatusEffectInstance effect, int x, int y, float tickDelta) {
 		StatusEffect type = effect.getEffectType();
 		Sprite sprite = client.getStatusEffectSpriteManager().getSprite(type);
 
@@ -153,12 +153,12 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (showEffectName.get()) {
 				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()));
 
-				graphics.drawText(client.textRenderer, string, x + 19, y + 1, textColor.get().getAsInt(), shadow.get());
-				Text duration = StatusEffectUtil.durationToString(effect, 1);
+				graphics.drawText(client.textRenderer, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
+				Text duration = StatusEffectUtil.durationToString(effect, 1, tickDelta);
 				graphics.drawText(client.textRenderer, duration, x + 19, y + 1 + 10, 8355711, shadow.get());
 			} else {
-				graphics.drawText(client.textRenderer, StatusEffectUtil.durationToString(effect, 1), x + 19, y + 5,
-					textColor.get().getAsInt(), shadow.get());
+				graphics.drawText(client.textRenderer, StatusEffectUtil.durationToString(effect, 1, tickDelta), x + 19, y + 5,
+					textColor.get().toInt(), shadow.get());
 			}
 		}
 	}
@@ -168,7 +168,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		StatusEffectInstance effect = new StatusEffectInstance(StatusEffects.SPEED, 9999);
 		StatusEffectInstance jump = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 99999);
 		StatusEffectInstance haste = new StatusEffectInstance(StatusEffects.HASTE, -1);
-		renderEffects(graphics, List.of(effect, jump, haste));
+		renderEffects(graphics, List.of(effect, jump, haste), delta);
 	}
 
 	@Override
@@ -187,6 +187,6 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return (anchor.get());
 	}
 }

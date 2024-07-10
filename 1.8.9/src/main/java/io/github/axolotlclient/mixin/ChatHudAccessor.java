@@ -24,20 +24,20 @@ package io.github.axolotlclient.mixin;
 
 import java.util.List;
 
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.client.gui.chat.ChatGui;
+import net.minecraft.client.gui.chat.ChatMessage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(ChatHud.class)
+@Mixin(ChatGui.class)
 public interface ChatHudAccessor {
 
-	@Accessor
+	@Accessor("scroll")
 	int getScrolledLines();
 
 	@Accessor
-	List<ChatHudLine> getMessages();
+	List<ChatMessage> getMessages();
 
-	@Accessor
-	List<ChatHudLine> getVisibleMessages();
+	@Accessor("trimmedMessages")
+	List<ChatMessage> getVisibleMessages();
 }

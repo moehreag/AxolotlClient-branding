@@ -55,6 +55,38 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 		return Instance;
 	}
 
+	private static JsonObject loadMCPSky(String loader, Identifier id, Resource resource) {
+		JsonObject object = new JsonObject();
+		String line;
+
+		try (BufferedReader reader = resource.openBufferedReader()) {
+			while ((line = reader.readLine()) != null) {
+				if (!line.startsWith("#")) {
+					String[] option = line.split("=");
+
+					if (option[0].equals("source")) {
+						if (option[1].startsWith("assets")) {
+							option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
+						} else {
+							if (id.getPath().contains("world")) {
+								option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
+									+ option[1].replace("./", "");
+							}
+						}
+					}
+					if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")
+						|| option[0].equals("startFadeOut") || option[0].equals("endFadeOut")) {
+						option[1] = option[1].replace(":", "").replace("\\", "");
+					}
+
+					object.addProperty(option[0], option[1]);
+				}
+			}
+		} catch (Exception ignored) {
+		}
+		return object;
+	}
+
 	@Override
 	public void init() {
 	}
@@ -100,39 +132,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 		AxolotlClient.LOGGER.debug("Finished Loading Custom Skies!");
 	}
 
-	private boolean isMCPSky(String path){
+	private boolean isMCPSky(String path) {
 		return path.endsWith(".properties") && path.startsWith("sky");
-	}
-
-	private static JsonObject loadMCPSky(String loader, Identifier id, Resource resource) {
-		JsonObject object = new JsonObject();
-		String line;
-
-		try (BufferedReader reader = resource.openBufferedReader()) {
-			while ((line = reader.readLine()) != null) {
-				if (!line.startsWith("#")) {
-					String[] option = line.split("=");
-
-					if (option[0].equals("source")) {
-						if (option[1].startsWith("assets")) {
-							option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
-						} else {
-							if (id.getPath().contains("world")) {
-								option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
-									+ option[1].replace("./", "");
-							}
-						}
-					}
-					if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")
-						|| option[0].equals("startFadeOut") || option[0].equals("endFadeOut")) {
-						option[1] = option[1].replace(":", "").replace("\\", "");
-					}
-
-					object.addProperty(option[0], option[1]);
-				}
-			}
-		} catch (Exception ignored) {
-		}
-		return object;
 	}
 }

@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import lombok.Getter;
@@ -178,7 +178,7 @@ public class PackDisplayHud extends TextHudEntry {
 				RenderSystem.bindTexture(texture);
 				DrawableHelper.drawTexture(matrices, x, y, 0, 0, 16, 16, 16, 16);
 			}
-			drawString(matrices, name, x + 18, y + 6, textColor.get().getAsInt(), shadow.get());
+			drawString(matrices, name, x + 18, y + 6, textColor.get().toInt(), shadow.get());
 		}
 	}
 }

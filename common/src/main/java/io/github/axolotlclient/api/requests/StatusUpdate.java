@@ -28,18 +28,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.Request;
-import io.github.axolotlclient.api.util.BufferUtil;
+import io.github.axolotlclient.api.RequestOld;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 public class StatusUpdate {
 
 	private static Request createStatusUpdate(String titleString, String descriptionString, String iconString) {
-		return new Request(Request.Type.STATUS_UPDATE,
-			BufferUtil.padString(titleString, 64),
-			BufferUtil.padString(descriptionString, 64),
-			BufferUtil.padString(iconString, 32)
-		);
+		return null;// TODO
 	}
 
 	public static Request online(MenuId menuId) {
@@ -61,12 +57,11 @@ public class StatusUpdate {
 		IN_GAME("inGame", 0x3),
 		IN_GAME_UNKNOWN("inGameUnknown", 0x4);
 
+		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
 		@Getter
 		private final String identifier;
 		@Getter
 		private final int code;
-
-		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
 
 		public static Type fromCode(int code) {
 			return CODES.get(code);

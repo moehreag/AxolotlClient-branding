@@ -22,17 +22,14 @@
 
 package io.github.axolotlclient.api;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
-import io.github.axolotlclient.api.handlers.*;
-import io.github.axolotlclient.api.types.ChatMessage;
+import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.*;
@@ -41,16 +38,17 @@ import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.NotificationProvider;
 import io.github.axolotlclient.util.translation.TranslationProvider;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.PongMessage;
+import jakarta.websocket.Session;
 import lombok.Getter;
+import org.glassfish.tyrus.container.grizzly.client.GrizzlyContainerProvider;
+import org.glassfish.tyrus.core.CloseReasons;
 
 public class API {
 
 	@Getter
 	private static API Instance;
-	private final HashMap<Integer, CompletableFuture<ByteBuf>> requests = new HashMap<>();
-	private final Set<RequestHandler> handlers = new HashSet<>();
 	@Getter
 	private final Logger logger;
 	@Getter
@@ -60,12 +58,13 @@ public class API {
 	private final StatusUpdateProvider statusUpdateProvider;
 	@Getter
 	private final Options apiOptions;
-	private Channel channel;
+	private Session session;
 	@Getter
 	private String uuid;
 	@Getter
 	private User self;
 	private Account account;
+	private String token;
 
 	public API(Logger logger, NotificationProvider notificationProvider, TranslationProvider translationProvider,
 			   StatusUpdateProvider statusUpdateProvider, Options apiOptions) {
@@ -75,100 +74,149 @@ public class API {
 		this.statusUpdateProvider = statusUpdateProvider;
 		this.apiOptions = apiOptions;
 		Instance = this;
-		addHandler(new FriendRequestHandler());
-		addHandler(new FriendRequestReactionHandler());
-		addHandler(FriendHandler.getInstance());
-		addHandler(new StatusUpdateHandler());
-		addHandler(ChatHandler.getInstance());
-
-		BufferUtil.registerSerializer(Instant.class, new InstantSerializer());
-		BufferUtil.registerSerializer(ChatMessage.class, new ChatMessageSerializer());
-		BufferUtil.registerSerializer(ChatMessage.Type.class, new ChatMessageSerializer.ChatMessageTypeSerializer());
 	}
 
-	public void addHandler(RequestHandler handler) {
-		handlers.add(handler);
-	}
-
-	public void onOpen(Channel channel) {
-		this.channel = channel;
+	public void onOpen(Session channel) {
+		this.session = channel;
 		logger.debug("API connected!");
-		sendHandshake(account);
 	}
 
-	private void sendHandshake(Account account) {
-		logger.debug("Starting Handshake");
-		logger.debug("Authenticating with Mojang");
+	private void authenticate(){
 
-		AtomicBoolean mojangAuthSuccessful = new AtomicBoolean();
-		AtomicReference<String> serverId = new AtomicReference<>();
+		MojangAuth.Result result = MojangAuth.authenticate(account);
 
-		send(new Request(Request.Type.GET_PUBLIC_KEY)).whenCompleteAsync((buf, t) -> {
-			MojangAuth.Result result = MojangAuth.authenticate(account, BufferUtil.toArray(buf.slice(0x09, buf.readableBytes() - 9)));
-			if (result.getStatus() != MojangAuth.Status.SUCCESS) {
-				logger.error("Authentication with Mojang failed, aborting!");
-				shutdown();
-			} else {
-				mojangAuthSuccessful.set(true);
-				serverId.set(result.getServerId());
+		if (result.getStatus() != MojangAuth.Status.SUCCESS){
+			logger.error("Failed to authenticate with Mojang! Status: ", result.getStatus());
+		}
+
+		get(Request.builder().route(Request.Route.AUTHENTICATE)
+			.query("username", account.getName())
+			.query("server_id", result.getServerId())
+			.build()).whenComplete((response, throwable) -> {
+
+			if (throwable != null){
+				logger.error("Failed to authenticate!", throwable);
+				return;
+			}
+			if (response.isError()){
+				logger.error("Failed to authenticate!", response.getError().getDescription());
+			}
+
+			token = (String) response.getBody().get("access_token");
+			checkGateway();
+			startStatusUpdateThread();
+		});
+	}
+
+	private void checkGateway(){
+
+		get(Request.builder().route(Request.Route.GATEWAY).build()).thenAccept(response -> {
+			if (response.getStatus() == 101){
+				createSession();
 			}
 		});
 
-		if (mojangAuthSuccessful.get()) {
-			Request request = new Request(Request.Type.HANDSHAKE, account.getUuid(), serverId.get(), account.getName());
-			send(request).whenCompleteAsync((object, t) -> {
-				if (t != null) {
-					logger.error("Handshake failed, closing API!");
-					if (apiOptions.detailedLogging.get()) {
-						notificationProvider.addStatus("api.error.handshake", t.getMessage());
-					}
-					shutdown();
-				} else if (object.getByte(0x09) == 0) {
-
-					logger.debug("Handshake successful!");
-					if (apiOptions.detailedLogging.get()) {
-						notificationProvider.addStatus("api.success.handshake", "api.success.handshake.desc");
-					}
-				}
-			});
-		}
 	}
 
-	public boolean requestFailed(ByteBuf object) {
-		try {
-			return object.getByte(0x03) == Request.Type.ERROR.getType();
-		} catch (IndexOutOfBoundsException e) {
-			return true;
+	public CompletableFuture<Response> get(Request request) {
+		return request(request, "GET");
+	}
+
+	public CompletableFuture<Response> patch(Request request) {
+		return request(request, "PATCH");
+	}
+
+	public CompletableFuture<Response> post(Request request) {
+		return request(request, "POST");
+	}
+
+	public CompletableFuture<Response> delete(Request request) {
+		return request(request, "DELETE");
+	}
+
+	private CompletableFuture<Response> request(Request request, String method) {
+		return request(getUrl(request), request.getBodyFields(), request.getRoute().isAuthenticated(), method);
+	}
+
+	private CompletableFuture<Response> request(String url, Map<String, ?> payload,
+												boolean authenticated, String method) {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
+				connection.setRequestMethod(method);
+
+				connection.addRequestProperty("Content-Type", "application/json");
+
+				connection.addRequestProperty("Accept", "application/json");
+				if (authenticated) {
+					connection.addRequestProperty("Authorization", token);
+				}
+				connection.connect();
+
+				if (!(payload == null || payload.isEmpty())) {
+					PrintWriter writer = new PrintWriter(connection.getOutputStream());
+					StringBuilder body = new StringBuilder("{");
+					payload.forEach((s, s2) -> {
+						if (body.charAt(body.length() - 1) == '{') {
+							body.append(",");
+						}
+						body.append("\"").append(s).append("\": \"").append(s2).append("\"");
+					});
+					body.append("}");
+					writer.println(body);
+					writer.flush();
+					writer.close();
+				}
+
+				BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				String body = reader.lines().collect(Collectors.joining("\n"));
+				reader.close();
+
+				int code = connection.getResponseCode();
+				connection.disconnect();
+				return Response.builder().body(body).status(code).build();
+			} catch (IOException e) {
+				handleError(e);
+				return Response.CLIENT_ERROR;
+			}
+		});
+	}
+
+	private void handleError(Exception e) {
+		logger.error("Error in API traffic: ", e);
+	}
+
+	private String getUrl(Request request) {
+		StringBuilder url = new StringBuilder(Constants.API_URL);
+		url.append(request.getRoute().getPath());
+		for (String p : request.getPath()) {
+			url.append("/").append(p);
 		}
+		if (!request.getQuery().isEmpty()) {
+			url.append("?");
+			request.getQuery().forEach((k, v) -> {
+				if (url.charAt(url.length() - 1) == '?') {
+					url.append("&");
+				}
+				url.append(k).append("=").append(v);
+			});
+		}
+		return url.toString();
 	}
 
 	public void shutdown() {
-		if (channel != null && channel.isOpen()) {
-			ClientEndpoint.shutdown();
-			channel = null;
+		if (session != null && session.isOpen()) {
+			try {
+				session.close(CloseReasons.NORMAL_CLOSURE.getCloseReason());
+			} catch (IOException e) {
+				logger.warn("Failed to close session: ", e);
+			}
+			session = null;
 		}
 	}
 
-	public CompletableFuture<ByteBuf> send(Request request) {
-		CompletableFuture<ByteBuf> future = new CompletableFuture<>();
-		if (isConnected()) {
-				requests.put(request.getId(), future);
-				ThreadExecuter.scheduleTask(() -> {
-					ByteBuf buf = request.getData();
-					if (apiOptions.detailedLogging.get()) {
-						logDetailed("Sending Request: " + buf.toString(StandardCharsets.UTF_8));
-					}
-					channel.writeAndFlush(buf);
-					buf.release();
-				});
-		} else {
-			logger.warn("Not sending request because API is closed: " + request);
-		}
-		return future;
-	}
-
-	public boolean isConnected() {
-		return channel != null && channel.isOpen();
+	public boolean isSocketConnected() {
+		return session != null && session.isOpen();
 	}
 
 	public void logDetailed(String message, Object... args) {
@@ -177,51 +225,9 @@ public class API {
 		}
 	}
 
-	public void onMessage(ByteBuf message) {
-		if (apiOptions.detailedLogging.get()) {
-			logDetailed("Handling response: " + message.toString(StandardCharsets.UTF_8));
-		}
-		handleResponse(message);
-	}
-
-	private void handleResponse(ByteBuf response) {
-		try {
-			Integer id = null;
-			try {
-				id = response.getInt(0x05);
-			} catch (IndexOutOfBoundsException ignored) {
-			}
-
-
-			APIError error;
-
-			if(requestFailed(response)){
-				error = new APIError(response);
-			} else {
-				error = null;
-			}
-
-			if (requests.containsKey(id)) {
-				if(error != null){
-					requests.get(id).completeExceptionally(error);
-				} else {
-					requests.get(id).complete(response);
-				}
-				requests.remove(id);
-			} else if (id == null || id == 0) {
-				int type = response.getByte(0x03);
-				handlers.stream().filter(handler -> handler.isApplicable(type)).forEach(handler ->
-					handler.handle(response, error));
-			} else {
-				logger.error("Unknown response: " + response.toString(StandardCharsets.UTF_8));
-			}
-
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-			logger.error("Invalid response: " + response);
-		}
-
-		response.release();
+	public void onMessage(String message) {
+		logDetailed("Handling response: ", message);
+		// TODO handle socket messages
 	}
 
 	public void onError(Throwable throwable) {
@@ -231,18 +237,25 @@ public class API {
 	public void onClose() {
 		logDetailed("Session closed!");
 		logDetailed("Restarting API session...");
-		createSession();
+		startup(account);
 		logDetailed("Restarted API session!");
 	}
 
 	private void createSession() {
-		if(!Constants.TESTING) {
-			new ClientEndpoint().run(Constants.API_URL, Constants.PORT);
+		if (!Constants.TESTING) {
+			try {
+
+				String apiUrl = Constants.SOCKET_URL;
+				logDetailed("Connecting to " + apiUrl);
+				session = GrizzlyContainerProvider.getWebSocketContainer().connectToServer(ClientEndpoint.class, URI.create(apiUrl));
+			} catch (IOException | DeploymentException e) {
+				logger.error("Failed to start API! ", e);
+			}
 		}
 	}
 
 	public void restart() {
-		if (isConnected()) {
+		if (isSocketConnected()) {
 			shutdown();
 		}
 		if (account != null) {
@@ -255,79 +268,92 @@ public class API {
 	public void startup(Account account) {
 		this.uuid = account.getUuid();
 		this.account = account;
-
-		if(account.isOffline()){
+		if (!Constants.ENABLED) {
 			return;
 		}
 
-		if (apiOptions.enabled.get()) {
-			switch (apiOptions.privacyAccepted.get()) {
-				case "unset":
-					apiOptions.openPrivacyNoteScreen.accept(v -> {
-						if (v) startupAPI();
-					});
-					break;
-				case "accepted":
-					startupAPI();
-					break;
-				default:
-					break;
-			}
+		if (account.isOffline()) {
+			return;
 		}
+
+		ThreadExecuter.scheduleTask(() -> {
+			if (apiOptions.enabled.get()) {
+				switch (apiOptions.privacyAccepted.get()) {
+					case "unset":
+						apiOptions.openPrivacyNoteScreen.accept(v -> {
+							if (v) startupAPI();
+						});
+						break;
+					case "accepted":
+						startupAPI();
+						break;
+					default:
+						break;
+				}
+			}
+		});
 	}
 
 	void startupAPI() {
-		if (!isConnected()) {
-			self = new User(this.uuid, Status.UNKNOWN);
+		if (!isSocketConnected()) {
+			logger.debug("Creating self user..");
+			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN, PkSystem.fromToken(apiOptions.pkToken.get()).join());
 
-			if(Constants.TESTING){
+			if (Constants.TESTING) {
 				return;
 			}
 
 			logger.debug("Starting API...");
-			ThreadExecuter.scheduleTask(() -> {
-				createSession();
-
-				while (channel == null) {
-					try {
-						//noinspection BusyWait
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-
-				new Thread("Status Update Thread") {
-					@Override
-					public void run() {
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException ignored) {
-						}
-						while (API.getInstance().isConnected()) {
-							Request statusUpdate = statusUpdateProvider.getStatus();
-							if (statusUpdate != null) {
-								send(statusUpdate);
-							}
-							try {
-								//noinspection BusyWait
-								Thread.sleep(Constants.STATUS_UPDATE_DELAY * 1000);
-							} catch (InterruptedException ignored) {
-
-							}
-						}
-					}
-				}.start();
-			});
+			ThreadExecuter.scheduleTask(this::authenticate);
 		} else {
 			logger.warn("API is already running!");
 		}
 	}
 
+	private void startStatusUpdateThread() {
+		statusUpdateProvider.initialize();
+		new Thread("Status Update Thread") {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException ignored) {
+				}
+				while (API.getInstance().isSocketConnected()) {
+					Request request = statusUpdateProvider.getStatus();
+					if (request != null) {
+						post(request);
+					}
+					try {
+						//noinspection BusyWait
+						Thread.sleep(Constants.STATUS_UPDATE_DELAY * 1000);
+					} catch (InterruptedException ignored) {
+
+					}
+				}
+			}
+		}.start();
+	}
+
 	public String sanitizeUUID(String uuid) {
 		if (uuid.contains("-")) {
-			return uuid.replace("-", "");
+			return validateUUID(uuid.replace("-", ""));
+		}
+		return validateUUID(uuid);
+	}
+
+	private String validateUUID(String uuid) {
+		if (uuid.length() != 32) {
+			throw new IllegalArgumentException("Not a valid UUID (undashed): " + uuid);
 		}
 		return uuid;
+	}
+
+	public void onPong(PongMessage pong) {
+		try {
+			session.getBasicRemote().sendPong(pong.getApplicationData());
+		} catch (IOException e) {
+			onError(e);
+		}
 	}
 }

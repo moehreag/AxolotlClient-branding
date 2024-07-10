@@ -1,9 +1,7 @@
 plugins {
-	id 'io.github.juuxel.loom-quiltflower' version '1.8.+'
-	id "fabric-loom" version "1.2.1"
+	id 'org.quiltmc.loom'
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_1165}"
@@ -12,9 +10,14 @@ base.archivesName = "AxolotlClient"
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-repositories {
-	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
+loom {
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
 	}
 }
 
@@ -22,7 +25,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_1165}"
 	mappings "net.fabricmc:yarn:${project.mappings_1165}:v2"
 
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader}"
+	modImplementation "org.quiltmc:quilt-loader:${quilt_loader}"
 
 	modImplementation include("net.fabricmc.fabric-api:fabric-networking-api-v1:1.0.5+3cc0f0907d")
 	modImplementation("net.fabricmc.fabric-api:fabric-command-api-v1:1.1.3+3cc0f0907d")
@@ -32,6 +35,8 @@ dependencies {
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+1.16") {
 		exclude group: "com.terraformersmc"
+		exclude group: "org.quiltmc"
+		exclude group: "org.lwjgl"
 	}
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+1.16"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
@@ -46,6 +51,11 @@ dependencies {
 	}
 	implementation include("org.slf4j:slf4j-api:1.7.36")
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+
+	api("org.lwjgl:lwjgl-nanovg:3.2.2")
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.2.2:natives-linux')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.2.2:natives-windows')
+	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.2.2:natives-macos')
 }
 
 processResources {

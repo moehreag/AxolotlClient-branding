@@ -24,14 +24,14 @@ package io.github.axolotlclient.mixin;
 
 import java.util.List;
 
-import net.minecraft.client.gl.PostProcessShader;
-import net.minecraft.client.gl.ShaderEffect;
+import net.minecraft.client.render.PostChain;
+import net.minecraft.client.render.PostPass;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(ShaderEffect.class)
+@Mixin(PostChain.class)
 public interface ShaderEffectAccessor {
 
-	@Accessor
-	List<PostProcessShader> getPasses();
+	@Accessor("passes")
+	List<PostPass> getPasses();
 }

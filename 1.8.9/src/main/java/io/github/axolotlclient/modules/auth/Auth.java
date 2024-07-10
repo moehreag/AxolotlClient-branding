@@ -30,21 +30,24 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.util.UUIDTypeAdapter;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.Notifications;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.DefaultSkinHelper;
-import net.minecraft.client.util.Session;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Session;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.resource.skin.DefaultSkinUtils;
+import net.minecraft.resource.Identifier;
 
 public class Auth extends Accounts implements Module {
 
@@ -52,8 +55,8 @@ public class Auth extends Accounts implements Module {
 	private static final Auth Instance = new Auth();
 
 	public final BooleanOption showButton = new BooleanOption("auth.showButton", false);
-	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", (x, y) -> client.setScreen(new AccountsScreen(client.currentScreen)));
+	private final Minecraft client = Minecraft.getInstance();
+	private final GenericOption viewAccounts = new GenericOption("viewAccounts", "clickToOpen", () -> client.openScreen(new AccountsScreen(client.screen)));
 
 	private final Map<String, Identifier> textures = new HashMap<>();
 	private final Set<String> loadingTexture = new HashSet<>();
@@ -62,10 +65,10 @@ public class Auth extends Accounts implements Module {
 	@Override
 	public void init() {
 		load();
-		this.auth = new MSAuth(AxolotlClient.LOGGER, this);
+		this.auth = new MSAuth(AxolotlClient.LOGGER, this, () -> client.options.language);
 		if (isContained(client.getSession().getUuid())) {
 			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).collect(Collectors.toList()).get(0);
-			if (current.isExpired()) {
+			if (current.needsRefresh()) {
 				current.refresh(auth, () -> {
 				});
 			}
@@ -73,7 +76,7 @@ public class Auth extends Accounts implements Module {
 			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
 		}
 
-		OptionCategory category = new OptionCategory("auth");
+		OptionCategory category = OptionCategory.create("auth");
 		category.add(showButton, viewAccounts);
 		AxolotlClient.CONFIG.general.add(category);
 	}
@@ -92,12 +95,12 @@ public class Auth extends Accounts implements Module {
 		Runnable runnable = () -> {
 			try {
 				API.getInstance().shutdown();
-				((MinecraftClientAccessor) client).setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(), Session.AccountType.MOJANG.name()));
+				((MinecraftClientAccessor) client).setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(), Session.Type.MOJANG.name()));
 				if (!account.isOffline()) {
 					API.getInstance().startup(account);
 				}
-				client.getSessionProperties().clear();
-				client.getSessionProperties();
+				client.getProfileProperties().clear();
+				client.getProfileProperties();
 				save();
 				current = account;
 				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.login.successful", current.getName());
@@ -108,8 +111,10 @@ public class Auth extends Accounts implements Module {
 			}
 		};
 
-		if (account.isExpired() && !account.isOffline()) {
-			Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.refreshing", account.getName());
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.refreshing", account.getName());
+			}
 			account.refresh(auth, runnable);
 		} else {
 			new Thread(runnable).start();
@@ -121,7 +126,6 @@ public class Auth extends Accounts implements Module {
 		return AxolotlClient.LOGGER;
 	}
 
-	@Override
 	public void loadTextures(String uuid, String name) {
 		if (!textures.containsKey(uuid) && !loadingTexture.contains(uuid)) {
 			ThreadExecuter.scheduleTask(() -> {
@@ -139,7 +143,7 @@ public class Auth extends Accounts implements Module {
 					}
 					profileCache.put(uuid, gameProfile);
 				}
-				client.getSkinProvider().loadProfileSkin(gameProfile, (type, identifier, minecraftProfileTexture) -> {
+				client.getSkinManager().register(gameProfile, (type, identifier, minecraftProfileTexture) -> {
 					if (type == MinecraftProfileTexture.Type.SKIN) {
 						textures.put(uuid, identifier);
 						loadingTexture.remove(uuid);
@@ -147,7 +151,24 @@ public class Auth extends Accounts implements Module {
 				}, false);
 			});
 		}
+	}
 
+	@Override
+	void showAccountsExpiredScreen(Account account) {
+		Screen current = client.screen;
+		client.submit(() -> client.openScreen(new ConfirmScreen((bl, i) -> {
+			client.openScreen(current);
+			if (bl) {
+				auth.startDeviceAuth(() -> {
+				});
+			}
+		}, I18n.translate("auth"), I18n.translate("auth.accountExpiredNotice", account.getName()), 1)));
+	}
+
+	@Override
+	void displayDeviceCode(DeviceFlowData data) {
+		Screen display = new DeviceCodeDisplayScreen(client.screen, data);
+		client.openScreen(display);
 	}
 
 	public Identifier getSkinTexture(Account account) {
@@ -162,9 +183,9 @@ public class Auth extends Accounts implements Module {
 		}
 		try {
 			UUID uUID = UUIDTypeAdapter.fromString(uuid);
-			return DefaultSkinHelper.getTexture(uUID);
+			return DefaultSkinUtils.getDefaultSkin(uUID);
 		} catch (IllegalArgumentException ignored) {
-			return DefaultSkinHelper.getTexture();
+			return DefaultSkinUtils.getDefaultSkin();
 		}
 	}
 }

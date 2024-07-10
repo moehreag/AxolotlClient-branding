@@ -28,21 +28,20 @@ import net.minecraft.client.MinecraftClient;
 
 public class DiscordRPC extends RPCCommon {
 	private static DiscordRPC Instance;
+	private String currentWorld = "";
 
 	private DiscordRPC() {
 		super(AxolotlClient.LOGGER);
-	}
-
-	private String currentWorld = "";
-
-	public void setWorld(String world) {
-		currentWorld = world;
 	}
 
 	public static DiscordRPC getInstance() {
 		if (Instance == null)
 			Instance = new DiscordRPC();
 		return Instance;
+	}
+
+	public void setWorld(String world) {
+		currentWorld = world;
 	}
 
 	@Override

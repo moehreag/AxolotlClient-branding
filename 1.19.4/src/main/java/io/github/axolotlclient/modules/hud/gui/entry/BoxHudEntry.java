@@ -24,11 +24,12 @@ package io.github.axolotlclient.modules.hud.gui.entry;
 
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
+import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.client.util.math.MatrixStack;
 
 /**
@@ -43,10 +44,10 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 	private final boolean backgroundAllowed;
 
 	protected BooleanOption background = new BooleanOption("background", true);
-	protected ColorOption backgroundColor = new ColorOption("bgcolor", 0x64000000);
+	protected ColorOption backgroundColor = new ColorOption("bgcolor", new Color(0x64000000));
 
 	protected BooleanOption outline = new BooleanOption("outline", false);
-	protected ColorOption outlineColor = new ColorOption("outlinecolor", Color.WHITE);
+	protected ColorOption outlineColor = new ColorOption("outlinecolor", ClientColors.WHITE);
 
 	public BoxHudEntry(int width, int height, boolean backgroundAllowed) {
 		super(width, height);
@@ -93,7 +94,7 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 	public void renderPlaceholder(MatrixStack matrices, float delta) {
 		matrices.push();
 		renderPlaceholderBackground(matrices);
-		outlineRect(matrices, getTrueBounds(), Color.BLACK);
+		outlineRect(matrices, getTrueBounds(), ClientColors.BLACK);
 		scale(matrices);
 		renderPlaceholderComponent(matrices, delta);
 		matrices.pop();

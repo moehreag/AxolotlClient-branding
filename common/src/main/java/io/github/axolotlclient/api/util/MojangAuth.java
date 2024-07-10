@@ -26,31 +26,30 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import com.google.gson.JsonObject;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.GsonHelper;
+import io.github.axolotlclient.util.NetworkUtil;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 public class MojangAuth {
 
-	public static Result authenticate(Account account, byte[] publicKey) {
+	public static  Result authenticate(Account account) {
 		Result.Builder result = Result.builder();
-		try (CloseableHttpClient client = HttpClients.createDefault()) {
-
-			SecretKey secretKey = generateSecretKey();
+		try (CloseableHttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
 
 			RequestBuilder builder = RequestBuilder.post();
 			builder.addHeader("Content-Type", "application/json");
@@ -60,13 +59,14 @@ public class MojangAuth {
 			JsonObject body = new JsonObject();
 			body.addProperty("accessToken", account.getAuthToken());
 			body.addProperty("selectedProfile", account.getUuid());
-			assert secretKey != null;
-			String serverId = minecraftSha1(account.getName().getBytes(StandardCharsets.US_ASCII), publicKey,
-				secretKey.getEncoded());
+
+			String serverId = RandomStringUtils.random(40);
+
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
 
 			builder.setEntity(new StringEntity(body.toString()));
+			builder.setUri("https://sessionserver.mojang.com/session/minecraft/join");
 
 			HttpResponse response = client.execute(builder.build());
 
@@ -75,6 +75,7 @@ public class MojangAuth {
 				return result.status(Status.SUCCESS).build();
 			} else if (entity != null) {
 				JsonObject element = GsonHelper.fromJson(EntityUtils.toString(entity));
+				API.getInstance().logDetailed(element.toString());
 
 				if (element.get("error").getAsString().equals("InsufficientPrivilegesException")) {
 					return result.status(Status.MULTIPLAYER_DISABLED).build();
@@ -83,7 +84,8 @@ public class MojangAuth {
 				}
 			}
 
-		} catch (IOException ignored) {
+		} catch (IOException e) {
+			API.getInstance().logDetailed("MojangAuth Exception: ", e);
 		}
 		return result.status(Status.FAILURE).build();
 	}
@@ -117,18 +119,18 @@ public class MojangAuth {
 		return null;
 	}
 
-	@Data
-	@Builder(builderClassName = "Builder")
-	public static class Result {
-		private final Status status;
-		private final String serverId;
-	}
-
 	public enum Status {
 		SUCCESS,
 		MULTIPLAYER_DISABLED,
 		USER_BANNED,
 		FAILURE
+	}
+
+	@Data
+	@Builder(builderClassName = "Builder")
+	public static class Result {
+		private final Status status;
+		private final String serverId;
 	}
 
 }

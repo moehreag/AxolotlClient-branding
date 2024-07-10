@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.modules.hud.util;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -39,7 +39,7 @@ import net.minecraft.text.Text;
 public class DrawUtil extends DrawableHelper {
 
 	public static void fillRect(MatrixStack matrices, Rectangle rectangle, Color color) {
-		fillRect(matrices, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.getAsInt());
+		fillRect(matrices, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
 
 	public static void fillRect(MatrixStack matrices, int x, int y, int width, int height, int color) {
@@ -47,11 +47,11 @@ public class DrawUtil extends DrawableHelper {
 	}
 
 	public static void fillRect(MatrixStack matrices, int x, int y, int width, int height, Color color) {
-		RenderUtil.drawRectangle(matrices, x, y, x + width, y + height, color.getAsInt());
+		RenderUtil.drawRectangle(matrices, x, y, x + width, y + height, color.toInt());
 	}
 
 	public static void outlineRect(MatrixStack matrices, Rectangle rectangle, Color color) {
-		outlineRect(matrices, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.getAsInt());
+		outlineRect(matrices, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
 
 	public static void outlineRect(MatrixStack matrices, int x, int y, int width, int height, int color) {
@@ -63,7 +63,7 @@ public class DrawUtil extends DrawableHelper {
 
 	public static void drawCenteredString(MatrixStack matrices, TextRenderer renderer, String text, int x, int y,
 										  Color color, boolean shadow) {
-		drawCenteredString(matrices, renderer, text, x, y, color.getAsInt(), shadow);
+		drawCenteredString(matrices, renderer, text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawCenteredString(MatrixStack matrices, TextRenderer renderer, String text, int x, int y,
@@ -88,7 +88,7 @@ public class DrawUtil extends DrawableHelper {
 	}
 
 	public static void drawString(MatrixStack matrices, String text, float x, float y, Color color, boolean shadow) {
-		drawString(matrices, text, x, y, color.getAsInt(), shadow);
+		drawString(matrices, text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawString(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y,

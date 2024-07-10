@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
@@ -39,9 +39,9 @@ import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.Formatting;
 
 /**
@@ -56,38 +56,24 @@ public class BedwarsMod implements AbstractHypixelMod {
 
 	@Getter
 	private static BedwarsMod instance = new BedwarsMod();
-
-	@Getter
-	private final OptionCategory category = new OptionCategory("bedwars");
-
-	private final BooleanOption enabled = new BooleanOption("enabled", false);
-
 	public final BooleanOption hardcoreHearts = new BooleanOption(getTranslationKey("hardcoreHearts"), true);
-
 	public final BooleanOption showHunger = new BooleanOption(getTranslationKey("showHunger"), false);
-
 	public final BooleanOption displayArmor = new BooleanOption(getTranslationKey("displayArmor"), true);
-
 	public final BooleanOption bedwarsLevelHead = new BooleanOption(getTranslationKey("bedwarsLevelHead"), true);
-	public final EnumOption bedwarsLevelHeadMode = new EnumOption(getTranslationKey("bedwarsLevelHeadMode"),
-		BedwarsLevelHeadMode.values(),
-		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS.toString());
-
-
-	protected BedwarsGame currentGame = null;
-
+	public final EnumOption<BedwarsLevelHeadMode> bedwarsLevelHeadMode = new EnumOption<>(getTranslationKey("bedwarsLevelHeadMode"),
+		BedwarsLevelHeadMode.class,
+		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS);
 	@Getter
 	protected final TeamUpgradesOverlay upgradesOverlay;
-
-
 	protected final BooleanOption removeAnnoyingMessages = new BooleanOption(getTranslationKey("removeAnnoyingMessages"), true);
-
-
+	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
+	@Getter
+	private final OptionCategory category = OptionCategory.create("bedwars");
+	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final BooleanOption tabRenderLatencyIcon = new BooleanOption(getTranslationKey("tabRenderLatencyIcon"), false);
 
 	private final BooleanOption showChatTime = new BooleanOption(getTranslationKey("showChatTime"), true);
-
-	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
+	protected BedwarsGame currentGame = null;
 	private int targetTick = -1;
 	private boolean waiting = false;
 
@@ -201,13 +187,13 @@ public class BedwarsMod implements AbstractHypixelMod {
 			return;
 		}
 		Scoreboard scoreboard = event.getObjective().getScoreboard();
-		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(event.getObjective());
-		List<ScoreboardPlayerScore> filteredScores = scores.stream()
-			.filter(p_apply_1_ -> p_apply_1_.getPlayerName() != null && !p_apply_1_.getPlayerName().startsWith("#"))
+		Collection<C_lfemghur> scores = scoreboard.method_1184(event.getObjective());
+		List<C_lfemghur> filteredScores = scores.stream()
+			.filter(p_apply_1_ -> p_apply_1_.owner() != null && !p_apply_1_.method_55385())
 			.toList();
 		waiting = filteredScores.stream().anyMatch(score -> {
-			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
-			String format = Formatting.strip(Team.decorateName(team, Text.literal(score.getPlayerName())).getString()).replaceAll("[^A-z0-9 .:]", "");
+			Team team = scoreboard.getPlayerTeam(score.owner());
+			String format = Formatting.strip(Team.decorateName(team, Text.literal(score.owner())).getString()).replaceAll("[^A-z0-9 .:]", "");
 			return format.contains("Waiting...") || format.contains("Starting in");
 		});
 	}

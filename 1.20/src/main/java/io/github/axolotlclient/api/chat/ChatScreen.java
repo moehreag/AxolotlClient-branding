@@ -32,17 +32,16 @@ import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
 public class ChatScreen extends Screen implements ContextMenuScreen {
 
-	private ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private final Channel channel;
 	private final Screen parent;
-
+	private ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private ChatWidget widget;
 	private ChatUserListWidget users;
 	private TextFieldWidget input;
@@ -55,12 +54,6 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics);
-
-		if (users != null) {
-			users.render(graphics, mouseX, mouseY, delta);
-		}
-
 		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawCenteredShadowedText(this.textRenderer, channel.getName(), this.width / 2, 20, 16777215);
@@ -69,18 +62,18 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	@Override
 	protected void init() {
 
-		addDrawableChild(new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
+		addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
 
-		addDrawableChild(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
+		addDrawableSelectableElement(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
 
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
-			users.setLeftPos(width - 80);
+			users.setX(width - 80);
 			users.setUsers(Arrays.asList(channel.getUsers()));
-			addSelectableChild(users);
+			addDrawableSelectableElement(users);
 		}
 
-		addDrawableChild(input = new TextFieldWidget(client.textRenderer, width / 2 - 150, height - 50,
+		addDrawableSelectableElement(input = new TextFieldWidget(client.textRenderer, width / 2 - 150, height - 50,
 			300, 20, Text.translatable("api.chat.enterMessage")) {
 
 			@Override
@@ -104,17 +97,12 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		});
 		input.setMaxLength(1024);
 
-		this.addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
+		this.addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 			.positionAndSize(this.width / 2 - 75, this.height - 28, 150, 20)
 			.build()
 		);
 
-		addDrawableChild(contextMenu);
-	}
-
-	@Override
-	public void tick() {
-		input.tick();
+		addDrawableSelectableElement(contextMenu);
 	}
 
 	@Override

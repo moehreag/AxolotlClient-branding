@@ -27,11 +27,11 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.ComboHud;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ReachHud;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.modules.particles.Particles;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.particle.ParticleType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.entity.particle.ParticleType;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,10 +46,10 @@ public abstract class PlayerEntityMixin extends Entity {
 		super(world);
 	}
 
-	@Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;initializeAttribute(Lnet/minecraft/entity/attribute/EntityAttribute;)Lnet/minecraft/entity/attribute/EntityAttributeInstance;"))
+	@Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;getAttribute(Lnet/minecraft/entity/living/attribute/EntityAttribute;)Lnet/minecraft/entity/living/attribute/EntityAttributeInstance;"))
 	public void axolotlclient$getReach(Entity entity, CallbackInfo ci) {
-		if ((Object) this == MinecraftClient.getInstance().player
-			|| entity.equals(MinecraftClient.getInstance().player)) {
+		if ((Object) this == Minecraft.getInstance().player
+			|| entity.equals(Minecraft.getInstance().player)) {
 			ReachHud reachDisplayHud = (ReachHud) HudManager.getInstance().get(ReachHud.ID);
 			if (reachDisplayHud != null && reachDisplayHud.isEnabled()) {
 				reachDisplayHud.updateDistance(this, entity);
@@ -60,19 +60,19 @@ public abstract class PlayerEntityMixin extends Entity {
 		}
 	}
 
-	@Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;method_6150(Lnet/minecraft/entity/Entity;)V"))
+	@Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/living/player/PlayerEntity;addCritParticles(Lnet/minecraft/entity/Entity;)V"))
 	public void axolotlclient$alwaysCrit(Entity entity, CallbackInfo ci) {
 		if (Particles.getInstance().getAlwaysOn(ParticleType.CRIT)) {
-			MinecraftClient.getInstance().player.addCritParticles(entity);
+			Minecraft.getInstance().player.addCritParticles(entity);
 		}
 		if (Particles.getInstance().getAlwaysOn(ParticleType.CRIT_MAGIC)) {
-			MinecraftClient.getInstance().player.addEnchantedHitParticles(entity);
+			Minecraft.getInstance().player.addEnchantedCritParticles(entity);
 		}
 	}
 
 	@Inject(method = "damage", at = @At("HEAD"))
 	public void axolotlclient$damage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-		if (source.getAttacker() != null && getUuid() == MinecraftClient.getInstance().player.getUuid()) {
+		if (source.getAttacker() != null && getUuid() == Minecraft.getInstance().player.getUuid()) {
 			ReachHud reachDisplayHud = (ReachHud) HudManager.getInstance().get(ReachHud.ID);
 			if (reachDisplayHud != null && reachDisplayHud.isEnabled()) {
 				reachDisplayHud.updateDistance(source.getAttacker(), this);
@@ -86,7 +86,7 @@ public abstract class PlayerEntityMixin extends Entity {
 	}
 
 	@Inject(
-		method = "getArmorProtectionValue",
+		method = "getArmorProtection",
 		at = @At(
 			"HEAD"
 		),

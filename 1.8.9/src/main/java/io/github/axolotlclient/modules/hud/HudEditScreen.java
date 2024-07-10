@@ -28,14 +28,14 @@ import java.util.Optional;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.screen.OptionsScreenBuilder;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.ConfigStyles;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
@@ -50,11 +50,11 @@ import net.minecraft.client.resource.language.I18n;
 public class HudEditScreen extends Screen {
 
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
-	private static final OptionCategory hudEditScreenCategory = new OptionCategory("hudEditScreen");
+	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
 	static {
 		hudEditScreenCategory.add(snapping);
-		AxolotlClient.config.addSubCategory(hudEditScreenCategory);
+		AxolotlClient.config.add(hudEditScreenCategory);
 	}
 
 	private final Screen parent;
@@ -86,11 +86,11 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void render(int mouseX, int mouseY, float delta) {
-		if (MinecraftClient.getInstance().world != null)
+		if (Minecraft.getInstance().world != null)
 			fillGradient(0, 0, width, height, new Color(0xB0100E0E, true).hashCode(),
 				new Color(0x46212020, true).hashCode());
 		else {
-			renderDirtBackground(0);
+			renderBackground(0);
 		}
 
 		super.render(mouseX, mouseY, delta);
@@ -120,8 +120,10 @@ public class HudEditScreen extends Screen {
 				current = null;
 			}
 		} else if (button == 1) {
-			entry.ifPresent(abstractHudEntry -> MinecraftClient.getInstance().setScreen(
-				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.MODID)));
+			entry.ifPresent(hudEntry -> {
+				Screen screen = ConfigStyles.createScreen(this, hudEntry.getOptionsAsCategory());
+				Minecraft.getInstance().openScreen(screen);
+			});
 		}
 	}
 
@@ -167,15 +169,14 @@ public class HudEditScreen extends Screen {
 				AxolotlClient.configManager.save();
 				break;
 			case 1:
-				MinecraftClient.getInstance().setScreen(new OptionsScreenBuilder(this,
-					(OptionCategory) new OptionCategory("config", false).addSubCategories(AxolotlClient.CONFIG.getCategories()),
-					AxolotlClient.MODID));
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager.getRoot());
+				Minecraft.getInstance().openScreen(screen);
 				break;
 			case 0:
-				MinecraftClient.getInstance().setScreen(parent);
+				Minecraft.getInstance().openScreen(parent);
 				break;
 			case 2:
-				MinecraftClient.getInstance().setScreen(null);
+				Minecraft.getInstance().openScreen(null);
 				break;
 		}
 	}

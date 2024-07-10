@@ -23,8 +23,8 @@
 package io.github.axolotlclient.modules.hud.gui.hud.simple;
 
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -48,7 +48,7 @@ public class FPSHud extends SimpleTextHudEntry {
 
 	@Override
 	public String getValue() {
-		return MinecraftClient.getCurrentFps() + " FPS";
+		return Minecraft.getCurrentFps() + " FPS";
 	}
 
 	@Override

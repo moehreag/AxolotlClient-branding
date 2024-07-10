@@ -30,16 +30,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import lombok.Getter;
-import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
+import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import org.lwjgl.input.Keyboard;
 
 /**
@@ -52,7 +53,7 @@ import org.lwjgl.input.Keyboard;
 public class ToggleSprintHud extends SimpleTextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "togglesprint");
-	public final BooleanOption toggleSneak = new BooleanOption("toggleSneak", false);
+	public final ForceableBooleanOption toggleSneak = new ForceableBooleanOption("toggleSneak", false);
 	private final BooleanOption toggleSprint = new BooleanOption("toggleSprint", false);
 	private final BooleanOption randomPlaceholder = new BooleanOption("randomPlaceholder", false);
 	private final StringOption placeholder = new StringOption("placeholder", "No keys pressed");
@@ -77,8 +78,10 @@ public class ToggleSprintHud extends SimpleTextHudEntry {
 
 	@Override
 	public void init() {
-		KeyBindingHelper.registerKeyBinding(sprintToggle);
-		KeyBindingHelper.registerKeyBinding(sneakToggle);
+		KeyBindingEvents.REGISTER_KEYBINDS.register(r -> {
+			r.register(sprintToggle);
+			r.register(sneakToggle);
+		});
 	}
 
 	@Override
@@ -159,8 +162,8 @@ public class ToggleSprintHud extends SimpleTextHudEntry {
 		try {
 			BufferedReader bufferedReader = new BufferedReader(
 				new InputStreamReader(
-					MinecraftClient.getInstance().getResourceManager()
-						.getResource(new Identifier("texts/splashes.txt")).getInputStream(),
+					Minecraft.getInstance().getResourceManager()
+						.getResource(new Identifier("texts/splashes.txt")).asStream(),
 					StandardCharsets.UTF_8));
 			String string;
 			while ((string = bufferedReader.readLine()) != null) {

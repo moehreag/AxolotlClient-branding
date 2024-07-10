@@ -27,9 +27,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.blaze3d.glfw.Window;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
@@ -43,7 +44,7 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class SnappingHelper {
 
-	private static final Color LINE_COLOR = Color.SELECTOR_BLUE;
+	private static final Color LINE_COLOR = ClientColors.SELECTOR_BLUE;
 	private final int distance = 4;
 	private final HashSet<Integer> x = new HashSet<>();
 	private final HashSet<Integer> y = new HashSet<>();
@@ -55,6 +56,15 @@ public class SnappingHelper {
 		addAllRects(rects);
 		this.current = current;
 		this.window = MinecraftClient.getInstance().getWindow();
+	}
+
+	public static Optional<Integer> getNearby(int pos, HashSet<Integer> set, int distance) {
+		for (Integer integer : set) {
+			if (integer - distance <= pos && integer + distance >= pos) {
+				return Optional.of(integer);
+			}
+		}
+		return Optional.empty();
 	}
 
 	public void addAllRects(List<Rectangle> rects) {
@@ -105,15 +115,6 @@ public class SnappingHelper {
 		return null;
 	}
 
-	public static Optional<Integer> getNearby(int pos, HashSet<Integer> set, int distance) {
-		for (Integer integer : set) {
-			if (integer - distance <= pos && integer + distance >= pos) {
-				return Optional.of(integer);
-			}
-		}
-		return Optional.empty();
-	}
-
 	public Integer getHalfXSnap() {
 		int width = window.getScaledWidth() / 2;
 		int pos = current.x + Math.round((float) current.width / 2);
@@ -134,10 +135,10 @@ public class SnappingHelper {
 
 	public void renderAll(GuiGraphics graphics) {
 		for (Integer xval : x) {
-			DrawUtil.fillRect(graphics, new Rectangle(xval, 0, 1, window.getScaledHeight()), Color.WHITE);
+			DrawUtil.fillRect(graphics, new Rectangle(xval, 0, 1, window.getScaledHeight()), ClientColors.WHITE);
 		}
 		for (Integer yval : y) {
-			DrawUtil.fillRect(graphics, new Rectangle(0, yval, window.getScaledWidth(), 1), Color.WHITE);
+			DrawUtil.fillRect(graphics, new Rectangle(0, yval, window.getScaledWidth(), 1), ClientColors.WHITE);
 		}
 	}
 

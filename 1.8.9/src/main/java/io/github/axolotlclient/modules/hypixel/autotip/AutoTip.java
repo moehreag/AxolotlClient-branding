@@ -24,21 +24,21 @@ package io.github.axolotlclient.modules.hypixel.autotip;
 
 import java.util.regex.Pattern;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.Util;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class AutoTip implements AbstractHypixelMod {
 
 	@Getter
 	private final static AutoTip Instance = new AutoTip();
 
-	private final OptionCategory category = new OptionCategory("autotip");
+	private final OptionCategory category = OptionCategory.create("autotip");
 
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final BooleanOption hideMessages = new BooleanOption("hideTipMessages", false);
@@ -67,8 +67,8 @@ public class AutoTip implements AbstractHypixelMod {
 		if (init) {
 			if (System.currentTimeMillis() - lastTime > 1200000 && Util.getCurrentServerAddress() != null
 				&& Util.currentServerAddressContains("hypixel") && enabled.get()) {
-				if (MinecraftClient.getInstance().player != null) {
-					MinecraftClient.getInstance().player.sendChatMessage("/tip all");
+				if (Minecraft.getInstance().player != null) {
+					Minecraft.getInstance().player.sendChat("/tip all");
 					lastTime = System.currentTimeMillis();
 				}
 			}

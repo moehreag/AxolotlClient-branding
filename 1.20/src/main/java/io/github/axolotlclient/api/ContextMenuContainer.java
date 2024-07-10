@@ -57,18 +57,18 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	}
 
 	@Override
-	public void setFocused(boolean focused) {
-		if (menu != null) {
-			menu.setFocused(focused);
-		}
-	}
-
-	@Override
 	public boolean isFocused() {
 		if (menu != null) {
 			return menu.isFocused();
 		}
 		return false;
+	}
+
+	@Override
+	public void setFocused(boolean focused) {
+		if (menu != null) {
+			menu.setFocused(focused);
+		}
 	}
 
 	@Override
@@ -118,9 +118,9 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
 		if (menu != null) {
-			menu.mouseScrolled(mouseX, mouseY, amount);
+			menu.mouseScrolled(mouseX, mouseY, amountX, amountY);
 		}
 		return false;
 	}

@@ -30,11 +30,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
+import io.github.axolotlclient.util.keybinds.KeyBinds;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBind;
@@ -52,22 +53,18 @@ import org.lwjgl.glfw.GLFW;
 public class ToggleSprintHud extends SimpleTextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "togglesprint");
-	public final BooleanOption toggleSneak = new BooleanOption("toggleSneak", ID.getPath(), false);
-	private final BooleanOption toggleSprint = new BooleanOption("toggleSprint", ID.getPath(), false);
-	private final BooleanOption randomPlaceholder = new BooleanOption("randomPlaceholder", ID.getPath(), false);
-	private final StringOption placeholder = new StringOption("placeholder", ID.getPath(), "No keys pressed");
+	public final ForceableBooleanOption toggleSneak = new ForceableBooleanOption("toggleSneak", false);
+	private final BooleanOption toggleSprint = new BooleanOption("toggleSprint", false);
+	private final BooleanOption randomPlaceholder = new BooleanOption("randomPlaceholder", false);
+	private final StringOption placeholder = new StringOption("placeholder", "No keys pressed");
 
-	private final KeyBind sprintToggle = new KeyBind("key.toggleSprint", GLFW.GLFW_KEY_K, "category.axolotlclient");
-	private final KeyBindOption sprintKey = new KeyBindOption("key.toggleSprint", sprintToggle, (key) -> {
-	});
-	private final KeyBind sneakToggle = new KeyBind("key.toggleSneak", GLFW.GLFW_KEY_I, "category.axolotlclient");
-	private final KeyBindOption sneakKey = new KeyBindOption("key.toggleSneak", sneakToggle, (key) -> {
-	});
+	private final KeyBind sprintToggle = KeyBinds.getInstance().register(new KeyBind("key.toggleSprint", GLFW.GLFW_KEY_K, "category.axolotlclient"));
+	private final KeyBind sneakToggle = KeyBinds.getInstance().register(new KeyBind("key.toggleSneak", GLFW.GLFW_KEY_I, "category.axolotlclient"));
 
 	@Getter
-	private final BooleanOption sprintToggled = new BooleanOption("sprintToggled", ID.getPath(), false);
+	private final BooleanOption sprintToggled = new BooleanOption("sprintToggled", false);
 	@Getter
-	private final BooleanOption sneakToggled = new BooleanOption("sneakToggled", ID.getPath(), false);
+	private final BooleanOption sneakToggled = new BooleanOption("sneakToggled", false);
 	private final List<String> texts = new ArrayList<>();
 	private boolean sprintWasPressed = false;
 	private boolean sneakWasPressed = false;
@@ -107,9 +104,7 @@ public class ToggleSprintHud extends SimpleTextHudEntry {
 	public List<Option<?>> getConfigurationOptions() {
 		List<Option<?>> options = super.getConfigurationOptions();
 		options.add(toggleSprint);
-		options.add(sprintKey);
 		options.add(toggleSneak);
-		options.add(sneakKey);
 		options.add(randomPlaceholder);
 		options.add(placeholder);
 		return options;

@@ -27,8 +27,8 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.Entity;
@@ -50,38 +50,13 @@ import net.minecraft.util.math.Vec3d;
 public class ReachHud extends SimpleTextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "reachhud");
-	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", ID.getPath(), 0, 0, 15);
+	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", 0, 0, 15);
 
 	private String currentDist;
 	private long lastTime = 0;
 
-	@Override
-	public Identifier getId() {
-		return ID;
-	}
-
-	public void updateDistance(Entity attacking, Entity receiving) {
-		double distance = getAttackDistance(attacking, receiving);
-		if (distance < 0) {
-			distance *= -1;
-			// This should not happen...
-			currentDist = "NaN";
-			//return;
-		}
-
-		StringBuilder format = new StringBuilder("0");
-		if (decimalPlaces.get() > 0) {
-			format.append(".");
-			format.append("0".repeat(Math.max(0, decimalPlaces.get())));
-		}
-		DecimalFormat formatter = new DecimalFormat(format.toString());
-		formatter.setRoundingMode(RoundingMode.HALF_UP);
-		currentDist = formatter.format(distance) + " " + I18n.translate("blocks");
-		lastTime = Util.getMeasuringTimeMs();
-	}
-
 	public static double getAttackDistance(Entity attacking, Entity receiving) {
-		Vec3d camera = attacking.getCameraPosVec(1);
+		Vec3d camera = attacking.getEyePos();
 		Vec3d rotation = attacking.getRotationVec(1);
 
 		Vec3d maxPos = receiving.getPos();
@@ -115,6 +90,31 @@ public class ReachHud extends SimpleTextHudEntry {
 			return test;
 		}
 		return compare;
+	}
+
+	@Override
+	public Identifier getId() {
+		return ID;
+	}
+
+	public void updateDistance(Entity attacking, Entity receiving) {
+		double distance = getAttackDistance(attacking, receiving);
+		if (distance < 0) {
+			distance *= -1;
+			// This should not happen...
+			currentDist = "NaN";
+			//return;
+		}
+
+		StringBuilder format = new StringBuilder("0");
+		if (decimalPlaces.get() > 0) {
+			format.append(".");
+			format.append("0".repeat(Math.max(0, decimalPlaces.get())));
+		}
+		DecimalFormat formatter = new DecimalFormat(format.toString());
+		formatter.setRoundingMode(RoundingMode.HALF_UP);
+		currentDist = formatter.format(distance) + " " + I18n.translate("blocks");
+		lastTime = Util.getMeasuringTimeMs();
 	}
 
 	@Override

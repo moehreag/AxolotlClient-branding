@@ -23,12 +23,12 @@
 package io.github.axolotlclient.api.types;
 
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.util.Serializer;
 import io.github.axolotlclient.api.util.UUIDHelper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -36,16 +36,24 @@ import lombok.ToString;
 @AllArgsConstructor
 public class User {
 
-	@Serializer.Exclude
-	private String name;
-	@Serializer.Length(16)
+	protected String name;
 	private String uuid;
 	private Status status;
+	@Nullable
+	private PkSystem system;
 
-	public User(String uuid, Status status) {
+	public User(String name, String uuid, Status status){
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
-		this.name = UUIDHelper.getUsername(uuid);
+		this.name = name;
+	}
+
+	public User(String uuid, Status status) {
+		this(UUIDHelper.getUsername(uuid), uuid, status);
+	}
+
+	public boolean isSystem(){
+		return system != null;
 	}
 
 	@Override
@@ -69,5 +77,12 @@ public class User {
 			return uuid.equals(((User) obj).getUuid());
 		}
 		return false;
+	}
+
+	public String getDisplayName(String message){
+		if (!isSystem()){
+			return getName();
+		}
+		return getSystem().getProxy(message).orElse(getName());
 	}
 }

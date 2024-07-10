@@ -25,13 +25,13 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import io.github.axolotlclient.util.events.Events;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -123,11 +123,11 @@ public class CPSHud extends SimpleTextHudEntry {
 		}
 
 		public void update() {
-			clicks.removeIf((click) -> MinecraftClient.getTime() - click > 1000);
+			clicks.removeIf((click) -> Minecraft.getTime() - click > 1000);
 		}
 
 		public void click() {
-			clicks.add(MinecraftClient.getTime());
+			clicks.add(Minecraft.getTime());
 		}
 
 		public int clicks() {

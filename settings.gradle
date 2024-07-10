@@ -12,6 +12,14 @@ pluginManagement {
 			name = 'Quilt'
 			url = 'https://maven.quiltmc.org/repository/release/'
 		}
+		maven {
+			name = 'Ornithe Releases'
+			url = 'https://maven.ornithemc.net/releases'
+		}
+		maven {
+			name = 'Ornithe Snapshots'
+			url = 'https://maven.ornithemc.net/snapshots'
+		}
 		gradlePluginPortal()
 	}
 }

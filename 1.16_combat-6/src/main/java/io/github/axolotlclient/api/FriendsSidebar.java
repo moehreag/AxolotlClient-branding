@@ -248,7 +248,6 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
 			widget.y = y;
 			widget.x = x;
-			System.out.println(x);
 			//MinecraftClient.getInstance().textRenderer.draw(matrices, widget.getMessage(), x, y, -1);
 			widget.render(matrices, mouseX, mouseY, tickDelta);
 		}

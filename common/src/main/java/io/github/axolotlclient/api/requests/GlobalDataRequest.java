@@ -24,26 +24,24 @@ package io.github.axolotlclient.api.requests;
 
 import java.lang.ref.WeakReference;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.GlobalData;
-import io.github.axolotlclient.api.util.BufferUtil;
 
 public class GlobalDataRequest {
 
 	private static WeakReference<GlobalData> cachedData = new WeakReference<>(null);
 
-	public static GlobalData get(){
-		if (cachedData.get() != null){
+	public static GlobalData get() {
+		if (cachedData.get() != null) {
 			return cachedData.get();
 		}
-		return (cachedData = new WeakReference<>(API.getInstance().send(new Request(Request.Type.GLOBAL_DATA)).handleAsync((buf, th) -> {
-					if(th != null){
-						APIError.display(th);
-						return GlobalData.EMPTY;
-					}
-					return BufferUtil.unwrap(buf, GlobalData.class);
-				}).getNow(GlobalData.EMPTY))).get();
+		// TODO
+		/*return (cachedData = new WeakReference<>(API.getInstance().send(new RequestOld(RequestOld.Type.GLOBAL_DATA)).handleAsync((buf, th) -> {
+			if (th != null) {
+				APIError.display(th);
+				return GlobalData.EMPTY;
+			}
+			return BufferUtil.unwrap(buf, GlobalData.class);
+		}).getNow(GlobalData.EMPTY))).get();*/
+		return GlobalData.EMPTY;
 	}
 }

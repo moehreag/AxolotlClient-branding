@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.mixin.BossBarHudAccessor;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
@@ -37,7 +37,7 @@ import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.hud.ClientBossBar;
+import net.minecraft.client.gui.hud.boss_bar.ClientBossBar;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -66,7 +66,7 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 	private final BooleanOption text = new BooleanOption("text", true);
 	private final BooleanOption bar = new BooleanOption("bar", true);
 	// TODO custom color
-	private final EnumOption anchor = DefaultOptions.getAnchorPoint();
+	private final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint();
 	private Map<UUID, ClientBossBar> bossBars = new HashMap<>();
 
 	public BossBarHud() {
@@ -124,7 +124,7 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 			Text text = bossBar.getName();
 			float textX = x + ((float) getWidth() / 2) - ((float) client.textRenderer.getWidth(text) / 2);
 			float textY = y - 9;
-			graphics.drawText(client.textRenderer, text, (int) textX, (int) textY, textColor.get().getAsInt(), shadow.get());
+			graphics.drawText(client.textRenderer, text, (int) textX, (int) textY, textColor.get().toInt(), shadow.get());
 		}
 	}
 
@@ -151,7 +151,7 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return (anchor.get());
 	}
 
 	public static class CustomBossBar extends BossBar {

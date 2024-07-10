@@ -1,13 +1,12 @@
 plugins {
-	id 'java'
-	id 'maven-publish'
 	id "io.freefair.lombok" version '8.0.1' apply false
 	id 'com.modrinth.minotaur' version '2.+' apply false
-	id 'org.quiltmc.gradle.licenser' version '2.+'
+	id "dev.yumi.gradle.licenser" version "1.0.+"
 	id 'io.github.p03w.machete' version '2.+' apply false
+	id 'org.quiltmc.loom' version "1.7.+" apply false
+	id 'ploceus' version "1.7.+" apply false
 }
 
-base.archivesName = project.archives_base_name
 version = "${project.version}"
 group = project.maven_group
 
@@ -26,14 +25,19 @@ allprojects {
 
 	repositories {
 		maven {
-			url 'https://repo.hypixel.net/repository/Hypixel/'
-		}
-
-		maven {
 			name 'TerraformersMC Maven'
 			url 'https://maven.terraformersmc.com/releases/'
 		}
-
+		maven {
+			name = 'Quilt'
+			url = 'https://maven.quiltmc.org/repository/snapshot'
+		}
+		maven {
+			url = "https://moehreag.duckdns.org/maven/releases"
+		}
+		maven {
+			url = "https://moehreag.duckdns.org/maven/snapshots"
+		}
 		mavenLocal()
 		maven { url 'https://jitpack.io' }
 		mavenCentral()
@@ -45,7 +49,7 @@ subprojects {
 	apply plugin: "maven-publish"
 	apply plugin: "io.freefair.lombok"
 	apply plugin: 'com.modrinth.minotaur'
-	apply plugin: 'org.quiltmc.gradle.licenser'
+	apply plugin: "dev.yumi.gradle.licenser"
 
 	java {
 		withSourcesJar()
@@ -61,14 +65,6 @@ subprojects {
 		rule file('../HEADER')
 		include '**/*.java'
 	}
-}
-
-build {
-	tasks.jar.enabled = false
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = 'UTF-8'
 }
 
 

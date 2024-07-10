@@ -25,7 +25,6 @@ package io.github.axolotlclient.modules.screenshotUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -33,11 +32,7 @@ import java.io.IOException;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.*;
 
 public class ImageShare extends ImageNetworking {
 
@@ -56,8 +51,8 @@ public class ImageShare extends ImageNetworking {
 				Util.sendChatMessage(new LiteralText(I18n.translate("imageUploadSuccess") + " ")
 					.append(new LiteralText(downloadUrl)
 						.setStyle(new Style()
-							.setUnderline(true)
-							.setFormatting(Formatting.DARK_PURPLE)
+							.setUnderlined(true)
+							.setColor(Formatting.DARK_PURPLE)
 							.setClickEvent(new ScreenshotUtils.CustomClickEvent(null) {
 											   @Override
 											   public void doAction() {
@@ -70,9 +65,9 @@ public class ImageShare extends ImageNetworking {
 		});
 	}
 
-	public ImageInstance downloadImage(String url){
+	public ImageInstance downloadImage(String url) {
 		ImageData data = download(url);
-		if(!data.getName().isEmpty()) {
+		if (!data.getName().isEmpty()) {
 			try {
 				return new ImageInstance(ImageIO.read(new ByteArrayInputStream(data.getData())), data.getName());
 			} catch (IOException ignored) {

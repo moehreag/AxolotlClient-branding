@@ -22,29 +22,20 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
-import io.github.axolotlclient.api.requests.StatusUpdate;
-import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.RequestHandler;
-import io.netty.buffer.ByteBuf;
 
 public class StatusUpdateHandler implements RequestHandler {
-	@Override
+	/*@Override
 	public boolean isApplicable(int packetType) {
-		return packetType == Request.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();
+		return packetType == RequestOld.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();
 	}
 
 	@Override
 	public void handle(ByteBuf object, APIError error) {
-		String uuid = getString(object, 0x09, 16);
+		String uuid = getString(object, 0x09, 32);
 		AtomicReference<User> user = new AtomicReference<>();
 		FriendHandler.getInstance().getFriends().whenCompleteAsync((list, t) -> user.set(list.stream().filter(u -> u.getUuid().equals(uuid)).collect(Collectors.toList()).get(0)));
-		StatusUpdate.Type type = StatusUpdate.Type.fromCode(object.getByte(0x19));
+		StatusUpdate.Type type = StatusUpdate.Type.fromCode(object.getByte(0x29));
 		if (type == StatusUpdate.Type.ONLINE) {
 			API.getInstance().getNotificationProvider()
 				.addStatus("api.friends", "api.friends.statusChange.online",
@@ -58,5 +49,5 @@ public class StatusUpdateHandler implements RequestHandler {
 				.addStatus("api.friends", "api.friends.statusChange.inGame",
 					user.get().getName(), user.get().getStatus().getTitle());
 		}
-	}
+	}*/
 }

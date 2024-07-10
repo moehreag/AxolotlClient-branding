@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.util.Locale;
 
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.util.Serializer;
 import lombok.*;
 
 @Getter
@@ -39,11 +38,8 @@ public class Status {
 	public static Status UNKNOWN = new Status(false, "", "", "", Instant.EPOCH);
 
 	private boolean online;
-	@Serializer.Length(64)
 	private String title;
-	@Serializer.Length(64)
 	private String description;
-	@Serializer.Length(32)
 	private String icon;
 	private Instant startTime;
 

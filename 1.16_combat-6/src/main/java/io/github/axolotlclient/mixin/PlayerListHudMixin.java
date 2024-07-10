@@ -71,6 +71,9 @@ public abstract class PlayerListHudMixin {
 
 	@Unique
 	private GameProfile axolotlclient$profile;
+	@Shadow
+	@Final
+	private MinecraftClient client;
 
 	@Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$nickHider(PlayerListEntry playerEntry, CallbackInfoReturnable<Text> cir) {
@@ -86,10 +89,6 @@ public abstract class PlayerListHudMixin {
 
 	@Shadow
 	protected abstract Text method_27538(PlayerListEntry par1, MutableText par2);
-
-	@Shadow
-	@Final
-	private MinecraftClient client;
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"))
 	public PlayerListEntry axolotlclient$getPlayer(PlayerListEntry playerEntry) {
@@ -195,7 +194,7 @@ public abstract class PlayerListHudMixin {
 
 			render = String.valueOf(HypixelAbstractionLayer.getPlayerLevel(playerListEntry2
 					.getProfile().getId().toString().replace("-", ""),
-				LevelHeadMode.BEDWARS.toString()));
+				LevelHeadMode.BEDWARS));
 		} catch (Exception e) {
 			return;
 		}

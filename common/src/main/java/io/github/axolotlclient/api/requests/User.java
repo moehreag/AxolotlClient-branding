@@ -23,13 +23,15 @@
 package io.github.axolotlclient.api.requests;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Keyword;
 import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.RequestOld;
 import io.github.axolotlclient.api.types.Status;
-import io.github.axolotlclient.api.util.BufferUtil;
 
 public class User {
 
@@ -38,34 +40,31 @@ public class User {
 
 	public static boolean getOnline(String uuid) {
 
-		if(uuid == null){
+		if (uuid == null) {
 			return false;
 		}
 
 		uuid = API.getInstance().sanitizeUUID(uuid);
 
-		if(uuid.equals(API.getInstance().getUuid())){
+		if (uuid.equals(API.getInstance().getUuid())) {
 			return true;
 		}
 
 		return onlineCache.computeIfAbsent(uuid, u ->
-			API.getInstance().send(new Request(Request.Type.USER, u)).handleAsync((buf, t) ->
-			buf.getBoolean(0x09)).getNow(false));
+			API.getInstance().get(Request.builder().route(Request.Route.USER).path(u).build()).thenApply(response ->
+				((Map<?, ?>) response.getBody().get("status")).get("type").equals("online")).getNow(false));
 	}
 
 	public static CompletableFuture<io.github.axolotlclient.api.types.User> get(String uuid) {
 		if (userCache.containsKey(uuid)) {
 			return CompletableFuture.completedFuture(userCache.get(uuid));
 		}
-		return API.getInstance().send(new Request(Request.Type.GET_FRIEND, uuid)).thenApply(buf -> {
-
-			Instant startTime = Instant.ofEpochSecond(buf.getLong(0x09));
-
-			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User(uuid,
-				new Status(buf.getBoolean(0x09),
-					BufferUtil.getString(buf, 0x0A, 64).trim(),
-					BufferUtil.getString(buf, 0x4A, 64).trim(),
-					BufferUtil.getString(buf, 0x8A, 32).trim(), startTime));
+		return API.getInstance().get(Request.builder().route(Request.Route.USER).path(uuid).build()).thenApply(response -> {
+			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User((String) response.getBody().get("uuid"),
+					(String) response.getBody().get("username"),
+				new Status(((Map<?, ?>) response.getBody().get("status")).get("type").equals("online"),
+					"", "", "", Instant.parse("") // TODO
+				));
 			userCache.put(uuid, user);
 			return user;
 		});

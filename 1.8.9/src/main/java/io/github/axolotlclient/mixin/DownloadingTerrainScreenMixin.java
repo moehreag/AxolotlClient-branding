@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,6 +34,6 @@ public abstract class DownloadingTerrainScreenMixin {
 
 	@Inject(method = "init", at = @At("TAIL"))
 	public void axolotlclient$noLoadingScreen(CallbackInfo ci) {
-		MinecraftClient.getInstance().closeScreen();
+		Minecraft.getInstance().closeScreen();
 	}
 }

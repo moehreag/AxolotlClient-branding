@@ -26,15 +26,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.DefaultConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.common.ConfigManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig;
+import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.managers.VersionedJsonConfigManager;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.StatusUpdateProviderImpl;
-import io.github.axolotlclient.config.AxolotlClientConfig;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.modules.ModuleLoader;
 import io.github.axolotlclient.modules.auth.Auth;
@@ -60,63 +59,22 @@ import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.translation.Translations;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.legacyfabric.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.resource.Resource;
+import net.minecraft.resource.Identifier;
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 
 public class AxolotlClient implements ClientModInitializer {
 
 	public static final String MODID = "axolotlclient";
-	public static String VERSION;
 	public static final HashMap<Identifier, Resource> runtimeResources = new HashMap<>();
 	public static final Identifier badgeIcon = new Identifier("axolotlclient", "textures/badge.png");
-	public static final OptionCategory config = new OptionCategory("storedOptions");
+	public static final OptionCategory config = OptionCategory.create("storedOptions");
 	public static final BooleanOption someNiceBackground = new BooleanOption("defNoSecret", false);
 	public static final List<Module> modules = new ArrayList<>();
 	public static final Logger LOGGER = new LoggerImpl();
-	public static AxolotlClientConfig CONFIG;
+	public static String VERSION;
+	public static io.github.axolotlclient.config.AxolotlClientConfig CONFIG;
 	public static ConfigManager configManager;
-
-	@Override
-	public void onInitializeClient() {
-
-		VERSION = FabricLoader.getInstance().getModContainer(MODID).orElseThrow(IllegalStateException::new)
-			.getMetadata().getVersion().getFriendlyString();
-
-		CONFIG = new AxolotlClientConfig();
-		config.add(someNiceBackground);
-
-		getModules();
-		addExternalModules();
-		CONFIG.init();
-
-		new API(LOGGER, Notifications.getInstance(), Translations.getInstance(), new StatusUpdateProviderImpl(), APIOptions.getInstance());
-
-		modules.forEach(Module::init);
-
-		CONFIG.config.addAll(CONFIG.getCategories());
-		CONFIG.config.add(config);
-
-		AxolotlClientConfigManager.getInstance().registerConfig(MODID, CONFIG, configManager = new DefaultConfigManager(MODID,
-			FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"), CONFIG.config));
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "x");
-		AxolotlClientConfigManager.getInstance().addIgnoredName(MODID, "y");
-
-		modules.forEach(Module::lateInit);
-
-        /*FabricLoader.getInstance().getModContainer("axolotlclient").ifPresent(modContainer -> {
-            Optional<Path> optional = modContainer.findPath("resourcepacks/AxolotlClientUI.zip");
-            optional.ifPresent(path -> MinecraftClient.getInstance().getResourcePackLoader().method_10366(path.toFile()));
-        });*/
-
-		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
-
-		FeatureDisabler.init();
-
-		LOGGER.debug("Debug Output enabled, Logs will be quite verbose!");
-
-		LOGGER.info("AxolotlClient Initialized");
-	}
 
 	private static void getModules() {
 		modules.add(SkyResourceManager.getInstance());
@@ -144,5 +102,51 @@ public class AxolotlClient implements ClientModInitializer {
 
 	public static void tickClient() {
 		modules.forEach(Module::tick);
+	}
+
+	@Override
+	public void onInitializeClient() {
+
+		VERSION = FabricLoader.getInstance().getModContainer(MODID).orElseThrow(IllegalStateException::new)
+			.getMetadata().getVersion().getFriendlyString();
+
+		CONFIG = new io.github.axolotlclient.config.AxolotlClientConfig();
+		config.add(someNiceBackground);
+
+		getModules();
+		addExternalModules();
+		CONFIG.init();
+
+		new AxolotlClientCommon(LOGGER);
+		new API(LOGGER, Notifications.getInstance(), Translations.getInstance(), new StatusUpdateProviderImpl(), APIOptions.getInstance());
+
+		modules.forEach(Module::init);
+
+		CONFIG.getConfig().add(config);
+
+		AxolotlClientConfig.getInstance().register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
+			CONFIG.getConfig(), 1, (oldVersion, newVersion, config, json) -> {
+			// convert changed Options between versions here
+			return json;
+		}));
+		configManager.load();
+		configManager.suppressName("x");
+		configManager.suppressName("y");
+		configManager.suppressName(config.getName());
+
+		modules.forEach(Module::lateInit);
+
+        /*FabricLoader.getInstance().getModContainer("axolotlclient").ifPresent(modContainer -> {
+            Optional<Path> optional = modContainer.findPath("resourcepacks/AxolotlClientUI.zip");
+            optional.ifPresent(path -> MinecraftClient.getInstance().getResourcePackLoader().method_10366(path.toFile()));
+        });*/
+
+		MinecraftClientEvents.TICK_END.register(client -> tickClient());
+
+		FeatureDisabler.init();
+
+		LOGGER.debug("Debug Output enabled, Logs will be quite verbose!");
+
+		LOGGER.info("AxolotlClient Initialized");
 	}
 }

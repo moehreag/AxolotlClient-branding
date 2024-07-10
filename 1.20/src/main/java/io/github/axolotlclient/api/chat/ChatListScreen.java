@@ -29,7 +29,7 @@ import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -46,7 +46,6 @@ public class ChatListScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawCenteredShadowedText(client.textRenderer, Text.translatable("api.chats"), width / 2, 20, -1);
@@ -56,12 +55,12 @@ public class ChatListScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableChild(dms = new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
-		addDrawableChild(groups = new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
+		addDrawableSelectableElement(dms = new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
+		addDrawableSelectableElement(groups = new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget ->
+		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, buttonWidget ->
 			client.setScreen(parent)).positionAndSize(this.width / 2 + 5, this.height - 40, 150, 20).build());
-		addDrawableChild(ButtonWidget.builder(Text.translatable("api.chat.groups.create"), buttonWidget ->
+		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.chat.groups.create"), buttonWidget ->
 			client.setScreen(new SimpleTextInputScreen(this, Text.translatable("api.chat.groups.create"),
 				Text.translatable("api.chat.groups.create.label"), s -> {
 				if (!s.trim().isEmpty()) {

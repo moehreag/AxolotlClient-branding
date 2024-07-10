@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import lombok.Getter;
@@ -83,7 +83,7 @@ public class PackDisplayHud extends TextHudEntry {
 	public void init() {
 		int listSize = client.getResourcePackManager().getProfiles().size();
 		MinecraftClient.getInstance().getResourcePackManager().getEnabledProfiles().forEach(profile -> {
-			try (ResourcePack pack = profile.createResourcePack()) {
+			try (ResourcePack pack = profile.createPack()) {
 
 				if (listSize == 1) {
 					widgets.add(createWidget(profile.getDisplayName(), pack));
@@ -176,7 +176,7 @@ public class PackDisplayHud extends TextHudEntry {
 				RenderSystem.setShaderColor(1, 1, 1, 1F);
 				graphics.drawTexture(texture, x, y, 0, 0, 16, 16, 16, 16);
 			}
-			drawString(graphics, name, x + 18, y + 6, textColor.get().getAsInt(), shadow.get());
+			drawString(graphics, name, x + 18, y + 6, textColor.get().toInt(), shadow.get());
 		}
 	}
 }

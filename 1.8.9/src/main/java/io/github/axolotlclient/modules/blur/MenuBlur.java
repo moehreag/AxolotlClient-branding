@@ -25,25 +25,26 @@ package io.github.axolotlclient.modules.blur;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.mojang.blaze3d.shaders.Uniform;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.MinecraftClientAccessor;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlUniform;
-import net.minecraft.client.gl.ShaderEffect;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.resource.ResourceMetadataProvider;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.render.PostChain;
+import net.minecraft.client.resource.Resource;
+import net.minecraft.client.resource.metadata.ResourceMetadataSection;
+import net.minecraft.resource.Identifier;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -62,14 +63,14 @@ public class MenuBlur extends AbstractModule {
 	private final Identifier shaderLocation = new Identifier("minecraft:shaders/post/menu_blur.json");
 	private final IntegerOption strength = new IntegerOption("strength", 8, 0, 100);
 	private final IntegerOption fadeTime = new IntegerOption("fadeTime", 1, 0, 10);
-	private final ColorOption bgColor = new ColorOption("bgcolor", 0x64000000);
-	private final OptionCategory category = new OptionCategory("menublur");
+	private final ColorOption bgColor = new ColorOption("bgcolor", new Color(0x64000000));
+	private final OptionCategory category = OptionCategory.create("menublur");
 
 	private final Color black = new Color(0);
 
 	private long openTime;
 
-	private ShaderEffect shader;
+	private PostChain shader;
 
 	private int lastWidth;
 	private int lastHeight;
@@ -84,9 +85,9 @@ public class MenuBlur extends AbstractModule {
 	}
 
 	public boolean renderScreen() {
-		if (enabled.get() && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen) && shader != null) {
-			DrawableHelper.fill(0, 0, Util.getWindow().getWidth(), Util.getWindow().getHeight(),
-				Color.blend(black, bgColor.get(), getProgress()).getAsInt());
+		if (enabled.get() && !(Minecraft.getInstance().screen instanceof ChatScreen) && shader != null) {
+			GuiElement.fill(0, 0, Util.getWindow().getWidth(), Util.getWindow().getHeight(),
+				ClientColors.blend(black, bgColor.get(), getProgress()).toInt());
 			return true;
 		}
 		return false;
@@ -97,13 +98,13 @@ public class MenuBlur extends AbstractModule {
 	}
 
 	public void updateBlur() {
-		if (enabled.get() && MinecraftClient.getInstance().currentScreen != null && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
+		if (enabled.get() && Minecraft.getInstance().screen != null && !(Minecraft.getInstance().screen instanceof ChatScreen)) {
 			if ((shader == null || client.width != lastWidth || client.height != lastHeight) && client.height != 0
 				&& client.width != 0) {
 				try {
-					shader = new ShaderEffect(client.getTextureManager(), client.getResourceManager(),
-						client.getFramebuffer(), shaderLocation);
-					shader.setupDimensions(client.width, client.height);
+					shader = new PostChain(client.getTextureManager(), client.getResourceManager(),
+						client.getRenderTarget(), shaderLocation);
+					shader.resize(client.width, client.height);
 				} catch (IOException e) {
 					AxolotlClient.LOGGER.error("Failed to load Menu Blur: ", e);
 					return;
@@ -112,8 +113,8 @@ public class MenuBlur extends AbstractModule {
 
 			if (shader != null) {
 				((ShaderEffectAccessor) shader).getPasses().forEach((shader) -> {
-					GlUniform radius = shader.getProgram().getUniformByName("Radius");
-					GlUniform progress = shader.getProgram().getUniformByName("Progress");
+					Uniform radius = shader.getEffect().getUniform("Radius");
+					Uniform progress = shader.getEffect().getUniform("Progress");
 
 					if (radius != null) {
 						radius.set(strength.get());
@@ -136,7 +137,7 @@ public class MenuBlur extends AbstractModule {
 	}
 
 	public void renderBlur() {
-		shader.render(((MinecraftClientAccessor) MinecraftClient.getInstance()).getTicker().tickDelta);
+		shader.process(((MinecraftClientAccessor) Minecraft.getInstance()).getTicker().tickDelta);
 	}
 
 	public void onScreenOpen() {
@@ -146,12 +147,12 @@ public class MenuBlur extends AbstractModule {
 	private static class MenuBlurShader implements Resource {
 
 		@Override
-		public Identifier getId() {
+		public Identifier getLocation() {
 			return null;
 		}
 
 		@Override
-		public InputStream getInputStream() {
+		public InputStream asStream() {
 			return IOUtils.toInputStream("{\n" + "    \"targets\": [\n" + "        \"swap\"\n" + "    ],\n"
 				+ "    \"passes\": [\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
 				+ "            \"intarget\": \"minecraft:main\",\n" + "            \"outtarget\": \"swap\",\n"
@@ -186,12 +187,12 @@ public class MenuBlur extends AbstractModule {
 		}
 
 		@Override
-		public <T extends ResourceMetadataProvider> T getMetadata(String key) {
+		public <T extends ResourceMetadataSection> T getMetadata(String key) {
 			return null;
 		}
 
 		@Override
-		public String getResourcePackName() {
+		public String getSourceName() {
 			return null;
 		}
 	}

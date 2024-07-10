@@ -71,22 +71,22 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addDrawableChild(new AuthWidget());
 		}
-		if(APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)){
+			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addDrawableChild(new ButtonWidget(width - 125, 10, 120, 20,
 				Text.translatable("api.new_version_available"), widget ->
 				MinecraftClient.getInstance().setScreen(new ConfirmChatLinkScreen(r -> {
-					if (r){
-						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"), AxolotlClient.LOGGER);
+					if (r) {
+						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 					}
 				}, "https://modrinth.com/mod/axolotlclient/versions", true))));
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
-			addDrawableChild(new ButtonWidget(width-125, 25, 120, 20,
+			addDrawableChild(new ButtonWidget(width - 125, 25, 120, 20,
 				Text.translatable("api.notes"), buttonWidget ->
-					MinecraftClient.getInstance().setScreen(new NewsScreen(this))));
+				MinecraftClient.getInstance().setScreen(new NewsScreen(this))));
 		}
 	}
 

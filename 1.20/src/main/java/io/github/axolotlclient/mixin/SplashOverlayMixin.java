@@ -25,7 +25,7 @@ package io.github.axolotlclient.mixin;
 import java.util.function.IntSupplier;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Auth;
 import net.minecraft.client.gui.GuiGraphics;
@@ -57,7 +57,7 @@ public abstract class SplashOverlayMixin {
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(Lnet/minecraft/client/MinecraftClient;II)V"))
 	private void onReloadFinish(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		if (!API.getInstance().isConnected() && !Auth.getInstance().getCurrent().isOffline()) {
+		if (!API.getInstance().isSocketConnected() && !Auth.getInstance().getCurrent().isOffline()) {
 			API.getInstance().startup(Auth.getInstance().getCurrent());
 		}
 	}

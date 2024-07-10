@@ -23,48 +23,44 @@
 package io.github.axolotlclient.api.requests;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.APIError;
-import io.github.axolotlclient.api.Request;
+import com.google.common.collect.ImmutableMap;
+import io.github.axolotlclient.api.*;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
-import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
-import io.github.axolotlclient.api.util.BufferUtil;
-import io.netty.buffer.ByteBuf;
 
 public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getById(String id) {
-		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_BY_ID, id)).handleAsync(ChannelRequest::parseChannelResponse);
+		//return API.getInstance().get(Request.builder().route(Request.Route.CHANNEL).build());
+		return new CompletableFuture<>();
 	}
 
-	private static Channel parseChannelResponse(ByteBuf object, Throwable t) {
+	/*private static Channel parseChannelResponse(ByteBuf object, Throwable t) {
 		if (t != null) {
 			APIError.display(t);
 			return null;
 		}
 		return parseChannel(object);
-	}
+	}*/
 
-	private static Channel parseChannel(ByteBuf channel) {
+	/*private static Channel parseChannel(ByteBuf channel) {
 		String id = BufferUtil.getString(channel, 0x09, 5);
 		String name = BufferUtil.getString(channel, 0x0E, 64).trim();
+
+		API.getInstance().logDetailed("Parsing channel: "+id+" ("+name+")");
 
 		List<User> users = new ArrayList<>();
 		int i = 0x4E;
 		while (i < channel.getInt(0x53)) {
-			String uuid = BufferUtil.getString(channel, i, 16);
-			io.github.axolotlclient.api.requests.User.get(uuid).whenCompleteAsync((user, throwable) -> users.add(user));
-			i += 16;
+			String uuid = BufferUtil.getString(channel, i, 32);
+			io.github.axolotlclient.api.requests.User.get(uuid).thenAccept(users::add);
+			i += 32;
 		}
 		List<ChatMessage> messages = new ArrayList<>();
 		int offset = i + 8;
@@ -81,48 +77,66 @@ public class ChannelRequest {
 		}
 
 		throw new UnsupportedOperationException("Unknown message channel type: " + channel.toString(StandardCharsets.UTF_8));
-	}
+	}*/
 
-	private static ChatMessage parseMessage(ByteBuf buf) {
-		AtomicReference<User> u = new AtomicReference<>();
-		io.github.axolotlclient.api.requests.User.get(BufferUtil.getString(buf, 0x00, 16)).whenCompleteAsync((us, t) -> u.set(us));
-
-		return new ChatMessage(u.get(), BufferUtil.getString(buf, 0x1D, buf.getInt(0x19)),
-			ChatMessage.Type.fromCode(buf.getByte(0x18)), buf.getLong(0x10));
-	}
+	/*private static ChatMessage parseMessage(ByteBuf buf) {
+		return BufferUtil.unwrap(buf, ChatMessage.class);
+	}*/
 
 	public static CompletableFuture<List<Channel>> getChannelList() {
-		return API.getInstance().send(new Request(Request.Type.GET_CHANNEL_LIST)).handleAsync(ChannelRequest::parseChannels);
+		//return API.getInstance().send(new RequestOld(RequestOld.Type.GET_CHANNEL_LIST)).handle(ChannelRequest::parseChannels);
+		return new CompletableFuture<>();
 	}
 
-	private static List<Channel> parseChannels(ByteBuf object, Throwable t) {
+	/*private static List<Channel> parseChannels(ByteBuf object, Throwable t) {
 		if (t != null) {
 			APIError.display(t);
 			return Collections.emptyList();
 		}
 		List<Channel> channelList = new ArrayList<>();
 
-		int i = object.getInt(0x0D);
+		int i = 0;
 		while (i < object.getInt(0x09)) {
-			getById(BufferUtil.getString(object, i, 5)).whenCompleteAsync((channel, throwable) -> channelList.add(channel));
+			String channelId = BufferUtil.getString(object, i+0x0D, 5);
+			API.getInstance().logDetailed("Processing channelId: "+channelId);
+			getById(channelId).thenAccept(channelList::add).join();
 			i += 5;
 		}
 
 		return channelList;
+	}*/
+
+	private static CompletableFuture<Channel> createChannel(String name){
+		/*return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+			.field("name", name).field("persistence", ImmutableMap.of("type", "channel")).build())
+			.thenApply(response -> {
+				String id = response.getPlainBody();
+				return getById(id).join();
+			});*/
+		return new CompletableFuture<>();
+	}
+
+	private static CompletableFuture<Channel> createChannel(String name, String... users){
+		/*return API.getInstance()
+			.post(Request.builder().route(Request.Route.CHANNEL).field("name", name).field("persistence", "Channel").build())
+			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);*/
+		return new CompletableFuture<>();
 	}
 
 	public static CompletableFuture<Channel> getOrCreateGroup(String... users) {
-		return API.getInstance().send(new Request(Request.Type.GET_OR_CREATE_CHANNEL,
-			new Request.Data((byte) users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);
+		/*return API.getInstance().send(new RequestOld(RequestOld.Type.GET_OR_CREATE_CHANNEL,
+			new RequestOld.Data(users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);*/
+		return new CompletableFuture<>();
 	}
 
 	public static CompletableFuture<Channel> getOrCreateDM(String uuid) {
-		return API.getInstance().send(new Request(Request.Type.GET_OR_CREATE_CHANNEL,
-			new Request.Data((byte) 1).add(uuid))).handleAsync(ChannelRequest::parseChannelResponse);
+		/*return API.getInstance().send(new RequestOld(RequestOld.Type.GET_OR_CREATE_CHANNEL,
+			new RequestOld.Data((byte) 1).add(uuid))).handleAsync(ChannelRequest::parseChannelResponse);*/
+		return new CompletableFuture<>();
 	}
 
 	public static void createGroup(String... uuids) {
-		API.getInstance().send(new Request(Request.Type.CREATE_CHANNEL,
-			new Request.Data((byte) uuids.length).add(uuids)));
+		/*API.getInstance().send(new RequestOld(RequestOld.Type.CREATE_CHANNEL,
+			new RequestOld.Data(uuids.length).add(uuids)));*/
 	}
 }

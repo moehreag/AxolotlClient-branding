@@ -1,9 +1,7 @@
 plugins {
-	id 'java'
-	id "org.quiltmc.loom" version "1.2.1"
+	id "org.quiltmc.loom"
+	id 'io.github.p03w.machete'
 }
-
-apply plugin: 'io.github.p03w.machete'
 
 group = maven_group
 version = "${project.version}+${project.minecraft_1192}"
@@ -12,9 +10,14 @@ base.archivesName = "AxolotlClient"
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-repositories {
-	maven {
-		url = "https://moehreag.duckdns.org/maven/releases"
+loom {
+	mods {
+		"axolotlclient" {
+			sourceSet("main")
+		}
+		"axolotlclient-test" {
+			sourceSet("test")
+		}
 	}
 }
 
@@ -24,17 +27,27 @@ dependencies {
 
 	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
 
-	modImplementation include("org.quiltmc.qsl.core:networking:${project.qsl_1192}+${project.minecraft_1192}")
-	modImplementation include("org.quiltmc.qsl.core:resource_loader:${project.qsl_1192}+${project.minecraft_1192}")
+	modImplementation ("org.quiltmc.qsl.core:networking:${project.qsl_1192}+${project.minecraft_1192}")
+	modImplementation ("org.quiltmc.qsl.core:resource_loader:${project.qsl_1192}+${project.minecraft_1192}")
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1192}") {
 		exclude group: "com.terraformersmc"
+		exclude group: "org.lwjgl"
 	}
 	modCompileOnlyApi("com.terraformersmc:modmenu:4.1.2")
 	include "io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_1192}"
 	modImplementation "io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.config}"
 
 	implementation include(project(path: ":common", configuration: 'shadow'))
+
+	def lwjglVer = "3.3.1"
+	api("org.lwjgl:lwjgl-nanovg:$lwjglVer")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:$lwjglVer:natives-linux")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:$lwjglVer:natives-linux-arm64")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:$lwjglVer:natives-windows")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:$lwjglVer:natives-windows-arm64")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:$lwjglVer:natives-macos")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:$lwjglVer:natives-macos-arm64")
 }
 
 processResources {

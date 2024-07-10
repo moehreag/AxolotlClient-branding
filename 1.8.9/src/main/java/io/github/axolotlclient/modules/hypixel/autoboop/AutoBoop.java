@@ -23,9 +23,10 @@
 package io.github.axolotlclient.modules.hypixel.autoboop;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
+import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.Util;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
@@ -36,8 +37,8 @@ public class AutoBoop implements AbstractHypixelMod {
 	@Getter
 	private final static AutoBoop Instance = new AutoBoop();
 
-	protected final OptionCategory cat = new OptionCategory("autoBoop");
-	protected final BooleanOption enabled = new BooleanOption("enabled", "autoBoop", false);
+	protected final OptionCategory cat = OptionCategory.create("autoBoop");
+	protected final BooleanOption enabled = new BooleanOption("enabled", "autoBoop.enabled.tooltip", false);
 
 	@Override
 	public void init() {
@@ -54,12 +55,16 @@ public class AutoBoop implements AbstractHypixelMod {
 		String message = event.getOriginalMessage().trim();
 		if (enabled.get() && message.contains("Friend >")
 			&& message.contains("joined.")) {
-			System.out.println(message);
 			String player = message.substring(message.indexOf("Friend >"),
 				message.lastIndexOf(" "));
-			System.out.println(player);
-			Util.sendChatMessage("/boop " + player);
-			AxolotlClient.LOGGER.info("Booped " + player);
+			ThreadExecuter.scheduleTask(() -> {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ignored) {
+				}
+				Util.sendChatMessage("/boop " + player);
+				AxolotlClient.LOGGER.info("Booped " + player);
+			});
 		}
 	}
 }

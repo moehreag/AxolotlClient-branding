@@ -22,9 +22,6 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
-import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -32,32 +29,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.Util;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.AllArgsConstructor;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 
 public class ScreenshotUtils extends AbstractModule {
 
 	private static final ScreenshotUtils Instance = new ScreenshotUtils();
-	private final OptionCategory category = new OptionCategory("screenshotUtils");
+	private final OptionCategory category = OptionCategory.create("screenshotUtils");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
-	private final GenericOption openViewer = new GenericOption("imageViewer", "openViewer", (m1, m2) -> {
-		MinecraftClient.getInstance().setScreen(new ImageViewerScreen(MinecraftClient.getInstance().currentScreen));
+	private final GenericOption openViewer = new GenericOption("imageViewer", "openViewer", () -> {
+		Minecraft.getInstance().openScreen(new ImageViewerScreen(Minecraft.getInstance().screen));
 	});
 
 	private final List<Action> actions = new ArrayList<>();
 
-	private EnumOption autoExec;
+	private StringArrayOption autoExec;
 
 	public static ScreenshotUtils getInstance() {
 		return Instance;
@@ -69,10 +65,7 @@ public class ScreenshotUtils extends AbstractModule {
 		actions.add(new Action("copyAction",
 			Formatting.AQUA,
 			"copy_image",
-			new CustomClickEvent((file) -> {
-				FileTransferable selection = new FileTransferable(file);
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-			})
+			new CustomClickEvent(ScreenshotCopying::copy)
 		));
 
 		actions.add(new Action("deleteAction",
@@ -93,7 +86,7 @@ public class ScreenshotUtils extends AbstractModule {
 		actions.add(new Action("openAction",
 			Formatting.WHITE,
 			"open_image",
-			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toURI(), AxolotlClient.LOGGER))
+			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toURI()))
 		));
 
 		actions.add(new Action("uploadAction", Formatting.LIGHT_PURPLE,
@@ -109,7 +102,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 		// If you have further ideas to what actions could be added here, please let us know!
 
-		autoExec = new EnumOption("autoExec", Util.make(() -> {
+		autoExec = new StringArrayOption("autoExec", Util.make(() -> {
 			List<String> names = new ArrayList<>();
 			names.add("off");
 			actions.forEach(action -> names.add(action.getName()));
@@ -119,7 +112,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 		category.add(enabled, autoExec, openViewer);
 
-		AxolotlClient.CONFIG.general.addSubCategory(category);
+		AxolotlClient.CONFIG.general.add(category);
 	}
 
 	public Text onScreenshotTaken(Text text, File shot) {
@@ -148,7 +141,7 @@ public class ScreenshotUtils extends AbstractModule {
 		return message;
 	}
 
-	interface OnActionCall {
+	public interface OnActionCall {
 
 		void doAction(File file);
 	}
@@ -164,7 +157,7 @@ public class ScreenshotUtils extends AbstractModule {
 		public Text getText(File file) {
 			return new LiteralText(I18n.translate(translationKey))
 				.setStyle(new Style()
-					.setFormatting(formatting)
+					.setColor(formatting)
 					.setClickEvent(clickEvent.setFile(file))
 					.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(I18n.translate(hoverTextKey)))));
 		}
@@ -174,36 +167,13 @@ public class ScreenshotUtils extends AbstractModule {
 		}
 	}
 
-	@AllArgsConstructor
-	protected static class FileTransferable implements Transferable {
-
-		private final File file;
-
-		@Override
-		public DataFlavor[] getTransferDataFlavors() {
-			return new DataFlavor[]{DataFlavor.javaFileListFlavor};
-		}
-
-		@Override
-		public boolean isDataFlavorSupported(DataFlavor flavor) {
-			return DataFlavor.javaFileListFlavor.equals(flavor);
-		}
-
-		@Override
-		public Object getTransferData(DataFlavor flavor) {
-			final ArrayList<File> files = new ArrayList<>();
-			files.add(file);
-			return files;
-		}
-	}
-
 	public static class CustomClickEvent extends ClickEvent {
 
 		private final OnActionCall action;
 		private File file;
 
 		public CustomClickEvent(OnActionCall action) {
-			super(Action.byName(""), "");
+			super(Action.byKey(""), "");
 			this.action = action;
 		}
 

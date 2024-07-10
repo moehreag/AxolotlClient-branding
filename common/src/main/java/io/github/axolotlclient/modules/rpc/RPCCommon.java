@@ -30,34 +30,33 @@ import com.jagrosh.discordipc.IPCListener;
 import com.jagrosh.discordipc.entities.Packet;
 import com.jagrosh.discordipc.entities.RichPresence;
 import com.jagrosh.discordipc.entities.User;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.OSUtil;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 
 public abstract class RPCCommon implements Module {
 
 	private static final long CLIENT_ID = 875835666729152573L;
-	private IPCClient client;
-
 	private static boolean running;
-	public final BooleanOption enabled = new BooleanOption("enabled", value -> {
+	public final OptionCategory category = OptionCategory.create("rpc");
+	public final BooleanOption showActivity = new BooleanOption("showActivity", true);
+	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false, value -> {
 		if (value) {
 			initRPC();
 		} else {
 			shutdown();
 		}
-	}, false);
-	public final OptionCategory category = new OptionCategory("rpc");
-	public final BooleanOption showActivity = new BooleanOption("showActivity", true);
-	public final EnumOption showServerNameMode = new EnumOption("showServerNameMode",
+	});
+	public final StringArrayOption showServerNameMode = new StringArrayOption("showServerNameMode",
 		new String[]{"showIp", "showName", "off"}, "off");
 	public final BooleanOption showTime = new BooleanOption("showTime", true);
 	private final Instant time = Instant.now();
 	private final Logger logger;
-
+	private IPCClient client;
 	public RPCCommon(Logger logger) {
 		this.logger = logger;
 	}
@@ -166,4 +165,6 @@ public abstract class RPCCommon implements Module {
 			}
 		}
 	}
+
+
 }

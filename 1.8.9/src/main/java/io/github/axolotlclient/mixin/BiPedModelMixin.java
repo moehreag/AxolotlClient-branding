@@ -23,14 +23,14 @@
 package io.github.axolotlclient.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.render.entity.model.BiPedModel;
 import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(BiPedModel.class)
+@Mixin(HumanoidModel.class)
 public abstract class BiPedModelMixin {
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/model/ModelPart;render(F)V", ordinal = 6))

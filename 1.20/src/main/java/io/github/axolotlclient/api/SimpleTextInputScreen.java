@@ -26,17 +26,17 @@ import java.util.function.Consumer;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
 public class SimpleTextInputScreen extends Screen {
 
 	private final Screen parent;
-	private TextFieldWidget input;
 	private final Text inputLabel;
 	private final Consumer<String> consumer;
+	private TextFieldWidget input;
 
 	public SimpleTextInputScreen(Screen parent, Text title, Text inputLabel, Consumer<String> consumer) {
 		super(title);
@@ -47,24 +47,18 @@ public class SimpleTextInputScreen extends Screen {
 
 	@Override
 	public void init() {
-		addDrawableChild(input = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 - 10, 200, 20, inputLabel));
+		addDrawableSelectableElement(input = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 - 10, 200, 20, inputLabel));
 
-		addDrawableChild(new ButtonWidget.Builder(CommonTexts.CANCEL, button -> client.setScreen(parent))
+		addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.CANCEL, button -> client.setScreen(parent))
 			.positionAndSize(width / 2 - 155, height - 50, 150, 20).build());
-		addDrawableChild(new ButtonWidget.Builder(CommonTexts.DONE, button -> {
+		addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.DONE, button -> {
 			consumer.accept(input.getText());
 			client.setScreen(parent);
 		}).positionAndSize(width / 2 + 5, height - 50, 150, 20).build());
 	}
 
 	@Override
-	public void tick() {
-		input.tick();
-	}
-
-	@Override
 	public void render(GuiGraphics graphics, int i, int j, float f) {
-		renderBackground(graphics);
 		super.render(graphics, i, j, f);
 		graphics.drawShadowedText(client.textRenderer, inputLabel, (int) (width / 2F - 100), (int) (height / 2f - 20), -1);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);

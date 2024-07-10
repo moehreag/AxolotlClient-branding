@@ -27,11 +27,11 @@ import java.util.List;
 
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.sound.instance.SimpleSoundInstance;
+import net.minecraft.resource.Identifier;
 
 public class Notifications implements NotificationProvider {
 
@@ -39,7 +39,7 @@ public class Notifications implements NotificationProvider {
 
 	@Getter
 	private static final Notifications Instance = new Notifications();
-	private final MinecraftClient client = MinecraftClient.getInstance();
+	private final Minecraft client = Minecraft.getInstance();
 	private final List<Status> statusQueue = new ArrayList<>();
 	private Status currentStatus;
 	private long statusCreationTime;
@@ -56,27 +56,27 @@ public class Notifications implements NotificationProvider {
 
 	private void setStatus(Status status) {
 		currentStatus = status;
-		statusCreationTime = MinecraftClient.getTime();
+		statusCreationTime = Minecraft.getTime();
 		lastX = Util.getWindow().getWidth();
 		fading = false;
-		client.getSoundManager().play(new PositionedSoundInstance(new Identifier("random.bow"), 0.5F, 0.4F / (0.5F + 0.8F), 1, 0, 0));
+		client.getSoundManager().play(new SimpleSoundInstance(new Identifier("random.bow"), 0.5F, 0.4F / (0.5F + 0.8F), 1, 0, 0));
 	}
 
 	public void renderStatus() {
 		if (currentStatus != null) {
 			int x = lastX;
 			x -= currentStatus.getWidth() + 5;
-			if (MinecraftClient.getTime() - statusCreationTime < 100) {
+			if (Minecraft.getTime() - statusCreationTime < 100) {
 				lastX -= lastX / 45;
-			} else if (MinecraftClient.getTime() - statusCreationTime > 2000) {
+			} else if (Minecraft.getTime() - statusCreationTime > 2000) {
 				if (!fading) {
-					client.getSoundManager().play(new PositionedSoundInstance(new Identifier("random.bow"), 0.5F, 0.4F / (0.5F + 0.8F), 1, 0, 0));
+					client.getSoundManager().play(new SimpleSoundInstance(new Identifier("random.bow"), 0.5F, 0.4F / (0.5F + 0.8F), 1, 0, 0));
 				}
 				fading = true;
 				lastX += lastX / 45;
 			}
-			DrawableHelper.fill(x - 5 - 1, 0, Util.getWindow().getWidth(), 20 + currentStatus.getDescription().size() * 12 + 1, 0xFF0055FF);
-			DrawableHelper.fill(x - 5, 0, Util.getWindow().getWidth(), 20 + currentStatus.getDescription().size() * 12, 0xFF00CFFF);
+			GuiElement.fill(x - 5 - 1, 0, Util.getWindow().getWidth(), 20 + currentStatus.getDescription().size() * 12 + 1, 0xFF0055FF);
+			GuiElement.fill(x - 5, 0, Util.getWindow().getWidth(), 20 + currentStatus.getDescription().size() * 12, 0xFF00CFFF);
 			client.textRenderer.draw(currentStatus.getTitle(), x, 7, -256, true);
 			for (int i = 0; i < currentStatus.getDescription().size(); i++) {
 				client.textRenderer.draw(currentStatus.getDescription().get(i), x, 18 + i * 12, -1, true);
@@ -105,10 +105,10 @@ public class Notifications implements NotificationProvider {
 			this.title = title;
 			width = Math.max(
 				160,
-				Math.max(MinecraftClient.getInstance().textRenderer.getStringWidth(title),
-					description == null ? 0 : MinecraftClient.getInstance().textRenderer.getStringWidth(description)));
+				Math.max(Minecraft.getInstance().textRenderer.getWidth(title),
+					description == null ? 0 : Minecraft.getInstance().textRenderer.getWidth(description)));
 			//this.width = description.stream().mapToInt(MinecraftClient.getInstance().textRenderer::getStringWidth).max().orElse(200);
-			this.description = MinecraftClient.getInstance().textRenderer.wrapLines(description, width);
+			this.description = Minecraft.getInstance().textRenderer.split(description, width);
 		}
 	}
 }

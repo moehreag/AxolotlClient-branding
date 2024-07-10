@@ -23,11 +23,13 @@
 package io.github.axolotlclient.api;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.GenericOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
 import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
 import org.lwjgl.glfw.GLFW;
 
 public class APIOptions extends Options {
@@ -42,14 +44,20 @@ public class APIOptions extends Options {
 
 		openPrivacyNoteScreen = n ->
 			client.execute(() -> client.openScreen(new PrivacyNoticeScreen(client.currentScreen, n)));
-		openSidebar = new KeyBindOption("api.friends.sidebar.open", GLFW.GLFW_KEY_O, keyBind ->
-			client.openScreen(new FriendsSidebar(client.currentScreen)));
-		category.add(openSidebar);
+		KeyBinding binding = new KeyBinding("api.friends.sidebar.open", GLFW.GLFW_KEY_O, "category.axolotlclient");
+		KeyBindingHelper.registerKeyBinding(binding);
+		ClientTickEvents.END_CLIENT_TICK.register(c -> {
+			if (binding.wasPressed()) {
+				c.openScreen(new FriendsSidebar(c.currentScreen));
+			}
+		});
 		category.add(new GenericOption("viewFriends", "clickToOpen",
-			(mX, mY) -> MinecraftClient.getInstance().openScreen(new FriendsScreen(MinecraftClient.getInstance().currentScreen))));
+			() -> MinecraftClient.getInstance().openScreen(new FriendsScreen(MinecraftClient.getInstance().currentScreen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
-			(mX, mY) -> MinecraftClient.getInstance().openScreen(new ChatListScreen(MinecraftClient.getInstance().currentScreen))));
-		AxolotlClient.CONFIG.addCategory(category);
-		AxolotlClient.config.add(privacyAccepted);
+			() -> MinecraftClient.getInstance().openScreen(new ChatListScreen(MinecraftClient.getInstance().currentScreen))));
+		if (Constants.ENABLED) {
+			AxolotlClient.CONFIG.addCategory(category);
+			AxolotlClient.config.add(privacyAccepted);
+		}
 	}
 }

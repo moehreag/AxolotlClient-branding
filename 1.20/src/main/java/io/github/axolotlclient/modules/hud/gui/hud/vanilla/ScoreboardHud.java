@@ -30,16 +30,24 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
+import net.minecraft.class_9014;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.scoreboard.*;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.unmapped.C_ctcbtkhc;
+import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
@@ -56,27 +64,27 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	public static final ScoreboardObjective placeholder = Util.make(() -> {
 		Scoreboard placeScore = new Scoreboard();
 		ScoreboardObjective objective = placeScore.addObjective("placeholder", ScoreboardCriterion.DUMMY,
-			Text.literal("Scoreboard"), ScoreboardCriterion.RenderType.INTEGER);
-		ScoreboardPlayerScore dark = placeScore.getPlayerScore("DarkKronicle", objective);
-		dark.setScore(8780);
+			Text.literal("Scoreboard"), ScoreboardCriterion.RenderType.INTEGER, false, C_ctcbtkhc.field_47566);
+		class_9014 dark = placeScore.method_1180(ScoreHolder.of("DarkKronicle"), objective);
+		dark.method_55410(8780);
 
-		ScoreboardPlayerScore moeh = placeScore.getPlayerScore("moehreag", objective);
-		moeh.setScore(743);
+		class_9014 moeh = placeScore.method_1180(ScoreHolder.of("moehreag"), objective);
+		moeh.method_55410(743);
 
-		ScoreboardPlayerScore kode = placeScore.getPlayerScore("TheKodeToad", objective);
-		kode.setScore(2948);
+		class_9014 kode = placeScore.method_1180(ScoreHolder.of("TheKodeToad"), objective);
+		kode.method_55410(2948);
 
-		placeScore.setObjectiveSlot(1, objective);
+		placeScore.setObjectiveSlot(ScoreboardDisplaySlot.SIDEBAR, objective);
 		return objective;
 	});
 
-	private final ColorOption backgroundColor = new ColorOption("backgroundcolor", 0x4C000000);
-	private final ColorOption topColor = new ColorOption("topbackgroundcolor", 0x66000000);
-	private final IntegerOption topPadding = new IntegerOption("toppadding", ID.getPath(), 0, 0, 4);
+	private final ColorOption backgroundColor = new ColorOption("backgroundcolor", new Color(0x4C000000));
+	private final ColorOption topColor = new ColorOption("topbackgroundcolor", new Color(0x66000000));
+	private final IntegerOption topPadding = new IntegerOption("toppadding", 0, 0, 4);
 	private final BooleanOption scores = new BooleanOption("scores", true);
-	private final ColorOption scoreColor = new ColorOption("scorecolor", 0xFFFF5555);
-	private final EnumOption anchor = new EnumOption("anchorpoint", AnchorPoint.values(),
-		AnchorPoint.MIDDLE_RIGHT.toString());
+	private final ColorOption scoreColor = new ColorOption("scorecolor", new Color(0xFFFF5555));
+	private final EnumOption<AnchorPoint> anchor = new EnumOption<>("anchorpoint", AnchorPoint.class,
+		AnchorPoint.MIDDLE_RIGHT);
 
 	public ScoreboardHud() {
 		super(200, 146, true);
@@ -94,16 +102,16 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	public void renderComponent(GuiGraphics graphics, float delta) {
 		Scoreboard scoreboard = this.client.world.getScoreboard();
 		ScoreboardObjective scoreboardObjective = null;
-		Team team = scoreboard.getPlayerTeam(this.client.player.getEntityName());
+		Team team = scoreboard.getPlayerTeam(this.client.player.getProfileName());
 		if (team != null) {
 			int t = team.getColor().getColorIndex();
 			if (t >= 0) {
-				scoreboardObjective = scoreboard.getObjectiveForSlot(3 + t);
+				scoreboardObjective = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.BY_ID.apply(3 + t));
 			}
 		}
 
 		ScoreboardObjective scoreboardObjective2 = scoreboardObjective != null ? scoreboardObjective
-			: scoreboard.getObjectiveForSlot(1);
+			: scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
 		if (scoreboardObjective2 != null) {
 			this.renderScoreboardSidebar(graphics, scoreboardObjective2);
 		}
@@ -118,9 +126,9 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	// show any more information than it would have in vanilla.
 	private void renderScoreboardSidebar(GuiGraphics graphics, ScoreboardObjective objective) {
 		Scoreboard scoreboard = objective.getScoreboard();
-		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(objective);
-		List<ScoreboardPlayerScore> filteredScores = scores.stream()
-			.filter((testScore) -> testScore.getPlayerName() != null && !testScore.getPlayerName().startsWith("#"))
+		Collection<C_lfemghur> scores = scoreboard.method_1184(objective);
+		List<C_lfemghur> filteredScores = scores.stream()
+			.filter((testScore) -> testScore.owner() != null && !testScore.method_55385())
 			.collect(Collectors.toList());
 
 		if (filteredScores.size() > 15) {
@@ -129,20 +137,20 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 			scores = filteredScores;
 		}
 
-		List<Pair<ScoreboardPlayerScore, Text>> scoresWText = Lists.newArrayListWithCapacity(scores.size());
+		List<Pair<C_lfemghur, Text>> scoresWText = Lists.newArrayListWithCapacity(scores.size());
 		Text text = objective.getDisplayName();
 		int displayNameWidth = client.textRenderer.getWidth(text);
 		int maxWidth = displayNameWidth;
 		int spacerWidth = client.textRenderer.getWidth(": ");
 
-		ScoreboardPlayerScore scoreboardPlayerScore;
+		C_lfemghur scoreboardPlayerScore;
 		MutableText formattedText;
-		for (Iterator<ScoreboardPlayerScore> scoresIterator = scores.iterator(); scoresIterator
+		for (Iterator<C_lfemghur> scoresIterator = scores.iterator(); scoresIterator
 			.hasNext(); maxWidth = Math.max(maxWidth, client.textRenderer.getWidth(formattedText) + spacerWidth
-			+ client.textRenderer.getWidth(Integer.toString(scoreboardPlayerScore.getScore())))) {
+			+ client.textRenderer.getWidth(Integer.toString(scoreboardPlayerScore.value())))) {
 			scoreboardPlayerScore = scoresIterator.next();
-			Team team = scoreboard.getPlayerTeam(scoreboardPlayerScore.getPlayerName());
-			formattedText = Team.decorateName(team, Text.literal(scoreboardPlayerScore.getPlayerName()));
+			Team team = scoreboard.getPlayerTeam(scoreboardPlayerScore.owner());
+			formattedText = Team.decorateName(team, Text.literal(scoreboardPlayerScore.owner()));
 			scoresWText.add(Pair.of(scoreboardPlayerScore, formattedText));
 		}
 		maxWidth = maxWidth + 6;
@@ -174,30 +182,30 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		int num = 0;
 		int textOffset = scoreX - 4;
 
-		for (Pair<ScoreboardPlayerScore, Text> scoreboardPlayerScoreTextPair : scoresWText) {
+		for (Pair<C_lfemghur, Text> scoreboardPlayerScoreTextPair : scoresWText) {
 			++num;
-			ScoreboardPlayerScore scoreboardPlayerScore2 = scoreboardPlayerScoreTextPair.getFirst();
+			C_lfemghur scoreboardPlayerScore2 = scoreboardPlayerScoreTextPair.getFirst();
 			Text scoreText = scoreboardPlayerScoreTextPair.getSecond();
-			String score = String.valueOf(scoreboardPlayerScore2.getScore());
+			String score = String.valueOf(scoreboardPlayerScore2.value());
 			int relativeY = scoreY - num * 9 + topPadding.get() * 2;
 
-			if (background.get() && backgroundColor.get().getAsInt() > 0) {
+			if (background.get() && backgroundColor.get().toInt() > 0) {
 				if (num == scoresSize) {
 					RenderUtil.drawRectangle(graphics, textOffset, relativeY - 1, maxWidth, 10,
-						backgroundColor.get().getAsInt());
+						backgroundColor.get().toInt());
 				} else if (num == 1) {
 					RenderUtil.drawRectangle(graphics, textOffset, relativeY, maxWidth, 10,
-						backgroundColor.get().getAsInt());
+						backgroundColor.get().toInt());
 				} else {
 					RenderUtil.drawRectangle(graphics, textOffset, relativeY, maxWidth, 9,
-						backgroundColor.get().getAsInt());
+						backgroundColor.get().toInt());
 				}
 			}
 
 			graphics.drawText(client.textRenderer, scoreText, scoreX, relativeY, -1, shadow.get());
 			if (this.scores.get()) {
 				drawString(graphics, score, (float) (scoreX + maxWidth - client.textRenderer.getWidth(score) - 6),
-					(float) relativeY, scoreColor.get().getAsInt(), shadow.get());
+					(float) relativeY, scoreColor.get().toInt(), shadow.get());
 			}
 			if (num == scoresSize) {
 				// Draw the title
@@ -236,6 +244,6 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return (anchor.get());
 	}
 }
