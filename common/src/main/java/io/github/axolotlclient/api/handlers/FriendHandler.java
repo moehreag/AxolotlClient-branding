@@ -26,9 +26,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.BiContainer;
 import io.github.axolotlclient.api.util.RequestHandler;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import lombok.Getter;
 
 public class FriendHandler implements RequestHandler {
@@ -41,7 +44,17 @@ public class FriendHandler implements RequestHandler {
 		this.api = API.getInstance();
 	}
 
+	private CompletableFuture<Response> setRelation(String uuid, String relation) {
+		return api.post(Request.builder().route(Request.Route.USER).path(uuid).query(relation).build());
+	}
+
 	public void addFriend(String uuid) {
+		setRelation(uuid, "request").whenCompleteAsync((response, t) -> {
+			if (t == null) {
+				api.getNotificationProvider()
+					.addStatus("api.success.requestSent", "api.success.requestSent.desc", UUIDHelper.getUsername(uuid));
+			}
+		});
 		/*api.send(new RequestOld(RequestOld.Type.CREATE_FRIEND_REQUEST, uuid)).whenCompleteAsync((object, t) -> {
 			if (t == null) {
 				api.getNotificationProvider()
@@ -53,6 +66,11 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void removeFriend(User user) {
+		setRelation(api.sanitizeUUID(user.getUuid()), "none").whenCompleteAsync((response, t) -> {
+			if (!response.isError()) {
+				api.getNotificationProvider().addStatus("api.success.removeFriend", "api.success.removeFriend.desc", user.getName());
+			}
+		});
 		/*api.send(new RequestOld(RequestOld.Type.REMOVE_FRIEND, API.getInstance().sanitizeUUID(user.getUuid()))).whenCompleteAsync((object, t) -> {
 			if (t == null) {
 				APIError.display(object);
@@ -63,6 +81,11 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void blockUser(String uuid) {
+		setRelation(uuid, "blocked").whenCompleteAsync((response, t) -> {
+			if (!response.isError()) {
+				api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", UUIDHelper.getUsername(uuid));
+			}
+		});
 		/*api.send(new RequestOld(RequestOld.Type.BLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
 			APIError.displayOrElse(throwable, buf, b -> {
 				if (b.getBoolean(0x09)) {
@@ -73,6 +96,11 @@ public class FriendHandler implements RequestHandler {
 	}
 
 	public void unblockUser(String uuid) {
+		setRelation(uuid, "none").whenCompleteAsync((response, t) -> {
+			if (!response.isError()) {
+				api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", UUIDHelper.getUsername(uuid));
+			}
+		});
 		/*api.send(new RequestOld(RequestOld.Type.UNBLOCK_USER, uuid)).whenCompleteAsync((buf, throwable) -> {
 			APIError.displayOrElse(throwable, buf, b -> {
 				if (b.getBoolean(0x09)) {

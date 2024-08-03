@@ -27,6 +27,10 @@ import lombok.Getter;
 @Getter
 public class APIError extends Exception {
 
+	public static void display(Response.Error error) {
+
+	}
+
 	/*private final ErrorCode code;
 	private final ByteBuf buf;
 

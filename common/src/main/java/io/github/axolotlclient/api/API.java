@@ -23,12 +23,9 @@
 package io.github.axolotlclient.api;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.Status;
@@ -44,9 +41,7 @@ import jakarta.websocket.DeploymentException;
 import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
 import lombok.Getter;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -148,11 +143,10 @@ public class API {
 	}
 
 	private CompletableFuture<Response> request(Request request, String method) {
-		return request(getUrl(request), request.getBodyFields(), request.getRoute().isAuthenticated(), method);
+		return request(getUrl(request), request.getBodyFields(), method);
 	}
 
-	private CompletableFuture<Response> request(String url, Map<String, ?> payload,
-												boolean authenticated, String method) {
+	private CompletableFuture<Response> request(String url, Map<String, ?> payload, String method) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				logDetailed("Starting request to " + url);
@@ -161,7 +155,7 @@ public class API {
 					.addHeader("Content-Type", "application/json")
 					.addHeader("Accept", "application/json");
 
-				if (authenticated) {
+				if (token != null) {
 					builder.addHeader("Authorization", token);
 				}
 
@@ -199,11 +193,11 @@ public class API {
 		}
 		if (request.getQuery() != null && !request.getQuery().isEmpty()) {
 			url.append("?");
-			request.getQuery().forEach((k, v) -> {
-				if (url.charAt(url.length() - 1) == '?') {
+			request.getQuery().forEach((v) -> {
+				if (url.charAt(url.length() - 1) != '?') {
 					url.append("&");
 				}
-				url.append(k).append("=").append(v);
+				url.append(v);
 			});
 		}
 		return url.toString();

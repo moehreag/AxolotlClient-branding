@@ -13,7 +13,7 @@ public class Request {
 
 	private final Route route;
 	private final List<String> path;
-	private final Map<String, String> query;
+	private final List<String> query;
 	private final Map<String, String> bodyFields;
 
 
@@ -25,8 +25,8 @@ public class Request {
 	@ToString
 	@Getter
 	public enum Route {
-		AUTHENTICATE("authenticate", false),
-		USER("user", false),
+		AUTHENTICATE("authenticate"),
+		USER("user"),
 		ACCOUNT("account"),
 		GATEWAY("gateway"),
 		CHANNEL("channel"),
@@ -34,15 +34,16 @@ public class Request {
 		ACCOUNT_DATA("account/data");
 
 		private final String path;
-		private final boolean authenticated;
+		private final Map<Integer, String> errors;
 
 		Route(String path) {
-			this(path, true);
+			this.path = path;
+			errors = Collections.emptyMap();
 		}
 
-		Route(String path, boolean authenticated) {
+		Route(String path, Map<Integer, String> errors) {
 			this.path = path;
-			this.authenticated = authenticated;
+			this.errors = errors;
 		}
 
 		public Request create() {
@@ -53,7 +54,7 @@ public class Request {
 	public static class RequestBuilder {
 		private Request.Route route;
 		private List<String> path;
-		private Map<String, String> query;
+		private List<String> query;
 		private Map<String, String> bodyFields;
 
 		RequestBuilder() {
@@ -72,11 +73,19 @@ public class Request {
 			return this;
 		}
 
+		public Request.RequestBuilder query(String key) {
+			if (query == null) {
+				query = new ArrayList<>();
+			}
+			query.add(key);
+			return this;
+		}
+
 		public Request.RequestBuilder query(String key, String value) {
 			if (query == null) {
-				query = new HashMap<>();
+				query = new ArrayList<>();
 			}
-			query.put(key, value);
+			query.add(key+"="+value);
 			return this;
 		}
 
@@ -101,22 +110,22 @@ public class Request {
 		}
 
 		public String toString() {
-			return "Request.RequestBuilder(route=" + this.route + ", path=" + listToString(path) + ", query=" + mapToString(this.query) + ", bodyFields=" + mapToString(this.bodyFields) + ")";
+			return "Request.RequestBuilder(route=" + this.route + ", path=" + listToString(path) + ", query=" + listToString(this.query) + ", bodyFields=" + mapToString(this.bodyFields) + ")";
 		}
 
 		private String mapToString(Map<?, ?> map) {
 			StringBuilder builder = new StringBuilder(map.toString() + "{");
 			map.forEach((o, o2) -> {
-				builder.append(o).append(": ").append(o2).append("\n");
+				builder.append(o).append(": ").append(o2).append(",\n");
 			});
 			builder.append("}");
 			return builder.toString();
 		}
 
 		private String listToString(Collection<?> c) {
-			StringBuilder builder = new StringBuilder(c.toString() + "{");
-			c.forEach(o -> builder.append(o).append("\n"));
-			builder.append("}");
+			StringBuilder builder = new StringBuilder(c.toString() + "[");
+			c.forEach(o -> builder.append(o).append(",\n"));
+			builder.append("]");
 			return builder.toString();
 		}
 	}
