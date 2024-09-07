@@ -33,7 +33,7 @@ import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -54,6 +54,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawCenteredShadowedText(this.textRenderer, channel.getName(), this.width / 2, 20, 16777215);
@@ -62,18 +63,18 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	@Override
 	protected void init() {
 
-		addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
+		addDrawableChild(new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
 
-		addDrawableSelectableElement(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
+		addDrawableChild(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
 
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
-			users.setX(width - 80);
+			users.setLeftPos(width - 80);
 			users.setUsers(Arrays.asList(channel.getUsers()));
-			addDrawableSelectableElement(users);
+			addDrawableChild(users);
 		}
 
-		addDrawableSelectableElement(input = new TextFieldWidget(client.textRenderer, width / 2 - 150, height - 50,
+		addDrawableChild(input = new TextFieldWidget(client.textRenderer, width / 2 - 150, height - 50,
 			300, 20, Text.translatable("api.chat.enterMessage")) {
 
 			@Override
@@ -97,12 +98,12 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		});
 		input.setMaxLength(1024);
 
-		this.addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
+		this.addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 			.positionAndSize(this.width / 2 - 75, this.height - 28, 150, 20)
 			.build()
 		);
 
-		addDrawableSelectableElement(contextMenu);
+		addDrawableChild(contextMenu);
 	}
 
 	@Override

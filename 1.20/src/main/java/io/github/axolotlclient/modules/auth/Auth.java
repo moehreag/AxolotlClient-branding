@@ -25,9 +25,10 @@ package io.github.axolotlclient.modules.auth;
 import java.nio.file.Path;
 import java.util.*;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.UserApiService;
-import com.mojang.authlib.yggdrasil.ProfileResult;
-import com.mojang.util.UndashedUuid;
+import com.mojang.util.UUIDTypeAdapter;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
@@ -42,10 +43,9 @@ import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.multiplayer.report.AbuseReportContext;
-import net.minecraft.client.multiplayer.report.AbuseReportEnvironment;
+import net.minecraft.client.multiplayer.report.ReportEnvironment;
+import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
 import net.minecraft.client.network.SocialInteractionsManager;
-import net.minecraft.client.texture.PlayerSkin;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.util.PlayerKeyPairManager;
 import net.minecraft.client.util.Session;
@@ -68,13 +68,14 @@ public class Auth extends Accounts implements Module {
 		load();
 		this.auth = new MSAuth(AxolotlClient.LOGGER, this, () -> client.options.language);
 		if (isContained(client.getSession().getSessionId())) {
-			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getPlayerUuid())).toList().get(0);
+			current = getAccounts().stream().filter(account -> account.getUuid()
+				.equals(UUIDTypeAdapter.fromUUID(client.getSession().getPlayerUuid()))).toList().get(0);
 			if (current.needsRefresh()) {
 				current.refresh(auth, () -> {
 				});
 			}
 		} else {
-			current = new Account(client.getSession().getUsername(), UndashedUuid.toString(client.getSession().getPlayerUuid()), client.getSession().getAccessToken());
+			current = new Account(client.getSession().getUsername(), UUIDTypeAdapter.fromUUID(client.getSession().getPlayerUuid()), client.getSession().getAccessToken());
 		}
 
 		OptionCategory category = OptionCategory.create("auth");
@@ -96,7 +97,7 @@ public class Auth extends Accounts implements Module {
 		Runnable runnable = () -> {
 			try {
 				API.getInstance().shutdown();
-				((MinecraftClientAccessor) client).axolotlclient$setSession(new Session(account.getName(), UndashedUuid.fromString(account.getUuid()), account.getAuthToken(),
+				((MinecraftClientAccessor) client).axolotlclient$setSession(new Session(account.getName(), UUIDTypeAdapter.fromString(account.getUuid()).toString(), account.getAuthToken(),
 					Optional.empty(), Optional.empty(),
 					Session.AccountType.MSA));
 				UserApiService service;
@@ -104,7 +105,7 @@ public class Auth extends Accounts implements Module {
 					service = UserApiService.OFFLINE;
 				} else {
 					//try {
-						service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
+					service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
 					//} catch (InvalidCredentialsException e){
 					//	account.refresh(getAuth(), () -> {});
 					//	return;
@@ -114,7 +115,7 @@ public class Auth extends Accounts implements Module {
 				((MinecraftClientAccessor) client).axolotlclient$setUserApiService(service);
 				((MinecraftClientAccessor) client).axolotlclient$setSocialInteractionsManager(new SocialInteractionsManager(client, service));
 				((MinecraftClientAccessor) client).axolotlclient$setPlayerKeyPairManager(PlayerKeyPairManager.create(service, client.getSession(), client.runDirectory.toPath()));
-				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(AbuseReportContext.create(AbuseReportEnvironment.createLocal(), service));
+				((MinecraftClientAccessor) client).axolotlclient$setChatReportingContext(ChatReportingContext.create(ReportEnvironment.createLocal(), service));
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.successful", (Object) current.getName()));
@@ -160,12 +161,19 @@ public class Auth extends Accounts implements Module {
 		if (!loadingTexture.contains(uuid)) {
 			loadingTexture.add(uuid);
 			ThreadExecuter.scheduleTask(() -> {
-				UUID uUID = UndashedUuid.fromString(uuid);
-				ProfileResult profileResult = client.getSessionService().fetchProfile(uUID, false);
-				if (profileResult != null) {
-					PlayerSkin playerSkin = client.getSkinProvider().getSkin(profileResult.profile());
-					textures.put(uuid, playerSkin.texture());
-					loadingTexture.remove(uuid);
+
+				try {
+					UUID uUID = UUIDTypeAdapter.fromString(uuid);
+					GameProfile gameProfile = new GameProfile(uUID, null);
+					gameProfile = client.getSessionService().fillProfileProperties(gameProfile, false);
+
+					client.getSkinProvider().loadSkin(gameProfile, ((type, id, tex) -> {
+						if (type == MinecraftProfileTexture.Type.SKIN) {
+							textures.put(uuid, id);
+							loadingTexture.remove(uuid);
+						}
+					}), false);
+				} catch (IllegalArgumentException ignored) {
 				}
 			});
 		}
@@ -178,7 +186,8 @@ public class Auth extends Accounts implements Module {
 	public Identifier getSkinTexture(String uuid, String name) {
 		if (!textures.containsKey(uuid)) {
 			loadTexture(uuid);
-			return DefaultSkinHelper.getSkin(UndashedUuid.fromString(uuid)).texture();
+			return Objects.requireNonNullElseGet(textures.get(uuid),
+				() -> DefaultSkinHelper.getTexture(UUIDTypeAdapter.fromString(uuid)));
 		}
 		return textures.get(uuid);
 	}

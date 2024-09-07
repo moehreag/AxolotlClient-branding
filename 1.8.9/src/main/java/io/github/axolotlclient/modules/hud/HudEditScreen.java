@@ -107,21 +107,20 @@ public class HudEditScreen extends Screen {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int button) {
 		super.mouseClicked(mouseX, mouseY, button);
-		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY(Math.round(mouseX),
-			Math.round(mouseY));
+		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY(mouseX, mouseY);
 		if (button == 0) {
 			mouseDown = true;
 			if (entry.isPresent()) {
 				current = entry.get();
-				offset = new DrawPosition(Math.round(mouseX - current.getTruePos().x()),
-					Math.round(mouseY - current.getTruePos().y()));
+				offset = new DrawPosition(mouseX - current.getTruePos().x(),
+					mouseY - current.getTruePos().y());
 				updateSnapState();
 			} else {
 				current = null;
 			}
 		} else if (button == 1) {
 			entry.ifPresent(hudEntry -> {
-				Screen screen = ConfigStyles.createScreen(this, hudEntry.getOptionsAsCategory());
+				Screen screen = ConfigStyles.createScreen(this, hudEntry.getCategory());
 				Minecraft.getInstance().openScreen(screen);
 			});
 		}
@@ -165,7 +164,7 @@ public class HudEditScreen extends Screen {
 			case 3:
 				snapping.toggle();
 				button.message = I18n.translate("hud.snapping") + ": "
-					+ I18n.translate(snapping.get() ? "options.on" : "options.off");
+								 + I18n.translate(snapping.get() ? "options.on" : "options.off");
 				AxolotlClient.configManager.save();
 				break;
 			case 1:

@@ -64,7 +64,7 @@ public class FeatureDisabler {
 		setServers(((ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID)).toggleSneak, NONE, "hypixel");
 
 		//ClientPlayNetworking.INIT.register((handler0, client0) ->
-		ClientPlayNetworking.registerListener(channelName.toString(), (client, handler, buf) -> {
+		ClientPlayNetworking.registerListener(channelName.toString().substring(0, 20), (client, handler, buf) -> {
 			JsonArray array = new JsonParser().parse(buf.readString(32767)).getAsJsonArray();
 			for (JsonElement element : array) {
 				try {

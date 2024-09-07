@@ -148,7 +148,7 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(abstractHudEntry -> {
-				Screen screen = ConfigStyles.createScreen(this, abstractHudEntry.getOptionsAsCategory());
+				Screen screen = ConfigStyles.createScreen(this, abstractHudEntry.getCategory());
 				MinecraftClient.getInstance().openScreen(screen);
 			});
 		}

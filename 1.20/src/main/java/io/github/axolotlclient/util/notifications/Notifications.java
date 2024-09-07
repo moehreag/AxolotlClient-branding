@@ -37,6 +37,6 @@ public class Notifications implements NotificationProvider {
 	}
 
 	public void addStatus(Text title, Text description) {
-		MinecraftClient.getInstance().getToastManager().add(new SystemToast(SystemToast.C_ozahoshp.field_47586, title, description));
+		MinecraftClient.getInstance().getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, title, description));
 	}
 }

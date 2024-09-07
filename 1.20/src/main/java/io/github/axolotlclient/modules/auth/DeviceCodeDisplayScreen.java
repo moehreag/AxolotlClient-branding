@@ -29,7 +29,7 @@ import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
@@ -62,7 +62,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("auth.copy_and_open"),
+		addDrawableChild(ButtonWidget.builder(Text.translatable("auth.copy_and_open"),
 			buttonWidget -> {
 				client.keyboard.setClipboard(userCode);
 				OSUtil.getOS().open(URI.create(verificationUri));

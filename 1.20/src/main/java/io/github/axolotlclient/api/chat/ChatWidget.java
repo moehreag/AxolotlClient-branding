@@ -40,7 +40,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
+import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -57,7 +57,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
-		super(MinecraftClient.getInstance(), width, height, y, 13);
+		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);
 		this.channel = channel;
 		this.client = MinecraftClient.getInstance();
 		setX(x + 5);
@@ -122,8 +122,8 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
-		double scrollAmount = (this.getScrollAmount() - amountY * (double) this.itemHeight / 2.0);
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		double scrollAmount = (this.getScrollAmount() - amount * (double) this.itemHeight / 2.0);
 		if (scrollAmount < 0) {
 			loadMessages();
 		}

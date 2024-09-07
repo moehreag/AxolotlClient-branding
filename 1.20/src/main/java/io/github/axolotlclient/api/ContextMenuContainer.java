@@ -118,9 +118,9 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
 		if (menu != null) {
-			menu.mouseScrolled(mouseX, mouseY, amountX, amountY);
+			menu.mouseScrolled(mouseX, mouseY, amount);
 		}
 		return false;
 	}

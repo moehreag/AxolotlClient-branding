@@ -29,7 +29,7 @@ import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
@@ -50,7 +50,7 @@ public class PrivacyNoticeScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics, mouseX, mouseY, delta);
+		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, getTitleY(), -1);
 		message.render(graphics, width / 2, getMessageY());
@@ -72,18 +72,18 @@ public class PrivacyNoticeScreen extends Screen {
 	}
 
 	private void addButtons(int y) {
-		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.privacyNotice.accept"), buttonWidget -> {
+		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.accept"), buttonWidget -> {
 			client.setScreen(parent);
 			APIOptions.getInstance().privacyAccepted.set("accepted");
 			accepted.accept(true);
 		}).positionAndSize(width / 2 - 50, y, 100, 20).build());
-		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.privacyNotice.deny"), buttonWidget -> {
+		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.deny"), buttonWidget -> {
 			client.setScreen(parent);
 			APIOptions.getInstance().enabled.set(false);
 			APIOptions.getInstance().privacyAccepted.set("denied");
 			accepted.accept(false);
 		}).positionAndSize(width / 2 - 50 + 105, y, 100, 20).build());
-		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.privacyNotice.openPolicy"), buttonWidget -> {
+		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.openPolicy"), buttonWidget -> {
 			OSUtil.getOS().open(PRIVACY_POLICY_URL);
 		}).positionAndSize(width / 2 - 50 - 105, y, 100, 20).build());
 	}

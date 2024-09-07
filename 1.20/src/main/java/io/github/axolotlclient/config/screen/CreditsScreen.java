@@ -41,9 +41,9 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
-import net.minecraft.client.gui.widget.list.ElementListWidget;
-import net.minecraft.client.gui.widget.list.EntryListWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ElementListWidget;
+import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -71,7 +71,7 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public void renderBackground(GuiGraphics graphics) {
 		if (AxolotlClient.someNiceBackground.get()) { // Credit to pridelib for the colors
 			graphics.fill(0, 0, width, height / 6, 0xFFff0018);
 			graphics.fill(0, height / 6, width, height * 2 / 6, 0xFFffa52c);
@@ -80,7 +80,7 @@ public class CreditsScreen extends Screen {
 			graphics.fill(0, height / 2, width, height * 2 / 3, 0xFF008018);
 			graphics.fill(0, height * 5 / 6, width, height, 0xFF86007d);
 		} else {
-			super.renderBackground(graphics, mouseX, mouseY, delta);
+			super.renderBackground(graphics);
 		}
 	}
 
@@ -90,6 +90,7 @@ public class CreditsScreen extends Screen {
 			MinecraftClient.getInstance().getSoundManager().play(bgm);
 		}
 
+		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, tickDelta);
 
 		DrawUtil.drawCenteredString(graphics, this.textRenderer, I18n.translate("credits"), width / 2, 20, -1, true);
@@ -130,9 +131,9 @@ public class CreditsScreen extends Screen {
 		initCredits();
 
 		creditsList = new CreditsList(client, width, height, 50, height - 50, 25);
-		addDrawableSelectableElement(creditsList);
+		addDrawableChild(creditsList);
 
-		this.addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
+		this.addDrawableChild(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
 			if (creditOverlay == null) {
 				MinecraftClient.getInstance().setScreen(parent);
 				stopBGM();
@@ -141,7 +142,7 @@ public class CreditsScreen extends Screen {
 			}
 		}).positionAndSize(width / 2 - 75, height - 50 + 22, 150, 20).build());
 
-		this.addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("creditsBGM").append(": ")
+		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("creditsBGM").append(": ")
 			.append(Text.translatable(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off")),
 			buttonWidget -> {
 				AxolotlClient.CONFIG.creditsBGM.toggle();
@@ -207,15 +208,15 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
-		return super.mouseScrolled(mouseX, mouseY, amountX, amountY) || creditsList.mouseScrolled(mouseX, mouseY, amountX, amountY);
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		return super.mouseScrolled(mouseX, mouseY, amount) || creditsList.mouseScrolled(mouseX, mouseY, amount);
 	}
 
 	private class CreditsList extends ElementListWidget<Credit> {
 
 		public CreditsList(MinecraftClient minecraftClient, int width, int height, int top, int bottom,
 						   int entryHeight) {
-			super(minecraftClient, top, width, bottom-top, entryHeight);
+			super(minecraftClient, width, height, top, bottom, entryHeight);
 
 			this.setRenderBackground(false);
 			this.setRenderHeader(false, 0);
@@ -226,7 +227,7 @@ public class CreditsScreen extends Screen {
 		}
 
 		@Override
-		public void updateNarration(NarrationMessageBuilder builder) {
+		public void appendNarrations(NarrationMessageBuilder builder) {
 			builder.put(NarrationPart.TITLE, "credits");
 			super.appendNarrations(builder);
 			if (creditOverlay != null) {
@@ -241,7 +242,7 @@ public class CreditsScreen extends Screen {
 
 		@Override
 		protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-			Util.applyScissor(0, getY(), this.width, getHeight());
+			Util.applyScissor(0, top, this.width, bottom-top);
 			super.renderList(graphics, mouseX, mouseY, delta);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}

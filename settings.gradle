@@ -42,10 +42,11 @@ include 'common'
 System.out.println("Adding submodules..")
 
 optional '1.8.9'
-optional '1.19.3'
-optional '1.19.2'
+//optional '1.19.3'
+//optional '1.19.2'
 optional '1.16_combat-6'
-optional '1.16.5'
-optional '1.19.4'
+//optional '1.16.5'
+//optional '1.19.4'
 optional '1.20'
+optional '1.21'
 

@@ -52,5 +52,5 @@ public interface Configurable {
 	 */
 	List<Option<?>> getConfigurationOptions();
 
-	OptionCategory getOptionsAsCategory();
+	OptionCategory getCategory();
 }

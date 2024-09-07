@@ -25,8 +25,8 @@ package io.github.axolotlclient.mixin;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
-import net.minecraft.client.gui.hud.chat.ChatHud;
-import net.minecraft.client.gui.hud.chat.ChatMessageTag;
+import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.gui.hud.ChatMessageTag;
 import net.minecraft.network.message.MessageSignature;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,14 +39,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatHud.class)
 public abstract class ChatHudMixin {
 
-	@Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;Lnet/minecraft/client/gui/hud/chat/ChatMessageTag;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/chat/ChatHud;logChatMessage(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/hud/chat/ChatMessageTag;)V"), cancellable = true)
+	@Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;Lnet/minecraft/client/gui/hud/ChatMessageTag;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;logChatMessage(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/hud/ChatMessageTag;)V"), cancellable = true)
 	public void axolotlclient$autoThings(Text message, MessageSignature signature, ChatMessageTag tag, CallbackInfo ci) {
 		if (message == null) {
 			ci.cancel();
 		}
 	}
 
-	@ModifyVariable(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;Lnet/minecraft/client/gui/hud/chat/ChatMessageTag;)V", at = @At("HEAD"), argsOnly = true)
+	@ModifyVariable(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;Lnet/minecraft/client/gui/hud/ChatMessageTag;)V", at = @At("HEAD"), argsOnly = true)
 	private Text axolotlclient$onChatMessage(Text message) {
 		ReceiveChatMessageEvent event = new ReceiveChatMessageEvent(false, message.getString(), message);
 		Events.RECEIVE_CHAT_MESSAGE_EVENT.invoker().invoke(event);
@@ -58,7 +58,7 @@ public abstract class ChatHudMixin {
 		return message;
 	}
 
-	@ModifyArg(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;Lnet/minecraft/client/gui/hud/chat/ChatMessageTag;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/chat/ChatHud;addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;ILnet/minecraft/client/gui/hud/chat/ChatMessageTag;Z)V"), index = 0)
+	@ModifyArg(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;Lnet/minecraft/client/gui/hud/ChatMessageTag;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignature;ILnet/minecraft/client/gui/hud/ChatMessageTag;Z)V"), index = 0)
 	private Text axolotlclient$editChat(Text message) {
 		return NickHider.getInstance().editMessage(message);
 	}

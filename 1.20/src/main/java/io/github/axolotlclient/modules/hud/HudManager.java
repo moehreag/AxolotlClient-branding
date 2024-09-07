@@ -127,7 +127,7 @@ public class HudManager extends AbstractModule {
 	}
 
 	public List<HudEntry> getEntries() {
-		if (entries.size() > 0) {
+		if (!entries.isEmpty()) {
 			return new ArrayList<>(entries.values());
 		}
 		return new ArrayList<>();
@@ -141,7 +141,7 @@ public class HudManager extends AbstractModule {
 		client.getProfiler().push("Hud Modules");
 		if (!(client.currentScreen instanceof HudEditScreen)) {
 			for (HudEntry hud : getEntries()) {
-				if (hud.isEnabled() && (!client.inGameHud.method_53531().chartsVisible() || hud.overridesF3())) {
+				if (hud.isEnabled() && (!client.options.debugEnabled || hud.overridesF3())) {
 					client.getProfiler().push(hud.getName());
 					hud.render(graphics, delta);
 					client.getProfiler().pop();

@@ -36,9 +36,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.scoreboard.*;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.scoreboard.ScoreboardPlayerScore;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.text.Text;
-import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,16 +124,16 @@ public class BedwarsGame {
 		String topBar = getFormattedTime();
 		if (me.getStats() != null) {
 			topBar += "\n" +
-				"K: " + me.getStats().getGameKills() +
-				" D: " + me.getStats().getGameDeaths() +
-				" B: " + me.getStats().getGameBedsBroken();
+					  "K: " + me.getStats().getGameKills() +
+					  " D: " + me.getStats().getGameDeaths() +
+					  " B: " + me.getStats().getGameBedsBroken();
 		}
 		return topBar;
 	}
 
 	private String calculateBottomBarText() {
 		return Formatting.DARK_AQUA + "Last Kill: " + Formatting.RESET + (lastKill == null ? "N/A" : lastKill.getColoredName()) +
-			Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
+			   Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
 		// left in here because it'll be useful later on
 		/*Comparator<BedwarsPlayer> comparator = Comparator.comparingInt(o -> o.getStats().getGameKills());
 		return "Top 3 Killers: \n" + players.values().stream().filter(Objects::nonNull)
@@ -220,7 +222,7 @@ public class BedwarsGame {
 	private String formatBed(BedwarsTeam team, BedwarsPlayer breaker) {
 		String playerFormatted = getPlayerFormatted(breaker);
 		return "§6§l§oBED BROKEN §8§l> " + team.getColorSection() + team.getName() + " Bed §7/broken/ " + playerFormatted +
-			(breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" + breaker.getStats().getBedsBroken());
+			   (breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" + breaker.getStats().getBedsBroken());
 	}
 
 	private String formatDeath(BedwarsPlayer player, @Nullable BedwarsPlayer killer, BedwarsDeathType type, boolean finalDeath) {
@@ -364,17 +366,17 @@ public class BedwarsGame {
 
 	public void onScoreboardRender(ScoreboardRenderEvent event) {
 		Scoreboard scoreboard = event.getObjective().getScoreboard();
-		Collection<C_lfemghur> scores = scoreboard.method_1184(event.getObjective());
-		List<C_lfemghur> filteredScores = scores.stream()
-			.filter(p_apply_1_ -> p_apply_1_.owner() != null && !p_apply_1_.method_55385())
+		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(event.getObjective());
+		List<ScoreboardPlayerScore> filteredScores = scores.stream()
+			.filter(p_apply_1_ -> p_apply_1_.getPlayerName() != null && !p_apply_1_.getPlayerName().startsWith("#"))
 			.collect(Collectors.toList());
 		Collections.reverse(filteredScores);
 		if (filteredScores.size() < 3) {
 			return;
 		}
-		C_lfemghur score = filteredScores.get(2);
-		Team team = scoreboard.getPlayerTeam(score.owner());
-		String timer = Team.decorateName(team, Text.literal(score.owner())).getString();
+		ScoreboardPlayerScore score = filteredScores.get(2);
+		Team team = scoreboard.getPlayerTeam(score.getPlayerName());
+		String timer = Team.decorateName(team, Text.literal(score.getPlayerName())).getString();
 		if (!timer.contains(":")) {
 			return;
 		}
@@ -458,7 +460,7 @@ public class BedwarsGame {
 			render = String.format("%.1f", secondsTillLive) + "s";
 			color = new Color(200, 200, 200).toInt();
 		} else {
-			int health = objective.getScoreboard().method_1180(ScoreHolder.of(playerName), objective).method_55409();
+			int health = objective.getScoreboard().getPlayerScore(playerName, objective).getScore();
 			color = ClientColors.blend(new Color(255, 255, 255), new Color(215, 0, 64), (int) (1 - (health / 20f))).toInt();
 			render = String.valueOf(health);
 		}

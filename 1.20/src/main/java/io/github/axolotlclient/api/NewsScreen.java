@@ -28,7 +28,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
@@ -50,6 +50,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawShadowedText(client.textRenderer, title, width / 2, 20, -1);
@@ -81,16 +82,16 @@ public class NewsScreen extends Screen {
 	protected void init() {
 		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().getNotes()), width - 50);
 
-		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> client.setScreen(parent))
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> client.setScreen(parent))
 			.positionAndSize(width / 2 - 100, height - 45, 200, 20)
 			.build());
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
-		scrollAmount = (int) MathHelper.clamp(scrollAmount + amountY * SCROLL_STEP,
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		scrollAmount = (int) MathHelper.clamp(scrollAmount + amount * SCROLL_STEP,
 			Math.min(0, -((lines.size() + 3) * client.textRenderer.fontHeight - (height - 65))),
 			0);
-		return super.mouseScrolled(mouseX, mouseY, amountX, amountY);
+		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 }

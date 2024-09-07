@@ -23,7 +23,7 @@
 package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
-import net.minecraft.client.gui.widget.list.world.WorldEntryListWidget;
+import net.minecraft.client.gui.screen.world.WorldListWidget;
 import net.minecraft.world.storage.WorldSaveSummary;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,17 +32,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(WorldEntryListWidget.WorldEntry.class)
+@Mixin(WorldListWidget.Entry.class)
 public abstract class WorldListWidgetEntryMixin {
 
 	@Shadow
 	@Final
-	private WorldSaveSummary summary;
+	private WorldSaveSummary level;
 
 	@Inject(method = "play", at = @At("HEAD"))
 	private void axolotlclient$onSPWorldJoin(CallbackInfo ci) {
-		if (!summary.isUnavailable()) {
-			DiscordRPC.getInstance().setWorld(summary.getDisplayName());
+		if (!level.isUnavailable()) {
+			DiscordRPC.getInstance().setWorld(level.getDisplayName());
 		}
 	}
 }

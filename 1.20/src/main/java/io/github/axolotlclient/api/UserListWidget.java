@@ -32,7 +32,7 @@ import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
+import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -45,7 +45,7 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 	private final FriendsScreen screen;
 
 	public UserListWidget(FriendsScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
-		super(client, width, bottom-top, top, entryHeight);
+		super(client, width, height, top, bottom, entryHeight);
 		this.screen = screen;
 	}
 

@@ -25,7 +25,7 @@ package io.github.axolotlclient.mixin;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.multiplayer.report.AbuseReportContext;
+import net.minecraft.client.multiplayer.report.chat.ChatReportingContext;
 import net.minecraft.client.network.SocialInteractionsManager;
 import net.minecraft.client.util.PlayerKeyPairManager;
 import net.minecraft.client.util.Session;
@@ -55,7 +55,7 @@ public interface MinecraftClientAccessor {
 
 	@Accessor("chatReportingContext")
 	@Mutable
-	void axolotlclient$setChatReportingContext(AbuseReportContext context);
+	void axolotlclient$setChatReportingContext(ChatReportingContext context);
 
 	@Accessor("userApiService")
 	@Mutable

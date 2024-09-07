@@ -22,15 +22,15 @@
 
 package io.github.axolotlclient.mixin;
 
-import java.util.function.Supplier;
-
 import com.mojang.authlib.GameProfile;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.texture.PlayerSkin;
 import net.minecraft.client.util.DefaultSkinHelper;
+import net.minecraft.util.Identifier;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -38,14 +38,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PlayerListEntry.class)
 public abstract class PlayerListEntryMixin {
 
-	@Inject(method = "getSkinSupplier", at = @At("RETURN"), cancellable = true)
-	private static void axolotlclient$hideSkins(GameProfile gameProfile, CallbackInfoReturnable<Supplier<PlayerSkin>> cir) {
-		if (gameProfile.equals(MinecraftClient.getInstance().player.getGameProfile())
+	@Shadow
+	@Final
+	private GameProfile profile;
+
+	@Inject(method = "getSkinTexture", at = @At("RETURN"), cancellable = true)
+	private void axolotlclient$hideSkins(CallbackInfoReturnable<Identifier> cir) {
+		if (profile.equals(MinecraftClient.getInstance().player.getGameProfile())
 			&& NickHider.getInstance().hideOwnSkin.get()) {
-			cir.setReturnValue(() -> DefaultSkinHelper.getSkin(gameProfile.getId()));
-		} else if (!gameProfile.equals(MinecraftClient.getInstance().player.getGameProfile())
-			&& NickHider.getInstance().hideOtherSkins.get()) {
-			cir.setReturnValue(() -> DefaultSkinHelper.getSkin(gameProfile.getId()));
+			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
+		} else if (!profile.equals(MinecraftClient.getInstance().player.getGameProfile())
+				   && NickHider.getInstance().hideOtherSkins.get()) {
+			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
 		}
 	}
 }

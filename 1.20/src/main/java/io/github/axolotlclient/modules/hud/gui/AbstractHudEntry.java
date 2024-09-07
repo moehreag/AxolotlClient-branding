@@ -70,6 +70,7 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	private Rectangle renderBounds = null;
 	private DrawPosition truePosition = null;
 	private DrawPosition renderPosition;
+	private OptionCategory category;
 
 	public AbstractHudEntry(int width, int height) {
 		this.width = width;
@@ -210,10 +211,12 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	}
 
 	public OptionCategory getAllOptions() {
-		List<Option<?>> options = getSaveOptions();
-		OptionCategory cat = OptionCategory.create(getNameKey());
-		options.forEach(cat::add);
-		return cat;
+		if (category == null) {
+			List<Option<?>> options = getSaveOptions();
+			category = OptionCategory.create(getNameKey());
+			options.forEach(category::add);
+		}
+		return category;
 	}
 
 	/**
@@ -242,10 +245,9 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 		return options;
 	}
 
-	public OptionCategory getOptionsAsCategory() {
-		OptionCategory cat = OptionCategory.create(getNameKey());
-		getConfigurationOptions().forEach(cat::add);
-		return cat;
+	@Override
+	public OptionCategory getCategory() {
+		return category;
 	}
 
 	@Override

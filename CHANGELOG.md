@@ -148,9 +148,16 @@
 - add option(s) to remove certain messages on hypixel (join, mystery box)
 - Removed freelook on MCC island (#118 )
 
+### 3.0.7
+
+- fix bugs (#131)
+- update to 1.21
+- drop 1.19 version range
+-
+
 ### 3.1.0
 
-- Add a new Backend (made by gart)
+- Add a new Backend (made by Astralchroma)
 - Features:
 	- Friends
 	- Direct/Group Chats

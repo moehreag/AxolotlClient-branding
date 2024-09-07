@@ -39,9 +39,9 @@ import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.text.Text;
-import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.Formatting;
 
 /**
@@ -187,13 +187,13 @@ public class BedwarsMod implements AbstractHypixelMod {
 			return;
 		}
 		Scoreboard scoreboard = event.getObjective().getScoreboard();
-		Collection<C_lfemghur> scores = scoreboard.method_1184(event.getObjective());
-		List<C_lfemghur> filteredScores = scores.stream()
-			.filter(p_apply_1_ -> p_apply_1_.owner() != null && !p_apply_1_.method_55385())
+		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(event.getObjective());
+		List<ScoreboardPlayerScore> filteredScores = scores.stream()
+			.filter(p_apply_1_ -> p_apply_1_.getPlayerName() != null && !p_apply_1_.getPlayerName().startsWith("#"))
 			.toList();
 		waiting = filteredScores.stream().anyMatch(score -> {
-			Team team = scoreboard.getPlayerTeam(score.owner());
-			String format = Formatting.strip(Team.decorateName(team, Text.literal(score.owner())).getString()).replaceAll("[^A-z0-9 .:]", "");
+			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
+			String format = Formatting.strip(Team.decorateName(team, Text.literal(score.getPlayerName())).getString()).replaceAll("[^A-z0-9 .:]", "");
 			return format.contains("Waiting...") || format.contains("Starting in");
 		});
 	}

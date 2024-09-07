@@ -83,7 +83,7 @@ public class PackDisplayHud extends TextHudEntry {
 	public void init() {
 		int listSize = client.getResourcePackManager().getProfiles().size();
 		MinecraftClient.getInstance().getResourcePackManager().getEnabledProfiles().forEach(profile -> {
-			try (ResourcePack pack = profile.createPack()) {
+			try (ResourcePack pack = profile.createResourcePack()) {
 
 				if (listSize == 1) {
 					widgets.add(createWidget(profile.getDisplayName(), pack));

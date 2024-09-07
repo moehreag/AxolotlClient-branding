@@ -161,7 +161,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 
 		// Need to not enable blend while the debug HUD is open because it does weird stuff. Why? no idea.
 		if (color == defaultColor.get() && !type.get().equals(Crosshair.DIRECTION) && applyBlend.get()
-			&& !client.inGameHud.method_53531().chartsVisible()) {
+			&& !client.options.debugEnabled) {
 			RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO);
@@ -196,9 +196,9 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				// Draw crosshair
 				RenderSystem.setShaderColor((float) color.getRed() / 255, (float) color.getGreen() / 255,
 					(float) color.getBlue() / 255, (float) color.getAlpha() / 255);
-				graphics.drawGuiTexture(CROSSHAIR_TEXTURE,
+				graphics.drawTexture(ICONS_TEXTURE,
 					(int) (((client.getWindow().getScaledWidth() / getScale()) - 15) / 2),
-					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 15, 15);
+					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2),0, 0, 15, 15);
 			} else {
 				// Draw crosshair
 				RenderSystem.setShaderColor((float) color.getRed() / 255, (float) color.getGreen() / 255,
@@ -207,7 +207,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				graphics.drawTexture(Util.getTexture(customTextureGraphics), (int) (((client.getWindow().getScaledWidth() / getScale()) - 15) / 2),
 					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 0, 0, 15, 15, 15, 15);
 
-				RenderSystem.setShaderTexture(0, CROSSHAIR_TEXTURE);
+				RenderSystem.setShaderTexture(0, ICONS_TEXTURE);
 			}
 
 			RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -228,11 +228,11 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 				y = (int) ((client.getWindow().getScaledHeight() / getScale()) / 2 - 7 + 16);
 
 				if (targetingEntity) {
-					graphics.drawGuiTexture(ATTACK_INDICATOR_FULL, x, y, 16, 16);
+					graphics.drawTexture(ICONS_TEXTURE, x, y, 68, 94, 16, 16);
 				} else if (progress < 1.0F) {
 					int k = (int) (progress * 17.0F);
-					graphics.drawGuiTexture(ATTACK_INDICATOR_BACKGROUND, x, y, 16, 4);
-					graphics.drawGuiTexture(ATTACK_INDICATOR_PROGRESS, 16, 4, 0, 0, x, y, k, 4);
+					graphics.drawTexture(ICONS_TEXTURE, x, y, 36, 94, 16, 4);
+					graphics.drawTexture(ICONS_TEXTURE, 16, 4, 0, 0, x, y, k, 4);
 				}
 			}
 		}

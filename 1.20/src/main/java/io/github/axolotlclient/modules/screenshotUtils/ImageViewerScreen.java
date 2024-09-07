@@ -45,7 +45,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.CommonTexts;
@@ -130,11 +130,11 @@ public class ImageViewerScreen extends Screen {
 		if (!url.isEmpty()) {
 			urlBox.setText(url);
 		}
-		addDrawableSelectableElement(urlBox);
+		addDrawableChild(urlBox);
 
 		setFocusedChild(urlBox);
 
-		addDrawableSelectableElement(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
+		addDrawableChild(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
 			20, 20, Text.translatable("download"), buttonWidget -> {
 			//Logger.info("Downloading image from "+urlBox.getText());
 			imageId = downloadImage(url = urlBox.getText());
@@ -148,7 +148,7 @@ public class ImageViewerScreen extends Screen {
 			}
 		});
 
-		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK,
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK,
 				buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
 			.position(width / 2 - 75, height - 50).build());
 
@@ -215,7 +215,7 @@ public class ImageViewerScreen extends Screen {
 	}
 
 	private void addImageButton(ButtonWidget button, boolean right) {
-		addSelectableElement(button);
+		addSelectableChild(button);
 		editButtons.put(button, right);
 	}
 }

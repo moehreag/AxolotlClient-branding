@@ -36,7 +36,7 @@ import io.github.axolotlclient.modules.hud.util.Rectangle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -86,6 +86,7 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 
 		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY(mouseX, mouseY);
@@ -98,7 +99,7 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void init() {
-		this.addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("hud.snapping").append(": ")
+		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("hud.snapping").append(": ")
 			.append(Text.translatable(snapping.get() ? "options.on" : "options.off")),
 			buttonWidget -> {
 				snapping.toggle();
@@ -107,17 +108,17 @@ public class HudEditScreen extends Screen {
 				AxolotlClient.configManager.save();
 			}).positionAndSize(width / 2 - 50, height / 2 + 12, 100, 20).build());
 
-		this.addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("hud.clientOptions"),
+		this.addDrawableChild(new ButtonWidget.Builder(Text.translatable("hud.clientOptions"),
 			buttonWidget -> {
 				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager.getRoot());
 				MinecraftClient.getInstance().setScreen(screen);
 			}).positionAndSize(width / 2 - 75, height / 2 - 10, 150, 20).build());
 
 		if (parent != null)
-			addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
+			addDrawableChild(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
 				.positionAndSize(width / 2 - 75, height - 50 + 22, 150, 20).build());
 		else
-			addDrawableSelectableElement(new ButtonWidget.Builder(Text.translatable("close"),
+			addDrawableChild(new ButtonWidget.Builder(Text.translatable("close"),
 				buttonWidget -> MinecraftClient.getInstance().setScreen(null))
 				.positionAndSize(width / 2 - 75, height - 50 + 22, 150, 20).build());
 	}
@@ -140,7 +141,7 @@ public class HudEditScreen extends Screen {
 			}
 		} else if (button == 1) {
 			entry.ifPresent(abstractHudEntry -> {
-				Screen screen = ConfigStyles.createScreen(this, abstractHudEntry.getOptionsAsCategory());
+				Screen screen = ConfigStyles.createScreen(this, abstractHudEntry.getCategory());
 				MinecraftClient.getInstance().setScreen(screen);
 			});
 		}

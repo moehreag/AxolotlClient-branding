@@ -39,7 +39,6 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.scoreboard.*;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.unmapped.C_lfemghur;
 import net.minecraft.util.ChatUtil;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -108,13 +107,13 @@ public class Util {
 		Scoreboard scoreboard = client.world.getScoreboard();
 		if (scoreboard == null)
 			return lines;
-		ScoreboardObjective sidebar = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
+		ScoreboardObjective sidebar = scoreboard.getObjectiveForSlot(Scoreboard.SIDEBAR_DISPLAY_SLOT_ID);
 		if (sidebar == null)
 			return lines;
 
-		Collection<C_lfemghur> scores = scoreboard.method_1184(sidebar);
-		List<C_lfemghur> list = scores.stream().filter(
-				input -> input != null && input.owner() != null && !input.method_55385())
+		Collection<ScoreboardPlayerScore> scores = scoreboard.getAllPlayerScores(sidebar);
+		List<ScoreboardPlayerScore> list = scores.stream().filter(
+				input -> input != null && input.getPlayerName() != null && !input.getPlayerName().startsWith("#"))
 			.collect(Collectors.toList());
 
 		if (list.size() > 15) {
@@ -123,8 +122,8 @@ public class Util {
 			scores = list;
 		}
 
-		for (C_lfemghur score : scores) {
-			Team team = scoreboard.getPlayerTeam(score.owner());
+		for (ScoreboardPlayerScore score : scores) {
+			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
 			if (team == null)
 				return lines;
 			String text = team.getPrefix().getString() + team.getSuffix().getString();

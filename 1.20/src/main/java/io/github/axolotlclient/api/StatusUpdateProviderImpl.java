@@ -36,7 +36,7 @@ import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.multiplayer.SelectServerScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.entity.player.PlayerEntity;
@@ -57,7 +57,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 		Screen current = MinecraftClient.getInstance().currentScreen;
 		if (current instanceof TitleScreen) {
 			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
-		} else if (current instanceof SelectServerScreen) {
+		} else if (current instanceof MultiplayerScreen) {
 			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
 		} else if (current != null) {
 			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);

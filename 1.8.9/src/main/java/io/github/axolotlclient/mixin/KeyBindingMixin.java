@@ -29,6 +29,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.util.Int2ObjectHashMap;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -64,7 +65,8 @@ public abstract class KeyBindingMixin {
 			|| keyCode == Minecraft.getInstance().options.leftKey.getKeyCode()
 			|| keyCode == Minecraft.getInstance().options.jumpKey.getKeyCode()
 			|| keyCode == Minecraft.getInstance().options.sprintKey.getKeyCode()) {
-			this.pressed = Keyboard.isKeyDown(keyCode) && (Minecraft.getInstance().screen == null);
+			this.pressed = (keyCode < 0 ? Mouse.isButtonDown(keyCode + 100) : Keyboard.isKeyDown(keyCode)) &&
+						   (Minecraft.getInstance().screen == null);
 		}
 	}
 

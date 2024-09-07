@@ -23,7 +23,7 @@
 package io.github.axolotlclient.util.options.vanilla;
 
 import io.github.axolotlclient.util.options.GenericOption;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 public class GenericWidget extends ButtonWidget {

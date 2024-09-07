@@ -25,8 +25,7 @@ package io.github.axolotlclient.mixin;
 import java.util.List;
 import java.util.UUID;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
@@ -58,7 +57,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(PlayerListHud.class)
 public abstract class PlayerListHudMixin {
@@ -170,13 +168,12 @@ public abstract class PlayerListHudMixin {
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/gui/hud/PlayerListHud;renderLatencyIcon(Lnet/minecraft/client/gui/GuiGraphics;IIILnet/minecraft/client/network/PlayerListEntry;)V"
-		),
-		locals = LocalCapture.CAPTURE_FAILHARD
+		)
 	)
 	public void axolotlclient$renderWithoutObjective(
 		GuiGraphics graphics, int scaledWindowWidth, Scoreboard scoreboard, @Nullable ScoreboardObjective objective, CallbackInfo ci,
-		List list, List list3, int i, int j, int l, int m, int k, int x,
-		boolean bl, int n, int o, int p, int q, int r, List list2, int t, int u, int s, int v, int y, int z, PlayerListEntry playerListEntry2
+		@Local(ordinal = 1) int i,
+		@Local(ordinal = 6) int n, @Local(ordinal = 13) int v, @Local(ordinal = 14) int y, @Local PlayerListEntry playerListEntry2
 	) {
 		if (!BedwarsMod.getInstance().isEnabled() || !BedwarsMod.getInstance().isWaiting()) {
 			return;
@@ -207,12 +204,12 @@ public abstract class PlayerListHudMixin {
 		method = "renderScoreboardObjective",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/GuiGraphics;drawShadowedText(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)I"
+			target = "Lnet/minecraft/client/gui/GuiGraphics;drawShadowedText(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)I"
 		),
 		cancellable = true
 	)
 	private void axolotlclient$renderCustomScoreboardObjective(
-		ScoreboardObjective objective, int y, PlayerListHud.C_hyyqqfbu c_hyyqqfbu, int startX, int endX, UUID uuid, GuiGraphics graphics, CallbackInfo ci
+		ScoreboardObjective objective, int y, String player, int startX, int endX, UUID uuid, GuiGraphics graphics, CallbackInfo ci
 	) {
 		if (!BedwarsMod.getInstance().isEnabled()) {
 			return;
@@ -223,7 +220,7 @@ public abstract class PlayerListHudMixin {
 			return;
 		}
 
-		game.renderCustomScoreboardObjective(graphics, c_hyyqqfbu.name().getString(), objective, y, endX);
+		game.renderCustomScoreboardObjective(graphics, player, objective, y, endX);
 
 		ci.cancel();
 	}

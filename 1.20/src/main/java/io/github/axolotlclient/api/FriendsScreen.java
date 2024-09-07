@@ -28,7 +28,7 @@ import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -55,6 +55,7 @@ public class FriendsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
 	}
@@ -80,7 +81,7 @@ public class FriendsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableSelectableElement(widget = new UserListWidget(this, client, width, height, 32, height - 64, 35));
+		addDrawableChild(widget = new UserListWidget(this, client, width, height, 32, height - 64, 35));
 
 		widget.children().clear();
 
@@ -105,27 +106,27 @@ public class FriendsScreen extends Screen {
 				new AlphabeticalComparator().compare(u1.getName(), u2.getName())).toList()));
 		}
 
-		this.addDrawableSelectableElement(blockedTab = ButtonWidget.builder(Text.translatable("api.friends.tab.blocked"), button ->
+		this.addDrawableChild(blockedTab = ButtonWidget.builder(Text.translatable("api.friends.tab.blocked"), button ->
 				client.setScreen(new FriendsScreen(parent, Tab.BLOCKED)))
 			.positionAndSize(this.width / 2 + 24, this.height - 52, 57, 20).build());
 
-		this.addDrawableSelectableElement(pendingTab = ButtonWidget.builder(Text.translatable("api.friends.tab.pending"), button ->
+		this.addDrawableChild(pendingTab = ButtonWidget.builder(Text.translatable("api.friends.tab.pending"), button ->
 				client.setScreen(new FriendsScreen(parent, Tab.PENDING)))
 			.positionAndSize(this.width / 2 - 34, this.height - 52, 57, 20).build());
 
-		this.addDrawableSelectableElement(allTab = ButtonWidget.builder(Text.translatable("api.friends.tab.all"), button ->
+		this.addDrawableChild(allTab = ButtonWidget.builder(Text.translatable("api.friends.tab.all"), button ->
 				client.setScreen(new FriendsScreen(parent, Tab.ALL)))
 			.positionAndSize(this.width / 2 - 94, this.height - 52, 57, 20).build());
 
-		this.addDrawableSelectableElement(onlineTab = ButtonWidget.builder(Text.translatable("api.friends.tab.online"), button ->
+		this.addDrawableChild(onlineTab = ButtonWidget.builder(Text.translatable("api.friends.tab.online"), button ->
 				client.setScreen(new FriendsScreen(parent, Tab.ONLINE)))
 			.positionAndSize(this.width / 2 - 154, this.height - 52, 57, 20).build());
 
-		this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends.add"),
+		this.addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends.add"),
 				button -> client.setScreen(new AddFriendScreen(this)))
 			.positionAndSize(this.width / 2 + 88, this.height - 52, 66, 20).build());
 
-		this.removeButton = this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends.remove"), button -> {
+		this.removeButton = this.addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends.remove"), button -> {
 			UserListWidget.UserListEntry entry = this.widget.getSelectedOrNull();
 			if (entry != null) {
 				FriendHandler.getInstance().removeFriend(entry.getUser());
@@ -133,18 +134,18 @@ public class FriendsScreen extends Screen {
 			}
 		}).positionAndSize(this.width / 2 - 50, this.height - 28, 100, 20).build());
 
-		addDrawableSelectableElement(denyButton = new ButtonWidget.Builder(Text.translatable("api.friends.request.deny"),
+		addDrawableChild(denyButton = new ButtonWidget.Builder(Text.translatable("api.friends.request.deny"),
 			button -> denyRequest()).positionAndSize(this.width / 2 - 50, this.height - 28, 48, 20).build());
 
-		addDrawableSelectableElement(acceptButton = new ButtonWidget.Builder(Text.translatable("api.friends.request.accept"),
+		addDrawableChild(acceptButton = new ButtonWidget.Builder(Text.translatable("api.friends.request.accept"),
 			button -> acceptRequest()).positionAndSize(this.width / 2 + 2, this.height - 28, 48, 20).build());
 
-		this.addDrawableSelectableElement(chatButton = ButtonWidget.builder(Text.translatable("api.friends.chat"), button -> openChat())
+		this.addDrawableChild(chatButton = ButtonWidget.builder(Text.translatable("api.friends.chat"), button -> openChat())
 			.positionAndSize(this.width / 2 - 154, this.height - 28, 100, 20)
 			.build()
 		);
 
-		this.addDrawableSelectableElement(
+		this.addDrawableChild(
 			ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 				.positionAndSize(this.width / 2 + 4 + 50, this.height - 28, 100, 20)
 				.build()

@@ -1,0 +1,30 @@
+{
+	"schema_version": 1,
+	"quilt_loader": {
+		"group": "io.github.axolotlclient",
+		"id": "axolotlclient-test",
+		"version": "1.0.0",
+		"metadata": {
+			"name": "Test Mod",
+			"description": "",
+			"contributors": {
+				"moehreag": "Owner"
+			},
+			"contact": {
+				"issues": "https://github.com/AxolotlClient/AxolotlClient-mod/issues",
+				"sources": "https://github.com/AxolotlClient/AxolotlClient-mod"
+			},
+			"icon": "assets/modid/icon.png"
+		},
+		"intermediate_mappings": "net.fabricmc:intermediary",
+		"entrypoints": {
+			"client_init": "io.github.axolotlclient.AxolotlClientTest"
+		},
+		"depends": [
+			{
+				"id": "axolotlclient",
+				"versions": "*"
+			}
+		]
+	}
+}

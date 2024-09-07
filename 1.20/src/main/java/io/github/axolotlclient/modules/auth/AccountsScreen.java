@@ -26,7 +26,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -50,7 +50,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public void renderBackground(GuiGraphics graphics) {
 		renderBackgroundTexture(graphics);
 	}
 
@@ -77,14 +77,14 @@ public class AccountsScreen extends Screen {
 	public void init() {
 
 		accountsListWidget = new AccountsListWidget(this, client, width, height, 32, height - 64, 35);
-		addDrawableSelectableElement(accountsListWidget);
+		addDrawableChild(accountsListWidget);
 
 		accountsListWidget.setAccounts(Auth.getInstance().getAccounts());
 
-		addDrawableSelectableElement(loginButton = new ButtonWidget.Builder(Text.translatable("auth.login"),
+		addDrawableChild(loginButton = new ButtonWidget.Builder(Text.translatable("auth.login"),
 			buttonWidget -> login()).positionAndSize(this.width / 2 - 154, this.height - 52, 150, 20).build());
 
-		this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("auth.add"),
+		this.addDrawableChild(ButtonWidget.builder(Text.translatable("auth.add"),
 				button -> {
 					if (!Auth.getInstance().allowOfflineAccounts()) {
 						initMSAuth();
@@ -101,7 +101,7 @@ public class AccountsScreen extends Screen {
 				})
 			.positionAndSize(this.width / 2 + 4, this.height - 52, 150, 20).build());
 
-		this.deleteButton = this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("selectServer.delete"), button -> {
+		this.deleteButton = this.addDrawableChild(ButtonWidget.builder(Text.translatable("selectServer.delete"), button -> {
 			AccountsListWidget.Entry entry = this.accountsListWidget.getSelectedOrNull();
 			if (entry != null) {
 				Auth.getInstance().removeAccount(entry.getAccount());
@@ -110,12 +110,12 @@ public class AccountsScreen extends Screen {
 		}).positionAndSize(this.width / 2 - 50, this.height - 28, 100, 20).build());
 
 
-		this.addDrawableSelectableElement(refreshButton = ButtonWidget.builder(Text.translatable("auth.refresh"), button -> refreshAccount())
+		this.addDrawableChild(refreshButton = ButtonWidget.builder(Text.translatable("auth.refresh"), button -> refreshAccount())
 			.positionAndSize(this.width / 2 - 154, this.height - 28, 100, 20)
 			.build()
 		);
 
-		this.addDrawableSelectableElement(
+		this.addDrawableChild(
 			ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 				.positionAndSize(this.width / 2 + 4 + 50, this.height - 28, 100, 20)
 				.build()
