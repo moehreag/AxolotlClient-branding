@@ -23,14 +23,12 @@
 package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.WorldLoadEvent;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Mixin;
@@ -68,12 +66,5 @@ public abstract class MinecraftClientMixin {
 	@Inject(method = "joinWorld", at = @At("HEAD"))
 	private void axolotlclient$onWorldLoad(ClientWorld world, DownloadingTerrainScreen.BackgroundType type, CallbackInfo ci) {
 		Events.WORLD_LOAD_EVENT.invoker().invoke(new WorldLoadEvent(world));
-	}
-
-	@Inject(method = "setScreen", at = @At("HEAD"))
-	private void axolotlclient$onScreenOpen(Screen screen, CallbackInfo ci) {
-		if (MinecraftClient.getInstance().currentScreen == null) {
-			MenuBlur.getInstance().onScreenOpen();
-		}
 	}
 }

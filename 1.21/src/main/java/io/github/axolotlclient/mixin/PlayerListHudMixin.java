@@ -106,7 +106,7 @@ public abstract class PlayerListHudMixin {
 		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() && User.getOnline(axolotlclient$profile.getId().toString())) {
 			RenderSystem.setShaderColor(1, 1, 1, 1);
 
-			instance.drawTexture(AxolotlClient.badgeIcon, (int) x, (int) y, 8, 8, 0, 0, 8, 8, 8, 8);
+			instance.drawTexture(AxolotlClient.badgeIcon, x, y, 8, 8, 0, 0, 8, 8, 8, 8);
 
 			x += 9;
 		}

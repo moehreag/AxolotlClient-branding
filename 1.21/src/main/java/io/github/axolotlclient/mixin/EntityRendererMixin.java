@@ -58,7 +58,6 @@ public abstract class EntityRendererMixin<T extends Entity> {
 			if (!entity.isSneaky()) {
 				if (AxolotlClient.CONFIG.showBadges.get() && User.getOnline(entity.getUuid().toString())) {
 					RenderSystem.enableDepthTest();
-					RenderSystem.setShaderTexture(0, AxolotlClient.badgeIcon);
 
 					assert MinecraftClient.getInstance().player != null;
 					int x = -(MinecraftClient.getInstance().textRenderer
@@ -83,6 +82,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1, AxolotlClient.CONFIG.useShadows.get(),
 							matrices.peek().getModel(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 					} else {
+						RenderSystem.setShaderTexture(0, AxolotlClient.badgeIcon);
 						Tessellator tessellator = Tessellator.getInstance();
 						BufferBuilder builder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);;
 						Matrix4f matrix4f = matrices.peek().getModel();
@@ -90,7 +90,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						builder.xyz(matrix4f, x, 8, 0).uv0(0, 8);
 						builder.xyz(matrix4f, x + 8, 0, 0).uv0(8, 0);
 						builder.xyz(matrix4f, x + 8, 8, 0).uv0(8, 8);
-						BufferRenderer.drawWithShader(builder.end());
+						BufferRenderer.drawWithShader(builder.endOrThrow());
 					}
 				}
 			}

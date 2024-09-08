@@ -24,7 +24,6 @@ package io.github.axolotlclient.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.blur.MotionBlur;
 import io.github.axolotlclient.modules.zoom.Zoom;
 import net.minecraft.client.MinecraftClient;
@@ -80,7 +79,6 @@ public abstract class GameRendererMixin {
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getFramebuffer()Lcom/mojang/blaze3d/framebuffer/Framebuffer;"))
 	public void axolotlclient$worldMotionBlur(DeltaTracker tracker, boolean tick, CallbackInfo ci) {
-		MenuBlur.getInstance().updateBlur();
 		axolotlclient$motionBlur(tracker, tick, null);
 	}
 
