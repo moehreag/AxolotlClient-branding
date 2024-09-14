@@ -183,7 +183,7 @@ public class DiscordRPC extends AbstractModule {
             currentActivity.close();
         }
 
-        activity.assets().setLargeText("AxolotlClient " + modVersion);
+        activity.assets().setLargeText("AnupClient " + modVersion);
         activity.assets().setLargeImage("icon");
         discordRPC.activityManager().updateActivity(activity);
         currentActivity = activity;
