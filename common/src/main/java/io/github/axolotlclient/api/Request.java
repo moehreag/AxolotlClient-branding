@@ -108,7 +108,15 @@ public class Request {
 			if (query == null) {
 				query = new ArrayList<>();
 			}
-			query.add(key+"="+value);
+			query.add(key + "=" + value);
+			return this;
+		}
+
+		public Request.RequestBuilder query(String key, Object value) {
+			if (query == null) {
+				query = new ArrayList<>();
+			}
+			query.add(key + "=" + value);
 			return this;
 		}
 

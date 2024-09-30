@@ -27,6 +27,8 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.gson.stream.JsonReader;
 import io.github.axolotlclient.util.GsonHelper;
@@ -105,6 +107,27 @@ public class Response {
 			}
 		}
 		return (T) o;
+	}
+
+	public <T> T getBodyOrElse(String path, T other) {
+		T element = getBody(path);
+		return element != null ? element : other;
+	}
+
+	public <T, U> U getBody(String path, Function<T, U> mapper) {
+		T element = getBody(path);
+		if (element != null) {
+			return mapper.apply(element);
+		}
+		return null;
+	}
+
+	public <T> T ifBodyHas(String path, Supplier<T> supplier) {
+		Object content = getBody(path);
+		if (content != null) {
+			return supplier.get();
+		}
+		return null;
 	}
 
 	@Data

@@ -24,8 +24,10 @@ package io.github.axolotlclient.api;
 
 import java.io.*;
 import java.net.URI;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.types.AccountSettings;
@@ -115,7 +117,24 @@ public class API {
 				logger.error("Failed to authenticate!", response.getError().getDescription());
 			}
 
-			token = (String) response.getBody().get("access_token");
+			token = response.getBody("access_token");
+			get(Request.builder().route(Request.Route.ACCOUNT).build())
+				.thenAccept(r -> {
+					self = new User(r.getBody("uuid"),
+						r.getBody("username"), "self",
+						r.getBody("registered", Instant::parse),
+						new Status(r.getBody("status.online"),
+							r.getBody("status.last_online", Instant::parse),
+							r.ifBodyHas("activity", () -> new Status.Activity(r.getBody("activity.title"),
+								r.getBody("activity.description"),
+								r.getBody("activity.started", Instant::parse)))
+							),
+						r.ifBodyHas("previous_usernames", () -> {
+							List<Map<?, ?>> previous = r.getBody("previous_usernames");
+							return previous.stream().map(m -> new User.OldUsername((String) m.get("username"), (boolean) m.get("public")))
+								.collect(Collectors.toList());
+						}), PkSystem.fromToken(apiOptions.pkToken.get()).join());
+				});
 			AccountSettingsRequest.get().thenAccept(r -> {
 				apiOptions.retainUsernames.set(r.isRetainUsernames());
 				apiOptions.showActivity.set(r.isShowActivity());
@@ -231,6 +250,10 @@ public class API {
 		return session != null && session.isOpen();
 	}
 
+	public boolean isAuthenticated() {
+		return token != null;
+	}
+
 	public void logDetailed(String message, Object... args) {
 		if (apiOptions.detailedLogging.get()) {
 			logger.debug("[DETAIL] " + message, args);
@@ -308,8 +331,6 @@ public class API {
 
 	void startupAPI() {
 		if (!isSocketConnected()) {
-			logger.debug("Creating self user..");
-			self = new User(this.account.getName(), this.uuid, Status.UNKNOWN, PkSystem.fromToken(apiOptions.pkToken.get()).join());
 
 			if (Constants.TESTING) {
 				return;

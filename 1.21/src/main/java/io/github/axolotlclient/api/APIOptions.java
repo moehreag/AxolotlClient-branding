@@ -28,7 +28,7 @@ import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
 import io.github.axolotlclient.api.chat.ChatListScreen;
-import io.github.axolotlclient.api.requests.User;
+import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.util.keybinds.KeyBinds;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
@@ -57,11 +57,13 @@ public class APIOptions extends Options {
 			() -> client.setScreen(new FriendsScreen(client.currentScreen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
 			() -> client.setScreen(new ChatListScreen(client.currentScreen))));
+		account.add(new GenericOption("api.account.usernames", "clickToOpen",
+			() -> client.setScreen(new UsernameManagementScreen(client.currentScreen))));
 		account.add(new GenericOption("api.account.delete", "api.account.delete_account", () -> {
 			Screen previous = client.currentScreen;
 			client.setScreen(new ConfirmScreen(b -> {
 				if (b) {
-					User.delete().thenAccept(r -> {
+					UserRequest.delete().thenAccept(r -> {
 						if (r) {
 							API.getInstance().getNotificationProvider().addStatus("api.account.deletion.success", "api.account.deletion.success.desc");
 						} else {

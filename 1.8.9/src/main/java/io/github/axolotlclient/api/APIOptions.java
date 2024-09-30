@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
 import io.github.axolotlclient.api.chat.ChatListScreen;
-import io.github.axolotlclient.api.requests.User;
+import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,6 @@ import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Text;
 import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 import org.lwjgl.input.Keyboard;
@@ -63,11 +62,13 @@ public class APIOptions extends Options {
 			() -> client.openScreen(new FriendsScreen(client.screen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
 			() -> client.openScreen(new ChatListScreen(client.screen))));
+		account.add(new GenericOption("api.account.usernames", "clickToOpen",
+			() -> client.openScreen(new UsernameManagementScreen(client.screen))));
 		account.add(new GenericOption("api.account.delete", "api.account.delete_account", () -> {
 			Screen previous = client.screen;
 			client.openScreen(new ConfirmScreen((b, i) -> {
 				if (b) {
-					User.delete().thenAccept(r -> {
+					UserRequest.delete().thenAccept(r -> {
 						if (r) {
 							API.getInstance().getNotificationProvider().addStatus("api.account.deletion.success", "api.account.deletion.success.desc");
 						} else {

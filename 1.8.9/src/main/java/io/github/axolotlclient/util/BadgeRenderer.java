@@ -24,7 +24,7 @@ package io.github.axolotlclient.util;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.api.requests.User;
+import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
@@ -34,7 +34,7 @@ import net.minecraft.entity.living.player.PlayerEntity;
 public class BadgeRenderer {
 	public static void renderNametagBadge(Entity entity) {
 		if (entity instanceof PlayerEntity && !entity.isSneaking()) {
-			if (AxolotlClient.CONFIG.showBadges.get() && User.getOnline(entity.getUuid().toString())) {
+			if (AxolotlClient.CONFIG.showBadges.get() && UserRequest.getOnline(entity.getUuid().toString())) {
 				GlStateManager.alphaFunc(516, 0.1F);
 				GlStateManager.enableDepthTest();
 				GlStateManager.enableAlphaTest();

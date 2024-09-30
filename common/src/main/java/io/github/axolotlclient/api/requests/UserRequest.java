@@ -23,15 +23,18 @@
 package io.github.axolotlclient.api.requests;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Status;
+import io.github.axolotlclient.api.types.User;
 
-public class User {
+public class UserRequest {
 
 	private static final WeakHashMap<String, io.github.axolotlclient.api.types.User> userCache = new WeakHashMap<>();
 	private static final WeakHashMap<String, Boolean> onlineCache = new WeakHashMap<>();
@@ -53,27 +56,24 @@ public class User {
 				((Map<?, ?>) response.getBody().get("status")).get("type").equals("online")).getNow(false));
 	}
 
-	public static CompletableFuture<io.github.axolotlclient.api.types.User> get(String uuid) {
+	public static CompletableFuture<User> get(String uuid) {
 		if (userCache.containsKey(uuid)) {
 			return CompletableFuture.completedFuture(userCache.get(uuid));
 		}
 		return API.getInstance().get(Request.builder().route(Request.Route.USER).path(uuid).build()).thenApply(response -> {
-			Map<?, ?> status = response.getBody("status");
-			Status.Activity activity;
-			if (status.containsKey("activity")) {
-				activity = new Status.Activity(response.getBody("status.activity.title"),
-					response.getBody("status.activity.description"),
-					Instant.parse(response.getBody("status.activity.started")));
-			} else {
-				activity = null;
-			}
-			CharSequence lastOnline = response.getBody("status.last_online");
-			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User(
+			User user = new User(
 				response.getBody("uuid"),
 				response.getBody("username"),
+				response.getBodyOrElse("relation", "none"),
+				response.getBody("registered", Instant::parse),
 				new Status(response.getBody("status.type").equals("online"),
-					lastOnline != null ? Instant.parse(lastOnline) : null, activity
-				));
+					response.getBody("status.last_online", Instant::parse),
+					response.ifBodyHas("activity", () -> new Status.Activity(response.getBody("activity.title"),
+						response.getBody("activity.description"),
+						response.getBody("activity.started", Instant::parse)))
+				),
+				response.getBody("previous_usernames", (List<String> list) ->
+					list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));
 			userCache.put(uuid, user);
 			return user;
 		});

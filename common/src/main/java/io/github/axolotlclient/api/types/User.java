@@ -22,12 +22,11 @@
 
 package io.github.axolotlclient.api.types;
 
+import java.time.Instant;
+import java.util.List;
+
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.util.UUIDHelper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -38,18 +37,20 @@ public class User {
 
 	protected String name;
 	private String uuid;
+	private String relation;
+	private Instant registered;
 	private Status status;
+	private List<OldUsername> previousUsernames;
 	@Nullable
 	private PkSystem system;
 
-	public User(String name, String uuid, Status status){
+	public User(String uuid, String name, String relation, Instant registered, Status status, List<OldUsername> previousUsernames){
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
 		this.name = name;
-	}
-
-	public User(String uuid, Status status) {
-		this(UUIDHelper.getUsername(uuid), uuid, status);
+		this.relation = relation;
+		this.registered = registered;
+		this.previousUsernames = previousUsernames;
 	}
 
 	public boolean isSystem(){
@@ -84,5 +85,12 @@ public class User {
 			return getName();
 		}
 		return getSystem().getProxy(message).orElse(getName());
+	}
+
+	@Data
+	@AllArgsConstructor
+	public static class OldUsername {
+		private String name;
+		private boolean pub;
 	}
 }

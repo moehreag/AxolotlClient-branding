@@ -22,17 +22,14 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.common.collect.ImmutableMap;
-import io.github.axolotlclient.api.*;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.types.Channel;
-import io.github.axolotlclient.api.types.ChatMessage;
-import io.github.axolotlclient.api.types.User;
 
 public class ChannelRequest {
 
@@ -106,21 +103,19 @@ public class ChannelRequest {
 		return channelList;
 	}*/
 
-	private static CompletableFuture<Channel> createChannel(String name){
-		/*return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
-			.field("name", name).field("persistence", ImmutableMap.of("type", "channel")).build())
+	private static CompletableFuture<Channel> createChannel(String name) {
+		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+				.field("name", name).field("persistence", Collections.singletonMap("type", "channel")).build())
 			.thenApply(response -> {
 				String id = response.getPlainBody();
 				return getById(id).join();
-			});*/
-		return new CompletableFuture<>();
+			});
 	}
 
-	private static CompletableFuture<Channel> createChannel(String name, String... users){
-		/*return API.getInstance()
-			.post(Request.builder().route(Request.Route.CHANNEL).field("name", name).field("persistence", "Channel").build())
-			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);*/
-		return new CompletableFuture<>();
+	private static CompletableFuture<Channel> createChannel(String name, String... users) {
+		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+				.field("name", name).field("persistence", Collections.singletonMap("type", "channel")).build())
+			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
 	}
 
 	public static CompletableFuture<Channel> getOrCreateGroup(String... users) {
