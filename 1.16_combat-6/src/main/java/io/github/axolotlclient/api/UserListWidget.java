@@ -104,9 +104,12 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 			} else {
 				client.textRenderer.draw(matrices, user.getName(), x + 3 + 33, y + 1, -1);
 			}
-			client.textRenderer.draw(matrices, user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504);
-			if (user.getStatus().isOnline()) {
+
+			if (user.getStatus().isOnline() && user.getStatus().getActivity() != null) {
+				client.textRenderer.draw(matrices, user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504);
 				client.textRenderer.draw(matrices, user.getStatus().getDescription(), x + 3 + 40, y + 23, 8421504);
+			} else if (user.getStatus().getLastOnline() != null) {
+				client.textRenderer.draw(matrices, user.getStatus().getLastOnline(), x + 3 + 33, y + 12, 8421504);
 			}
 
 			if (note != null) {

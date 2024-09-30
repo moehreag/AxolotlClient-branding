@@ -22,12 +22,20 @@
 
 package io.github.axolotlclient.api;
 
+import java.util.function.Consumer;
+
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
 import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.api.requests.User;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.text.Text;
 import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 import org.lwjgl.input.Keyboard;
@@ -52,9 +60,32 @@ public class APIOptions extends Options {
 			}
 		});
 		category.add(new GenericOption("viewFriends", "clickToOpen",
-			() -> client.openScreen(new FriendsScreen(Minecraft.getInstance().screen))));
+			() -> client.openScreen(new FriendsScreen(client.screen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",
-			() -> client.openScreen(new ChatListScreen(Minecraft.getInstance().screen))));
+			() -> client.openScreen(new ChatListScreen(client.screen))));
+		account.add(new GenericOption("api.account.delete", "api.account.delete_account", () -> {
+			Screen previous = client.screen;
+			client.openScreen(new ConfirmScreen((b, i) -> {
+				if (b) {
+					User.delete().thenAccept(r -> {
+						if (r) {
+							API.getInstance().getNotificationProvider().addStatus("api.account.deletion.success", "api.account.deletion.success.desc");
+						} else {
+							API.getInstance().getNotificationProvider().addStatus("api.account.deletion.failure", "api.account.deletion.failure.desc");
+						}
+						enabled.set(false);
+					});
+				}
+				client.openScreen(previous);
+			}, I18n.translate("api.account.confirm_deletion"),
+				I18n.translate("api.account.confirm_deletion.desc"), 0));
+		}));
+		Consumer<Boolean> consumer = settingUpdated;
+		settingUpdated = b -> {
+			if (client.screen instanceof ConfigScreen) {
+				consumer.accept(b);
+			}
+		};
 		if (Constants.ENABLED) {
 			AxolotlClient.CONFIG.addCategory(category);
 			AxolotlClient.config.add(privacyAccepted);

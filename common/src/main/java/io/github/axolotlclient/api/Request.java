@@ -31,7 +31,8 @@ public class Request {
 		GATEWAY("gateway"),
 		CHANNEL("channel"),
 		ACCOUNT_SETTINGS("account/settings"),
-		ACCOUNT_DATA("account/data");
+		ACCOUNT_DATA("account/data"),
+		ACCOUNT_USERNAME("account/username");
 
 		private final String path;
 		private final Map<Integer, String> errors;
@@ -87,6 +88,10 @@ public class Request {
 			}
 			query.add(key+"="+value);
 			return this;
+		}
+
+		public Request.RequestBuilder field(String key, Object value) {
+			return field(key, String.valueOf(value));
 		}
 
 		public Request.RequestBuilder field(String key, String value) {

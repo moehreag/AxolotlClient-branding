@@ -23,6 +23,8 @@
 package io.github.axolotlclient.api.types;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import io.github.axolotlclient.api.API;
@@ -34,20 +36,36 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 public class Status {
+	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
 
-	public static Status UNKNOWN = new Status(false, "", "", "", Instant.EPOCH);
+	public static final Status UNKNOWN = new Status(false, null, null);
 
 	private boolean online;
-	private String title;
-	private String description;
-	private String icon;
-	private Instant startTime;
+	private final Instant lastOnline;
+	private final Activity activity;
 
 	public String getDescription() {
-		return description.isEmpty() ? "" : API.getInstance().getTranslationProvider().translate("api.status.description." + description.toLowerCase(Locale.ROOT));
+		return activity.description.isEmpty() ? "" :
+			API.getInstance().getTranslationProvider()
+				.translate("api.status.description." + activity.description.toLowerCase(Locale.ROOT));
 	}
 
 	public String getTitle() {
-		return title.isEmpty() ? "" : API.getInstance().getTranslationProvider().translate("api.status.title." + title.toLowerCase(Locale.ROOT));
+		return activity.title.isEmpty() ? "" :
+			API.getInstance().getTranslationProvider()
+				.translate("api.status.title." + activity.title.toLowerCase(Locale.ROOT));
+	}
+
+	public String getLastOnline() {
+		return lastOnline == null ? null :
+			API.getInstance().getTranslationProvider()
+				.translate("api.status.last_online", lastOnline.atZone(ZoneId.systemDefault()).format(format));
+	}
+
+	@AllArgsConstructor
+	public static class Activity {
+		private final String title;
+		private final String description;
+		private final Instant started;
 	}
 }

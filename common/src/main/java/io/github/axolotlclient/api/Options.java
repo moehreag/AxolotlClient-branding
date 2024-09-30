@@ -24,13 +24,17 @@ package io.github.axolotlclient.api;
 
 import java.util.function.Consumer;
 
+import io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
+import io.github.axolotlclient.api.requests.AccountSettingsRequest;
+import io.github.axolotlclient.api.types.AccountSettings;
 import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.modules.Module;
+import io.github.axolotlclient.util.NoSaveConfigManager;
 import io.github.axolotlclient.util.ThreadExecuter;
 
 public abstract class Options implements Module {
@@ -69,14 +73,31 @@ public abstract class Options implements Module {
 			API.getInstance().getSelf().getSystem().updateAutoproxyMember(s);
 		}
 	});
+	Consumer<Boolean> settingUpdated = b -> {};
+	public final BooleanOption showRegistered = new BooleanOption("api.account.settings.show_registered", true, settingUpdated::accept);
+	public final BooleanOption retainUsernames = new BooleanOption("api.account.settings.retain_usernames", true, settingUpdated::accept);
+	public final BooleanOption showLastOnline = new BooleanOption("api.account.settings.show_last_online", true, settingUpdated::accept);
+	public final BooleanOption showActivity = new BooleanOption("api.account.settings.show_activity", true, settingUpdated::accept);
+
 	protected final OptionCategory category = OptionCategory.create("api.category");
 	protected final OptionCategory pluralkit = OptionCategory.create("api.pluralkit");
+	protected final OptionCategory account = OptionCategory.create("api.account").includeInParentTree(false);
 
 	@Override
 	public void init() {
+		AxolotlClientConfig.getInstance().register(new NoSaveConfigManager(account));
+		settingUpdated = b -> {
+			AccountSettingsRequest.update(new AccountSettings(
+				showRegistered.get(),
+				retainUsernames.get(),
+				showLastOnline.get(),
+				showActivity.get()
+			));
+		};
 		pkToken.setMaxLength(65);
 		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
-		category.add(pluralkit);
+		account.add(showRegistered, retainUsernames, showLastOnline, showActivity);
+		category.add(pluralkit, account);
 		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, detailedLogging, updateNotifications, displayNotes);
 	}
 }

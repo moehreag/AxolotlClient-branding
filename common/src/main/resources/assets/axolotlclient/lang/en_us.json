@@ -517,5 +517,19 @@
 	"PROXY_FRONT": "Front",
 	"PROXY_OFF": "OFF",
 	"PROXY_MEMBER": "Member",
-	"PROXY_LATCH": "Latch"
+	"PROXY_LATCH": "Latch",
+	"api.status.last_online": "Last online: %s",
+	"api.account.delete": "Delete Account",
+	"api.account.delete_account": "Click to delete your account",
+	"api.account.confirm_deletion": "Confirm account deletion",
+	"api.account.confirm_deletion.desc": "Your account data will be immediately and irreversibly deleted. \nAfterwards, all online functionality will be disabled.",
+	"api.account.deletion.success": "Deletion Success",
+	"api.account.deletion.success.desc": "Successfully deleted your account!",
+	"api.account.deletion.failure": "Deletion Failure",
+	"api.account.deletion.failure.desc": "Failed to delete your account!",
+	"api.account": "Account Management",
+	"api.account.settings.show_registered": "Show registered",
+	"api.account.settings.retain_usernames": "Retain previous usernames",
+	"api.account.settings.show_last_online": "Show last online",
+	"api.account.settings.show_activity": "Show activity"
 }

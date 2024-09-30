@@ -52,13 +52,37 @@ public class Response {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, ?> parseJson(String json) throws IOException {
-		try (JsonReader reader = new JsonReader(new StringReader(json))) {
-			return (Map<String, ?>) GsonHelper.read(reader);
+		if (!json.isEmpty()) {
+			try (JsonReader reader = new JsonReader(new StringReader(json))) {
+				return (Map<String, ?>) GsonHelper.read(reader);
+			}
 		}
+		return Collections.emptyMap();
 	}
 
 	public String toString() {
 		return "Response(body=" + mapToString(this.getBody()) + ", plainBody=" + getPlainBody() + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getBody(String path) {
+		path = path.replace("\\.", "_#+#_");
+		String[] elements = path.split("\\.");
+
+		Object o = getBody();
+		for (String s : elements) {
+			s = s.replace("_#+#_", ".");
+			if (!(o instanceof Map<?,?>)) {
+				return null;
+			}
+			Map<?, ?> map = ((Map<?, ?>)o);
+			if (map.containsKey(s)) {
+				o = map.get(s);
+			} else {
+				return null;
+			}
+		}
+		return (T) o;
 	}
 
 	@Data

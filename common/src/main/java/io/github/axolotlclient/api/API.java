@@ -27,6 +27,8 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import io.github.axolotlclient.api.requests.AccountSettingsRequest;
+import io.github.axolotlclient.api.types.AccountSettings;
 import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
@@ -41,6 +43,7 @@ import jakarta.websocket.DeploymentException;
 import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
@@ -70,6 +73,8 @@ public class API {
 	private User self;
 	private Account account;
 	private String token;
+	@Getter @Setter
+	private AccountSettings settings;
 
 	public API(Logger logger, NotificationProvider notificationProvider, TranslationProvider translationProvider,
 			   StatusUpdateProvider statusUpdateProvider, Options apiOptions) {
@@ -111,6 +116,12 @@ public class API {
 			}
 
 			token = (String) response.getBody().get("access_token");
+			AccountSettingsRequest.get().thenAccept(r -> {
+				apiOptions.retainUsernames.set(r.isRetainUsernames());
+				apiOptions.showActivity.set(r.isShowActivity());
+				apiOptions.showLastOnline.set(r.isShowLastOnline());
+				apiOptions.showRegistered.set(r.isShowRegistered());
+			});
 			checkGateway();
 			startStatusUpdateThread();
 		});
@@ -188,8 +199,10 @@ public class API {
 	private String getUrl(Request request) {
 		StringBuilder url = new StringBuilder(Constants.API_URL);
 		url.append(request.getRoute().getPath());
-		for (String p : request.getPath()) {
-			url.append("/").append(p);
+		if (request.getPath() != null) {
+			for (String p : request.getPath()) {
+				url.append("/").append(p);
+			}
 		}
 		if (request.getQuery() != null && !request.getQuery().isEmpty()) {
 			url.append("?");

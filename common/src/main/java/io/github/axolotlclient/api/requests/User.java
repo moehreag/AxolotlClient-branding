@@ -58,13 +58,28 @@ public class User {
 			return CompletableFuture.completedFuture(userCache.get(uuid));
 		}
 		return API.getInstance().get(Request.builder().route(Request.Route.USER).path(uuid).build()).thenApply(response -> {
-			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User((String) response.getBody().get("uuid"),
-				(String) response.getBody().get("username"),
-				new Status(((Map<?, ?>) response.getBody().get("status")).get("type").equals("online"),
-					"", "", "", Instant.parse("") // TODO
+			Map<?, ?> status = response.getBody("status");
+			Status.Activity activity;
+			if (status.containsKey("activity")) {
+				activity = new Status.Activity(response.getBody("status.activity.title"),
+					response.getBody("status.activity.description"),
+					Instant.parse(response.getBody("status.activity.started")));
+			} else {
+				activity = null;
+			}
+			CharSequence lastOnline = response.getBody("status.last_online");
+			io.github.axolotlclient.api.types.User user = new io.github.axolotlclient.api.types.User(
+				response.getBody("uuid"),
+				response.getBody("username"),
+				new Status(response.getBody("status.type").equals("online"),
+					lastOnline != null ? Instant.parse(lastOnline) : null, activity
 				));
 			userCache.put(uuid, user);
 			return user;
 		});
+	}
+
+	public static CompletableFuture<Boolean> delete() {
+		return API.getInstance().delete(Request.builder().route(Request.Route.ACCOUNT).build()).thenApply(res -> !res.isError());
 	}
 }

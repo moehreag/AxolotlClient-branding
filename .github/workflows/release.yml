@@ -22,7 +22,7 @@ jobs:
         if: "github.ref == 'refs/tags/${{ steps.get-latest-tag.outputs.tag }}'"
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
 
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2

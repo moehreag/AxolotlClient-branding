@@ -113,9 +113,12 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 			} else {
 				graphics.drawText(client.textRenderer, user.getName(), x + 3 + 33, y + 1, -1, false);
 			}
-			graphics.drawText(client.textRenderer, user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504, false);
-			if (user.getStatus().isOnline()) {
+
+			if (user.getStatus().isOnline() && user.getStatus().getActivity() != null) {
+				graphics.drawText(client.textRenderer, user.getStatus().getTitle(), x + 3 + 33, y + 12, 8421504, false);
 				graphics.drawText(client.textRenderer, user.getStatus().getDescription(), x + 3 + 40, y + 23, 8421504, false);
+			} else if (user.getStatus().getLastOnline() != null) {
+				graphics.drawText(client.textRenderer, user.getStatus().getLastOnline(), x + 3 + 33, y + 12, 8421504, false);
 			}
 
 			if (note != null) {
