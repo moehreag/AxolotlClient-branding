@@ -40,6 +40,7 @@ import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -51,7 +52,6 @@ import net.minecraft.client.util.PlayerKeyPairManager;
 import net.minecraft.client.util.Session;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.QuiltLoader;
 
 public class Auth extends Accounts implements Module {
 
@@ -85,7 +85,7 @@ public class Auth extends Accounts implements Module {
 
 	@Override
 	protected Path getConfigDir() {
-		return QuiltLoader.getConfigDir();
+		return FabricLoader.getInstance().getConfigDir();
 	}
 
 	@Override
@@ -104,13 +104,7 @@ public class Auth extends Accounts implements Module {
 				if (account.isOffline()) {
 					service = UserApiService.OFFLINE;
 				} else {
-					//try {
 					service = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getAuthService().createUserApiService(client.getSession().getAccessToken());
-					//} catch (InvalidCredentialsException e){
-					//	account.refresh(getAuth(), () -> {});
-					//	return;
-					//}
-					API.getInstance().startup(account);
 				}
 				((MinecraftClientAccessor) client).axolotlclient$setUserApiService(service);
 				((MinecraftClientAccessor) client).axolotlclient$setSocialInteractionsManager(new SocialInteractionsManager(client, service));
@@ -119,6 +113,7 @@ public class Auth extends Accounts implements Module {
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.successful", (Object) current.getName()));
+				API.getInstance().startup(account);
 			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.failed"));
 			}

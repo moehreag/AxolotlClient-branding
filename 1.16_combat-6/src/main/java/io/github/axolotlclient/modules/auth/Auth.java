@@ -95,12 +95,10 @@ public class Auth extends Accounts implements Module {
 			try {
 				API.getInstance().shutdown();
 				((MinecraftClientAccessor) client).setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(), Session.AccountType.MOJANG.name()));
-				if (!account.isOffline()) {
-					API.getInstance().startup(account);
-				}
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(new TranslatableText("auth.notif.title"), new TranslatableText("auth.notif.login.successful", current.getName()));
+				API.getInstance().startup(account);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Notifications.getInstance().addStatus(new TranslatableText("auth.notif.title"), new TranslatableText("auth.notif.login.failed"));

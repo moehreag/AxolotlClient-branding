@@ -28,8 +28,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import io.github.axolotlclient.mixin.KeyBindAccessor;
 import lombok.Getter;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.KeyBind;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 
 public class KeyBinds {
 	@Getter
@@ -49,7 +49,7 @@ public class KeyBinds {
 	}
 
 	public KeyBind registerWithSimpleAction(KeyBind bind, Runnable action) {
-		ClientTickEvents.END.register(c -> {
+		ClientTickEvents.END_CLIENT_TICK.register(c -> {
 			if (bind.wasPressed()) {
 				action.run();
 			}

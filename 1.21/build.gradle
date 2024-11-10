@@ -1,5 +1,5 @@
 plugins {
-	id 'org.quiltmc.loom'
+	id 'fabric-loom'
 	id 'io.github.p03w.machete'
 }
 
@@ -26,9 +26,9 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_121}"
 	mappings "org.quiltmc:quilt-mappings:${project.mappings_121}:intermediary-v2"
 
-	modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader}"
+	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader}"
 
-	modImplementation("org.quiltmc.qsl.core:networking:${project.qsl_121}+${project.minecraft_121}")
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fapi_121}+${project.minecraft_121}"
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_121}") {
 		exclude group: "com.terraformersmc"

@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.util;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -46,5 +47,9 @@ public class ThreadExecuter {
 
 	public static void purge() {
 		EXECUTER_SERVICE.purge();
+	}
+
+	public static Executor service() {
+		return EXECUTER_SERVICE;
 	}
 }

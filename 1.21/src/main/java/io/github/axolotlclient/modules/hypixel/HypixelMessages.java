@@ -36,13 +36,13 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import lombok.Getter;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceReloader;
 
-public class HypixelMessages implements SimpleSynchronousResourceReloader {
+public class HypixelMessages implements SimpleSynchronousResourceReloadListener {
 
 	@Getter
 	private static final HypixelMessages instance = new HypixelMessages();
@@ -104,7 +104,7 @@ public class HypixelMessages implements SimpleSynchronousResourceReloader {
 	}
 
 	@Override
-	public @NotNull Identifier getQuiltId() {
+	public @NotNull Identifier getFabricId() {
 		return Identifier.of("axolotlclient", "hypixel_messages");
 	}
 

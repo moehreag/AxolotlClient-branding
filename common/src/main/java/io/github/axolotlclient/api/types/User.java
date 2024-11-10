@@ -32,11 +32,10 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
 public class User {
 
-	protected String name;
 	private String uuid;
+	protected String name;
 	private String relation;
 	private Instant registered;
 	private Status status;

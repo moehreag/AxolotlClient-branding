@@ -23,6 +23,9 @@
 package io.github.axolotlclient.util;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +42,18 @@ public class GsonHelper {
 
 	public static JsonObject fromJson(String s) {
 		return GSON.fromJson(s, JsonObject.class);
+	}
+
+	public static Object read(InputStream in) throws IOException {
+		try (JsonReader reader = new JsonReader(new InputStreamReader(in))) {
+			return read(reader);
+		}
+	}
+
+	public static Object read(String s) throws IOException {
+		try (JsonReader reader = new JsonReader(new StringReader(s))) {
+			return read(reader);
+		}
 	}
 
 	public static Object read(JsonReader reader) throws IOException {

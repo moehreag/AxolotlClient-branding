@@ -96,15 +96,13 @@ public class Auth extends Accounts implements Module {
 			try {
 				API.getInstance().shutdown();
 				((MinecraftClientAccessor) client).setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(), Session.Type.MOJANG.name()));
-				if (!account.isOffline()) {
-					API.getInstance().startup(account);
-				}
 				client.getProfileProperties().clear();
 				client.getProfileProperties();
 				save();
 				current = account;
 				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.login.successful", current.getName());
 				AxolotlClient.LOGGER.info("Successfully logged in as " + current.getName());
+				API.getInstance().startup(account);
 			} catch (Exception e) {
 				AxolotlClient.LOGGER.error("Failed to log in! ", e);
 				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.login.failed");

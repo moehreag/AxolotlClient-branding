@@ -46,6 +46,11 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 		);
 	}
 
+	@Override
+	public int getRowWidth() {
+		return getWidth()-8;
+	}
+
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
 	}
@@ -72,6 +77,14 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 			widget.setX(x);
 			widget.setY(y);
 			widget.render(graphics, mouseX, mouseY, tickDelta);
+		}
+
+		@Override
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+			if (widget.isMouseOver(mouseX, mouseY)) {
+				return widget.mouseClicked(mouseX, mouseY, button);
+			}
+			return super.mouseClicked(mouseX, mouseY, button);
 		}
 	}
 }

@@ -34,17 +34,12 @@ import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.payload.CustomPayload;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.quiltmc.qsl.networking.api.PacketSender;
-import org.quiltmc.qsl.networking.api.client.ClientPlayConnectionEvents;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import org.quiltmc.qsl.networking.api.server.ServerPlayNetworking;
 
 public class FeatureDisabler {
 
@@ -79,7 +74,7 @@ public class FeatureDisabler {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
 
 		ClientPlayConnectionEvents.INIT.register((handler0, client0) ->
-			ClientPlayNetworking.registerGlobalReceiver(channelId, (client, handler, payload, responseSender) -> {
+			ClientPlayNetworking.registerGlobalReceiver(channelId, (payload, ctx) -> {
 				for (String feature : payload.features) {
 					try {
 						ForceableBooleanOption e = features.get(feature);

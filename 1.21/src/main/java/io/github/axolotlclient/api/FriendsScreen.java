@@ -23,7 +23,7 @@
 package io.github.axolotlclient.api;
 
 import io.github.axolotlclient.api.chat.ChatScreen;
-import io.github.axolotlclient.api.handlers.FriendHandler;
+import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import net.minecraft.client.gui.GuiGraphics;
@@ -85,7 +85,7 @@ public class FriendsScreen extends Screen {
 		widget.children().clear();
 
 		if (current == Tab.ALL || current == Tab.ONLINE) {
-			FriendHandler.getInstance().getFriends().whenCompleteAsync((list, t) -> widget.setUsers(list.stream().sorted((u1, u2) ->
+			FriendRequest.getInstance().getFriends().whenCompleteAsync((list, t) -> widget.setUsers(list.stream().sorted((u1, u2) ->
 				new AlphabeticalComparator().compare(u1.getName(), u2.getName())).filter(user -> {
 				if (current == Tab.ONLINE) {
 					return user.getStatus().isOnline();
@@ -93,7 +93,7 @@ public class FriendsScreen extends Screen {
 				return true;
 			}).toList()));
 		} else if (current == Tab.PENDING) {
-			FriendHandler.getInstance().getFriendRequests().whenCompleteAsync((con, th) -> {
+			FriendRequest.getInstance().getFriendRequests().whenCompleteAsync((con, th) -> {
 
 				con.getLeft().stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
 					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, Text.translatable("api.friends.pending.incoming"))));
@@ -101,7 +101,7 @@ public class FriendsScreen extends Screen {
 					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, Text.translatable("api.friends.pending.outgoing"))));
 			});
 		} else if (current == Tab.BLOCKED) {
-			FriendHandler.getInstance().getBlocked().whenCompleteAsync((list, th) -> widget.setUsers(list.stream().sorted((u1, u2) ->
+			FriendRequest.getInstance().getBlocked().whenCompleteAsync((list, th) -> widget.setUsers(list.stream().sorted((u1, u2) ->
 				new AlphabeticalComparator().compare(u1.getName(), u2.getName())).toList()));
 		}
 
@@ -128,7 +128,7 @@ public class FriendsScreen extends Screen {
 		this.removeButton = this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends.remove"), button -> {
 			UserListWidget.UserListEntry entry = this.widget.getSelectedOrNull();
 			if (entry != null) {
-				FriendHandler.getInstance().removeFriend(entry.getUser());
+				FriendRequest.getInstance().removeFriend(entry.getUser());
 				refresh();
 			}
 		}).positionAndSize(this.width / 2 - 50, this.height - 28, 100, 20).build());
@@ -159,7 +159,7 @@ public class FriendsScreen extends Screen {
 	private void denyRequest() {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
 		if (entry != null) {
-			FriendHandler.getInstance().denyFriendRequest(entry.getUser());
+			FriendRequest.getInstance().denyFriendRequest(entry.getUser());
 		}
 		refresh();
 	}
@@ -167,7 +167,7 @@ public class FriendsScreen extends Screen {
 	private void acceptRequest() {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
 		if (entry != null) {
-			FriendHandler.getInstance().acceptFriendRequest(entry.getUser());
+			FriendRequest.getInstance().acceptFriendRequest(entry.getUser());
 		}
 		refresh();
 	}

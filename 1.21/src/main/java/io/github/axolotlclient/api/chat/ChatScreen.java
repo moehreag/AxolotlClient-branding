@@ -56,15 +56,15 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		super.render(graphics, mouseX, mouseY, delta);
 
-		graphics.drawCenteredShadowedText(this.textRenderer, channel.getName(), this.width / 2, 20, 16777215);
+		graphics.drawCenteredShadowedText(this.textRenderer, channel.getName(), this.width / 2, 15, 16777215);
 	}
 
 	@Override
 	protected void init() {
 
-		addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
+		addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
 
-		addDrawableSelectableElement(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
+		addDrawableSelectableElement(widget = new ChatWidget(channel, 65, 30, width - (!channel.isDM() ? 155 : 115), height - 90, this));
 
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);

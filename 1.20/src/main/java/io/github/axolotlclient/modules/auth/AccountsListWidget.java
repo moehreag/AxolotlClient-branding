@@ -25,6 +25,8 @@ package io.github.axolotlclient.modules.auth;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.PlayerFaceRenderer;
@@ -32,7 +34,6 @@ import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsListWidget.Entry> {
 
@@ -62,7 +63,7 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 		return this.screen.getFocused() == this;
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static class Entry extends AlwaysSelectedEntryListWidget.Entry<AccountsListWidget.Entry> {
 
 		private static final Identifier checkmark = new Identifier("axolotlclient", "textures/check.png");

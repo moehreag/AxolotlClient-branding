@@ -28,10 +28,10 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Auth;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.util.ColorUtil;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -49,7 +49,7 @@ public abstract class SplashOverlayMixin {
 
 	@Inject(method = "<clinit>", at = @At("TAIL"))
 	private static void axolotlclient$customBackgroundColor(CallbackInfo ci) {
-		if (!QuiltLoader.isModLoaded("dark-loading-screen")) {
+		if (!FabricLoader.getInstance().isModLoaded("dark-loading-screen")) {
 			Color color = AxolotlClient.CONFIG.loadingScreenColor.get();
 			BRAND_ARGB = () -> ColorUtil.ARGB32.getArgb(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
 		}

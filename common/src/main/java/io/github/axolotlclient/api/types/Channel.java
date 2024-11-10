@@ -25,24 +25,26 @@ package io.github.axolotlclient.api.types;
 import java.util.Arrays;
 
 import io.github.axolotlclient.api.API;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public abstract class Channel {
 
-	protected final String name;
 	private final String id;
-	private final User[] users;
+	protected String name;
+	protected Persistence persistence;
+	private User[] users;
 	private final ChatMessage[] messages;
 
 	public abstract boolean isDM();
 
 	public static class Group extends Channel {
 
-		public Group(String id, User[] users, String name, ChatMessage[] messages) {
-			super(id, name, users, messages);
+		public Group(String id, String name, Persistence persistence, User[] users, ChatMessage[] messages) {
+			super(id, name, persistence, users, messages);
 		}
 
 		public boolean isDM() {
@@ -50,14 +52,13 @@ public abstract class Channel {
 		}
 	}
 
+	@Getter
 	public static class DM extends Channel {
 
-		@Getter
 		private final User receiver;
 
-		public DM(String id, User[] users, ChatMessage[] messages) {
-			super(id, Arrays.stream(users).filter(user -> !user.getUuid()
-				.equals(API.getInstance().getUuid())).map(User::getName).findFirst().orElse(""), users, messages);
+		public DM(String id, String name, Persistence persistence, User[] users, ChatMessage[] messages) {
+			super(id, name, persistence, users, messages);
 			receiver = Arrays.stream(users).filter(user -> !user.getUuid()
 				.equals(API.getInstance().getUuid())).findFirst().orElseThrow(IllegalStateException::new);
 		}

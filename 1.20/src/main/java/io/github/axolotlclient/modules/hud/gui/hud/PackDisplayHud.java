@@ -135,7 +135,7 @@ public class PackDisplayHud extends TextHudEntry {
 		}
 		if (placeholder == null) {
 			try (ResourcePack defaultPack = MinecraftClient.getInstance().getDefaultResourcePack()) {
-				placeholder = createWidget(defaultPack.getDisplayName(), defaultPack);
+				placeholder = createWidget(Text.of(defaultPack.getName()), defaultPack);
 			} catch (Exception ignored) {
 			}
 		} else {
@@ -160,7 +160,7 @@ public class PackDisplayHud extends TextHudEntry {
 		init();
 	}
 
-	private class PackWidget {
+	public class PackWidget {
 
 		@Getter
 		public final String name;

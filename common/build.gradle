@@ -1,13 +1,13 @@
 plugins {
 	id 'java'
-	id 'com.github.johnrengelman.shadow' version '8.+'
+	id 'com.gradleup.shadow' version '8.+'
 }
 
 group = maven_group
 base.archivesName = project.archives_base_name
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	maven {
@@ -45,7 +45,7 @@ dependencies {
 	shadow implementation("io.github.CDAGaming:DiscordIPC:0.6.5")
 	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.8.3")
 
-	shadow implementation("org.glassfish.tyrus:tyrus-container-grizzly-client:2.1.5")
+	shadow implementation("com.github.mizosoft.methanol:methanol:1.7.0")
 }
 
 build {
@@ -68,16 +68,18 @@ tasks.withType(AbstractArchiveTask).configureEach {
 
 shadowJar {
 	archiveClassifier.set('')
-	minimize()
+	mergeServiceFiles()
+	minimize {
+		exclude(dependency("com.github.mizosoft.methanol:.*:.*"))
+	}
 
-	relocate 'io.netty', 'io.github.axolotlclient.shadow.netty'
 	relocate 'com.jagrosh', 'io.github.axolotlclient.shadow.jagrosh'
+	relocate 'com.github.mizosoft', 'io.github.axolotlclient.shadow.mizosoft'
 
 	exclude 'META-INF/versions/**'
 	exclude 'META-INF/maven/**'
 
 	append '../LICENSE'
-	mergeServiceFiles()
 }
 
 publishing {

@@ -40,19 +40,19 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.loader.api.QuiltLoader;
 
 public class ImageViewerScreen extends Screen {
 
@@ -155,7 +155,7 @@ public class ImageViewerScreen extends Screen {
 		ButtonWidget save = ButtonWidget.builder(Text.translatable("saveAction"),
 			buttonWidget -> {
 				try {
-					Files.write(QuiltLoader.getGameDir().resolve("screenshots").resolve("_share-" + imageName), Objects.requireNonNull(image.getImage()).getBytes());
+					Files.write(FabricLoader.getInstance().getGameDir().resolve("screenshots").resolve("_share-" + imageName), Objects.requireNonNull(image.getImage()).getBytes());
 					AxolotlClient.LOGGER.info("Saved image " + imageName + " to screenshots folder!");
 				} catch (IOException e) {
 					AxolotlClient.LOGGER.info("Failed to save image!");

@@ -38,7 +38,7 @@ import lombok.*;
 public class Status {
 	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
 
-	public static final Status UNKNOWN = new Status(false, null, null);
+	public static final Status UNKNOWN = new Status(false, null, Activity.UNKNOWN);
 
 	private boolean online;
 	private final Instant lastOnline;
@@ -64,6 +64,7 @@ public class Status {
 
 	@AllArgsConstructor
 	public static class Activity {
+		private static final Activity UNKNOWN = new Activity("", "", Instant.EPOCH);
 		private final String title;
 		private final String description;
 		private final Instant started;

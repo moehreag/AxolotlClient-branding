@@ -22,21 +22,57 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.types.Channel;
+import io.github.axolotlclient.api.types.ChatMessage;
+import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.types.User;
+import io.github.axolotlclient.api.util.UUIDHelper;
+import lombok.val;
 
 public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getById(String id) {
-		//return API.getInstance().get(Request.builder().route(Request.Route.CHANNEL).build());
-		return new CompletableFuture<>();
+		return API.getInstance().get(Request.builder().route(Request.Route.CHANNEL).path(id).build()).thenApply(ChannelRequest::parseChannel);
 	}
+
+	private static Channel parseChannel(Response response) {
+		String id = Long.toUnsignedString((long)(double) response.<Double>getBody("id"));
+		String name = response.getBody("name");
+		List<String> participants = response.getBody("participants");
+		val cFs = new CompletableFuture[participants.size()];
+		for (int i = 0, participantsSize = participants.size(); i < participantsSize; i++) {
+			String uuid = participants.get(i);
+			cFs[i] = UserRequest.get(uuid);
+		}
+		CompletableFuture.allOf(cFs).join();
+		User[] users = new User[cFs.length + 1];
+		users[0] = API.getInstance().getSelf();
+		for (int i = 0, cFsLength = cFs.length; i < cFsLength; i++) {
+			val cF = cFs[i];
+			try {
+				users[i + 1] = (User) cF.get();
+			} catch (InterruptedException | ExecutionException ignored) {
+
+			}
+		}
+
+		Persistence persistence = Persistence.fromJson(response.getBody("persistence"));
+		if (cFs.length == 1) {
+			return new Channel.DM(id, name, persistence, users, new ChatMessage[0]);
+		}
+		return new Channel.Group(id, name, persistence, users, new ChatMessage[0]);
+	}
+
+
 
 	/*private static Channel parseChannelResponse(ByteBuf object, Throwable t) {
 		if (t != null) {
@@ -80,9 +116,15 @@ public class ChannelRequest {
 		return BufferUtil.unwrap(buf, ChatMessage.class);
 	}*/
 
+	@SuppressWarnings("unchecked")
 	public static CompletableFuture<List<Channel>> getChannelList() {
+		return API.getInstance().get(Request.builder().route(Request.Route.CHANNELS).build())
+			.thenApply(response -> {
+				List<Double> ids = (List<Double>) response.getBody();
+				return ids.stream().map(i -> (long) (double) i).map(Long::toUnsignedString)
+					.map(ChannelRequest::getById).map(CompletableFuture::join).collect(Collectors.toList());
+			});
 		//return API.getInstance().send(new RequestOld(RequestOld.Type.GET_CHANNEL_LIST)).handle(ChannelRequest::parseChannels);
-		return new CompletableFuture<>();
 	}
 
 	/*private static List<Channel> parseChannels(ByteBuf object, Throwable t) {
@@ -103,18 +145,25 @@ public class ChannelRequest {
 		return channelList;
 	}*/
 
-	private static CompletableFuture<Channel> createChannel(String name) {
+	private static CompletableFuture<Channel> createChannel(String name, Persistence persistence) {
 		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
-				.field("name", name).field("persistence", Collections.singletonMap("type", "channel")).build())
+				.field("name", name)
+				.field("persistence", persistence)
+				.field("participants", new ArrayList<String>()).build())
 			.thenApply(response -> {
 				String id = response.getPlainBody();
 				return getById(id).join();
 			});
 	}
 
-	private static CompletableFuture<Channel> createChannel(String name, String... users) {
+	public static CompletableFuture<Channel> createChannel(String name, Persistence persistence, String... users) {
+		List<String> participants = new ArrayList<>();
+		for (String username : users) {
+			participants.add(UUIDHelper.getUuid(username));
+		}
 		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
-				.field("name", name).field("persistence", Collections.singletonMap("type", "channel")).build())
+				.field("name", name).field("persistence", persistence.toJson())
+				.field("participants", participants).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
 	}
 
@@ -125,9 +174,10 @@ public class ChannelRequest {
 	}
 
 	public static CompletableFuture<Channel> getOrCreateDM(String uuid) {
-		/*return API.getInstance().send(new RequestOld(RequestOld.Type.GET_OR_CREATE_CHANNEL,
-			new RequestOld.Data((byte) 1).add(uuid))).handleAsync(ChannelRequest::parseChannelResponse);*/
-		return new CompletableFuture<>();
+		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+				.field("name", UUIDHelper.getUsername(uuid)).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
+				.field("participants", List.of(uuid)).build())
+			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
 	}
 
 	public static void createGroup(String... uuids) {

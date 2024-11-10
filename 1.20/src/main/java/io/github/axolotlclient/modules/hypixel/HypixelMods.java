@@ -38,8 +38,8 @@ import io.github.axolotlclient.modules.hypixel.levelhead.LevelHead;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.modules.hypixel.skyblock.Skyblock;
 import io.github.axolotlclient.util.events.Events;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
 
 public class HypixelMods extends AbstractModule {
 
@@ -74,7 +74,7 @@ public class HypixelMods extends AbstractModule {
 
 		AxolotlClient.CONFIG.addCategory(category);
 
-		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(HypixelMessages.getInstance());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(HypixelMessages.getInstance());
 
 		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(event -> {
 			HypixelMessages.getInstance().process(removeLobbyJoinMessages, "lobby_join", event);

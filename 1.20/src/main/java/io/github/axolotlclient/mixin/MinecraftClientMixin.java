@@ -27,11 +27,11 @@ import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.WorldLoadEvent;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -54,8 +54,8 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "getVersionType", at = @At("HEAD"), cancellable = true)
 	private void axolotlclient$noVersionType(CallbackInfoReturnable<String> cir) {
-		if (QuiltLoader.getModContainer("axolotlclient").isPresent()) {
-			cir.setReturnValue(QuiltLoader.getModContainer("axolotlclient").get().metadata().version().raw());
+		if (FabricLoader.getInstance().getModContainer("axolotlclient").isPresent()) {
+			cir.setReturnValue(FabricLoader.getInstance().getModContainer("axolotlclient").get().getMetadata().getVersion().getFriendlyString());
 		}
 	}
 

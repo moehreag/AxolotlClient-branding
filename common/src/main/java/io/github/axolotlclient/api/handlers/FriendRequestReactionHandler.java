@@ -22,22 +22,24 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import io.github.axolotlclient.api.util.RequestHandler;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Response;
+import io.github.axolotlclient.api.util.SocketMessageHandler;
+import io.github.axolotlclient.api.util.UUIDHelper;
 
-public class FriendRequestReactionHandler implements RequestHandler {
-	/*@Override
-	public boolean isApplicable(int packetType) {
-		return packetType == RequestOld.Type.FRIEND_REQUEST_REACTION.getType();
+public class FriendRequestReactionHandler implements SocketMessageHandler {
+	@Override
+	public boolean isApplicable(String target) {
+		return "friend_request_accept".equals(target) || "friend_request_deny".equals(target);
 	}
 
 	@Override
-	public void handle(ByteBuf object, APIError error) {
-		String fromUUID = getString(object, 0x09, 32);
-
-		if (object.getBoolean(0x29)) {
-			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.accepted", UUIDHelper.getUsername(fromUUID));
+	public void handle(Response response) {
+		String from = response.getBody("from");
+		if ("friend_request_accept".equals(response.getBody("target"))) {
+			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.accepted", UUIDHelper.getUsername(from));
 		} else {
-			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.declined", UUIDHelper.getUsername(fromUUID));
+			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.declined", UUIDHelper.getUsername(from));
 		}
-	}*/
+	}
 }

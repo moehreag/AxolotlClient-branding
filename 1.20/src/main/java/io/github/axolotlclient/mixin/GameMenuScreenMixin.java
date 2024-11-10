@@ -30,12 +30,12 @@ import io.github.axolotlclient.api.FriendsSidebar;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -52,7 +52,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 	}
 
 	private static boolean axolotlclient$hasModMenu() {
-		return QuiltLoader.isModLoaded("modmenu") && !QuiltLoader.isModLoaded("axolotlclient-modmenu");
+		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
 
 	@Inject(method = "initWidgets", at = @At("TAIL"))

@@ -163,3 +163,4 @@
 	- Direct/Group Chats
 	- Status update notifications
 - rewrite DiscordRPC
+- 1.8.9 now requires java 17

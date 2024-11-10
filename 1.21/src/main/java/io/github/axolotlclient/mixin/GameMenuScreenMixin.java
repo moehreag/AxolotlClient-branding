@@ -32,6 +32,7 @@ import io.github.axolotlclient.api.FriendsSidebar;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.GameMenuScreen;
@@ -39,7 +40,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.client.gui.widget.layout.GridWidget;
 import net.minecraft.text.Text;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -56,24 +56,24 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Unique
 	private static boolean axolotlclient$hasModMenu() {
-		return QuiltLoader.isModLoaded("modmenu") && !QuiltLoader.isModLoaded("axolotlclient-modmenu");
+		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
 
 	@Inject(method = "initWidgets", at = @At("TAIL"))
 	private void axolotlclient$addButtons(CallbackInfo ci, @Local GridWidget widget) {
 		if (API.getInstance().isSocketConnected()) {
-			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends"),
+			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.chats"),
 				button -> MinecraftClient.getInstance().setScreen(new FriendsSidebar(this))).positionAndSize(10, height - 30, 75, 20).build());
 		}
 		if (!axolotlclient$hasModMenu()) {
 			addDrawableSelectableElement(new ButtonWidget(widget.getX() + widget.getWidth(),
-				widget.getY()+50, 20, 20,
+				widget.getY() + 50, 20, 20,
 				Text.empty(),
-				button -> client.setScreen(new HudEditScreen(this)), Supplier::get){
+				button -> client.setScreen(new HudEditScreen(this)), Supplier::get) {
 				@Override
 				public void drawWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 					super.drawWidget(graphics, mouseX, mouseY, delta);
-					graphics.drawTexture(AxolotlClient.badgeIcon, this.getX()+2, this.getY()+2, 0, 0, this.width-4, this.height-4, this.width-4, this.height-4);
+					graphics.drawTexture(AxolotlClient.badgeIcon, this.getX() + 2, this.getY() + 2, 0, 0, this.width - 4, this.height - 4, this.width - 4, this.height - 4);
 				}
 			});
 		}

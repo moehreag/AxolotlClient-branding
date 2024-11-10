@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "axolotlclient",
+	"version": "${version}",
+	"name": "AxolotlClient",
+	"description": "Mod for AxolotlClient",
+	"authors": [
+		"moehreag"
+	],
+	"contributors": [
+		"YakisikliBaran",
+		"DragonEggBedrockBreaking",
+		"TheKodeToad",
+		"CornetPanique86"
+	],
+	"contact": {
+		"homepage": "https://axolotlclient.github.io/",
+		"sources": "https://github.com/AxolotlClient/AxolotlClient-mod/tree/1.8.9"
+	},
+	"license": "LGPL-3.0-or-later",
+	"icon": "assets/axolotlclient/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"io.github.axolotlclient.AxolotlClient"
+		],
+		"modmenu": [
+			"io.github.axolotlclient.config.modmenu.ModMenuCompat"
+		]
+	},
+	"mixins": [
+		"axolotlclient.mixins.json"
+	],
+	"custom": {
+		"modmenu:clientsideOnly": true
+	},
+	"depends": {
+		"fabricloader": ">=0.12.0",
+		"minecraft": "1.20.1",
+		"fabric-resource-loader-v0": "*",
+		"axolotlclientconfig": "*"
+	}
+}

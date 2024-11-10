@@ -46,7 +46,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
-	private static final int ANIM_STEP = 5;
+	private static final int ANIM_STEP = 8;
 	private final Screen parent;
 	private int sidebarAnimX;
 	private int sidebarWidth;
@@ -61,7 +61,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private ContextMenuContainer contextMenu;
 
 	public FriendsSidebar(Screen parent) {
-		super(Text.translatable("api.friends.sidebar"));
+		super(Text.translatable("api.chats.sidebar"));
 		this.parent = parent;
 	}
 
@@ -239,7 +239,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			this.height = height;
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-				.map(user -> ButtonWidget.builder(Text.of(user.getName()), buttonWidget -> addChat(channel))
+				.map(channel -> ButtonWidget.builder(Text.of(channel.getName()), buttonWidget -> addChat(channel))
 					.positionAndSize(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5).build()).collect(Collectors.toList());
 		}
 

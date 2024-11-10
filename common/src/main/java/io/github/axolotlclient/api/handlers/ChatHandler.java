@@ -27,14 +27,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.api.types.User;
-import io.github.axolotlclient.api.util.RequestHandler;
+import io.github.axolotlclient.api.util.SocketMessageHandler;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ChatHandler implements RequestHandler {
+public class ChatHandler implements SocketMessageHandler {
 
 	public static final Consumer<ChatMessage> DEFAULT_MESSAGE_CONSUMER = message -> {
 	};
@@ -49,6 +50,16 @@ public class ChatHandler implements RequestHandler {
 	private Consumer<List<ChatMessage>> messagesConsumer = DEFAULT_MESSAGES_CONSUMER;
 	@Setter
 	private NotificationsEnabler enableNotifications = DEFAULT;
+
+	@Override
+	public boolean isApplicable(String target) {
+		return "chat".equals(target);
+	}
+
+	@Override
+	public void handle(Response response) {
+
+	}
 
 	/*@Override
 	public boolean isApplicable(int packetType) {

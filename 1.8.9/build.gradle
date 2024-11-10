@@ -1,5 +1,5 @@
 plugins {
-	id 'org.quiltmc.loom'
+	id 'fabric-loom'
 	id 'ploceus'
 	id 'io.github.p03w.machete'
 }
@@ -8,8 +8,8 @@ group = maven_group
 version = "${project.version}+${project.minecraft_18}"
 base.archivesName = "AxolotlClient"
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 loom {
 	accessWidenerPath.set(file("src/main/resources/axolotlclient.accesswidener"))
@@ -28,8 +28,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_18}"
 	mappings "net.ornithemc:feather:${project.mappings_18}"
 
-	modCompileOnly "org.quiltmc:quilt-loader:${project.quilt_loader}"
-	modRuntimeOnly "net.fabricmc:fabric-loader:${fabric_loader}"
+	modImplementation "net.fabricmc:fabric-loader:${fabric_loader}"
 
 	modImplementation("io.github.axolotlclient:AxolotlClient-config:${project.config}+${project.minecraft_18}") {
 		exclude group: "org.lwjgl"

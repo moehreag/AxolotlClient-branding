@@ -23,14 +23,14 @@
 package io.github.axolotlclient.util;
 
 import io.github.axolotlclient.AxolotlClient;
-import org.quiltmc.loader.api.QuiltLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.LoggerFactory;
 
 public class LoggerImpl implements Logger {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger("AxolotlClient");
 
-	private static final String prefix = QuiltLoader.isDevelopmentEnvironment() ? "" : "(AxolotlClient) ";
+	private static final String prefix = FabricLoader.getInstance().isDevelopmentEnvironment() ? "" : "(AxolotlClient) ";
 
 	public void info(String msg, Object... args) {
 		LOGGER.info(prefix + msg, args);

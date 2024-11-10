@@ -22,6 +22,13 @@
 
 package io.github.axolotlclient.api.util;
 
-public interface RequestHandler {
+import io.github.axolotlclient.api.Response;
 
+public interface SocketMessageHandler {
+
+	boolean isApplicable(String target);
+
+	default void handle(Response response) {
+
+	}
 }

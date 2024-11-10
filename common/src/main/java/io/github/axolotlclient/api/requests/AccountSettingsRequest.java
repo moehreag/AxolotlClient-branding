@@ -37,7 +37,7 @@ public class AccountSettingsRequest {
 					response.getBody("show_registered"),
 					response.getBody("retain_usernames"),
 					response.getBody("show_last_online"),
-					response.getBody("sho_activity")));
+					response.getBody("show_activity")));
 	}
 
 	public static CompletableFuture<Void> update(AccountSettings settings) {

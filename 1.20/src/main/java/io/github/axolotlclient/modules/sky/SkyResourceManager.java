@@ -32,11 +32,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceReloader;
 
 /**
  * This implementation of custom skies is based on the FabricSkyBoxes mod by AMereBagatelle
@@ -45,15 +46,12 @@ import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceRel
  * @license MIT
  **/
 
-public class SkyResourceManager extends AbstractModule implements SimpleSynchronousResourceReloader {
+public class SkyResourceManager extends AbstractModule implements SimpleSynchronousResourceReloadListener {
 
 	private final static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+	@Getter
 	private final static SkyResourceManager Instance = new SkyResourceManager();
-
-	public static SkyResourceManager getInstance() {
-		return Instance;
-	}
 
 	private static JsonObject loadMCPSky(String loader, Identifier id, Resource resource) {
 		JsonObject object = new JsonObject();
@@ -70,7 +68,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 						} else {
 							if (id.getPath().contains("world")) {
 								option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
-									+ option[1].replace("./", "");
+											+ option[1].replace("./", "");
 							}
 						}
 					}
@@ -88,7 +86,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 	}
 
 	@Override
-	public @NotNull Identifier getQuiltId() {
+	public @NotNull Identifier getFabricId() {
 		return new Identifier("axolotlclient", "custom_skies");
 	}
 

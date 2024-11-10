@@ -22,33 +22,56 @@
 
 package io.github.axolotlclient.api;
 
-import jakarta.websocket.*;
+import java.net.http.WebSocket;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.concurrent.CompletionStage;
 
-@jakarta.websocket.ClientEndpoint
-public class ClientEndpoint {
 
-	@OnMessage
-	public void onMessage(String message) {
-		API.getInstance().onMessage(message);
+public class ClientEndpoint implements WebSocket.Listener {
+
+	private StringBuilder buf;
+
+	@Override
+	public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+		if (buf == null) {
+			buf = new StringBuilder();
+		}
+		buf.append(data);
+		if (last) {
+			API.getInstance().onMessage(buf.toString());
+			buf = null;
+		}
+		return WebSocket.Listener.super.onText(webSocket, data, last);
 	}
 
-	@OnMessage
-	public void onMessage(PongMessage pong){
-		API.getInstance().onPong(pong);
+	@Override
+	public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+		API.getInstance().onClose(statusCode, reason);
+		return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
 	}
 
-	@OnOpen
-	public void onOpen(Session channel) {
-		API.getInstance().onOpen(channel);
+	@Override
+	public void onOpen(WebSocket webSocket) {
+		API.getInstance().onOpen(webSocket);
 	}
 
-	@OnError
-	public void onError(Throwable throwable) {
-		API.getInstance().onError(throwable);
+	@Override
+	public void onError(WebSocket webSocket, Throwable error) {
+		API.getInstance().onError(error);
+		WebSocket.Listener.super.onError(webSocket, error);
 	}
 
-	@OnClose
-	public void onClose() {
-		API.getInstance().onClose();
+	@Override
+	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
+		return WebSocket.Listener.super.onPong(webSocket, message);
+	}
+
+	@Override
+	public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
+		byte[] bytes = new byte[message.remaining()];
+		message.get(bytes);
+		API.getInstance().logDetailed("received ping: {}", Arrays.toString(bytes));
+		return WebSocket.Listener.super.onPing(webSocket, message);
 	}
 }

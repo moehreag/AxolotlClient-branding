@@ -35,10 +35,10 @@ import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.quiltmc.qsl.networking.api.client.ClientPlayConnectionEvents;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
 
 public class FeatureDisabler {
 
@@ -59,7 +59,6 @@ public class FeatureDisabler {
 	});
 	private static String currentAddress = "";
 
-	@SuppressWarnings("deprecation") // no idea how to not make it use the non-deprecated method
 	public static void init() {
 		setServers(AxolotlClient.CONFIG.fullBright, NONE, "gommehd");
 		setServers(AxolotlClient.CONFIG.lowFire, NONE, "gommehd");
@@ -74,16 +73,16 @@ public class FeatureDisabler {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
 
 		ClientPlayConnectionEvents.INIT.register((handler0, client0) ->
-				ClientPlayNetworking.registerGlobalReceiver(channelName, (client, handler, buf, responseSender) -> {
-					JsonArray array = JsonParser.parseString(buf.readString()).getAsJsonArray();
-					for (JsonElement element : array) {
-						try {
-							features.get(element.getAsString()).setForceOff(true, "ban_reason");
-						} catch (Exception e) {
-							AxolotlClient.LOGGER.error("Failed to disable " + element.getAsString() + "!");
-						}
+			ClientPlayNetworking.registerGlobalReceiver(channelName, (client, handler, buf, responseSender) -> {
+				JsonArray array = JsonParser.parseString(buf.readString()).getAsJsonArray();
+				for (JsonElement element : array) {
+					try {
+						features.get(element.getAsString()).setForceOff(true, "ban_reason");
+					} catch (Exception e) {
+						AxolotlClient.LOGGER.error("Failed to disable " + element.getAsString() + "!");
 					}
-				})
+				}
+			})
 		);
 	}
 

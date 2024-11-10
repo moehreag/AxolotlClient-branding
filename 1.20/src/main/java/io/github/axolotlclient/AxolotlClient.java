@@ -54,18 +54,16 @@ import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.FeatureDisabler;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.LoggerImpl;
-import io.github.axolotlclient.util.UnsupportedMod;
 import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.translation.Translations;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.QuiltLoader;
-import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-import org.quiltmc.qsl.resource.loader.api.ResourcePackActivationType;
 
 public class AxolotlClient implements ClientModInitializer {
 
@@ -79,9 +77,6 @@ public class AxolotlClient implements ClientModInitializer {
 	public static String VERSION;
 	public static AxolotlClientConfig CONFIG;
 	public static ConfigManager configManager;
-	public static UnsupportedMod badmod;
-	public static boolean titleDisclaimer = false;
-	public static boolean showWarning = true;
 
 	public static void getModules() {
 		modules.add(SkyResourceManager.getInstance());
@@ -111,29 +106,9 @@ public class AxolotlClient implements ClientModInitializer {
 	}
 
 	@Override
-	public void onInitializeClient(ModContainer container) {
+	public void onInitializeClient() {
 
-		VERSION = QuiltLoader.getModContainer(MODID).orElseThrow().metadata().version().raw();
-
-		if (QuiltLoader.isModLoaded("ares")) {
-			badmod = new UnsupportedMod("Ares Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (QuiltLoader.isModLoaded("inertia")) {
-			badmod = new UnsupportedMod("Inertia Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (QuiltLoader.isModLoaded("meteor-client")) {
-			badmod = new UnsupportedMod("Meteor Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (QuiltLoader.isModLoaded("wurst")) {
-			badmod = new UnsupportedMod("Wurst Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (QuiltLoader.isModLoaded("baritone")) {
-			badmod = new UnsupportedMod("Baritone", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (QuiltLoader.isModLoaded("essential-container")) {
-			badmod = new UnsupportedMod("Essential", UnsupportedMod.UnsupportedReason.MIGHT_CRASH,
-				UnsupportedMod.UnsupportedReason.UNKNOWN_CONSEQUENSES);
-		} else if (QuiltLoader.isModLoaded("optifabric")) {
-			badmod = new UnsupportedMod("OptiFine", UnsupportedMod.UnsupportedReason.MIGHT_CRASH,
-				UnsupportedMod.UnsupportedReason.UNKNOWN_CONSEQUENSES);
-		} else {
-			showWarning = false;
-		}
+		VERSION = FabricLoader.getInstance().getModContainer(MODID).orElseThrow().getMetadata().getVersion().getFriendlyString();
 
 		CONFIG = new AxolotlClientConfig();
 		config.add(someNiceBackground);
@@ -151,7 +126,7 @@ public class AxolotlClient implements ClientModInitializer {
 		CONFIG.getConfig().add(config);
 
 		io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig.getInstance()
-			.register(configManager = new VersionedJsonConfigManager(QuiltLoader.getConfigDir().resolve("AxolotlClient.json"),
+			.register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
 				CONFIG.getConfig(), 1, (oldVersion, newVersion, config, json) -> {
 				// convert changed Options between versions here
 				return json;
@@ -163,10 +138,10 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::lateInit);
 
-		ResourceLoader.registerBuiltinResourcePack(new Identifier("axolotlclient", "axolotlclient-ui"), container,
+		ResourceManagerHelper.registerBuiltinResourcePack(new Identifier("axolotlclient", "axolotlclient-ui"), FabricLoader.getInstance().getModContainer(MODID).orElseThrow(),
 			ResourcePackActivationType.NORMAL);
-		ClientTickEvents.END.register(client -> tickClient());
-		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(SkyResourceManager.getInstance());
+		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SkyResourceManager.getInstance());
 
 		FeatureDisabler.init();
 

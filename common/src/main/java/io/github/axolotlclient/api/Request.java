@@ -25,22 +25,18 @@ package io.github.axolotlclient.api;
 
 import java.util.*;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
-@AllArgsConstructor
-@Getter
-public class Request {
-
-	private final Route route;
-	private final List<String> path;
-	private final List<String> query;
-	private final Map<String, String> bodyFields;
-
+public record Request(Route route, List<String> path, List<String> query,
+					  Map<String, ?> bodyFields, Map<String, String> headers) {
 
 	public static Request.RequestBuilder builder() {
 		return new Request.RequestBuilder();
+	}
+
+	public static Request.RequestBuilder builder(Route route) {
+		return route.builder();
 	}
 
 
@@ -51,26 +47,28 @@ public class Request {
 		USER("user"),
 		ACCOUNT("account"),
 		GATEWAY("gateway"),
+		CHANNELS("channels"),
 		CHANNEL("channel"),
 		ACCOUNT_SETTINGS("account/settings"),
 		ACCOUNT_DATA("account/data"),
-		ACCOUNT_USERNAME("account/username");
+		ACCOUNT_USERNAME("account/username"),
+		ACCOUNT_RELATIONS_FRIENDS("account/relations/friends"),
+		ACCOUNT_RELATIONS_BLOCKED("account/relations/blocked"),
+		ACCOUNT_RELATIONS_REQUESTS("account/relations/requests"),
+		;
 
 		private final String path;
-		private final Map<Integer, String> errors;
 
 		Route(String path) {
 			this.path = path;
-			errors = Collections.emptyMap();
-		}
-
-		Route(String path, Map<Integer, String> errors) {
-			this.path = path;
-			this.errors = errors;
 		}
 
 		public Request create() {
-			return new RequestBuilder().route(this).build();
+			return builder().build();
+		}
+
+		public RequestBuilder builder() {
+			return new RequestBuilder(this);
 		}
 	}
 
@@ -78,9 +76,14 @@ public class Request {
 		private Request.Route route;
 		private List<String> path;
 		private List<String> query;
-		private Map<String, String> bodyFields;
+		private Map<String, Object> bodyFields;
+		private Map<String, String> headers;
 
 		RequestBuilder() {
+		}
+
+		RequestBuilder(Route route) {
+			this.route = route;
 		}
 
 		public Request.RequestBuilder route(Request.Route route) {
@@ -93,14 +96,6 @@ public class Request {
 				path = new ArrayList<>();
 			}
 			path.add(parameter);
-			return this;
-		}
-
-		public Request.RequestBuilder query(String key) {
-			if (query == null) {
-				query = new ArrayList<>();
-			}
-			query.add(key);
 			return this;
 		}
 
@@ -121,10 +116,6 @@ public class Request {
 		}
 
 		public Request.RequestBuilder field(String key, Object value) {
-			return field(key, String.valueOf(value));
-		}
-
-		public Request.RequestBuilder field(String key, String value) {
 			if (bodyFields == null) {
 				bodyFields = new HashMap<>();
 			}
@@ -132,16 +123,16 @@ public class Request {
 			return this;
 		}
 
-		public Request.RequestBuilder field(String key, Map<String, ?> value) {
-			if (bodyFields == null) {
-				bodyFields = new HashMap<>();
+		public RequestBuilder header(String key, String value) {
+			if (headers == null) {
+				headers = new HashMap<>();
 			}
-			bodyFields.put(key, mapToString(value));
+			headers.put(key, value);
 			return this;
 		}
 
 		public Request build() {
-			return new Request(this.route, this.path, this.query, this.bodyFields);
+			return new Request(this.route, this.path, this.query, this.bodyFields, this.headers);
 		}
 
 		public String toString() {
@@ -149,16 +140,18 @@ public class Request {
 		}
 
 		private String mapToString(Map<?, ?> map) {
-			StringBuilder builder = new StringBuilder(map.toString() + "{");
+			StringBuilder builder = new StringBuilder("{");
 			map.forEach((o, o2) -> {
 				builder.append(o).append(": ").append(o2).append(",\n");
 			});
+			int length = builder.length();
+			builder.delete(length - 2, length - 1);
 			builder.append("}");
 			return builder.toString();
 		}
 
 		private String listToString(Collection<?> c) {
-			StringBuilder builder = new StringBuilder(c.toString() + "[");
+			StringBuilder builder = new StringBuilder("[");
 			c.forEach(o -> builder.append(o).append(",\n"));
 			builder.append("]");
 			return builder.toString();

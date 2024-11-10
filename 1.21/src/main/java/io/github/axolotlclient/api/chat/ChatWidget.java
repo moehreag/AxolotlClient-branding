@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -145,6 +146,11 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		graphics.fill(i + 1, y - 1, j - 1, y + entryHeight - 1, fillColor);
 	}
 
+	@Override
+	protected boolean isZero(int index) {
+		return true;
+	}
+
 	public class ChatLine extends AlwaysSelectedEntryListWidget.Entry<ChatLine> {
 		protected final MinecraftClient client = MinecraftClient.getInstance();
 		@Getter
@@ -162,18 +168,21 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			if (button == 0) {
 				ChatWidget.this.setSelected(this);
+				return true;
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
 					.entry(Text.of(origin.getSender().getName()), buttonWidget -> {
 					})
-					.spacer()
-					.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
-						ChannelRequest.getOrCreateDM(origin.getSender().getUuid())
-							.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
-					})
-					.spacer()
-					.entry(Text.translatable("api.chat.report.message"), buttonWidget -> {
+					.spacer();
+				if (!origin.getSender().equals(API.getInstance().getSelf())) {
+					builder.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
+							ChannelRequest.getOrCreateDM(origin.getSender().getUuid())
+								.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
+						})
+						.spacer();
+				}
+				builder.entry(Text.translatable("api.chat.report.message"), buttonWidget -> {
 						ChatHandler.getInstance().reportMessage(origin);
 					})
 					.spacer()
@@ -181,6 +190,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 						client.keyboard.setClipboard(origin.getContent());
 					});
 				screen.setContextMenu(builder.build());
+				return true;
 			}
 			return false;
 		}

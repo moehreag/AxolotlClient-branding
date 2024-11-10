@@ -22,9 +22,19 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import io.github.axolotlclient.api.util.RequestHandler;
+import io.github.axolotlclient.api.Response;
+import io.github.axolotlclient.api.util.SocketMessageHandler;
 
-public class StatusUpdateHandler implements RequestHandler {
+public class StatusUpdateHandler implements SocketMessageHandler {
+	@Override
+	public boolean isApplicable(String target) {
+		return false;
+	}
+
+	@Override
+	public void handle(Response response) {
+
+	}
 	/*@Override
 	public boolean isApplicable(int packetType) {
 		return packetType == RequestOld.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();

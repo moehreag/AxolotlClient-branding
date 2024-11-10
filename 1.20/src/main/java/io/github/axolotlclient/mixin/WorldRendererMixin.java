@@ -25,13 +25,13 @@ package io.github.axolotlclient.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.sky.SkyboxManager;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -60,7 +60,7 @@ public abstract class WorldRendererMixin {
 										 Runnable runnable, CallbackInfo ci) {
 		runnable.run();
 		if (AxolotlClient.CONFIG.customSky.get() && SkyboxManager.getInstance().hasSkyBoxes()
-			&& !QuiltLoader.isModLoaded("fabricskyboxes")) {
+			&& !FabricLoader.getInstance().isModLoaded("fabricskyboxes")) {
 			this.client.getProfiler().push("Custom Skies");
 
 			RenderSystem.depthMask(false);

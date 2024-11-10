@@ -23,14 +23,13 @@
 package io.github.axolotlclient.api;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.google.gson.stream.JsonReader;
 import io.github.axolotlclient.util.GsonHelper;
 import lombok.*;
 
@@ -40,7 +39,7 @@ import lombok.*;
 public class Response {
 	public static final Response CLIENT_ERROR = new Response(Collections.emptyMap(), "", 0, new Error(0, "Client Request Error!"));
 
-	private Map<String, ?> body;
+	private Object body;
 	private final String plainBody;
 	private final int status;
 	private final Error error;
@@ -74,18 +73,24 @@ public class Response {
 		return builder.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	private Map<String, ?> parseJson(String json) throws IOException {
+	private String bodyToString(Object body) {
+		if (body instanceof Collection) {
+			return listToString((Collection<?>) body);
+		} else if (body instanceof Map) {
+			return mapToString((Map<?, ?>) body);
+		}
+		return String.valueOf(body);
+	}
+
+	private Object parseJson(String json) throws IOException {
 		if (!json.isEmpty()) {
-			try (JsonReader reader = new JsonReader(new StringReader(json))) {
-				return (Map<String, ?>) GsonHelper.read(reader);
-			}
+			return GsonHelper.read(json);
 		}
 		return Collections.emptyMap();
 	}
 
 	public String toString() {
-		return "Response(body=" + mapToString(this.getBody()) + ", plainBody=" + getPlainBody() + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
+		return "Response(body=" + bodyToString(this.getBody()) + ", plainBody=" + getPlainBody() + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -114,12 +119,20 @@ public class Response {
 		return element != null ? element : other;
 	}
 
+	public <T> Optional<T> getBodyOpt(String path) {
+		return Optional.ofNullable(getBody(path));
+	}
+
 	public <T, U> U getBody(String path, Function<T, U> mapper) {
 		T element = getBody(path);
 		if (element != null) {
 			return mapper.apply(element);
 		}
 		return null;
+	}
+
+	public boolean bodyHas(String path) {
+		return getBody(path) != null;
 	}
 
 	public <T> T ifBodyHas(String path, Supplier<T> supplier) {
@@ -139,8 +152,7 @@ public class Response {
 			if (response.status >= 200 && response.status < 300) {
 				return null;
 			}
-			String description = (String) response.body.get("description");
-			return new Error(response.status, description);
+			return new Error(response.status, response.getBodyOrElse("description", "Unexpected internal error"));
 		}
 	}
 }

@@ -24,7 +24,7 @@ package io.github.axolotlclient.api;
 
 import java.util.UUID;
 
-import io.github.axolotlclient.api.handlers.FriendHandler;
+import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.util.UUIDHelper;
 import io.github.axolotlclient.util.notifications.Notifications;
 import net.minecraft.client.gui.screen.Screen;
@@ -41,7 +41,7 @@ public class AddFriendScreen extends SimpleTextInputScreen {
 					} catch (IllegalArgumentException e) {
 						uuid = UUIDHelper.getUuid(s);
 					}
-					FriendHandler.getInstance().addFriend(uuid);
+					FriendRequest.getInstance().addFriend(uuid);
 				} else {
 					Notifications.getInstance().addStatus("api.error.notLoggedIn", "api.error.notLoggedIn.desc");
 				}

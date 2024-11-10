@@ -36,8 +36,6 @@ import net.minecraft.text.Text;
 public class ChatListScreen extends Screen {
 
 	private final Screen parent;
-	private ChatListWidget dms;
-	private ChatListWidget groups;
 
 	public ChatListScreen(Screen parent) {
 		super(Text.translatable("api.chats"));
@@ -55,17 +53,13 @@ public class ChatListScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableSelectableElement(dms = new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
-		addDrawableSelectableElement(groups = new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
+		addDrawableSelectableElement(new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
+		addDrawableSelectableElement(new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
 
 		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, buttonWidget ->
 			client.setScreen(parent)).positionAndSize(this.width / 2 + 5, this.height - 40, 150, 20).build());
 		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.chat.groups.create"), buttonWidget ->
-			client.setScreen(new SimpleTextInputScreen(this, Text.translatable("api.chat.groups.create"),
-				Text.translatable("api.chat.groups.create.label"), s -> {
-				if (!s.trim().isEmpty()) {
-					ChannelRequest.createGroup(Arrays.stream(s.split(",")).map(String::trim).toArray(String[]::new));
-				}
-			}))).positionAndSize(this.width / 2 - 155, this.height - 40, 150, 20).build());
+			client.setScreen(new CreateChannelScreen(this)))
+			.positionAndSize(this.width / 2 - 155, this.height - 40, 150, 20).build());
 	}
 }

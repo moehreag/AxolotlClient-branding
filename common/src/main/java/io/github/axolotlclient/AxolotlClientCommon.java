@@ -35,8 +35,4 @@ public class AxolotlClientCommon {
 		instance = this;
 		this.logger = logger;
 	}
-
-	public final void changeField(){
-
-	}
 }
