@@ -34,9 +34,13 @@ import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -73,17 +77,19 @@ public class FeatureDisabler {
 		});
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear());
 
-		ClientPlayConnectionEvents.INIT.register((handler0, client0) ->
-			ClientPlayNetworking.registerGlobalReceiver(channelId, (payload, ctx) -> {
-				for (String feature : payload.features) {
-					try {
-						ForceableBooleanOption e = features.get(feature);
-						e.setForceOff(true, "ban_reason");
-					} catch (Exception e) {
-						AxolotlClient.LOGGER.error("Failed to disable " + feature + "!");
+		PayloadTypeRegistry.playS2C().register(channelId, FeaturePayload.CODEC);
+		ClientPlayConnectionEvents.INIT.register((handler0, client0) -> {
+				ClientPlayNetworking.registerGlobalReceiver(channelId, (payload, ctx) -> {
+					for (String feature : payload.features) {
+						try {
+							ForceableBooleanOption e = features.get(feature);
+							e.setForceOff(true, "ban_reason");
+						} catch (Exception e) {
+							AxolotlClient.LOGGER.error("Failed to disable " + feature + "!");
+						}
 					}
-				}
-			})
+				});
+			}
 		);
 	}
 
@@ -121,7 +127,7 @@ public class FeatureDisabler {
 	}
 
 	private record FeaturePayload(List<String> features) implements CustomPayload {
-		public static final Codec<FeaturePayload> CODEC = Codec.STRING.listOf().xmap(FeaturePayload::new, FeaturePayload::features);
+		public static final PacketCodec<ByteBuf, FeaturePayload> CODEC = PacketCodecs.fromCodec(Codec.STRING.listOf().xmap(FeaturePayload::new, FeaturePayload::features));
 
 		private FeaturePayload(PacketByteBuf buf) {
 			this(buf.readList(PacketByteBuf::readString));

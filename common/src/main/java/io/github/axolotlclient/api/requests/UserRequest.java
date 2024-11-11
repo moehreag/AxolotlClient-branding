@@ -22,23 +22,25 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.TimestampParser;
 
+@SuppressWarnings("UnstableApiUsage")
 public class UserRequest {
 
-	private static final WeakHashMap<String, io.github.axolotlclient.api.types.User> userCache = new WeakHashMap<>();
-	private static final WeakHashMap<String, Boolean> onlineCache = new WeakHashMap<>();
+	private static final Cache<String, User> userCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
+		.build();
 
 	public static boolean getOnline(String uuid) {
 
@@ -52,35 +54,35 @@ public class UserRequest {
 			return true;
 		}
 
-		return onlineCache.computeIfAbsent(uuid, u ->
-			API.getInstance().get(Request.builder().route(Request.Route.USER).path(u).build()).thenApply(response ->
-				response.getBody("status.type").equals("online")).getNow(false));
+		return get(uuid).join().getStatus().isOnline();
 	}
 
-	public static CompletableFuture<User> get(String uuid) {
-		if (userCache.containsKey(uuid)) {
-			return CompletableFuture.completedFuture(userCache.get(uuid));
+	public static CompletableFuture<User> get(String dUuid) {
+		final String uuid = API.getInstance().sanitizeUUID(dUuid);
+		try {
+			return CompletableFuture.completedFuture(userCache.get(uuid, () ->
+				API.getInstance().get(Request.Route.USER.builder().path(uuid).build()).thenApply(response -> {
+				User user = new User(
+					response.getBody("uuid"),
+					response.getBody("username"),
+					response.getBodyOrElse("relation", "none"),
+					response.getBody("registered", TimestampParser::parse),
+					new Status(response.getBody("status.type").equals("online"),
+						response.getBody("status.last_online", TimestampParser::parse),
+						response.ifBodyHas("activity", () -> new Status.Activity(response.getBody("activity.title"),
+							response.getBody("activity.description"),
+							response.getBody("activity.started", TimestampParser::parse)))
+					),
+					response.getBody("previous_usernames", (List<String> list) ->
+						list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));
+				return user;
+			}).join()));
+		} catch (ExecutionException e) {
+			return CompletableFuture.failedFuture(e);
 		}
-		return API.getInstance().get(Request.builder().route(Request.Route.USER).path(uuid).build()).thenApply(response -> {
-			User user = new User(
-				response.getBody("uuid"),
-				response.getBody("username"),
-				response.getBodyOrElse("relation", "none"),
-				response.getBody("registered", TimestampParser::parse),
-				new Status(response.getBody("status.type").equals("online"),
-					response.getBody("status.last_online", TimestampParser::parse),
-					response.ifBodyHas("activity", () -> new Status.Activity(response.getBody("activity.title"),
-						response.getBody("activity.description"),
-						response.getBody("activity.started", TimestampParser::parse)))
-				),
-				response.getBody("previous_usernames", (List<String> list) ->
-					list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));
-			userCache.put(uuid, user);
-			return user;
-		});
 	}
 
 	public static CompletableFuture<Boolean> delete() {
-		return API.getInstance().delete(Request.builder().route(Request.Route.ACCOUNT).build()).thenApply(res -> !res.isError());
+		return API.getInstance().delete(Request.Route.ACCOUNT.create()).thenApply(res -> !res.isError());
 	}
 }

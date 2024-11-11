@@ -26,11 +26,6 @@ import java.time.Instant;
 
 public class TimestampParser {
 	public static Instant parse(String timestamp) {
-		try {
-			return Instant.parse(timestamp);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return Instant.EPOCH;
+		return Instant.parse(timestamp);
 	}
 }

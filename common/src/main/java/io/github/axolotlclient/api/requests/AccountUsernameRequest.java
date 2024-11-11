@@ -31,12 +31,12 @@ import io.github.axolotlclient.api.Response;
 public class AccountUsernameRequest {
 
 	public static CompletableFuture<Response> post(String username, boolean pub) {
-		return API.getInstance().post(Request.builder().route(Request.Route.ACCOUNT_USERNAME)
+		return API.getInstance().post(Request.Route.ACCOUNT_USERNAME.builder()
 			.path(username).query("public", pub).build());
 	}
 
 	public static CompletableFuture<Response> delete(String username) {
-		return API.getInstance().delete(Request.builder().route(Request.Route.ACCOUNT_USERNAME)
+		return API.getInstance().delete(Request.Route.ACCOUNT_USERNAME.builder()
 			.path(username).build());
 	}
 }

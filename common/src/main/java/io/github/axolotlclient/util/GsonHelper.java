@@ -86,7 +86,13 @@ public class GsonHelper {
 			case STRING:
 				return reader.nextString();
 			case NUMBER:
-				return reader.nextDouble();
+				// Ugh.
+				String num = reader.nextString();
+				try {
+					return Long.parseLong(num);
+				} catch (NumberFormatException e) {
+					return Double.parseDouble(num);
+				}
 			case BOOLEAN:
 				return reader.nextBoolean();
 			case NULL:

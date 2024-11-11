@@ -23,24 +23,20 @@
 package io.github.axolotlclient.modules.auth;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.util.AbstractMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
+import com.github.mizosoft.methanol.FormBodyPublisher;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.ThreadExecuter;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 // Partly oriented on In-Game-Account-Switcher by The-Fireplace, VidTu
 public class MSAuth {
@@ -63,12 +59,12 @@ public class MSAuth {
 			String[] lang = languageSupplier.get().replace("_", "-").split("-");
 			logger.debug("starting ms device auth flow");
 			// https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code#device-authorization-response
-			RequestBuilder builder = RequestBuilder.post()
-				.setEntity(new UrlEncodedFormEntity(ImmutableList.of(
-					new BasicNameValuePair("client_id", CLIENT_ID),
-					new BasicNameValuePair("scope", SCOPES)), StandardCharsets.UTF_8))
-				.addHeader("ContentType", "application/x-www-form-urlencoded")
-				.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode?mkt=" + lang[0] + "-" + lang[1].toUpperCase(Locale.ROOT));
+			HttpRequest.Builder builder = HttpRequest.newBuilder()
+				.POST(FormBodyPublisher.newBuilder()
+					.query("client_id", CLIENT_ID)
+					.query("scope", SCOPES).build())
+				.header("ContentType", "application/x-www-form-urlencoded")
+				.uri(URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode?mkt=" + lang[0] + "-" + lang[1].toUpperCase(Locale.ROOT)));
 			JsonObject object = NetworkUtil.request(builder.build(), getHttpClient()).getAsJsonObject();
 			int expiresIn = object.get("expires_in").getAsInt();
 			String deviceCode = object.get("device_code").getAsString();
@@ -86,14 +82,13 @@ public class MSAuth {
 				try {
 					while (System.currentTimeMillis() < expiresIn * 1000L + start) {
 						if ((System.currentTimeMillis() - start) % interval == 0) {
-							List<NameValuePair> form = new ArrayList<>();
-							form.add(new BasicNameValuePair("client_id", CLIENT_ID));
-							form.add(new BasicNameValuePair("device_code", deviceCode));
-							form.add(new BasicNameValuePair("grant_type", "urn:ietf:params:oauth:grant-type:device_code"));
-							RequestBuilder requestBuilder = RequestBuilder.post()
-								.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/token")
-								.addHeader("ContentType", "application/x-www-form-urlencoded")
-								.setEntity(new UrlEncodedFormEntity(form, StandardCharsets.UTF_8));
+							HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().POST(
+									FormBodyPublisher.newBuilder().query("client_id", CLIENT_ID)
+										.query("device_code", deviceCode)
+										.query("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+										.build()
+								)
+								.uri(URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"));
 							JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
 
 							if (response.has("refresh_token") && response.has("access_token")) {
@@ -140,7 +135,7 @@ public class MSAuth {
 				logger.debug("finished auth flow!");
 				Account account = new Account(getMCProfile(accessToken), accessToken, msTokens.getKey(), msTokens.getValue());
 				if (accounts.isContained(account.getUuid())) {
-					accounts.getAccounts().removeAll(accounts.getAccounts().stream().filter(acc -> acc.getUuid().equals(account.getUuid())).collect(Collectors.toList()));
+					accounts.getAccounts().removeAll(accounts.getAccounts().stream().filter(acc -> acc.getUuid().equals(account.getUuid())).toList());
 				}
 				accounts.addAccount(account);
 				if (login) {
@@ -164,11 +159,11 @@ public class MSAuth {
 		object.add("Properties", properties);
 		object.add("RelyingParty", new JsonPrimitive("http://auth.xboxlive.com"));
 		object.add("TokenType", new JsonPrimitive("JWT"));
-		RequestBuilder requestBuilder = RequestBuilder.post()
-			.setUri("https://user.auth.xboxlive.com/user/authenticate")
-			.setEntity(new StringEntity(object.toString(), ContentType.APPLICATION_JSON))
-			.addHeader("Content-Type", "application/json")
-			.addHeader("Accept", "application/json");
+		HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+			.uri(URI.create("https://user.auth.xboxlive.com/user/authenticate"))
+			.POST(HttpRequest.BodyPublishers.ofString(object.toString()))
+			.header("Content-Type", "application/json")
+			.header("Accept", "application/json");
 
 		JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
 		return response.get("Token").getAsString();
@@ -176,15 +171,15 @@ public class MSAuth {
 
 	public Map.Entry<String, String> authXstsMC(String xblToken) throws IOException {
 		String body = "{" +
-			"    \"Properties\": {" +
-			"        \"SandboxId\": \"RETAIL\"," +
-			"        \"UserTokens\": [" +
-			"            \"" + xblToken + "\"" +
-			"        ]" +
-			"    }," +
-			"    \"RelyingParty\": \"rp://api.minecraftservices.com/\"," +
-			"    \"TokenType\": \"JWT\"" +
-			" }";
+					  "    \"Properties\": {" +
+					  "        \"SandboxId\": \"RETAIL\"," +
+					  "        \"UserTokens\": [" +
+					  "            \"" + xblToken + "\"" +
+					  "        ]" +
+					  "    }," +
+					  "    \"RelyingParty\": \"rp://api.minecraftservices.com/\"," +
+					  "    \"TokenType\": \"JWT\"" +
+					  " }";
 		JsonObject response = NetworkUtil.postRequest("https://xsts.auth.xboxlive.com/xsts/authorize", body, getHttpClient(), true).getAsJsonObject();
 		return new AbstractMap.SimpleImmutableEntry<>(response.get("Token").getAsString(), response.get("DisplayClaims").getAsJsonObject().get("xui").getAsJsonArray().get(0).getAsJsonObject().get("uhs").getAsString());
 	}
@@ -196,36 +191,34 @@ public class MSAuth {
 	}
 
 	public boolean checkOwnership(String accessToken) throws IOException {
-		JsonObject response = NetworkUtil.request(RequestBuilder.get()
-			.setUri("https://api.minecraftservices.com/entitlements/mcstore")
-			.addHeader("Authorization", "Bearer " + accessToken).build(), getHttpClient(), true).getAsJsonObject();
+		JsonObject response = NetworkUtil.request(HttpRequest
+			.newBuilder(URI.create("https://api.minecraftservices.com/entitlements/mcstore"))
+			.header("Authorization", "Bearer " + accessToken).build(), getHttpClient(), true).getAsJsonObject();
 
 		return response.get("items").getAsJsonArray().size() != 0;
 	}
 
 	public JsonObject getMCProfile(String accessToken) throws IOException {
-		return NetworkUtil.request(RequestBuilder.get()
-			.setUri("https://api.minecraftservices.com/minecraft/profile")
-			.addHeader("Authorization", "Bearer " + accessToken).build(), getHttpClient(), true).getAsJsonObject();
+		return NetworkUtil.request(HttpRequest.newBuilder().GET()
+			.uri(URI.create("https://api.minecraftservices.com/minecraft/profile"))
+			.header("Authorization", "Bearer " + accessToken).build(), getHttpClient(), true).getAsJsonObject();
 	}
 
-	private CloseableHttpClient getHttpClient() {
+	private HttpClient getHttpClient() {
 		return NetworkUtil.createHttpClient("Auth");
 	}
 
 	public void refreshToken(String token, Account account, Runnable runAfter) {
 		try {
 			logger.debug("refreshing auth code... ");
-			List<NameValuePair> form = new ArrayList<>();
-			form.add(new BasicNameValuePair("client_id", CLIENT_ID));
-			form.add(new BasicNameValuePair("refresh_token", token));
-			form.add(new BasicNameValuePair("scope", SCOPES));
-			form.add(new BasicNameValuePair("grant_type", "refresh_token"));
-			RequestBuilder requestBuilder = RequestBuilder.post()
-				.setUri("https://login.microsoftonline.com/consumers/oauth2/v2.0/token")
-				.addHeader("Content-Type", "application/x-www-form-urlencoded")
-				.setEntity(new UrlEncodedFormEntity(form))
-				.addHeader("Accept", "application/json");
+			HttpRequest.Builder requestBuilder = HttpRequest
+				.newBuilder(URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"))
+				.POST(FormBodyPublisher.newBuilder()
+					.query("client_id", CLIENT_ID)
+					.query("refresh_token", token)
+					.query("scope", SCOPES)
+					.query("grant_type", "refresh_token").build())
+				.header("Accept", "application/json");
 
 			JsonObject response = NetworkUtil.request(requestBuilder.build(), getHttpClient(), true).getAsJsonObject();
 

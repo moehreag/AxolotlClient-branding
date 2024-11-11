@@ -23,11 +23,15 @@
 package io.github.axolotlclient.api.handlers;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.Response;
+import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.api.types.User;
@@ -53,12 +57,21 @@ public class ChatHandler implements SocketMessageHandler {
 
 	@Override
 	public boolean isApplicable(String target) {
-		return "chat".equals(target);
+		return "chat_message".equals(target);
 	}
 
 	@Override
 	public void handle(Response response) {
-
+		Instant time = Instant.now();
+		String channelId = response.getBody("channel", d -> Long.toUnsignedString((long)d));
+		String sender = response.getBody("sender");
+		String senderName = response.getBody("sender_name");
+		String content = response.getBody("content");
+		ChatMessage message = new ChatMessage(channelId, UserRequest.get(sender).join(), senderName, content, time);
+		if (enableNotifications.showNotification(message)) {
+			API.getInstance().getNotificationProvider().addStatus(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.sender().getName()), message.content());
+		}
+		messageConsumer.accept(message);
 	}
 
 	/*@Override
@@ -79,6 +92,9 @@ public class ChatHandler implements SocketMessageHandler {
 
 	public void sendMessage(Channel channel, String message) {
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
+
+		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).field("content", message)
+			.field("display_name", displayName).build());
 		/*if (API.getInstance().getSelf().isSystem()){
 			displayName += (" §r§o§7("+ API.getInstance() // gray + italic
 				.getSelf().getSystem().getName()+
@@ -88,12 +104,26 @@ public class ChatHandler implements SocketMessageHandler {
 			new RequestOld.Data(channel.getId()).add(
 				Instant.now().getEpochSecond()).add(displayName.length()).add(displayName)
 				.add(message.length()).add(message)));*/
-		messageConsumer.accept(new ChatMessage(API.getInstance().getSelf(), displayName, message, Instant.now().getEpochSecond()));
+		messageConsumer.accept(new ChatMessage(channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now()));
 	}
 
+	@SuppressWarnings("unchecked")
 	public void getMessagesBefore(Channel channel, long getBefore) {
-		/*API.getInstance().send(new RequestOld(RequestOld.Type.GET_MESSAGES,
-			new RequestOld.Data(channel.getId()).add(25).add(getBefore).add(0x00))).whenCompleteAsync(this::handleMessages);*/
+		API.getInstance().get(Request.Route.CHANNEL.builder().path(channel.getId()).path("messages")
+				.query("before", Instant.ofEpochSecond(getBefore).toString()).build())
+			.thenAccept(res -> {
+				List<Map<String, Object>> messages = (List<Map<String, Object>>) res.getBody();
+
+				List<ChatMessage> deserialized = new ArrayList<>();
+
+				for (Map<String, Object> o : messages) {
+					deserialized.add(new ChatMessage(Long.toUnsignedString((Long) o.get("channel_id")),
+						UserRequest.get((String) o.get("sender")).join(), (String) o.get("sender_name"),
+						(String) o.get("content"), Instant.parse((CharSequence) o.get("timestamp"))));
+				}
+
+				messagesConsumer.accept(deserialized);
+			});
 	}
 
 	/*private void handleMessages(ByteBuf object, Throwable t) {

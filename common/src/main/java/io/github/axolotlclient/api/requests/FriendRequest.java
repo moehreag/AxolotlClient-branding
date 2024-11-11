@@ -46,7 +46,7 @@ public class FriendRequest {
 	}
 
 	public CompletableFuture<Response> setRelation(String uuid, Relation relation) {
-		return api.post(Request.builder().route(Request.Route.USER).path(uuid).query("relation", relation.getId()).build());
+		return api.post(Request.Route.USER.builder().path(uuid).query("relation", relation.getId()).build());
 	}
 
 	public void addFriend(String uuid) {
@@ -86,7 +86,7 @@ public class FriendRequest {
 
 	@SuppressWarnings("unchecked")
 	public CompletableFuture<List<User>> getFriends() {
-		return api.get(Request.builder().route(Request.Route.ACCOUNT_RELATIONS_FRIENDS).build())
+		return api.get(Request.Route.ACCOUNT_RELATIONS_FRIENDS.builder().build())
 			.thenApply(r -> {
 				List<String> uuids = (List<String>) r.getBody();
 				return uuids.stream().map(UserRequest::get).map(CompletableFuture::join).collect(Collectors.toList());

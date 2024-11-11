@@ -22,8 +22,10 @@
 
 package io.github.axolotlclient.api.requests;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -41,112 +43,67 @@ import lombok.val;
 public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getById(String id) {
-		return API.getInstance().get(Request.builder().route(Request.Route.CHANNEL).path(id).build()).thenApply(ChannelRequest::parseChannel);
+		return API.getInstance().get(Request.Route.CHANNEL.builder().path(id).build()).thenApply(ChannelRequest::parseChannel).handle((channel, throwable) -> {
+			if (throwable != null) {
+				throwable.printStackTrace();
+			}
+			return channel;
+		});
 	}
 
+	@SuppressWarnings("unchecked")
 	private static Channel parseChannel(Response response) {
-		String id = Long.toUnsignedString((long)(double) response.<Double>getBody("id"));
+		String id = Long.toUnsignedString(response.<Long>getBody("id"));
 		String name = response.getBody("name");
 		List<String> participants = response.getBody("participants");
-		val cFs = new CompletableFuture[participants.size()];
-		for (int i = 0, participantsSize = participants.size(); i < participantsSize; i++) {
+		val cFs = new CompletableFuture[participants.size() + 1];
+		cFs[0] = UserRequest.get(response.getBody("owner"));
+		for (int i = 1, participantsSize = participants.size(); i <= participantsSize; i++) {
 			String uuid = participants.get(i);
 			cFs[i] = UserRequest.get(uuid);
 		}
 		CompletableFuture.allOf(cFs).join();
-		User[] users = new User[cFs.length + 1];
-		users[0] = API.getInstance().getSelf();
+		User[] users = new User[cFs.length];
 		for (int i = 0, cFsLength = cFs.length; i < cFsLength; i++) {
 			val cF = cFs[i];
 			try {
-				users[i + 1] = (User) cF.get();
+				users[i] = (User) cF.get();
 			} catch (InterruptedException | ExecutionException ignored) {
 
 			}
 		}
 
+		List<ChatMessage> deserialized = new ArrayList<>();
 		Persistence persistence = Persistence.fromJson(response.getBody("persistence"));
-		if (cFs.length == 1) {
-			return new Channel.DM(id, name, persistence, users, new ChatMessage[0]);
+		API.getInstance().get(Request.Route.CHANNEL.builder().path(id).path("messages")
+				.build())
+			.thenAccept(res -> {
+				List<Map<String, Object>> messages = (List<Map<String, Object>>) res.getBody();
+
+				for (Map<String, Object> o : messages) {
+					deserialized.add(new ChatMessage(Long.toUnsignedString((long)o.get("channel_id")),
+						UserRequest.get((String) o.get("sender")).join(), (String) o.get("sender_name"),
+						(String) o.get("content"), Instant.parse((CharSequence) o.get("timestamp"))));
+				}
+			}).join();
+		if (cFs.length == 2) {
+			return new Channel.DM(id, name, persistence, users, deserialized.toArray(ChatMessage[]::new));
 		}
-		return new Channel.Group(id, name, persistence, users, new ChatMessage[0]);
+		return new Channel.Group(id, name, persistence, users, deserialized.toArray(ChatMessage[]::new));
 	}
-
-
-
-	/*private static Channel parseChannelResponse(ByteBuf object, Throwable t) {
-		if (t != null) {
-			APIError.display(t);
-			return null;
-		}
-		return parseChannel(object);
-	}*/
-
-	/*private static Channel parseChannel(ByteBuf channel) {
-		String id = BufferUtil.getString(channel, 0x09, 5);
-		String name = BufferUtil.getString(channel, 0x0E, 64).trim();
-
-		API.getInstance().logDetailed("Parsing channel: "+id+" ("+name+")");
-
-		List<User> users = new ArrayList<>();
-		int i = 0x4E;
-		while (i < channel.getInt(0x53)) {
-			String uuid = BufferUtil.getString(channel, i, 32);
-			io.github.axolotlclient.api.requests.User.get(uuid).thenAccept(users::add);
-			i += 32;
-		}
-		List<ChatMessage> messages = new ArrayList<>();
-		int offset = i + 8;
-		while (i < channel.getInt(offset)) {
-			messages.add(parseMessage(channel.slice(i, 0x1D + channel.getInt(i + 0x19))));
-			i += 0x1D + channel.getInt(i + 0x19);
-		}
-
-
-		if (users.size() == 2) {
-			return new Channel.DM(id, users.toArray(new User[0]), messages.toArray(new ChatMessage[0]));
-		} else if (users.size() > 2) {
-			return new Channel.Group(id, users.toArray(new User[0]), name, messages.toArray(new ChatMessage[0]));
-		}
-
-		throw new UnsupportedOperationException("Unknown message channel type: " + channel.toString(StandardCharsets.UTF_8));
-	}*/
-
-	/*private static ChatMessage parseMessage(ByteBuf buf) {
-		return BufferUtil.unwrap(buf, ChatMessage.class);
-	}*/
 
 	@SuppressWarnings("unchecked")
 	public static CompletableFuture<List<Channel>> getChannelList() {
-		return API.getInstance().get(Request.builder().route(Request.Route.CHANNELS).build())
+		return API.getInstance().get(Request.Route.CHANNELS.create())
 			.thenApply(response -> {
-				List<Double> ids = (List<Double>) response.getBody();
-				return ids.stream().map(i -> (long) (double) i).map(Long::toUnsignedString)
+				List<Long> ids = (List<Long>) response.getBody();
+				return ids.stream().map(Long::toUnsignedString)
 					.map(ChannelRequest::getById).map(CompletableFuture::join).collect(Collectors.toList());
 			});
-		//return API.getInstance().send(new RequestOld(RequestOld.Type.GET_CHANNEL_LIST)).handle(ChannelRequest::parseChannels);
 	}
 
-	/*private static List<Channel> parseChannels(ByteBuf object, Throwable t) {
-		if (t != null) {
-			APIError.display(t);
-			return Collections.emptyList();
-		}
-		List<Channel> channelList = new ArrayList<>();
-
-		int i = 0;
-		while (i < object.getInt(0x09)) {
-			String channelId = BufferUtil.getString(object, i+0x0D, 5);
-			API.getInstance().logDetailed("Processing channelId: "+channelId);
-			getById(channelId).thenAccept(channelList::add).join();
-			i += 5;
-		}
-
-		return channelList;
-	}*/
-
 	private static CompletableFuture<Channel> createChannel(String name, Persistence persistence) {
-		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+		return API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", name)
 				.field("persistence", persistence)
 				.field("participants", new ArrayList<String>()).build())
@@ -161,7 +118,7 @@ public class ChannelRequest {
 		for (String username : users) {
 			participants.add(UUIDHelper.getUuid(username));
 		}
-		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+		return API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", name).field("persistence", persistence.toJson())
 				.field("participants", participants).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
@@ -174,7 +131,7 @@ public class ChannelRequest {
 	}
 
 	public static CompletableFuture<Channel> getOrCreateDM(String uuid) {
-		return API.getInstance().post(Request.builder().route(Request.Route.CHANNEL)
+		return API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", UUIDHelper.getUsername(uuid)).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
 				.field("participants", List.of(uuid)).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);

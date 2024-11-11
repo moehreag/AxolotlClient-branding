@@ -22,6 +22,11 @@
 
 package io.github.axolotlclient;
 
+import java.io.IOException;
+import java.util.Map;
+
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import lombok.Getter;
 
@@ -29,10 +34,19 @@ import lombok.Getter;
 public class AxolotlClientCommon {
 	@Getter
 	private static AxolotlClientCommon instance;
+	public static final String VERSION = readVersion();
 	private final Logger logger;
 
 	public AxolotlClientCommon(Logger logger){
 		instance = this;
 		this.logger = logger;
+	}
+	@SuppressWarnings("unchecked")
+	private static String readVersion() {
+		try {
+			return (String) ((Map<Object, Object>) GsonHelper.read(API.class.getResourceAsStream("/fabric.mod.json"))).get("version");
+		} catch (IOException ignored) {
+			return "(unknown)";
+		}
 	}
 }

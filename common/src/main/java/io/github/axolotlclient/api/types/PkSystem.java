@@ -22,6 +22,10 @@
 
 package io.github.axolotlclient.api.types;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -37,14 +41,9 @@ import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.ThreadExecuter;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.util.EntityUtils;
 
 @Getter
 public class PkSystem {
@@ -56,13 +55,14 @@ public class PkSystem {
 	private final Member firstFronter;
 	private final String tag;
 	private final int latchTimeout;
+	private final String avatarUrl;
 
 	private Member lastLatchProxy;
 	private long lastLatchProxyTime;
 	private Member autoproxyMember;
 
 	@Builder(builderClassName = "SystemBuilder")
-	public PkSystem(String id, String name, List<Member> members, List<Member> fronters, Member firstFronter, String tag, int latchTimeout) {
+	public PkSystem(String id, String name, List<Member> members, List<Member> fronters, Member firstFronter, String tag, int latchTimeout, String avatarUrl) {
 		this.id = id;
 		this.name = name;
 		this.members = members;
@@ -70,12 +70,13 @@ public class PkSystem {
 		this.firstFronter = firstFronter;
 		this.tag = tag;
 		this.latchTimeout = latchTimeout;
+		this.avatarUrl = avatarUrl;
 		updateAutoproxyMember(API.getInstance().getApiOptions().autoproxyMember.get());
 	}
 
 	public void updateAutoproxyMember(String value) {
 		this.autoproxyMember = members.stream().filter(m -> value.toLowerCase(Locale.ROOT).equals(m.getDisplayName()) ||
-				value.toLowerCase(Locale.ROOT).equals(m.getId()))
+															value.toLowerCase(Locale.ROOT).equals(m.getId()))
 			.findFirst().orElse(null);
 	}
 
@@ -85,6 +86,7 @@ public class PkSystem {
 		builder.id(getString(system, "id"));
 		builder.name(getString(system, "name"));
 		builder.tag(getString(system, "tag"));
+		builder.avatarUrl(getString(system, "avatar_url"));
 
 		return queryPkAPI("systems/@me/fronters")
 			.thenApply(JsonElement::getAsJsonObject).thenAccept(object -> {
@@ -94,6 +96,7 @@ public class PkSystem {
 					list.add(Member.fromObject(e.getAsJsonObject()))
 				);
 				builder.fronters(list);
+				builder.firstFronter(list.getFirst());
 				log("Fetched fronters list");
 			}).thenCompose(v -> queryPkAPI("systems/@me/members").thenAccept(object -> {
 				JsonArray array = object.getAsJsonArray();
@@ -117,8 +120,8 @@ public class PkSystem {
 			});
 	}
 
-	private static void log(String message){
-		API.getInstance().getLogger().debug("[PluralKit] "+message);
+	private static void log(String message) {
+		API.getInstance().getLogger().debug("[PluralKit] " + message);
 	}
 
 	public static CompletableFuture<JsonElement> queryPkAPI(String route) {
@@ -173,22 +176,37 @@ public class PkSystem {
 	}
 
 	public String decorateMemberName(Member member) {
-		return member.getDisplayName() + getTag();
+		String name = member.getDisplayName();
+		if (name.isEmpty()) {
+			name = member.getName();
+		}
+		return name + getTag();
 	}
 
-	@Data
+	public Optional<String> getProxyAvatarUrl(Member member) {
+		String[] urls = new String[]{
+			member.webhookAvatarUrl,
+			member.avatarUrl,
+			avatarUrl
+		};
+		for (String url : urls) {
+			if (!url.isEmpty()) {
+				return Optional.of(url);
+			}
+		}
+		return Optional.empty();
+	}
+
+	@AllArgsConstructor
+	@Getter
 	public static class Member {
 		private String id;
+		private String name;
 		private String displayName;
 		private List<Pattern> proxyTags;
 		private boolean autoProxy;
-
-		public Member(String id, String displayName, List<Pattern> proxyTags, boolean autoProxy) {
-			this.id = id;
-			this.displayName = displayName;
-			this.proxyTags = proxyTags;
-			this.autoProxy = autoProxy;
-		}
+		private String avatarUrl;
+		private String webhookAvatarUrl;
 
 		public static Member fromId(String id) {
 			return fromObject(queryPkAPI("members/" + id)
@@ -209,7 +227,8 @@ public class PkSystem {
 				}
 			});
 			boolean autoProxy = object.has("autoproxy_enabled") && object.get("autoproxy_enabled").getAsBoolean();
-			return new Member(id, name, proxyTags, autoProxy);
+			return new Member(id, name, getString(object, "display_name"), proxyTags, autoProxy,
+				getString(object, "avatar_url"), getString(object, "webhook_avatar_url"));
 		}
 	}
 
@@ -243,27 +262,27 @@ public class PkSystem {
 		private PluralKitApi() {
 		}
 
-		private final HttpClient client = NetworkUtil.createHttpClient("PluralKit Integration; contact: moehreag<at>gmail.com");
+		private final HttpClient client = NetworkUtil.createHttpClient("PluralKit Integration");
 		private int remaining = 1;
 		private long resetsInMillis = 0;
 		private int limit = 2;
 
 
-		public CompletableFuture<JsonElement> request(HttpUriRequest request) {
+		public CompletableFuture<JsonElement> request(HttpRequest request) {
 			CompletableFuture<JsonElement> cF = new CompletableFuture<>();
 			ThreadExecuter.scheduleTask(() -> cF.complete(schedule(request)));
 			return cF;
 		}
 
 		public static CompletableFuture<JsonElement> request(String url) {
-			RequestBuilder builder = RequestBuilder.get().setUri(url);
+			HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
 			if (!token.isEmpty()) {
-				builder.addHeader("Authorization", token);
+				builder.header("Authorization", token);
 			}
 			return getInstance().request(builder.build());
 		}
 
-		private synchronized JsonElement schedule(HttpUriRequest request) {
+		private synchronized JsonElement schedule(HttpRequest request) {
 			if (remaining == 0) {
 				try {
 					Thread.sleep(resetsInMillis);
@@ -274,20 +293,20 @@ public class PkSystem {
 			return query(request);
 		}
 
-		private JsonElement query(HttpUriRequest request) {
+		private JsonElement query(HttpRequest request) {
 			try {
 				log("Requesting: " + request);
-				HttpResponse response = client.execute(request);
+				HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-				String responseBody = EntityUtils.toString(response.getEntity());
+				String responseBody = response.body();
 				log("Response: " + responseBody);
 
-				remaining = Integer.parseInt(response.getFirstHeader("X-RateLimit-Remaining").getValue());
-				long resetsInMillisHeader = (Long.parseLong(response.getFirstHeader("X-RateLimit-Reset")
-					.getValue()) * 1000) - System.currentTimeMillis();
+				remaining = Integer.parseInt(response.headers().firstValue("X-RateLimit-Remaining").orElseThrow());
+				long resetsInMillisHeader = (response.headers().firstValueAsLong("X-RateLimit-Reset")
+												 .orElseThrow() * 1000) - System.currentTimeMillis();
 				// If the header value is bogus just reset in 0.5 seconds
 				this.resetsInMillis = resetsInMillisHeader < 0 ? 500 : resetsInMillisHeader;
-				limit = Integer.parseInt(response.getFirstHeader("X-RateLimit-Limit").getValue());
+				limit = Integer.parseInt(response.headers().firstValue("X-RateLimit-Limit").orElseThrow());
 
 				return GsonHelper.GSON.fromJson(responseBody, JsonElement.class);
 			} catch (Exception e) {

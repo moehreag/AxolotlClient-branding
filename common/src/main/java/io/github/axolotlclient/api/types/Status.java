@@ -45,13 +45,13 @@ public class Status {
 	private final Activity activity;
 
 	public String getDescription() {
-		return activity.description.isEmpty() ? "" :
+		return activity == null || activity.description.isEmpty() ? "" :
 			API.getInstance().getTranslationProvider()
 				.translate("api.status.description." + activity.description.toLowerCase(Locale.ROOT));
 	}
 
 	public String getTitle() {
-		return activity.title.isEmpty() ? "" :
+		return activity == null || activity.title.isEmpty() ? "" :
 			API.getInstance().getTranslationProvider()
 				.translate("api.status.title." + activity.title.toLowerCase(Locale.ROOT));
 	}

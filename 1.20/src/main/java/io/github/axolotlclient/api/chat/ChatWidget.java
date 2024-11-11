@@ -72,7 +72,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);
-		ChatHandler.getInstance().setEnableNotifications(message -> !Arrays.stream(channel.getUsers()).collect(Collectors.toUnmodifiableSet()).contains(message.getSender()));
+		ChatHandler.getInstance().setEnableNotifications(message -> !Arrays.stream(channel.getUsers()).collect(Collectors.toUnmodifiableSet()).contains(message.sender()));
 
 		setScrollAmount(getMaxScroll());
 	}
@@ -83,16 +83,16 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	}
 
 	private void addMessage(ChatMessage message) {
-		List<OrderedText> list = client.textRenderer.wrapLines(Text.of(message.getContent()), getRowWidth());
+		List<OrderedText> list = client.textRenderer.wrapLines(Text.of(message.content()), getRowWidth());
 
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
 		if (messages.size() > 0) {
 			ChatMessage prev = messages.get(messages.size() - 1);
-			if (!prev.getSender().equals(message.getSender())) {
+			if (!prev.sender().equals(message.sender())) {
 				addEntry(new NameChatLine(message));
 			} else {
-				if (prev.getTimestamp() - message.getTimestamp() > 150) {
+				if (prev.timestamp() - message.timestamp() > 150) {
 					addEntry(new NameChatLine(message));
 				}
 			}
@@ -103,18 +103,18 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		list.forEach(t -> addEntry(new ChatLine(t, message)));
 		messages.add(message);
 
-		children().sort(Comparator.comparingLong(c -> c.getOrigin().getTimestamp()));
+		children().sort(Comparator.comparingLong(c -> c.getOrigin().timestamp()));
 
 		if (scrollToBottom) {
 			setScrollAmount(getMaxScroll());
 		}
-		messages.sort(Comparator.comparingLong(ChatMessage::getTimestamp));
+		messages.sort(Comparator.comparingLong(ChatMessage::timestamp));
 	}
 
 	private void loadMessages() {
 		long before;
 		if (messages.size() > 0) {
-			before = messages.get(0).getTimestamp();
+			before = messages.get(0).timestamp();
 		} else {
 			before = Instant.now().getEpochSecond();
 		}
@@ -165,11 +165,11 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
-					.entry(Text.of(origin.getSender().getName()), buttonWidget -> {
+					.entry(Text.of(origin.sender().getName()), buttonWidget -> {
 					})
 					.spacer()
 					.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
-						ChannelRequest.getOrCreateDM(origin.getSender().getUuid())
+						ChannelRequest.getOrCreateDM(origin.sender().getUuid())
 							.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
 					})
 					.spacer()
@@ -178,7 +178,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 					})
 					.spacer()
 					.entry(Text.translatable("action.copy"), buttonWidget -> {
-						client.keyboard.setClipboard(origin.getContent());
+						client.keyboard.setClipboard(origin.content());
 					});
 				screen.setContextMenu(builder.build());
 			}
@@ -213,7 +213,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 		@Override
 		public Text getNarration() {
-			return Text.of(origin.getContent());
+			return Text.of(origin.content());
 		}
 	}
 
@@ -222,18 +222,18 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		private final String formattedTime;
 
 		public NameChatLine(ChatMessage message) {
-			super(Text.literal(message.getSenderDisplayName())
+			super(Text.literal(message.senderDisplayName())
 				.setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));
+			formattedTime = DATE_FORMAT.format(new Date(message.timestamp() * 1000));
 		}
 
 		@Override
 		protected void renderExtras(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
 			RenderSystem.disableBlend();
-			Identifier texture = Auth.getInstance().getSkinTexture(getOrigin().getSender().getUuid(),
-				getOrigin().getSender().getName());
+			Identifier texture = Auth.getInstance().getSkinTexture(getOrigin().sender().getUuid(),
+				getOrigin().sender().getName());
 			graphics.drawTexture(texture, x - 22, y, 18, 18, 8, 8, 8, 8, 64, 64);
 			graphics.drawTexture(texture, x - 22, y, 18, 18, 40, 8, 8, 8, 64, 64);
 			RenderSystem.enableBlend();

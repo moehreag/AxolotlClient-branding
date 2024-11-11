@@ -80,7 +80,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().getNotes()), width - 50);
+		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().notes()), width - 50);
 
 		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> client.setScreen(parent))
 			.positionAndSize(width / 2 - 100, height - 45, 200, 20)

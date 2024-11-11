@@ -75,8 +75,8 @@ public abstract class TitleScreenMixin extends Screen {
 			addDrawableSelectableElement(new AuthWidget());
 		}
 		if (APIOptions.getInstance().updateNotifications.get() &&
-			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
+			GlobalDataRequest.get().success() &&
+			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
 					MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
 						if (r) {
@@ -86,7 +86,7 @@ public abstract class TitleScreenMixin extends Screen {
 				.positionAndSize(width - 125, 10, 120, 20).build());
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
-			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
+			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
 			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
 					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
 				.positionAndSize(width - 125, 25, 120, 20).build());

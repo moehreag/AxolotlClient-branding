@@ -72,12 +72,12 @@ public abstract class TitleScreenMixin extends Screen {
 			buttons.add(new AuthWidget());
 		}
 		if (APIOptions.getInstance().updateNotifications.get() &&
-			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
+			GlobalDataRequest.get().success() &&
+			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			buttons.add(new ButtonWidget(182, width - 125, 10, 120, 20, I18n.translate("api.new_version_available")));
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
-			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
+			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
 			buttons.add(new ButtonWidget(253, width - 125, 25, 120, 20,
 				I18n.translate("api.notes")));
 		}

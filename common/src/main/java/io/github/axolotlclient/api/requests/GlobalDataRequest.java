@@ -24,7 +24,10 @@ package io.github.axolotlclient.api.requests;
 
 import java.lang.ref.WeakReference;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.GlobalData;
+import io.github.axolotlclient.api.types.SemVer;
 
 public class GlobalDataRequest {
 
@@ -35,13 +38,9 @@ public class GlobalDataRequest {
 			return cachedData.get();
 		}
 		// TODO
-		/*return (cachedData = new WeakReference<>(API.getInstance().send(new RequestOld(RequestOld.Type.GLOBAL_DATA)).handleAsync((buf, th) -> {
-			if (th != null) {
-				APIError.display(th);
-				return GlobalData.EMPTY;
-			}
-			return BufferUtil.unwrap(buf, GlobalData.class);
-		}).getNow(GlobalData.EMPTY))).get();*/
-		return GlobalData.EMPTY;
+		return (cachedData = new WeakReference<>(API.getInstance().get(Request.Route.GLOBAL_DATA.create())
+			.thenApply(res -> new GlobalData(true, res.getBody("total_players"),
+				res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBody("notes")))
+			.getNow(GlobalData.EMPTY))).get();
 	}
 }

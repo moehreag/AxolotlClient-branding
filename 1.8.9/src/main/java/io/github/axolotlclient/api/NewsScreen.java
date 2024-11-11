@@ -80,7 +80,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	public void init() {
-		lines = minecraft.textRenderer.split(GlobalDataRequest.get().getNotes(), width - 50);
+		lines = minecraft.textRenderer.split(GlobalDataRequest.get().notes(), width - 50);
 
 		buttons.add(new ButtonWidget(0, width / 2 - 100, height - 45, 200, 20,
 			I18n.translate("gui.back")));

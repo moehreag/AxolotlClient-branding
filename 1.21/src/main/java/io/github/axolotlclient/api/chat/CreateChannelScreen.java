@@ -104,7 +104,7 @@ public class CreateChannelScreen extends Screen {
 		countDisabler.get().accept(false);
 		durationDisabler.get().accept(false);
 
-		var namesInput = content.add(new TextFieldWidget(client.textRenderer, 150, 20, Text.empty()));
+		var namesInput = options.add(new TextFieldWidget(client.textRenderer, 150, 20, Text.empty()));
 		names.add(text("api.chat.groups.participants"));
 
 		layout.addToContents(content);
@@ -143,6 +143,9 @@ public class CreateChannelScreen extends Screen {
 		var text = new TextFieldWidget(client.textRenderer, 128, 20, Text.empty());
 		var textButton = SpriteButtonWidget.builder(Text.translatable("slider.text_input"), w -> {
 			if (slider.visible) {
+				text.setPosition(slider.getX(), slider.getY());
+				text.setWidth(slider.getWidth());
+				text.setHeight(slider.getHeight());
 				text.setText(String.valueOf(currentVal.get()));
 			} else {
 				try {
@@ -152,15 +155,7 @@ public class CreateChannelScreen extends Screen {
 			slider.visible = !slider.visible;
 			text.visible = !slider.visible;
 		}, true).sprite(Identifier.of("axolotlclient", "cursor"), 8, 8).dimensions(20, 20).build();
-		LinearLayoutWidget assembly = new LinearLayoutWidget(0, 0, LinearLayoutWidget.Orientation.HORIZONTAL) {
-			@Override
-			public void arrangeElements() {
-				super.arrangeElements();
-				text.setPosition(slider.getX(), slider.getY());
-				text.setWidth(slider.getWidth());
-				text.setHeight(slider.getHeight());
-			}
-		}.setSpacing(2);
+		LinearLayoutWidget assembly = LinearLayoutWidget.createHorizontal().setSpacing(2);
 		assembly.add(slider);
 		assembly.add(textButton);
 		text.visible = false;

@@ -23,63 +23,57 @@
 package io.github.axolotlclient.util;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
+import com.github.mizosoft.methanol.Methanol;
 import com.google.gson.JsonElement;
+import io.github.axolotlclient.AxolotlClientCommon;
 import lombok.experimental.UtilityClass;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+
 
 @UtilityClass
 public class NetworkUtil {
 
-	public JsonElement getRequest(String url, CloseableHttpClient client) throws IOException {
-		return request(new HttpGet(url), client);
+	public JsonElement getRequest(String url, HttpClient client) throws IOException {
+		return request(HttpRequest.newBuilder(URI.create(url)).build(), client);
 	}
 
-	public JsonElement request(HttpUriRequest request, CloseableHttpClient client) throws IOException {
+	public JsonElement request(HttpRequest request, HttpClient client) throws IOException {
 		return request(request, client, false);
 	}
 
-	public JsonElement request(HttpUriRequest request, CloseableHttpClient client, boolean ignoreStatus) throws IOException {
-		HttpResponse response = client.execute(request);
+	public JsonElement request(HttpRequest request, HttpClient client, boolean ignoreStatus) throws IOException {
+		HttpResponse<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
 
 		if (!ignoreStatus) {
-			int status = response.getStatusLine().getStatusCode();
+			int status = response.statusCode();
 			if (status < 200 || status >= 300) {
-				throw new IOException("API request failed, status code " + status + "\nBody: " + EntityUtils.toString(response.getEntity()));
+				throw new IOException("API request failed, status code " + status + "\nBody: " + response.body());
 			}
 		}
 
-		String responseBody = EntityUtils.toString(response.getEntity());
+		String responseBody = response.body();
 		return GsonHelper.GSON.fromJson(responseBody, JsonElement.class);
 	}
 
-	public JsonElement postRequest(String url, String body, CloseableHttpClient client) throws IOException {
+	public JsonElement postRequest(String url, String body, HttpClient client) throws IOException {
 		return postRequest(url, body, client, false);
 	}
 
-	public JsonElement postRequest(String url, String body, CloseableHttpClient client, boolean ignoreStatus) throws IOException {
-		RequestBuilder requestBuilder = RequestBuilder.post().setUri(url);
-		requestBuilder.addHeader("Content-Type", "application/json");
-		requestBuilder.addHeader("Accept", "application/json");
-		requestBuilder.setEntity(new StringEntity(body));
+	public JsonElement postRequest(String url, String body, HttpClient client, boolean ignoreStatus) throws IOException {
+		HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+			.POST(HttpRequest.BodyPublishers.ofString(body)).uri(URI.create(url));
+		requestBuilder.header("Content-Type", "application/json");
+		requestBuilder.header("Accept", "application/json");
 		return request(requestBuilder.build(), client, ignoreStatus);
 	}
 
-	public JsonElement deleteRequest(String url, String body, CloseableHttpClient client) throws IOException {
-		RequestBuilder requestBuilder = RequestBuilder.delete().setUri(url);
-		requestBuilder.addHeader("Content-Type", "application/json");
-		requestBuilder.setEntity(new StringEntity(body));
-		return request(requestBuilder.build(), client);
-	}
-
-	public CloseableHttpClient createHttpClient(String id) {
-		return HttpClients.custom().setUserAgent("AxolotlClient/" + id).build();
+	public HttpClient createHttpClient(String id) {
+		return Methanol.newBuilder().userAgent("AxolotlClient/" + id + " (" + AxolotlClientCommon.VERSION + ") contact: moehreag<at>gmail.com")
+			.followRedirects(HttpClient.Redirect.NORMAL)
+			.executor(ThreadExecuter.service()).build();
 	}
 }

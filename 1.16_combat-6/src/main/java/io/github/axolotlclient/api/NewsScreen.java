@@ -82,7 +82,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().getNotes()), width - 50);
+		lines = client.textRenderer.wrapLines(StringVisitable.plain(GlobalDataRequest.get().notes()), width - 50);
 
 		addButton(new ButtonWidget(width / 2 - 100, height - 45, 200, 20,
 			new TranslatableText("gui.back"), buttonWidget -> client.openScreen(parent)));

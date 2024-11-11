@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.api.chat;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import io.github.axolotlclient.api.requests.ChannelRequest;
@@ -36,14 +37,17 @@ import net.minecraft.text.Text;
 public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget.ChatListEntry> {
 
 	protected final Screen screen;
+	private final Predicate<Channel> predicate;
 
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
 		super(MinecraftClient.getInstance(), width, height, y, 25);
 		setX(x);
 		this.screen = screen;
-		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			list.stream().filter(filter).forEach(c -> addEntryToTop(new ChatListEntry(c)))
-		);
+		this.predicate = filter;
+	}
+
+	public void addChannels(List<Channel> channels) {
+		channels.stream().filter(predicate).forEach(c -> addEntryToTop(new ChatListEntry(c)));
 	}
 
 	@Override
@@ -53,6 +57,7 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 
 	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
+		ChannelRequest.getChannelList().thenAccept(this::addChannels);
 	}
 
 	public class ChatListEntry extends Entry<ChatListEntry> {

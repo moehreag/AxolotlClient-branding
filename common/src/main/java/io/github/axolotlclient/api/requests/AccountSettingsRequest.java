@@ -31,7 +31,7 @@ import io.github.axolotlclient.api.types.AccountSettings;
 public class AccountSettingsRequest {
 
 	public static CompletableFuture<AccountSettings> get() {
-		return API.getInstance().get(Request.builder().route(Request.Route.ACCOUNT_SETTINGS).build())
+		return API.getInstance().get(Request.Route.ACCOUNT_SETTINGS.builder().build())
 			.thenApply(response ->
 				new AccountSettings(
 					response.getBody("show_registered"),
@@ -41,7 +41,7 @@ public class AccountSettingsRequest {
 	}
 
 	public static CompletableFuture<Void> update(AccountSettings settings) {
-		return API.getInstance().patch(Request.builder().route(Request.Route.ACCOUNT_SETTINGS)
+		return API.getInstance().patch(Request.Route.ACCOUNT_SETTINGS.builder()
 				.field("show_registered", settings.isShowRegistered())
 				.field("retain_usernames", settings.isRetainUsernames())
 				.field("show_last_online", settings.isShowLastOnline())

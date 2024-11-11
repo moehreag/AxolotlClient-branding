@@ -24,8 +24,11 @@ package io.github.axolotlclient.api.util;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,23 +42,16 @@ import io.github.axolotlclient.util.NetworkUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
 
 public class MojangAuth {
 
-	public static  Result authenticate(Account account) {
+	public static Result authenticate(Account account) {
 		Result.Builder result = Result.builder();
-		try (CloseableHttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
+		try (HttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
 
-			RequestBuilder builder = RequestBuilder.post();
-			builder.addHeader("Content-Type", "application/json");
-
-			builder.addHeader("Accept", "application/json");
+			HttpRequest.Builder builder = HttpRequest.newBuilder();
+			builder.header("Content-Type", "application/json");
+			builder.header("Accept", "application/json");
 
 			JsonObject body = new JsonObject();
 			body.addProperty("accessToken", account.getAuthToken());
@@ -66,16 +62,15 @@ public class MojangAuth {
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
 
-			builder.setEntity(new StringEntity(body.toString()));
-			builder.setUri("https://sessionserver.mojang.com/session/minecraft/join");
+			builder.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
+			builder.uri(URI.create("https://sessionserver.mojang.com/session/minecraft/join"));
 
-			HttpResponse response = client.execute(builder.build());
+			HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
 
-			HttpEntity entity = response.getEntity();
-			if (entity == null && response.getStatusLine().getStatusCode() == 204) {
+			if ((response.body() == null || response.body().isEmpty()) && response.statusCode() == 204) {
 				return result.status(Status.SUCCESS).build();
-			} else if (entity != null) {
-				JsonObject element = GsonHelper.fromJson(EntityUtils.toString(entity));
+			} else {
+				JsonObject element = GsonHelper.fromJson(response.body());
 				API.getInstance().logDetailed(element.toString());
 
 				if (element.get("error").getAsString().equals("InsufficientPrivilegesException")) {
@@ -85,7 +80,7 @@ public class MojangAuth {
 				}
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			API.getInstance().logDetailed("MojangAuth Exception: ", e);
 		}
 		return result.status(Status.FAILURE).build();

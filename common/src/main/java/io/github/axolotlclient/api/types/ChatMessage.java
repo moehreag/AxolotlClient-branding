@@ -22,37 +22,8 @@
 
 package io.github.axolotlclient.api.types;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.time.Instant;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+public record ChatMessage(String channelId, User sender, String senderDisplayName, String content, Instant timestamp) {
 
-@AllArgsConstructor
-@RequiredArgsConstructor
-@Getter
-public class ChatMessage {
-
-	private final User sender;
-	private final String senderDisplayName;
-	private final String content;
-	private final long timestamp;
-	private Type type;
-
-	@AllArgsConstructor
-	public enum Type {
-		NORMAL(0x00),
-		REPLY(0x01),
-		JOIN_LEAVE(0x02),
-		PARTY_INVITE(0x03);
-		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.value, k -> k));
-		@Getter
-		private final int value;
-
-		public static Type fromCode(int code) {
-			return CODES.get(code);
-		}
-	}
 }

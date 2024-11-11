@@ -74,7 +74,7 @@ public class ChatWidget extends EntryListWidget {
 			Arrays.stream(channel.getMessages()).forEach(this::addMessage));
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);
-		ChatHandler.getInstance().setEnableNotifications(message -> !Arrays.stream(channel.getUsers()).collect(Collectors.toSet()).contains(message.getSender()));
+		ChatHandler.getInstance().setEnableNotifications(message -> !Arrays.stream(channel.getUsers()).collect(Collectors.toSet()).contains(message.sender()));
 
 		scroll(getMaxScroll());
 	}
@@ -91,16 +91,16 @@ public class ChatWidget extends EntryListWidget {
 	}
 
 	private void addMessage(ChatMessage message) {
-		List<String> list = client.textRenderer.split(message.getContent(), getRowWidth());
+		List<String> list = client.textRenderer.split(message.content(), getRowWidth());
 
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
 		if (messages.size() > 0) {
 			ChatMessage prev = messages.get(messages.size() - 1);
-			if (!prev.getSender().equals(message.getSender())) {
+			if (!prev.sender().equals(message.sender())) {
 				entries.add(new NameChatLine(message));
 			} else {
-				if (prev.getTimestamp() - message.getTimestamp() > 150) {
+				if (prev.timestamp() - message.timestamp() > 150) {
 					entries.add(new NameChatLine(message));
 				}
 			}
@@ -111,18 +111,18 @@ public class ChatWidget extends EntryListWidget {
 		list.forEach(t -> entries.add(new ChatLine(t, message)));
 		messages.add(message);
 
-		entries.sort(Comparator.comparingLong(c -> c.getOrigin().getTimestamp()));
+		entries.sort(Comparator.comparingLong(c -> c.getOrigin().timestamp()));
 
 		if (scrollToBottom) {
 			scroll(getMaxScroll());
 		}
-		messages.sort(Comparator.comparingLong(ChatMessage::getTimestamp));
+		messages.sort(Comparator.comparingLong(ChatMessage::timestamp));
 	}
 
 	private void loadMessages() {
 		long before;
 		if (messages.size() > 0) {
-			before = messages.get(0).getTimestamp();
+			before = messages.get(0).timestamp();
 		} else {
 			before = Instant.now().getEpochSecond();
 		}
@@ -187,11 +187,11 @@ public class ChatWidget extends EntryListWidget {
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
-					.entry(origin.getSender().getName(), buttonWidget -> {
+					.entry(origin.sender().getName(), buttonWidget -> {
 					})
 					.spacer()
 					.entry("api.friends.chat", buttonWidget -> {
-						ChannelRequest.getOrCreateDM(origin.getSender().getUuid())
+						ChannelRequest.getOrCreateDM(origin.sender().getUuid())
 							.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
 					})
 					.spacer()
@@ -200,7 +200,7 @@ public class ChatWidget extends EntryListWidget {
 					})
 					.spacer()
 					.entry("action.copy", buttonWidget -> {
-						Screen.setClipboard(origin.getContent());
+						Screen.setClipboard(origin.content());
 					});
 				screen.setContextMenu(builder.build());
 			}
@@ -245,19 +245,19 @@ public class ChatWidget extends EntryListWidget {
 		private final String formattedTime;
 
 		public NameChatLine(ChatMessage message) {
-			super(new LiteralText(message.getSenderDisplayName())
+			super(new LiteralText(message.senderDisplayName())
 				.setStyle(new Style().setBold(true)).getFormattedString(), message);
 
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.getTimestamp() * 1000));
+			formattedTime = DATE_FORMAT.format(new Date(message.timestamp() * 1000));
 		}
 
 		@Override
 		protected void renderExtras(int x, int y, int mouseX, int mouseY) {
 			GlStateManager.disableBlend();
 			GlStateManager.enableTexture();
-			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(getOrigin().getSender().getUuid(),
-				getOrigin().getSender().getName()));
+			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(getOrigin().sender().getUuid(),
+				getOrigin().sender().getName()));
 			drawTexture(x - 22, y, 8, 8, 8, 8, 18, 18, 64, 64);
 			drawTexture(x - 22, y, 40, 8, 8, 8, 18, 18, 64, 64);
 			GlStateManager.enableBlend();

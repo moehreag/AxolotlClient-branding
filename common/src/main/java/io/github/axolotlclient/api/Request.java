@@ -29,15 +29,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 public record Request(Route route, List<String> path, List<String> query,
-					  Map<String, ?> bodyFields, Map<String, String> headers) {
-
-	public static Request.RequestBuilder builder() {
-		return new Request.RequestBuilder();
-	}
-
-	public static Request.RequestBuilder builder(Route route) {
-		return route.builder();
-	}
+					  Map<String, ?> bodyFields, Map<String, String> headers, boolean requiresAuthentication) {
 
 
 	@ToString
@@ -45,22 +37,29 @@ public record Request(Route route, List<String> path, List<String> query,
 	public enum Route {
 		AUTHENTICATE("authenticate"),
 		USER("user"),
-		ACCOUNT("account"),
-		GATEWAY("gateway"),
-		CHANNELS("channels"),
-		CHANNEL("channel"),
-		ACCOUNT_SETTINGS("account/settings"),
-		ACCOUNT_DATA("account/data"),
-		ACCOUNT_USERNAME("account/username"),
-		ACCOUNT_RELATIONS_FRIENDS("account/relations/friends"),
-		ACCOUNT_RELATIONS_BLOCKED("account/relations/blocked"),
-		ACCOUNT_RELATIONS_REQUESTS("account/relations/requests"),
+		ACCOUNT("account", true),
+		GATEWAY("gateway", true),
+		CHANNELS("channels", true),
+		CHANNEL("channel", true),
+		ACCOUNT_SETTINGS("account/settings", true),
+		ACCOUNT_DATA("account/data", true),
+		ACCOUNT_USERNAME("account/username", true),
+		ACCOUNT_RELATIONS_FRIENDS("account/relations/friends", true),
+		ACCOUNT_RELATIONS_BLOCKED("account/relations/blocked", true),
+		ACCOUNT_RELATIONS_REQUESTS("account/relations/requests", true),
+		GLOBAL_DATA("global_data"),
 		;
 
 		private final String path;
+		private final boolean requiresAuthentication;
 
 		Route(String path) {
 			this.path = path;
+			requiresAuthentication = false;
+		}
+		Route(String path, boolean requiresAuthentication) {
+			this.path = path;
+			this.requiresAuthentication = requiresAuthentication;
 		}
 
 		public Request create() {
@@ -73,22 +72,16 @@ public record Request(Route route, List<String> path, List<String> query,
 	}
 
 	public static class RequestBuilder {
-		private Request.Route route;
+		private final Request.Route route;
 		private List<String> path;
 		private List<String> query;
 		private Map<String, Object> bodyFields;
 		private Map<String, String> headers;
-
-		RequestBuilder() {
-		}
+		private boolean requiresAuthentication;
 
 		RequestBuilder(Route route) {
 			this.route = route;
-		}
-
-		public Request.RequestBuilder route(Request.Route route) {
-			this.route = route;
-			return this;
+			this.requiresAuthentication = route.requiresAuthentication;
 		}
 
 		public RequestBuilder path(String parameter) {
@@ -131,8 +124,18 @@ public record Request(Route route, List<String> path, List<String> query,
 			return this;
 		}
 
+		public RequestBuilder requiresAuthentication() {
+			requiresAuthentication = true;
+			return this;
+		}
+
+		public RequestBuilder requiresAuthentication(boolean requiresAuthentication) {
+			this.requiresAuthentication = requiresAuthentication;
+			return this;
+		}
+
 		public Request build() {
-			return new Request(this.route, this.path, this.query, this.bodyFields, this.headers);
+			return new Request(this.route, this.path, this.query, this.bodyFields, this.headers, requiresAuthentication);
 		}
 
 		public String toString() {

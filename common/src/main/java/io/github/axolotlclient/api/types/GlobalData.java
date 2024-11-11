@@ -22,27 +22,8 @@
 
 package io.github.axolotlclient.api.types;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+public record GlobalData(boolean success, int totalPlayers, int onlinePlayers, SemVer latestVersion,
+						 String notes) {
+	public static final GlobalData EMPTY = new GlobalData(false, 0, 0, SemVer.EMPTY, "");
 
-@ToString
-@EqualsAndHashCode
-@Getter
-public class GlobalData {
-	public static final GlobalData EMPTY = new GlobalData(false, 0, 0, EncodedVersion.EMPTY, "");
-
-	private final boolean success;
-	private final int totalPlayers;
-	private final int onlinePlayers;
-	private final EncodedVersion latestVersion;
-	private final String notes;
-
-	public GlobalData(boolean success, int totalPlayers, int onlinePlayers, EncodedVersion latestVersion, String notes) {
-		this.success = success;
-		this.totalPlayers = totalPlayers;
-		this.onlinePlayers = onlinePlayers;
-		this.latestVersion = latestVersion;
-		this.notes = notes;
-	}
 }

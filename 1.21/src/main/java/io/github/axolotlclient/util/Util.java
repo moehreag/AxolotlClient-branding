@@ -22,15 +22,12 @@
 
 package io.github.axolotlclient.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.glfw.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
@@ -44,7 +41,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
 
 public class Util {
 	public static String lastgame;
@@ -70,20 +66,20 @@ public class Util {
 			game = "";
 		else if (MinecraftClient.getInstance().getCurrentServerEntry() != null
 				 && MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
-					 .contains(sidebar.get(0).toLowerCase())) {
-			if (sidebar.get(sidebar.size() - 1).toLowerCase(Locale.ROOT)
+					 .contains(sidebar.getFirst().toLowerCase())) {
+			if (sidebar.getLast().toLowerCase(Locale.ROOT)
 					.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
-				|| sidebar.get(sidebar.size() - 1).contains("Playtime")) {
+				|| sidebar.getLast().contains("Playtime")) {
 				game = "In Lobby";
 			} else {
-				if (sidebar.get(sidebar.size() - 1).contains("--------")) {
+				if (sidebar.getLast().contains("--------")) {
 					game = "Playing Bridge Practice";
 				} else {
-					game = "Playing " + sidebar.get(sidebar.size() - 1);
+					game = "Playing " + sidebar.getLast();
 				}
 			}
 		} else {
-			game = "Playing " + sidebar.get(0);
+			game = "Playing " + sidebar.getFirst();
 		}
 
 		if (!Objects.equals(lastgame, game) && game.isEmpty())
@@ -143,11 +139,11 @@ public class Util {
 
 		List<Formatting> modifiers = new ArrayList<>();
 		for (String s : arr) {
-			Formatting formatting = Formatting.byCode(s.length() > 0 ? s.charAt(0) : 0);
+			Formatting formatting = Formatting.byCode(!s.isEmpty() ? s.charAt(0) : 0);
 			if (formatting != null && formatting.isModifier()) {
 				modifiers.add(formatting);
 			}
-			MutableText part = Text.literal(s.length() > 0 ? s.substring(1) : "");
+			MutableText part = Text.literal(!s.isEmpty() ? s.substring(1) : "");
 			if (formatting != null) {
 				part.formatted(formatting);
 
@@ -185,20 +181,12 @@ public class Util {
 		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(msg);
 	}
 
-	public static void applyScissor(int x, int y, int width, int height) {
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		Window window = MinecraftClient.getInstance().getWindow();
-		double scale = window.getScaleFactor();
-		GL11.glScissor((int) (x * scale), (int) ((window.getScaledHeight() - height - y) * scale),
-			(int) (width * scale), (int) (height * scale));
-	}
-
 	public static Identifier getTexture(GraphicsOption option) {
 		Identifier id = Identifier.of("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
 		try {
 			NativeImageBackedTexture texture;
 			if (MinecraftClient.getInstance().getTextureManager().getOrDefault(id, null) == null) {
-				texture = new NativeImageBackedTexture(NativeImage.read(new ByteArrayInputStream(option.get().getPixelData())));
+				texture = new NativeImageBackedTexture(NativeImage.read(option.get().getPixelData()));
 				MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
 			} else {
 				texture = (NativeImageBackedTexture) MinecraftClient.getInstance().getTextureManager().getTexture(id);
@@ -210,7 +198,6 @@ public class Util {
 			}
 
 			texture.upload();
-			RenderSystem.setShaderTexture(0, id);
 		} catch (IOException e) {
 			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
 		}

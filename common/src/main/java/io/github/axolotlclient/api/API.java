@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.api;
 
-import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -52,6 +52,7 @@ import io.github.axolotlclient.api.util.TimestampParser;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
+import io.github.axolotlclient.util.NetworkUtil;
 import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.notifications.NotificationProvider;
 import io.github.axolotlclient.util.translation.TranslationProvider;
@@ -60,7 +61,6 @@ import lombok.Setter;
 
 public class API {
 
-	private static final String VERSION = readVersion();
 	@Getter
 	private static API Instance;
 	@Getter
@@ -84,6 +84,7 @@ public class API {
 	@Setter
 	private AccountSettings settings;
 	private HttpClient client;
+
 	public API(Logger logger, NotificationProvider notificationProvider, TranslationProvider translationProvider,
 			   StatusUpdateProvider statusUpdateProvider, Options apiOptions) {
 		if (Instance != null) {
@@ -102,14 +103,6 @@ public class API {
 		Instance = this;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static String readVersion() {
-		try {
-			return (String) ((Map<Object, Object>) GsonHelper.read(API.class.getResourceAsStream("/fabric.mod.json"))).get("version");
-		} catch (IOException ignored) {
-			return "(unknown)";
-		}
-	}
 
 	public void onOpen(WebSocket channel) {
 		this.socket = channel;
@@ -118,14 +111,10 @@ public class API {
 
 	private void authenticate() {
 		//if (client != null) {
-			// We have to rely on the gc to collect previous client objects as close() was only implemented in java 21.
-			// However, we are currently compiling against java 17.
-			//client.close();
+		// We have to rely on the gc to collect previous client objects as close() was only implemented in java 21.
+		// However, we are currently compiling against java 17.
+		//client.close();
 		//}
-		client = Methanol.newBuilder()
-			.userAgent("Axolotlclient/API " + VERSION)
-			.followRedirects(HttpClient.Redirect.NORMAL)
-			.executor(ThreadExecuter.service()).build();
 		logDetailed("Authenticating with Mojang...");
 
 		MojangAuth.Result result = MojangAuth.authenticate(account);
@@ -137,7 +126,7 @@ public class API {
 
 		logDetailed("Requesting authentication from backend...");
 
-		get(Request.builder().route(Request.Route.AUTHENTICATE)
+		get(Request.Route.AUTHENTICATE.builder()
 			.query("username", account.getName())
 			.query("server_id", result.getServerId())
 			.build()).whenComplete((response, throwable) -> {
@@ -153,7 +142,7 @@ public class API {
 
 			token = response.getBody("access_token");
 			logDetailed("Obtained token!");
-			CompletableFuture.allOf(get(Request.builder().route(Request.Route.ACCOUNT).build())
+			CompletableFuture.allOf(get(Request.Route.ACCOUNT.builder().build())
 					.thenAccept(r -> {
 						self = new User(sanitizeUUID(r.getBody("uuid")),
 							r.getBody("username"), "self",
@@ -195,6 +184,10 @@ public class API {
 	}
 
 	private CompletableFuture<Response> request(Request request, String method) {
+		if (request.requiresAuthentication() && !isAuthenticated()) {
+			logger.warn("Tried to request {} {} without authentication, but this request requires it!", method, request);
+			return new CompletableFuture<>();
+		}
 		URI route = getUrl(request);
 		return request(route, request.bodyFields(), method, request.headers());
 	}
@@ -224,6 +217,9 @@ public class API {
 				} else {
 					builder.method(method, HttpRequest.BodyPublishers.noBody());
 				}
+				if (client == null) {
+					client = NetworkUtil.createHttpClient("API");
+				}
 
 				HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
 
@@ -232,6 +228,9 @@ public class API {
 				int code = response.statusCode();
 				logDetailed("Response: code: " + code + " body: " + body);
 				return Response.builder().body(body).status(code).build();
+			} catch (ConnectException e) {
+				logger.warn("Backend unreachable!");
+				return Response.CLIENT_ERROR;
 			} catch (Exception e) {
 				onError(e);
 				return Response.CLIENT_ERROR;
@@ -316,7 +315,7 @@ public class API {
 		if (!Constants.TESTING) {
 			try {
 				logDetailed("Connecting to websocket..");
-				socket = ((Methanol)client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
+				socket = ((Methanol) client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
 					.buildAsync(URI.create(Constants.SOCKET_URL), new ClientEndpoint()).get();
 				logDetailed("Socket connected");
 			} catch (Exception e) {

@@ -34,19 +34,15 @@ import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.OSUtil;
-import io.github.axolotlclient.util.UnsupportedMod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
-import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.realms.gui.screen.RealmsNotificationsScreen;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -79,8 +75,8 @@ public abstract class TitleScreenMixin extends Screen {
 			addDrawableChild(new AuthWidget());
 		}
 		if (APIOptions.getInstance().updateNotifications.get() &&
-			GlobalDataRequest.get().isSuccess() &&
-			GlobalDataRequest.get().getLatestVersion().isNewerThan(AxolotlClient.VERSION)) {
+			GlobalDataRequest.get().success() &&
+			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
 					MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
 						if (r) {
@@ -90,7 +86,7 @@ public abstract class TitleScreenMixin extends Screen {
 				.positionAndSize(width - 125, 10, 120, 20).build());
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
-			GlobalDataRequest.get().isSuccess() && !GlobalDataRequest.get().getNotes().isEmpty()) {
+			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
 					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
 				.positionAndSize(width - 125, 25, 120, 20).build());

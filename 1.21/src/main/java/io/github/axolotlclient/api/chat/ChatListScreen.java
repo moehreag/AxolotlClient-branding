@@ -22,9 +22,6 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.util.Arrays;
-
-import io.github.axolotlclient.api.SimpleTextInputScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
@@ -53,13 +50,17 @@ public class ChatListScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableSelectableElement(new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
-		addDrawableSelectableElement(new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
+		ChatListWidget groups = addDrawableSelectableElement(new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
+		ChatListWidget dms = addDrawableSelectableElement(new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
 
 		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, buttonWidget ->
 			client.setScreen(parent)).positionAndSize(this.width / 2 + 5, this.height - 40, 150, 20).build());
 		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.chat.groups.create"), buttonWidget ->
-			client.setScreen(new CreateChannelScreen(this)))
+				client.setScreen(new CreateChannelScreen(this)))
 			.positionAndSize(this.width / 2 - 155, this.height - 40, 150, 20).build());
+		ChannelRequest.getChannelList().whenCompleteAsync((list, t) -> {
+			groups.addChannels(list);
+			dms.addChannels(list);
+		});
 	}
 }
