@@ -55,7 +55,10 @@ public class ContextMenuContainer extends GuiElement {
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			return menu.mouseClicked(mouseX, mouseY, button);
+			if (menu.mouseClicked(mouseX, mouseY, button)) {
+				removeMenu();
+				return true;
+			}
 		}
 		return false;
 	}

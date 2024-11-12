@@ -38,7 +38,6 @@ import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
@@ -53,22 +52,15 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private final Channel channel;
 	private final MinecraftClient client;
 	private final ContextMenuScreen screen;
-	@Setter
-	@Getter
-	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
 		super(MinecraftClient.getInstance(), width, height, y, y+height, 13);
 		this.channel = channel;
 		this.client = MinecraftClient.getInstance();
-		setX(x + 5);
+		setLeftPos(x + 5);
 
 		setRenderHeader(false, 0);
 		this.screen = screen;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
 		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
@@ -80,7 +72,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return x + width - 6;
+		return getRowLeft() + width - 6;
 	}
 
 	@Override
@@ -145,10 +137,6 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	protected void drawEntrySelectionHighlight(GuiGraphics graphics, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
-		/*int i = this.getX() + (this.width - entryWidth) / 2;
-		int j = this.getX() + (this.width + entryWidth) / 2;
-		//graphics.fill(i, y - 2, j, y + entryHeight, borderColor);
-		graphics.fill(i + 1, y - 1, j - 1, y + entryHeight - 1, fillColor);*/
 	}
 
 	public class ChatLine extends AlwaysSelectedEntryListWidget.Entry<ChatLine> {

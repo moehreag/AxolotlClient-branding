@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
-import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -34,8 +33,10 @@ import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
+import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
@@ -43,6 +44,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.MathHelper;
 
 public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserListWidget.UserListEntry> {
 
@@ -100,13 +102,14 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 			return this;
 		}
 
+
 		@Override
 		public void render(MatrixStack graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
 			if (hovered && !screen.hasContextMenu()) {
 				fill(graphics, x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
-			DrawUtil.drawScrollingText(graphics, Text.of(user.getName()), x + 3 + entryHeight,
-					y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, Colors.WHITE);
+			DrawUtil.drawScrollableText(graphics, client.textRenderer, Text.of(user.getName()), x + 3 + entryHeight,
+					y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
 			client.textRenderer.draw(graphics, user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
 				client.textRenderer.draw(graphics, user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);

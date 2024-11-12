@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -41,7 +42,6 @@ import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.EntryListWidget;
@@ -55,9 +55,6 @@ public class ChatWidget extends EntryListWidget {
 	private final Channel channel;
 	private final Minecraft client;
 	private final ContextMenuScreen screen;
-	@Setter
-	@Getter
-	private int x, y, width, height;
 	private int selectedEntry = -1;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
@@ -68,10 +65,6 @@ public class ChatWidget extends EntryListWidget {
 
 		setHeader(false, 0);
 		this.screen = screen;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
 		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
@@ -84,12 +77,16 @@ public class ChatWidget extends EntryListWidget {
 
 	@Override
 	protected int getScrollbarPosition() {
-		return x + width - 6;
+		return minX + width - 6;
 	}
 
 	@Override
 	public int getRowWidth() {
 		return width - 60;
+	}
+
+	public int getX() {
+		return minX;
 	}
 
 	protected boolean isEntrySelected(int i) {
@@ -153,7 +150,7 @@ public class ChatWidget extends EntryListWidget {
 
 	@Override
 	protected void renderList(int i, int j, int k, int l) {
-		DrawUtil.enableScissor(x, y, x + width, y + height);
+		DrawUtil.enableScissor(minX, minY, maxX, maxY);
 		super.renderList(i, j, k, l);
 		DrawUtil.disableScissor();
 	}
@@ -196,13 +193,15 @@ public class ChatWidget extends EntryListWidget {
 				ContextMenu.Builder builder = ContextMenu.builder()
 						.entry(origin.sender().getName(), buttonWidget -> {
 						})
-						.spacer()
-						.entry("api.friends.chat", buttonWidget -> {
-							ChannelRequest.getOrCreateDM(origin.sender().getUuid())
-									.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
-						})
-						.spacer()
-						.entry("api.chat.report.message", buttonWidget -> {
+						.spacer();
+				if (!origin.sender().equals(API.getInstance().getSelf())) {
+					builder.entry("api.friends.chat", buttonWidget -> {
+								ChannelRequest.getOrCreateDM(origin.sender().getUuid())
+										.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
+							})
+							.spacer();
+				}
+				builder.entry("api.chat.report.message", buttonWidget -> {
 							ChatHandler.getInstance().reportMessage(origin);
 						})
 						.spacer()

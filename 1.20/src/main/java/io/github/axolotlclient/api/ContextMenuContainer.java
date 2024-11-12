@@ -30,10 +30,10 @@ import net.minecraft.client.gui.screen.ScreenArea;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import org.jetbrains.annotations.Nullable;
 
+@Setter
+@Getter
 public class ContextMenuContainer implements Drawable, Selectable, Element {
 
-	@Getter
-	@Setter
 	@Nullable
 	private ContextMenu menu;
 
@@ -96,7 +96,10 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			return menu.mouseClicked(mouseX, mouseY, button);
+			if (menu.mouseClicked(mouseX, mouseY, button)) {
+				removeMenu();
+				return true;
+			}
 		}
 		return false;
 	}

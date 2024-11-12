@@ -145,10 +145,6 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	protected void drawEntrySelectionHighlight(GuiGraphics graphics, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
-		/*int i = this.getX() + (this.width - entryWidth) / 2;
-		int j = this.getX() + (this.width + entryWidth) / 2;
-		//graphics.fill(i, y - 2, j, y + entryHeight, borderColor);
-		graphics.fill(i + 1, y - 1, j - 1, y + entryHeight - 1, fillColor);*/
 	}
 
 	@Override

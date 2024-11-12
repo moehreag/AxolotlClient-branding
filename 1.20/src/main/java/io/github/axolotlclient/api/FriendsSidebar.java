@@ -144,7 +144,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			}
 			getButtons().forEach(button -> button.setX(button.getX() - ANIM_STEP));
 			if (chatWidget != null) {
-				chatWidget.setX(chatWidget.getX() - ANIM_STEP);
+				chatWidget.setLeftPos(chatWidget.getRowLeft() - ANIM_STEP);
 			}
 		} else {
 			if (list != null && !list.visible) {

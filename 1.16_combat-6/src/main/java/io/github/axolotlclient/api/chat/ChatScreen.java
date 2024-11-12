@@ -108,7 +108,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		});
 		input.setMaxLength(1024);
 
-		addButton(new ButtonWidget(width - 110, 15, 100, 20, new TranslatableText("api.channel.configure"), b -> client.openScreen(new ChannelSettingsScreen(this, channel))));
+		addButton(new ButtonWidget(width - 60, 5, 50, 20, new TranslatableText("api.channel.configure"), b -> client.openScreen(new ChannelSettingsScreen(this, channel))));
 
 		this.addButton(new ButtonWidget(this.width / 2 - 75, this.height - 28, 150, 20,
 				ScreenTexts.BACK, button -> this.client.openScreen(this.parent)));

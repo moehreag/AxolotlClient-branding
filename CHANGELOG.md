@@ -160,7 +160,8 @@
 - Add a new Backend (made by Astralchroma)
 - Features:
 	- Friends
-	- Direct/Group Chats
+	- Chats
 	- Status update notifications
+    - Hypixel
 - rewrite DiscordRPC
-- 1.8.9 now requires java 17
+- 1.8.9 + 1.16_combat-6 now require java 17

@@ -39,7 +39,6 @@ import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -52,20 +51,15 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private final Channel channel;
 	private final MinecraftClient client;
 	private final ContextMenuScreen screen;
-	@Setter
-	@Getter
-	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
 		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);
 		this.channel = channel;
 		this.client = MinecraftClient.getInstance();
-		setX(x + 5);
+		setLeftPos(x + 5);
 
 		setRenderHeader(false, 0);
 		this.screen = screen;
-		this.x = x;
-		this.y = y;
 		this.width = width;
 		this.height = height;
 		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
@@ -78,13 +72,17 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		setRenderSelection(false);
 	}
 
+	public int getX() {
+		return left;
+	}
+
 	protected int getMaxScroll() {
 		return Math.max(0, this.getMaxPosition() - (this.bottom - this.top - 4));
 	}
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return x + width - 6;
+		return left + width - 6;
 	}
 
 	@Override
@@ -149,7 +147,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	protected void renderList(MatrixStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
-		DrawUtil.enableScissor(this.x, this.y, this.x + width, this.y + height);
+		DrawUtil.enableScissor(this.left, this.top, this.left + width, this.top + height);
 		super.renderList(matrices, x, y, mouseX, mouseY, delta);
 		DrawUtil.disableScissor();
 	}

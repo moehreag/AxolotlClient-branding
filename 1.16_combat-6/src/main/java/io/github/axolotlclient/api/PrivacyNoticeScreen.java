@@ -35,7 +35,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class PrivacyNoticeScreen extends Screen {
 
-	private static final URI PRIVACY_POLICY_URL = URI.create("https://axolotlclient.xyz/privacy");
+	private static final URI PRIVACY_POLICY_URL = URI.create(Constants.PRIVACY_POLICY);
 
 	private final Screen parent;
 	private final Consumer<Boolean> accepted;

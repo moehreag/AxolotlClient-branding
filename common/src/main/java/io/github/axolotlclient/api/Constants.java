@@ -27,10 +27,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Constants {
 	public final boolean ENABLED = true; // Completely disable these features and hide their existence
-	//public final String API_URL = "https://astralchroma.dev/axolotlclient-api/dev/";
-	public final String API_URL = "http://localhost:8000";
-	//public final String SOCKET_URL = "wss://astralchroma.dev/axolotlclient-api/dev/";
-	public final String SOCKET_URL = "ws://localhost:8000/gateway";
+	public final String API_URL = "https://api.axolotlclient.astralchroma.dev/dev";
+	public final String SOCKET_URL = "wss://api.axolotlclient.astralchroma.dev/dev/gateway";
+	public final String PRIVACY_POLICY = "https://";
 	public final int STATUS_UPDATE_DELAY = 15; // The Delay between Status updates, in seconds. Discord uses 15 seconds so we will as well.
 	public final boolean TESTING = false; // When set to true, no requests will be sent
 }

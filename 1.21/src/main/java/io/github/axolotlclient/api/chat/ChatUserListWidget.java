@@ -32,6 +32,7 @@ import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
+import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;

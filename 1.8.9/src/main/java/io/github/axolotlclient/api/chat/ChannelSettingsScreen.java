@@ -141,11 +141,11 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 		addDrawableChild(persistence);
 		addDrawableChild(text("api.chat.groups.persistence.count", "api.chat.groups.persistence.count.tooltip", leftColX, leftColY));
 		leftColY += leftColYStep;
-		countDisabler.set(sliderAssembly(rightColX, rightColY, val -> (int) (val * 100d), count::set, channel.getPersistence().count() / 100));
+		countDisabler.set(sliderAssembly(rightColX, rightColY, val -> (int) (val * 100d), count::set, channel.getPersistence().count() / 100d));
 		rightColY += rightColYStep;
 		addDrawableChild(text("api.chat.groups.persistence.duration", "api.chat.groups.persistence.duration.tooltip", leftColX, leftColY));
 		leftColY += leftColYStep;
-		durationDisabler.set(sliderAssembly(rightColX, rightColY, val -> (long) (val * 100d), duration::set, channel.getPersistence().duration() / 100));
+		durationDisabler.set(sliderAssembly(rightColX, rightColY, val -> (long) (val * 100d), duration::set, channel.getPersistence().duration() / 100d));
 		rightColY += rightColYStep;
 		countDisabler.get().accept(false);
 		durationDisabler.get().accept(false);
@@ -168,6 +168,7 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 		AtomicReference<T> currentVal = new AtomicReference<>();
 		DoubleOption opt = new DoubleOption("", initialValue, d -> currentVal.set(valueFunc.apply(d)), 0d, 1d);
 		var slider = new SliderWidget<>(x, y, 128, 20, opt);
+		opt.set(initialValue);
 		value.accept(currentVal::get);
 		var text = new TextFieldWidget(textRenderer, x, y, 128, 20, "");
 		var textButton = new ButtonWidget(x + 130, y, 20, 20, I18n.translate("slider.text_input"), w -> {
@@ -214,7 +215,7 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 
 			@Override
 			public void render(int mouseX, int mouseY, float delta) {
-				DrawUtil.drawScrollingText(getMessage(), x, y, width, height, Colors.WHITE);
+				DrawUtil.drawScrollingText(getMessage(), getX(), getY(), getWidth(), getHeight(), Colors.WHITE);
 			}
 
 			public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -229,7 +230,7 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 
 			@Override
 			public void drawWidget(int mouseX, int mouseY, float delta) {
-				DrawUtil.drawScrollingText(getMessage(), x, y, width, height, Colors.WHITE);
+				DrawUtil.drawScrollingText(getMessage(), getX(), getY(), getWidth(), getHeight(), Colors.WHITE);
 				if (isHovered()) {
 					ChannelSettingsScreen.this.tooltip = I18n.translate(tooltipKey);
 				}

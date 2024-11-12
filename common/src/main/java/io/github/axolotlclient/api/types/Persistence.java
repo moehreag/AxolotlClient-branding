@@ -32,10 +32,10 @@ public abstract class Persistence {
 	public abstract Type type();
 
 	public int count() {
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 	public long duration() {
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 	public static class Channel extends Persistence {
 		@Override

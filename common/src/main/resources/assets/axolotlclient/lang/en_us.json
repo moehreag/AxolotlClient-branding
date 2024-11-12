@@ -535,5 +535,19 @@
 	"api.account.usernames": "Username History",
 	"api.account.usernames.public": "Public: %s",
 	"api.account.usernames.delete": "Delete",
-	"api.account.usernames.delete.desc": "Deleting entries from your username history is irreversible.\nAre you sure you want to proceed?"
+	"api.account.usernames.delete.desc": "Deleting entries from your username history is irreversible.\nAre you sure you want to proceed?",
+	"api.channel.configure": "Configure Channel",
+	"slider.text_input": "Toggle Text/Slider input..",
+	"api.chat.groups.name": "Channel Name",
+	"api.chat.persistence.channel": "Channel",
+	"api.chat.persistence.count": "Count",
+	"api.chat.persistence.duration": "Duration",
+	"api.chat.persistence.count_duration": "Count and Duration",
+	"api.chat.groups.persistence": "Persistence",
+	"api.chat.groups.persistence.count": "Persistence: Message Count",
+	"api.chat.groups.persistence.count.tooltip": "The amount of messages to be kept. Messages older than the newest amount will be deleted automatically.",
+	"api.chat.groups.persistence.duration": "Persistence: Duration",
+	"api.chat.groups.persistence.duration.tooltip": "The time to keep messages for. Messages older than this duration will be deleted automatically.",
+	"api.chat.groups.participants": "Participants",
+	"api.chat.groups.add_participants": "Add Participants"
 }
