@@ -22,29 +22,26 @@
 
 package io.github.axolotlclient.modules.hypixel;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.modules.hypixel.levelhead.LevelHeadMode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
-
-/**
- * Based on Osmium by Intro-Dev
- * (<a href="https://github.com/Intro-Dev/Osmium">Github</a>)
- *
- * <p>Original License: CC0-1.0</p>
- *
- * @implNote Provides a layer between the hypixel api and the client to obtain information with minimal api calls
- */
 
 @UtilityClass
 public class HypixelAbstractionLayer {
 
 	private static final Map<String, Map<RequestDataType, Object>> cachedPlayerData = new HashMap<>();
 	private static final Map<String, Integer> tempValues = new HashMap<>();
+	private static Instant ratelimitReset = Instant.now();
 
 	public static int getPlayerLevel(String uuid, LevelHeadMode mode) {
 		int value = -1;
@@ -66,15 +63,24 @@ public class HypixelAbstractionLayer {
 	}
 
 	private int getLevel(String uuid, RequestDataType type) {
-		/*return cache(uuid, type, () ->
-			getHypixelApiData(uuid, type).handleAsync((buf, throwable) -> {
-				if (throwable != null) {
-					APIError.display(throwable);
+		return cache(uuid, type, () -> {
+			synchronized (tempValues) {
+				if (ratelimitReset.isAfter(Instant.now())) {
 					return -1;
 				}
-				return buf.getInt(0x09);
-			}).getNow(-1));*/
-		return -1;
+			}
+			return getHypixelApiData(uuid, type).thenApply(res -> {
+				if (res.getStatus() == 429) {
+					int header = res.firstHeader("RateLimit-Reset").map(Integer::parseInt).orElse(2);
+					ratelimitReset = Instant.now().plus(header, ChronoUnit.SECONDS);
+				}
+				if (res.isError()) {
+					return -1;
+				}
+				Number lvl = res.getBody(type.getId());
+				return lvl.intValue();
+			}).join();
+		});
 	}
 
 	public int getBedwarsLevel(String uuid) {
@@ -82,26 +88,49 @@ public class HypixelAbstractionLayer {
 	}
 
 	public BedwarsData getBedwarsData(String playerUuid) {
-		/*return cache(playerUuid, RequestDataType.BEDWARS_DATA, () ->
-			getHypixelApiData(playerUuid, RequestDataType.BEDWARS_DATA).handleAsync(((buf, throwable) -> {
-				if (throwable != null) {
-					APIError.display(throwable);
+
+		return cache(playerUuid, RequestDataType.BEDWARS_DATA, () -> {
+			synchronized (tempValues) {
+				if (ratelimitReset.isAfter(Instant.now())) {
 					return BedwarsData.EMPTY;
 				}
-				ByteBuf data = buf.slice(0x09, buf.readableBytes() - 0x09);
-				return BufferUtil.unwrap(data, BedwarsData.class);
-			})).getNow(BedwarsData.EMPTY));*/
-		return BedwarsData.EMPTY;
+			}
+			return getHypixelApiData(playerUuid, RequestDataType.BEDWARS_DATA).thenApply(res -> {
+				if (res.getStatus() == 429) {
+					ratelimitReset = Instant.now().plus(res.firstHeader("RateLimit-Reset").map(Integer::parseInt).orElse(2), ChronoUnit.SECONDS);
+				}
+				if (res.isError()) {
+					return BedwarsData.EMPTY;
+				}
+				return new BedwarsData(
+					res.getBody("final_kills_bedwars"),
+					res.getBody("final_deaths_bedwars"),
+					res.getBody("beds_broken_bedwars"),
+					res.getBody("deaths_bedwars"),
+					res.getBody("kills_bedwars"),
+					res.getBody("losses_bedwars"),
+					res.getBody("wins_bedwars"),
+					res.getBody("winstreak")
+				);
+			}).join();
+		});
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> T cache(String uuid, RequestDataType type, Supplier<T> dataSupplier) {
-		return (T) cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>()).computeIfAbsent(type, t -> dataSupplier.get());
+		Map<RequestDataType, Object> map = cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>());
+		if (map.containsKey(type)) {
+			if (map.get(type).equals(-1) || map.get(type).equals(BedwarsData.EMPTY)) {
+				T data = dataSupplier.get();
+				map.put(type, data);
+				return data;
+			}
+		}
+		return (T) map.computeIfAbsent(type, t -> dataSupplier.get());
 	}
 
-	private CompletableFuture<?> getHypixelApiData(String uuid, RequestDataType type) {
-		//return API.getInstance().send(new RequestOld(RequestOld.Type.GET_HYPIXEL_API_DATA, new RequestOld.Data(uuid).add(type.getId())));
-		return new CompletableFuture<>();
+	private CompletableFuture<Response> getHypixelApiData(String uuid, RequestDataType type) {
+		return API.getInstance().get(Request.Route.HYPIXEL.builder().field("request_type", type.getId()).field("target_player", uuid).build());
 	}
 
 	public static void clearPlayerData() {
@@ -119,10 +148,10 @@ public class HypixelAbstractionLayer {
 	@AllArgsConstructor
 	@Getter
 	private enum RequestDataType {
-		NETWORK_LEVEL(0x1),
-		BEDWARS_LEVEL(0x2),
-		SKYWARS_EXPERIENCE(0x3),
-		BEDWARS_DATA(0x4);
-		private final int id;
+		NETWORK_LEVEL("network_level"),
+		BEDWARS_LEVEL("bedwars_level"),
+		SKYWARS_EXPERIENCE("skywars_experience"),
+		BEDWARS_DATA("bedwars_data");
+		private final String id;
 	}
 }

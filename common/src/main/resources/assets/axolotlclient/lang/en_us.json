@@ -473,7 +473,7 @@
 	"api.status.description.in_menu": "Browsing the menus...",
 	"api.status.description.settings": "In the settings...",
 	"api.status.description.main_menu": "Watching the Main menu panorama...",
-	"api.status.title.in_game": "Playing...",
+	"api.status.title.in_game": "Playing on %s",
 	"api.status.title.in_game_unknown": "Enjoying Minecraft",
 	"api.chat.newMessageFrom": "Chat: %s",
 	"api.chat.enterMessage": "Enter Message",

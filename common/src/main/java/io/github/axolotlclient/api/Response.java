@@ -23,10 +23,7 @@
 package io.github.axolotlclient.api;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -37,21 +34,23 @@ import lombok.*;
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Response {
-	public static final Response CLIENT_ERROR = new Response(Collections.emptyMap(), "", 0, new Error(0, "Client Request Error!"));
+	public static final Response CLIENT_ERROR = new Response(Collections.emptyMap(), "", 0, Collections.emptyMap(), new Error(0, "Client Request Error!"));
 
 	private Object body;
 	private final String plainBody;
 	private final int status;
+	private final Map<String, List<String>> headers;
 	private final Error error;
 
 	@Builder
-	private Response(String body, int status) {
+	private Response(String body, int status, Map<String, List<String>> headers) {
 		try {
 			this.body = parseJson(body);
 		} catch (IOException ignored) {
 		}
 		plainBody = body;
 		this.status = status;
+		this.headers = headers;
 		this.error = Error.of(this);
 	}
 
@@ -101,10 +100,9 @@ public class Response {
 		Object o = getBody();
 		for (String s : elements) {
 			s = s.replace("_#+#_", ".");
-			if (!(o instanceof Map<?,?>)) {
+			if (!(o instanceof Map<?, ?> map)) {
 				return null;
 			}
-			Map<?, ?> map = ((Map<?, ?>)o);
 			if (map.containsKey(s)) {
 				o = map.get(s);
 			} else {
@@ -143,11 +141,11 @@ public class Response {
 		return null;
 	}
 
-	@Data
-	public static class Error {
-		private final int httpCode;
-		private final String description;
+	public Optional<String> firstHeader(String name) {
+		return Optional.ofNullable(headers.getOrDefault(name, null)).map(List::getFirst);
+	}
 
+	public record Error(int httpCode, String description) {
 		public static Error of(Response response) {
 			if (response.status >= 200 && response.status < 300) {
 				return null;

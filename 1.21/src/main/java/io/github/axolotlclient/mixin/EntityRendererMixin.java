@@ -35,6 +35,7 @@ import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -83,6 +84,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 							matrices.peek().getModel(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 					} else {
 						RenderSystem.setShaderTexture(0, AxolotlClient.badgeIcon);
+						RenderSystem.setShader(GameRenderer::getPositionTexShader);
 						Tessellator tessellator = Tessellator.getInstance();
 						BufferBuilder builder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);;
 						Matrix4f matrix4f = matrices.peek().getModel();

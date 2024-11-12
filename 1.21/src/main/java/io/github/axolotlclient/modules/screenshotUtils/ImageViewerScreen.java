@@ -42,6 +42,7 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -127,6 +128,7 @@ public class ImageViewerScreen extends Screen {
 				urlBox.setSuggestion("");
 			}
 		});
+		urlBox.setMaxLength(52);
 		if (!url.isEmpty()) {
 			urlBox.setText(url);
 		}
@@ -146,6 +148,9 @@ public class ImageViewerScreen extends Screen {
 				RenderSystem.enableDepthTest();
 				graphics.drawTexture(downloadIcon, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), getWidth(), getHeight());
 			}
+
+			@Override
+			public void drawScrollableText(GuiGraphics graphics, TextRenderer renderer, int color) {}
 		});
 
 		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK,

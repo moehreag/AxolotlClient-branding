@@ -22,18 +22,8 @@
 
 package io.github.axolotlclient.modules.hypixel;
 
-import lombok.Data;
-
-@Data
-public class BedwarsData {
+public record BedwarsData(int finalKills, int finalDeaths, int bedsBroken, int deaths, int kills, int losses, int wins,
+						  int winstreak) {
 	public static BedwarsData EMPTY = new BedwarsData(0, 0, 0, 0, 0, 0, 0, 0);
 
-	private final int finalKills;
-	private final int finalDeaths;
-	private final int bedsBroken;
-	private final int deaths;
-	private final int kills;
-	private final int losses;
-	private final int wins;
-	private final int winstreak;
 }

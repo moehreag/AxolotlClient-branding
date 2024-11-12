@@ -29,6 +29,7 @@ import java.util.Locale;
 
 import io.github.axolotlclient.api.API;
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -41,8 +42,10 @@ public class Status {
 	public static final Status UNKNOWN = new Status(false, null, Activity.UNKNOWN);
 
 	private boolean online;
+	@Nullable
 	private final Instant lastOnline;
-	private final Activity activity;
+	@Nullable
+	private Activity activity;
 
 	public String getDescription() {
 		return activity == null || activity.description.isEmpty() ? "" :
@@ -62,11 +65,7 @@ public class Status {
 				.translate("api.status.last_online", lastOnline.atZone(ZoneId.systemDefault()).format(format));
 	}
 
-	@AllArgsConstructor
-	public static class Activity {
+	public record Activity(String title, String description, Instant started) {
 		private static final Activity UNKNOWN = new Activity("", "", Instant.EPOCH);
-		private final String title;
-		private final String description;
-		private final Instant started;
 	}
 }

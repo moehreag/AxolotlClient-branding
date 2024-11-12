@@ -79,13 +79,13 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 						String map = getOrEmpty(object, "map");
 						int maxPlayers = MinecraftClient.getInstance().world.getPlayers().size();
 						int players = (int) MinecraftClient.getInstance().world.getPlayers().stream().filter(e -> !(e.isCreative() || e.isSpectator())).count();
-						return StatusUpdate.inGame(server, gameType.toString(), gameMode, map, players, maxPlayers, Instant.now().getEpochSecond() - time.getEpochSecond());
+						return StatusUpdate.inGame(server, gameType.toString(), gameMode, map, players, maxPlayers);
 					}
 				}
 			}
 
 			String gamemode = getGameMode(MinecraftClient.getInstance().player);
-			return StatusUpdate.inGameUnknown(entry.address, "", entry.name, gamemode, Instant.now().getEpochSecond() - time.getEpochSecond());
+			return StatusUpdate.inGameUnknown(entry.address, "", entry.name, gamemode);
 
 		}
 

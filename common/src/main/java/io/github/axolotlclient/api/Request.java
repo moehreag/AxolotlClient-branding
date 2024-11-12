@@ -23,14 +23,18 @@
 package io.github.axolotlclient.api;
 
 
+import java.net.URI;
 import java.util.*;
 
 import lombok.Getter;
 import lombok.ToString;
 
 public record Request(Route route, List<String> path, List<String> query,
-					  Map<String, ?> bodyFields, Map<String, String> headers, boolean requiresAuthentication) {
+					  Map<String, ?> bodyFields, byte[] rawBody, Map<String, String> headers, boolean requiresAuthentication) {
 
+	public URI resolve() {
+		return API.getInstance().getUrl(this);
+	}
 
 	@ToString
 	@Getter
@@ -42,12 +46,15 @@ public record Request(Route route, List<String> path, List<String> query,
 		CHANNELS("channels", true),
 		CHANNEL("channel", true),
 		ACCOUNT_SETTINGS("account/settings", true),
+		ACCOUNT_ACTIVITY("account/activity", true),
 		ACCOUNT_DATA("account/data", true),
 		ACCOUNT_USERNAME("account/username", true),
 		ACCOUNT_RELATIONS_FRIENDS("account/relations/friends", true),
 		ACCOUNT_RELATIONS_BLOCKED("account/relations/blocked", true),
 		ACCOUNT_RELATIONS_REQUESTS("account/relations/requests", true),
 		GLOBAL_DATA("global_data"),
+		IMAGE("image"),
+		HYPIXEL("hypixel")
 		;
 
 		private final String path;
@@ -78,6 +85,7 @@ public record Request(Route route, List<String> path, List<String> query,
 		private Map<String, Object> bodyFields;
 		private Map<String, String> headers;
 		private boolean requiresAuthentication;
+		private byte[] rawBody;
 
 		RequestBuilder(Route route) {
 			this.route = route;
@@ -116,6 +124,11 @@ public record Request(Route route, List<String> path, List<String> query,
 			return this;
 		}
 
+		public RequestBuilder rawBody(byte[] body) {
+			this.rawBody = body;
+			return this;
+		}
+
 		public RequestBuilder header(String key, String value) {
 			if (headers == null) {
 				headers = new HashMap<>();
@@ -135,7 +148,10 @@ public record Request(Route route, List<String> path, List<String> query,
 		}
 
 		public Request build() {
-			return new Request(this.route, this.path, this.query, this.bodyFields, this.headers, requiresAuthentication);
+			if (rawBody != null && bodyFields != null) {
+				throw new IllegalArgumentException("Request cannot have json body and raw body at the same time!");
+			}
+			return new Request(this.route, this.path, this.query, this.bodyFields, this.rawBody, this.headers, this.requiresAuthentication);
 		}
 
 		public String toString() {

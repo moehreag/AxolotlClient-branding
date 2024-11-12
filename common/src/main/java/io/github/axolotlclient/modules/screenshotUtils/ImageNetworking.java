@@ -25,9 +25,11 @@ package io.github.axolotlclient.modules.screenshotUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
-import lombok.Data;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Request;
 
 public abstract class ImageNetworking {
 
@@ -42,31 +44,30 @@ public abstract class ImageNetworking {
 	}
 
 	protected CompletableFuture<String> upload(String name, byte[] data) {
-		/*return API.getInstance().send(new RequestOld(RequestOld.Type.UPLOAD_SCREENSHOT,
-			new RequestOld.Data().add(name.length()).add(name).add(data))).handleAsync((buf, throwable) -> {
-			if (throwable != null) {
-				APIError.display(throwable);
-				return "";
-			} else {
-				return BufferUtil.getString(buf, 0x09, buf.readableBytes() - 0x09);
-			}
-		});*/
-		return new CompletableFuture<>();
+		return API.getInstance().post(Request.Route.IMAGE.builder().path(name).rawBody(data).build())
+			.thenApply(response -> response.isError() ? "" : Request.Route.IMAGE.builder()
+				.path(response.getPlainBody())
+				.path("raw").build().resolve().toString());
 	}
 
 	protected ImageData download(String url) {
-		/*return API.getInstance().send(new RequestOld(RequestOld.Type.DOWNLOAD_SCREENSHOT, url)).handleAsync((buf, throwable) -> {
-			int nameLength = buf.getInt(0x09);
-			return new ImageData(BufferUtil.getString(buf, 0x0C, nameLength), BufferUtil.toArray(buf.slice(0x0C + nameLength, buf.readableBytes() - (0x0C + nameLength))));
-		}).getNow(ImageData.EMPTY);*/
-		return ImageData.EMPTY;
+		if (url.endsWith("/raw")) {
+			url = url.substring(0, url.length()-4);
+		}
+		String id = url.substring(url.lastIndexOf("/")+1);
+		return API.getInstance().get(Request.Route.IMAGE.builder().path(id).build())
+			.thenApply(res -> {
+				if (res.isError()) {
+					return ImageData.EMPTY;
+				}
+				String name = res.getBody("filename");
+				String base64 = res.getBody("file");
+				return new ImageData(name, Base64.getDecoder().decode(base64));
+			}).join();
 	}
 
-	@Data
-	public static class ImageData {
+	public record ImageData(String name, byte[] data) {
 		public static final ImageData EMPTY = new ImageData("", new byte[0]);
 
-		private final String name;
-		private final byte[] data;
 	}
 }

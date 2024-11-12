@@ -34,36 +34,23 @@ import lombok.Getter;
  * @author DarkKronicle
  */
 
+@Getter
 @AllArgsConstructor
 public class BedwarsPlayerStats {
 
-	@Getter
 	private final int losses;
-	@Getter
 	private final int wins;
-	@Getter
 	private final int winstreak;
-	@Getter
 	private final int stars;
-	@Getter
 	private int finalKills;
-	@Getter
 	private int finalDeaths;
-	@Getter
 	private int bedsBroken;
-	@Getter
 	private int deaths;
-	@Getter
 	private int kills;
-	@Getter
 	private int gameFinalKills;
-	@Getter
 	private int gameFinalDeaths;
-	@Getter
 	private int gameBedsBroken;
-	@Getter
 	private int gameDeaths;
-	@Getter
 	private int gameKills;
 
 	public static BedwarsPlayerStats generateFake(String name) {
@@ -98,9 +85,9 @@ public class BedwarsPlayerStats {
 
 	public static BedwarsPlayerStats fromAPI(String uuid) {
 		BedwarsData data = HypixelAbstractionLayer.getBedwarsData(uuid);
-		return new BedwarsPlayerStats(data.getFinalKills(), data.getFinalDeaths(), data.getBedsBroken(),
-			data.getDeaths(), data.getKills(), 0, 0, 0,
-			0, 0, data.getLosses(), data.getWins(), data.getWinstreak(),
+		return new BedwarsPlayerStats(data.finalKills(), data.finalDeaths(), data.bedsBroken(),
+			data.deaths(), data.kills(), 0, 0, 0,
+			0, 0, data.losses(), data.wins(), data.winstreak(),
 			HypixelAbstractionLayer.getBedwarsLevel(uuid));
 	}
 

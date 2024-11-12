@@ -22,57 +22,53 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.time.Instant;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.types.Status;
+import io.github.axolotlclient.util.translation.TranslationProvider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 public class StatusUpdate {
 
-	private static Request createStatusUpdate(String titleString, String descriptionString, String iconString) {
-		return null;// TODO
+	private static Request createStatusUpdate(String titleString, String descriptionString) {
+		Status status = API.getInstance().getSelf().getStatus();
+		if (status.getActivity() != null) {
+			Status.Activity prev = status.getActivity();
+			if (prev.title().equals(titleString) && prev.description().equals(descriptionString)) {
+				return null;
+			} else {
+				status.setActivity(new Status.Activity(titleString, descriptionString, Instant.now()));
+			}
+		} else {
+			status.setActivity(new Status.Activity(titleString, descriptionString, Instant.now()));
+		}
+		return Request.Route.ACCOUNT_ACTIVITY.builder().field("title", titleString).field("description", descriptionString)
+			.field("started", status.getActivity().started().toString()).build();
 	}
 
 	public static Request online(MenuId menuId) {
-		return createStatusUpdate(Type.ONLINE.getIdentifier(), menuId.getIdentifier(), "online");
+		return createStatusUpdate("api.status.menu", "api.status.menu."+ menuId.getIdentifier());
 	}
 
-	public static Request inGame(SupportedServer server, String gameType, String gameMode, String map, int players, int maxPlayers, long activityStartedEpochSecs) {
-		return createStatusUpdate(Type.IN_GAME.getIdentifier(), "[PLAYING_GAME_ON:" + gameType + ":" + gameMode + ":" + server.name + "]", "playing");
+	public static Request inGame(SupportedServer server, String gameType, String gameMode, String map, int players, int maxPlayers) {
+		TranslationProvider tr = API.getInstance().getTranslationProvider();
+		return createStatusUpdate(tr.translate("api.status.title.in_game", server.name),  gameType + ": " + gameMode);
 	}
 
-	public static Request inGameUnknown(String server, String worldType, String worldName, String gamemode, long activityStartedEpochSecs) {
-		return createStatusUpdate(Type.IN_GAME_UNKNOWN.getIdentifier(), "[PLAYING_GAME]", "playing");
-	}
-
-	@RequiredArgsConstructor
-	public enum Type {
-		ONLINE("online", 0x1),
-		OFFLINE("offline", 0x2),
-		IN_GAME("inGame", 0x3),
-		IN_GAME_UNKNOWN("inGameUnknown", 0x4);
-
-		private static final Map<Integer, Type> CODES = Arrays.stream(values()).collect(Collectors.toMap(k -> k.code, k -> k));
-		@Getter
-		private final String identifier;
-		@Getter
-		private final int code;
-
-		public static Type fromCode(int code) {
-			return CODES.get(code);
-		}
+	public static Request inGameUnknown(String server, String worldType, String worldName, String gamemode) {
+		return createStatusUpdate("api.status.title.in_game_unknown", worldName);
 	}
 
 	@RequiredArgsConstructor
 	public enum MenuId {
-		IN_MENU("IN_MENU"),
-		MAIN_MENU("MAIN_MENU"),
-		SERVER_LIST("SERVER_LIST"),
-		SETTINGS("SETTINGS");
+		IN_MENU("in_menu"),
+		MAIN_MENU("main_menu"),
+		SERVER_LIST("server_list"),
+		SETTINGS("settings");
 		@Getter
 		private final String identifier;
 	}

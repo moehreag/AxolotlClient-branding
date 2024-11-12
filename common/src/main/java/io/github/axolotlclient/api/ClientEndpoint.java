@@ -42,12 +42,14 @@ public class ClientEndpoint implements WebSocket.Listener {
 			API.getInstance().onMessage(buf.toString());
 			buf = null;
 		}
+		webSocket.request(1);
 		return WebSocket.Listener.super.onText(webSocket, data, last);
 	}
 
 	@Override
 	public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
 		API.getInstance().onClose(statusCode, reason);
+		webSocket.request(1);
 		return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
 	}
 
@@ -64,6 +66,10 @@ public class ClientEndpoint implements WebSocket.Listener {
 
 	@Override
 	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
+		byte[] bytes = new byte[message.remaining()];
+		message.get(bytes);
+		API.getInstance().logDetailed("received pong: {}", Arrays.toString(bytes));
+		webSocket.request(1);
 		return WebSocket.Listener.super.onPong(webSocket, message);
 	}
 
@@ -72,6 +78,7 @@ public class ClientEndpoint implements WebSocket.Listener {
 		byte[] bytes = new byte[message.remaining()];
 		message.get(bytes);
 		API.getInstance().logDetailed("received ping: {}", Arrays.toString(bytes));
+		webSocket.request(1);
 		return WebSocket.Listener.super.onPing(webSocket, message);
 	}
 }

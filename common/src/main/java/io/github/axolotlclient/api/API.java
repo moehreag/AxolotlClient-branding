@@ -101,6 +101,7 @@ public class API {
 		handlers.add(new FriendRequestReactionHandler());
 		handlers.add(new StatusUpdateHandler());
 		Instance = this;
+		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 	}
 
 
@@ -136,7 +137,7 @@ public class API {
 				return;
 			}
 			if (response.isError()) {
-				logger.error("Failed to authenticate!", response.getError().getDescription());
+				logger.error("Failed to authenticate!", response.getError().description());
 				return;
 			}
 
@@ -186,13 +187,13 @@ public class API {
 	private CompletableFuture<Response> request(Request request, String method) {
 		if (request.requiresAuthentication() && !isAuthenticated()) {
 			logger.warn("Tried to request {} {} without authentication, but this request requires it!", method, request);
-			return new CompletableFuture<>();
+			return CompletableFuture.failedFuture(new Throwable("Not Authenticated"));
 		}
 		URI route = getUrl(request);
-		return request(route, request.bodyFields(), method, request.headers());
+		return request(route, request.bodyFields(), request.rawBody(), method, request.headers());
 	}
 
-	private CompletableFuture<Response> request(URI url, Map<String, ?> payload, String method, Map<String, String> headers) {
+	private CompletableFuture<Response> request(URI url, Map<String, ?> payload, byte[] rawBody, String method, Map<String, String> headers) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				logDetailed("Starting request to " + method + " " + url);
@@ -209,7 +210,9 @@ public class API {
 					headers.forEach(builder::header);
 				}
 
-				if (!(payload == null || payload.isEmpty())) {
+				if (rawBody != null) {
+					builder.method(method, HttpRequest.BodyPublishers.ofByteArray(rawBody));
+				} else if (!(payload == null || payload.isEmpty())) {
 					StringBuilder body = new StringBuilder();
 					GsonHelper.GSON.toJson(payload, body);
 					logDetailed("Sending payload: \n" + body);
@@ -227,7 +230,7 @@ public class API {
 
 				int code = response.statusCode();
 				logDetailed("Response: code: " + code + " body: " + body);
-				return Response.builder().body(body).status(code).build();
+				return Response.builder().body(body).status(code).headers(response.headers().map()).build();
 			} catch (ConnectException e) {
 				logger.warn("Backend unreachable!");
 				return Response.CLIENT_ERROR;
@@ -238,7 +241,7 @@ public class API {
 		});
 	}
 
-	private URI getUrl(Request request) {
+	URI getUrl(Request request) {
 		StringBuilder url = new StringBuilder(Constants.API_URL.endsWith("/") ? Constants.API_URL : Constants.API_URL + "/");
 		url.append(request.route().getPath());
 		if (request.path() != null) {
@@ -287,7 +290,7 @@ public class API {
 	}
 
 	public void onMessage(String message) {
-		logDetailed("Handling socket message: ", message);
+		logDetailed("Handling socket message: {}", message);
 
 		Response res = Response.builder().status(200).body(message).build();
 		for (SocketMessageHandler handler : handlers) {
@@ -317,6 +320,7 @@ public class API {
 				logDetailed("Connecting to websocket..");
 				socket = ((Methanol) client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
 					.buildAsync(URI.create(Constants.SOCKET_URL), new ClientEndpoint()).get();
+				socket.request(1);
 				logDetailed("Socket connected");
 			} catch (Exception e) {
 				logger.error("Failed to start Socket! ", e);
