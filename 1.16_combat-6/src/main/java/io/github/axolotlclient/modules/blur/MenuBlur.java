@@ -102,7 +102,7 @@ public class MenuBlur extends AbstractModule {
 	public void updateBlur() {
 		if (enabled.get() && MinecraftClient.getInstance().currentScreen != null && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
 			if ((shader == null || MinecraftClient.getInstance().getFramebuffer().textureWidth != lastWidth
-				|| MinecraftClient.getInstance().getFramebuffer().textureHeight != lastHeight)
+				 || MinecraftClient.getInstance().getFramebuffer().textureHeight != lastHeight)
 				&& MinecraftClient.getInstance().getFramebuffer().textureWidth > 0
 				&& MinecraftClient.getInstance().getFramebuffer().textureHeight > 0) {
 				try {
@@ -159,31 +159,31 @@ public class MenuBlur extends AbstractModule {
 		@Override
 		public InputStream getInputStream() {
 			return IOUtils.toInputStream("{\n" + "    \"targets\": [\n" + "        \"swap\"\n" + "    ],\n"
-				+ "    \"passes\": [\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
-				+ "            \"intarget\": \"minecraft:main\",\n" + "            \"outtarget\": \"swap\",\n"
-				+ "            \"uniforms\": [\n" + "                {\n"
-				+ "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 1.0, 0.0 ]\n"
-				+ "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
-				+ "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
-				+ "        },\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
-				+ "            \"intarget\": \"swap\",\n" + "            \"outtarget\": \"minecraft:main\",\n"
-				+ "            \"uniforms\": [\n" + "                {\n"
-				+ "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 0.0, 1.0 ]\n"
-				+ "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
-				+ "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
-				+ "        },\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
-				+ "            \"intarget\": \"minecraft:main\",\n" + "            \"outtarget\": \"swap\",\n"
-				+ "            \"uniforms\": [\n" + "                {\n"
-				+ "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 1.0, 0.0 ]\n"
-				+ "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
-				+ "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
-				+ "        },\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
-				+ "            \"intarget\": \"swap\",\n" + "            \"outtarget\": \"minecraft:main\",\n"
-				+ "            \"uniforms\": [\n" + "                {\n"
-				+ "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 0.0, 1.0 ]\n"
-				+ "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
-				+ "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
-				+ "        }\n" + "    ]\n" + "}", StandardCharsets.UTF_8);
+										 + "    \"passes\": [\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
+										 + "            \"intarget\": \"minecraft:main\",\n" + "            \"outtarget\": \"swap\",\n"
+										 + "            \"uniforms\": [\n" + "                {\n"
+										 + "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 1.0, 0.0 ]\n"
+										 + "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
+										 + "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
+										 + "        },\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
+										 + "            \"intarget\": \"swap\",\n" + "            \"outtarget\": \"minecraft:main\",\n"
+										 + "            \"uniforms\": [\n" + "                {\n"
+										 + "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 0.0, 1.0 ]\n"
+										 + "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
+										 + "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
+										 + "        },\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
+										 + "            \"intarget\": \"minecraft:main\",\n" + "            \"outtarget\": \"swap\",\n"
+										 + "            \"uniforms\": [\n" + "                {\n"
+										 + "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 1.0, 0.0 ]\n"
+										 + "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
+										 + "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
+										 + "        },\n" + "        {\n" + "            \"name\": \"menu_blur\",\n"
+										 + "            \"intarget\": \"swap\",\n" + "            \"outtarget\": \"minecraft:main\",\n"
+										 + "            \"uniforms\": [\n" + "                {\n"
+										 + "                    \"name\": \"BlurDir\",\n" + "                    \"values\": [ 0.0, 1.0 ]\n"
+										 + "                },\n" + "                {\n" + "                    \"name\": \"Radius\",\n"
+										 + "                    \"values\": [ 0.0 ]\n" + "                }\n" + "            ]\n"
+										 + "        }\n" + "    ]\n" + "}", StandardCharsets.UTF_8);
 		}
 
 		@Nullable

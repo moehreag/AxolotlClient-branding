@@ -41,24 +41,24 @@ public class ScreenshotCopying {
 		boolean wayland = false;
 		try {
 			wayland = GLFW.glfwGetPlatform() == GLFW.GLFW_PLATFORM_WAYLAND;
-		} catch (Throwable ignored){
+		} catch (Throwable ignored) {
 		}
 		IS_WAYLAND = wayland;
 	}
 
 	private static final boolean IS_WAYLAND;
 
-	public void copy(File file){
-		if (IS_WAYLAND){
+	public void copy(File file) {
+		if (IS_WAYLAND) {
 			copyWayland(file);
 		} else {
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new FileTransferable(file), null);
 		}
 	}
 
-	private void copyWayland(File f){
+	private void copyWayland(File f) {
 		try {
-			ProcessBuilder builder = new ProcessBuilder("bash", "-c", "wl-copy -t image/png < "+f.getAbsolutePath());
+			ProcessBuilder builder = new ProcessBuilder("bash", "-c", "wl-copy -t image/png < " + f.getAbsolutePath());
 			Process p = builder.start();
 			p.waitFor();
 		} catch (IOException | InterruptedException ignored) {

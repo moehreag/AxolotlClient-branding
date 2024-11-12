@@ -129,7 +129,7 @@ public class ItemUpdateHud extends TextHudEntry {
 				return;
 			}
 			String message = "+ " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + item.times + Formatting.DARK_GRAY
-				+ "] " + Formatting.RESET + item.stack.getHoverName();
+							 + "] " + Formatting.RESET + item.stack.getHoverName();
 			if (shadow.get()) {
 				client.textRenderer.drawWithShadow(message, pos.x, pos.y + lastY, ClientColors.SELECTOR_GREEN.toInt());
 			} else {
@@ -144,7 +144,7 @@ public class ItemUpdateHud extends TextHudEntry {
 				return;
 			}
 			String message = "- " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + item.times + Formatting.DARK_GRAY
-				+ "] " + Formatting.RESET + item.stack.getHoverName();
+							 + "] " + Formatting.RESET + item.stack.getHoverName();
 			if (shadow.get()) {
 				client.textRenderer.drawWithShadow(message, pos.x, pos.y + lastY, ClientColors.SELECTOR_RED.toInt());
 			} else {
@@ -159,7 +159,7 @@ public class ItemUpdateHud extends TextHudEntry {
 	public void renderPlaceholderComponent(float delta) {
 		DrawPosition pos = getPos();
 		String addM = "+ " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + 2 + Formatting.DARK_GRAY + "] "
-			+ Formatting.RESET + new ItemStack(Blocks.DIRT).getHoverName();
+					  + Formatting.RESET + new ItemStack(Blocks.DIRT).getHoverName();
 		if (shadow.get()) {
 			client.textRenderer.drawWithShadow(addM, pos.x + 1, pos.y + 1, ClientColors.SELECTOR_GREEN.toInt());
 		} else {
@@ -167,7 +167,7 @@ public class ItemUpdateHud extends TextHudEntry {
 				ClientColors.SELECTOR_GREEN.toInt());
 		}
 		String removeM = "- " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + 4 + Formatting.DARK_GRAY + "] "
-			+ Formatting.RESET + new ItemStack(Blocks.GRASS).getHoverName();
+						 + Formatting.RESET + new ItemStack(Blocks.GRASS).getHoverName();
 		if (shadow.get()) {
 			client.textRenderer.drawWithShadow(removeM, pos.x + 1, pos.y + 1 + client.textRenderer.fontHeight + 2,
 				ClientColors.SELECTOR_RED.toInt());

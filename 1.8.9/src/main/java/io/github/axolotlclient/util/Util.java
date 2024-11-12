@@ -140,9 +140,9 @@ public class Util {
 		if (sidebar.isEmpty())
 			game = "";
 		else if (Util.getCurrentServerAddress() != null
-			&& Util.getCurrentServerAddress().toLowerCase().contains(sidebar.get(0).toLowerCase())) {
+				 && Util.getCurrentServerAddress().toLowerCase().contains(sidebar.get(0).toLowerCase())) {
 			if (sidebar.get(sidebar.size() - 1).toLowerCase(Locale.ROOT)
-				.contains(Util.getCurrentServerAddress().toLowerCase(Locale.ROOT))
+					.contains(Util.getCurrentServerAddress().toLowerCase(Locale.ROOT))
 				|| sidebar.get(sidebar.size() - 1).contains("Playtime")) {
 				game = "In Lobby";
 			} else {
@@ -246,7 +246,7 @@ public class Util {
 			return Minecraft.getInstance().getCurrentServerEntry().address.contains(address);
 		}
 		return ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress() != null
-			&& ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress().contains(address);
+			   && ((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress().contains(address);
 	}
 
 	public static void applyScissor(int x, int y, int width, int height) {

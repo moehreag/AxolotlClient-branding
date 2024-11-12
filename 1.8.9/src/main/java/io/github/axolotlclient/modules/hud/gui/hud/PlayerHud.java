@@ -196,7 +196,7 @@ public class PlayerHud extends BoxHudEntry {
 		// inspired by tr7zw's mod
 		LocalClientPlayerEntity player = client.player;
 		return player.isSneaking() || player.isSprinting() || player.abilities.flying
-			|| client.player.isSubmergedIn(Material.WATER) || player.hasVehicle() || player.isUsingItem()
-			|| player.handSwinging || player.hurtTime > 0 || player.isOnFire();
+			   || client.player.isSubmergedIn(Material.WATER) || player.hasVehicle() || player.isUsingItem()
+			   || player.handSwinging || player.hurtTime > 0 || player.isOnFire();
 	}
 }

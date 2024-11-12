@@ -51,12 +51,12 @@ public class StatusUpdate {
 	}
 
 	public static Request online(MenuId menuId) {
-		return createStatusUpdate("api.status.menu", "api.status.menu."+ menuId.getIdentifier());
+		return createStatusUpdate("api.status.menu", "api.status.menu." + menuId.getIdentifier());
 	}
 
 	public static Request inGame(SupportedServer server, String gameType, String gameMode, String map, int players, int maxPlayers) {
 		TranslationProvider tr = API.getInstance().getTranslationProvider();
-		return createStatusUpdate(tr.translate("api.status.title.in_game", server.name),  gameType + ": " + gameMode);
+		return createStatusUpdate(tr.translate("api.status.title.in_game", server.name), gameType + ": " + gameMode);
 	}
 
 	public static Request inGameUnknown(String server, String worldType, String worldName, String gamemode) {

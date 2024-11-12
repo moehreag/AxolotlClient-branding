@@ -52,6 +52,7 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 		dms.render(matrices, mouseX, mouseY, delta);
 		groups.render(matrices, mouseX, mouseY, delta);
 		super.render(matrices, mouseX, mouseY, delta);
+		container.render(matrices, mouseX, mouseY, delta);
 
 		drawCenteredString(matrices, client.textRenderer, I18n.translate("api.chats"), width / 2, 20, -1);
 		drawCenteredString(matrices, client.textRenderer, I18n.translate("api.chat.dms"), width / 2 + 80, 40, -1);
@@ -64,14 +65,13 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 		dms = addChild(new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
 
 		addButton(new ButtonWidget(this.width / 2 + 5, this.height - 40, 150, 20, ScreenTexts.BACK, buttonWidget ->
-				client.openScreen(parent)));
+			client.openScreen(parent)));
 		addButton(new ButtonWidget(this.width / 2 - 155, this.height - 40, 150, 20, new TranslatableText("api.chat.groups.create"), buttonWidget ->
-				client.openScreen(new CreateChannelScreen(this))));
+			client.openScreen(new CreateChannelScreen(this))));
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) -> {
 			groups.addChannels(list);
 			dms.addChannels(list);
 		});
-		addChild(container);
 	}
 
 	@Override
@@ -87,5 +87,16 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 	@Override
 	public Screen getSelf() {
 		return this;
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (container.getMenu() != null) {
+			if (container.mouseClicked(mouseX, mouseY, button)) {
+				return true;
+			}
+			container.removeMenu();
+		}
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 }

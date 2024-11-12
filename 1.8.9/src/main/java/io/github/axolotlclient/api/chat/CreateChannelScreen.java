@@ -62,7 +62,7 @@ public class CreateChannelScreen extends io.github.axolotlclient.AxolotlClientCo
 
 		if (tooltip != null) {
 			tooltipElement = hoveredElement(mouseX, mouseY).orElse(null);
-			renderTooltip(tooltip, mouseX, mouseY);
+			renderTooltip(textRenderer.split(tooltip, 170), mouseX, mouseY);
 		}
 		if (hoveredElement(mouseX, mouseY).map(e -> e != tooltipElement).orElse(true)) {
 			tooltip = null;

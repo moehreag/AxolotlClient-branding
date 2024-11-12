@@ -122,7 +122,7 @@ public class ChatHud extends TextHudEntry {
 					int n = j * m + j;
 					int y = (pos.y + getHeight()) - scrolledLines * n / k;
 					if (((ChatHudAccessor) client.gui.getChat()).getMessages()
-						.size() > getVisibleLineCount()) {
+							.size() > getVisibleLineCount()) {
 						int height = n * n / r;
 						fillRect(pos.x, y, 2, -height, scrollbarColor.get().toInt());
 					}
@@ -143,7 +143,7 @@ public class ChatHud extends TextHudEntry {
 		DrawPosition pos = getPos();
 		if (Minecraft.getInstance().player != null) {
 			client.textRenderer.drawWithShadow("<" + Minecraft.getInstance().player.getDisplayName().getFormattedString()
-				+ "> OOh! There's my Chat now!", pos.x + 1, pos.y + getHeight() - 9, -1);
+											   + "> OOh! There's my Chat now!", pos.x + 1, pos.y + getHeight() - 9, -1);
 		} else {
 			client.textRenderer.drawWithShadow("This is where your new and fresh looking chat will be!", pos.x + 1,
 				pos.y + getHeight() - 9, -1);
@@ -158,7 +158,7 @@ public class ChatHud extends TextHudEntry {
 	public int getVisibleLineCount() {
 		return getHeight(
 			this.isChatFocused() ? this.client.options.focusedChatHeight : this.client.options.unfocusedChatHeight)
-			/ 9;
+			   / 9;
 	}
 
 	public boolean isChatFocused() {

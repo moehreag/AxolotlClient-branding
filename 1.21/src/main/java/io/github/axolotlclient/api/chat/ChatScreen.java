@@ -22,10 +22,8 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.util.Arrays;
-
 import com.mojang.blaze3d.platform.InputUtil;
-import io.github.axolotlclient.api.ContextMenu;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -69,7 +67,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
 			users.setX(width - 80);
-			users.setUsers(Arrays.asList(channel.getAllUsers()));
+			users.setUsers(channel.getAllUsers());
 			addDrawableSelectableElement(users);
 		}
 
@@ -97,8 +95,10 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		});
 		input.setMaxLength(1024);
 
-		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.channel.configure"), b -> client.setScreen(new ChannelSettingsScreen(this, channel)))
-			.positionAndSize(width - 60, 5, 50, 20).build());
+		if (channel.getOwner().equals(API.getInstance().getSelf())) {
+			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.channel.configure"), b -> client.setScreen(new ChannelSettingsScreen(this, channel)))
+				.positionAndSize(width - 60, 5, 50, 20).build());
+		}
 
 		this.addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 			.positionAndSize(this.width / 2 - 75, this.height - 28, 150, 20)

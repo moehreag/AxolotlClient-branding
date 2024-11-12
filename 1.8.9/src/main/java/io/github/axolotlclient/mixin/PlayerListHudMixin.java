@@ -71,7 +71,7 @@ public abstract class PlayerListHudMixin extends GuiElement {
 			&& NickHider.getInstance().hideOwnName.get()) {
 			cir.setReturnValue(NickHider.getInstance().hiddenNameSelf.get());
 		} else if (playerEntry.getProfile().getId() != Minecraft.getInstance().player.getUuid()
-			&& NickHider.getInstance().hideOtherNames.get()) {
+				   && NickHider.getInstance().hideOtherNames.get()) {
 			cir.setReturnValue(NickHider.getInstance().hiddenNameOthers.get());
 		}
 	}

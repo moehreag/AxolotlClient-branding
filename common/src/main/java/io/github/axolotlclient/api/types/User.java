@@ -43,7 +43,7 @@ public class User {
 	@Nullable
 	private PkSystem system;
 
-	public User(String uuid, String name, String relation, Instant registered, Status status, List<OldUsername> previousUsernames){
+	public User(String uuid, String name, String relation, Instant registered, Status status, List<OldUsername> previousUsernames) {
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
 		this.name = name;
@@ -52,7 +52,7 @@ public class User {
 		this.previousUsernames = previousUsernames;
 	}
 
-	public boolean isSystem(){
+	public boolean isSystem() {
 		return system != null;
 	}
 
@@ -79,8 +79,8 @@ public class User {
 		return false;
 	}
 
-	public String getDisplayName(String message){
-		if (!isSystem()){
+	public String getDisplayName(String message) {
+		if (!isSystem()) {
 			return getName();
 		}
 		return getSystem().getProxy(message).orElse(getName());

@@ -55,6 +55,7 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	protected void init() {
+		addDrawable(container);
 		ChatListWidget groups = addDrawableChild(new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
 		ChatListWidget dms = addDrawableChild(new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
 
@@ -67,7 +68,6 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 			groups.addChannels(list);
 			dms.addChannels(list);
 		});
-		addDrawableChild(container);
 	}
 
 	@Override
@@ -83,5 +83,16 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 	@Override
 	public Screen getSelf() {
 		return this;
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (container.getMenu() != null) {
+			if (container.mouseClicked(mouseX, mouseY, button)) {
+				return true;
+			}
+			container.removeMenu();
+		}
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 }

@@ -47,6 +47,7 @@ import net.minecraft.util.Identifier;
 
 public class CreateChannelScreen extends Screen {
 	private final Screen parent;
+
 	protected CreateChannelScreen(Screen parent) {
 		super(Text.translatable("api.chat.groups.create"));
 		this.parent = parent;
@@ -62,7 +63,7 @@ public class CreateChannelScreen extends Screen {
 		content.getDefaultSettings().alignVerticallyTop();
 		content.getDefaultSettings().alignHorizontallyCenter();
 
-		LinearLayoutWidget names = content.add(LinearLayoutWidget.createVertical().setSpacing(20-client.textRenderer.fontHeight+8-5));
+		LinearLayoutWidget names = content.add(LinearLayoutWidget.createVertical().setSpacing(20 - client.textRenderer.fontHeight + 8 - 5));
 		names.getDefaultSettings().setTopPadding(5);
 		LinearLayoutWidget options = content.add(LinearLayoutWidget.createVertical().setSpacing(8));
 		var nameField = new TextFieldWidget(client.textRenderer, 150, 20, Text.empty());
@@ -74,7 +75,7 @@ public class CreateChannelScreen extends Screen {
 
 		AtomicReference<Consumer<Boolean>> countDisabler = new AtomicReference<>();
 		AtomicReference<Consumer<Boolean>> durationDisabler = new AtomicReference<>();
-		var persistence = CyclingButtonWidget.<Persistence.Type>builder(type -> Text.translatable("api.chat.persistence."+type.getId()))
+		var persistence = CyclingButtonWidget.<Persistence.Type>builder(type -> Text.translatable("api.chat.persistence." + type.getId()))
 			.values(Persistence.Type.values()).omitKeyText().build(Text.empty(), (cyclingButtonWidget, object) -> {
 				switch (object) {
 					case COUNT_DURATION -> {
@@ -98,7 +99,7 @@ public class CreateChannelScreen extends Screen {
 		names.add(text("api.chat.groups.persistence"));
 		options.add(persistence);
 		names.add(text("api.chat.groups.persistence.count", "api.chat.groups.persistence.count.tooltip"));
-		countDisabler.set(sliderAssembly(options::add, val -> (int) (val*100d), count::set));
+		countDisabler.set(sliderAssembly(options::add, val -> (int) (val * 100d), count::set));
 		names.add(text("api.chat.groups.persistence.duration", "api.chat.groups.persistence.duration.tooltip"));
 		durationDisabler.set(sliderAssembly(options::add, val -> (long) (val * 100d), duration::set));
 		countDisabler.get().accept(false);
@@ -150,7 +151,8 @@ public class CreateChannelScreen extends Screen {
 			} else {
 				try {
 					slider.onClick(slider.getX() + (1d / slider.getWidth()) * Double.parseDouble(text.getText()), slider.getY());
-				} catch (Exception ignored) {}
+				} catch (Exception ignored) {
+				}
 			}
 			slider.visible = !slider.visible;
 			text.visible = !slider.visible;

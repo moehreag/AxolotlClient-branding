@@ -52,9 +52,9 @@ public abstract class ImageNetworking {
 
 	protected ImageData download(String url) {
 		if (url.endsWith("/raw")) {
-			url = url.substring(0, url.length()-4);
+			url = url.substring(0, url.length() - 4);
 		}
-		String id = url.substring(url.lastIndexOf("/")+1);
+		String id = url.substring(url.lastIndexOf("/") + 1);
 		return API.getInstance().get(Request.Route.IMAGE.builder().path(id).build())
 			.thenApply(res -> {
 				if (res.isError()) {

@@ -64,7 +64,7 @@ public class Zoom extends AbstractModule {
 
 	public static double getFov(double current, float tickDelta) {
 		double result = current
-			* (zoomSpeed.get() == 10 ? targetFactor : Util.lerp(lastAnimatedFactor, animatedFactor, tickDelta));
+						* (zoomSpeed.get() == 10 ? targetFactor : Util.lerp(lastAnimatedFactor, animatedFactor, tickDelta));
 
 		if (lastReturnedFov != 0 && lastReturnedFov != result) {
 			MinecraftClient.getInstance().worldRenderer.scheduleTerrainUpdate();

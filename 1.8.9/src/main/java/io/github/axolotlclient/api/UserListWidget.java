@@ -126,11 +126,11 @@ public class UserListWidget extends EntryListWidget {
 
 		@Override
 		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
-			if (user.isSystem()){
+			if (user.isSystem()) {
 				String fronters = user.getSystem().getFronters().stream()
 					.map(PkSystem.Member::getDisplayName).collect(Collectors.joining("/"));
-				String tag = Formatting.ITALIC + Formatting.GRAY.toString() + "("+user.getSystem().getName()+"/"+user.getName()+")";
-				client.textRenderer.draw(fronters+" "+tag, x+3, y+1, -1);
+				String tag = Formatting.ITALIC + Formatting.GRAY.toString() + "(" + user.getSystem().getName() + "/" + user.getName() + ")";
+				client.textRenderer.draw(fronters + " " + tag, x + 3, y + 1, -1);
 			} else {
 				client.textRenderer.draw(user.getName(), x + 3 + 33, y + 1, -1);
 			}

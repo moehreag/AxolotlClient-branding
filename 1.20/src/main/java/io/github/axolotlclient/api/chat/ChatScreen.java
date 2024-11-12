@@ -22,17 +22,16 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.util.Arrays;
-
 import com.mojang.blaze3d.platform.InputUtil;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -61,6 +60,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	protected void init() {
+		addDrawable(contextMenu);
 
 		addDrawableChild(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
 
@@ -69,7 +69,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
 			users.setLeftPos(width - 80);
-			users.setUsers(Arrays.asList(channel.getAllUsers()));
+			users.setUsers(channel.getAllUsers());
 			addDrawableChild(users);
 		}
 
@@ -97,15 +97,15 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		});
 		input.setMaxLength(1024);
 
-		addDrawableChild(ButtonWidget.builder(Text.translatable("api.channel.configure"), b -> client.setScreen(new ChannelSettingsScreen(this, channel)))
-			.positionAndSize(width - 60, 5, 50, 20).build());
+		if (channel.getOwner().equals(API.getInstance().getSelf())) {
+			addDrawableChild(ButtonWidget.builder(Text.translatable("api.channel.configure"), b -> client.setScreen(new ChannelSettingsScreen(this, channel)))
+				.positionAndSize(width - 60, 5, 50, 20).build());
+		}
 
 		this.addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 			.positionAndSize(this.width / 2 - 75, this.height - 28, 150, 20)
 			.build()
 		);
-
-		addDrawableChild(contextMenu);
 	}
 
 	@Override

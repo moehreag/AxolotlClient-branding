@@ -30,7 +30,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 public record Request(Route route, List<String> path, List<String> query,
-					  Map<String, ?> bodyFields, byte[] rawBody, Map<String, String> headers, boolean requiresAuthentication) {
+					  Map<String, ?> bodyFields, byte[] rawBody, Map<String, String> headers,
+					  boolean requiresAuthentication) {
 
 	public URI resolve() {
 		return API.getInstance().getUrl(this);
@@ -54,8 +55,7 @@ public record Request(Route route, List<String> path, List<String> query,
 		ACCOUNT_RELATIONS_REQUESTS("account/relations/requests", true),
 		GLOBAL_DATA("global_data"),
 		IMAGE("image"),
-		HYPIXEL("hypixel")
-		;
+		HYPIXEL("hypixel");
 
 		private final String path;
 		private final boolean requiresAuthentication;
@@ -64,6 +64,7 @@ public record Request(Route route, List<String> path, List<String> query,
 			this.path = path;
 			requiresAuthentication = false;
 		}
+
 		Route(String path, boolean requiresAuthentication) {
 			this.path = path;
 			this.requiresAuthentication = requiresAuthentication;

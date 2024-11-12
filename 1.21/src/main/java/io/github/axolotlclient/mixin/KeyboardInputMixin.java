@@ -45,7 +45,7 @@ public abstract class KeyboardInputMixin {
 	public boolean axolotlclient$toggleSneak(KeyBind instance) {
 		ToggleSprintHud hud = (ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID);
 		return hud.isEnabled() && hud.getSneakToggled().get() && MinecraftClient.getInstance().currentScreen == null
-			|| instance.isPressed();
+			   || instance.isPressed();
 	}
 
 	@Inject(method = "tick", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/option/KeyBind;isPressed()Z", ordinal = 5))

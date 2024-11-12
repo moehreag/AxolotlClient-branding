@@ -74,7 +74,7 @@ public class MotionBlur extends AbstractModule {
 
 	public void onUpdate() {
 		if ((shader == null || MinecraftClient.getInstance().getFramebuffer().textureWidth != lastWidth
-			|| MinecraftClient.getInstance().getWindow().getHeight() != lastHeight)
+			 || MinecraftClient.getInstance().getWindow().getHeight() != lastHeight)
 			&& MinecraftClient.getInstance().getFramebuffer().textureWidth > 0
 			&& MinecraftClient.getInstance().getWindow().getHeight() > 0) {
 			currentBlur = getBlur();
@@ -112,17 +112,17 @@ public class MotionBlur extends AbstractModule {
 		public InputStream getInputStream() {
 			try {
 				return IOUtils.toInputStream(String.format("{" + "    \"targets\": [" + "        \"swap\","
-					+ "        \"previous\"" + "    ]," + "    \"passes\": [" + "        {"
-					+ "            \"name\": \"motion_blur\"," + "            \"intarget\": \"minecraft:main\","
-					+ "            \"outtarget\": \"swap\"," + "            \"auxtargets\": [" + "                {"
-					+ "                    \"name\": \"PrevSampler\"," + "                    \"id\": \"previous\""
-					+ "                }" + "            ]," + "            \"uniforms\": [" + "                {"
-					+ "                    \"name\": \"BlendFactor\"," + "                    \"values\": [ %s ]"
-					+ "                }" + "            ]" + "        }," + "        {"
-					+ "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
-					+ "            \"outtarget\": \"previous\"" + "        }," + "        {"
-					+ "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
-					+ "            \"outtarget\": \"minecraft:main\"" + "        }" + "    ]" + "}", getBlur()), "utf-8");
+														   + "        \"previous\"" + "    ]," + "    \"passes\": [" + "        {"
+														   + "            \"name\": \"motion_blur\"," + "            \"intarget\": \"minecraft:main\","
+														   + "            \"outtarget\": \"swap\"," + "            \"auxtargets\": [" + "                {"
+														   + "                    \"name\": \"PrevSampler\"," + "                    \"id\": \"previous\""
+														   + "                }" + "            ]," + "            \"uniforms\": [" + "                {"
+														   + "                    \"name\": \"BlendFactor\"," + "                    \"values\": [ %s ]"
+														   + "                }" + "            ]" + "        }," + "        {"
+														   + "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
+														   + "            \"outtarget\": \"previous\"" + "        }," + "        {"
+														   + "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
+														   + "            \"outtarget\": \"minecraft:main\"" + "        }" + "    ]" + "}", getBlur()), "utf-8");
 			} catch (IOException e) {
 				return null;
 			}

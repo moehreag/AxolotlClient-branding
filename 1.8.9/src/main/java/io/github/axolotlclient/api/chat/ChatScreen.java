@@ -22,8 +22,7 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.util.Arrays;
-
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -80,11 +79,11 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, minecraft, 80, height - 20, 30, height - 60, 25);
 			users.setX(width - 80);
-			users.setUsers(Arrays.asList(channel.getAllUsers()));
+			users.setUsers(channel.getAllUsers());
 		}
 
 		input = new TextFieldWidget(5, minecraft.textRenderer, width / 2 - 150, height - 50,
-				300, 20) {
+			300, 20) {
 
 			@Override
 			public boolean keyPressed(char c, int i) {
@@ -101,16 +100,18 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 				super.render();
 				if (getText().isEmpty()) {
 					drawString(textRenderer, I18n.translate(channel.isDM() ? "api.chat.messageUser" : "api.chat.messageGroup", channel.getName()),
-							x + 2, y + 6, -8355712);
+						x + 2, y + 6, -8355712);
 				}
 			}
 		};
 		input.setMaxLength(1024);
 
-		buttons.add(new ButtonWidget(2, width - 60, 5, 50, 20, I18n.translate("api.channel.configure")));
+		if (channel.getOwner().equals(API.getInstance().getSelf())) {
+			buttons.add(new ButtonWidget(2, width - 60, 5, 50, 20, I18n.translate("api.channel.configure")));
+		}
 
 		this.buttons.add(new ButtonWidget(1, this.width / 2 - 75, this.height - 28, 150, 20,
-				I18n.translate("gui.back")));
+			I18n.translate("gui.back")));
 		Keyboard.enableRepeatEvents(true);
 	}
 

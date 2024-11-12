@@ -148,7 +148,7 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 		}
 		int scaledX = floatToInt(x.get().floatValue(), (int) Util.getWindow().getScaledWidth(), 0) - offsetTrueWidth();
 		int scaledY = floatToInt(y.get().floatValue(), (int) Util.getWindow().getScaledHeight(), 0)
-			- offsetTrueHeight();
+					  - offsetTrueHeight();
 		if (scaledX < 0) {
 			scaledX = 0;
 		}

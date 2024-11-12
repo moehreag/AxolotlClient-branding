@@ -44,7 +44,7 @@ public class ChannelSettingsScreen extends Screen {
 	private final Channel channel;
 
 	protected ChannelSettingsScreen(Screen parent, Channel channel) {
-		super(Text.translatable("api.chat.groups.configure"));
+		super(Text.translatable("api.channel.configure"));
 		this.parent = parent;
 		this.channel = channel;
 	}
@@ -57,7 +57,7 @@ public class ChannelSettingsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableChild(new TextWidget(width/2 - textRenderer.getWidth(title) /2, 36 / 2 - textRenderer.fontHeight /2, textRenderer.getWidth(title), textRenderer.fontHeight, title, textRenderer));
+		addDrawableChild(new TextWidget(width / 2 - textRenderer.getWidth(title) / 2, 36 / 2 - textRenderer.fontHeight / 2, textRenderer.getWidth(title), textRenderer.fontHeight, title, textRenderer));
 
 		int leftColX = width / 2 - 4 - 150;
 		int leftColYStep = textRenderer.fontHeight + 20 - textRenderer.fontHeight + 8 - 5 + 5;
@@ -79,26 +79,26 @@ public class ChannelSettingsScreen extends Screen {
 		AtomicReference<Consumer<Boolean>> countDisabler = new AtomicReference<>();
 		AtomicReference<Consumer<Boolean>> durationDisabler = new AtomicReference<>();
 		var persistence = CyclingButtonWidget.<Persistence.Type>builder(type -> Text.translatable("api.chat.persistence." + type.getId()))
-				.values(Persistence.Type.values()).omitKeyText().build(rightColX, rightColY, 150, 20, Text.empty(), (cyclingButtonWidget, object) -> {
-					switch (object) {
-						case COUNT_DURATION -> {
-							countDisabler.get().accept(true);
-							countDisabler.get().accept(true);
-						}
-						case DURATION -> {
-							durationDisabler.get().accept(true);
-							countDisabler.get().accept(false);
-						}
-						case COUNT -> {
-							countDisabler.get().accept(true);
-							durationDisabler.get().accept(false);
-						}
-						case CHANNEL -> {
-							countDisabler.get().accept(false);
-							durationDisabler.get().accept(false);
-						}
+			.values(Persistence.Type.values()).omitKeyText().build(rightColX, rightColY, 150, 20, Text.empty(), (cyclingButtonWidget, object) -> {
+				switch (object) {
+					case COUNT_DURATION -> {
+						countDisabler.get().accept(true);
+						countDisabler.get().accept(true);
 					}
-				});
+					case DURATION -> {
+						durationDisabler.get().accept(true);
+						countDisabler.get().accept(false);
+					}
+					case COUNT -> {
+						countDisabler.get().accept(true);
+						durationDisabler.get().accept(false);
+					}
+					case CHANNEL -> {
+						countDisabler.get().accept(false);
+						durationDisabler.get().accept(false);
+					}
+				}
+			});
 		persistence.setValue(channel.getPersistence().type());
 		rightColY += rightColYStep;
 		addDrawableChild(text("api.chat.groups.persistence", leftColX, leftColY));
@@ -123,8 +123,8 @@ public class ChannelSettingsScreen extends Screen {
 		addDrawableChild(ButtonWidget.builder(CommonTexts.CANCEL, widget -> client.setScreen(parent)).positionAndSize(width / 2 - 150 - 4, footerY, 150, 20).build());
 		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, widget -> {
 			ChannelRequest.updateChannel(channel.getId(), nameField.getText(),
-					Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-					Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
 			client.setScreen(parent);
 		}).positionAndSize(width / 2 + 4, footerY, 150, 20).build());
 	}
@@ -165,8 +165,8 @@ public class ChannelSettingsScreen extends Screen {
 			protected void drawWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 				super.drawWidget(graphics, mouseX, mouseY, delta);
 				graphics.drawTexture(new Identifier("axolotlclient", "textures/gui/sprites/cursor.png"),
-						getX() + getWidth()/2 - 4, getY() + getHeight()/2 - 4,
-						8, 8, 0, 0, 8, 8, 8, 8);
+					getX() + getWidth() / 2 - 4, getY() + getHeight() / 2 - 4,
+					8, 8, 0, 0, 8, 8, 8, 8);
 
 			}
 		};
@@ -177,22 +177,22 @@ public class ChannelSettingsScreen extends Screen {
 
 	private ClickableWidget text(String translationKey, int x, int y) {
 		Text text = Text.translatable(translationKey);
-		return new AbstractTextWidget(x, y, 150, textRenderer.fontHeight, text, textRenderer){
+		return new AbstractTextWidget(x, y, 150, textRenderer.fontHeight, text, textRenderer) {
 
 			@Override
 			protected void drawWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-				drawScrollingText(graphics, textRenderer, getMessage(), getX(), getY(), getX()+getWidth(), getY()+getHeight(), getTextColor());
+				drawScrollingText(graphics, textRenderer, getMessage(), getX(), getY(), getX() + getWidth(), getY() + getHeight(), getTextColor());
 			}
 		};
 	}
 
 	private ClickableWidget text(String translationKey, String tooltipKey, int x, int y) {
 		Text text = Text.translatable(translationKey);
-		AbstractTextWidget widget = new AbstractTextWidget(x, y, textRenderer.getWidth(text), textRenderer.fontHeight, text, textRenderer){
+		AbstractTextWidget widget = new AbstractTextWidget(x, y, textRenderer.getWidth(text), textRenderer.fontHeight, text, textRenderer) {
 
 			@Override
 			protected void drawWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-				drawScrollingText(graphics, textRenderer, getMessage(), getX(), getY(), getX()+getWidth(), getY()+getHeight(), getTextColor());
+				drawScrollingText(graphics, textRenderer, getMessage(), getX(), getY(), getX() + getWidth(), getY() + getHeight(), getTextColor());
 			}
 		};
 		widget.setTooltip(Tooltip.create(Text.translatable(tooltipKey)));

@@ -148,7 +148,7 @@ public class CreditsScreen extends Screen {
 			AxolotlClient.configManager.save();
 			stopBGM();
 			button.message = I18n.translate("creditsBGM") + ": "
-				+ I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off");
+							 + I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off");
 		}
 	}
 
@@ -158,7 +158,7 @@ public class CreditsScreen extends Screen {
 			new ButtonWidget(0, width / 2 - 75, height - 50 + 22, 150, 20, I18n.translate("back")));
 
 		this.buttons.add(new ButtonWidget(1, 6, this.height - 26, 100, 20, I18n.translate("creditsBGM")
-			+ ": " + I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off")));
+																		   + ": " + I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off")));
 
 		credits.clear();
 		initCredits();

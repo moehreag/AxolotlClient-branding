@@ -62,18 +62,18 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 					assert MinecraftClient.getInstance().player != null;
 					int x = -(MinecraftClient.getInstance().textRenderer
-						.getWidth(
-							entity.getUuid() == MinecraftClient.getInstance().player.getUuid()
-								? (NickHider.getInstance().hideOwnName.get()
-								? NickHider.getInstance().hiddenNameSelf.get()
-								: Team.decorateName(entity.getScoreboardTeam(), entity.getName())
-								.getString())
-								: (NickHider.getInstance().hideOtherNames.get()
-								? NickHider.getInstance().hiddenNameOthers.get()
-								: Team.decorateName(entity.getScoreboardTeam(), entity.getName())
-								.getString()))
-						/ 2
-						+ (AxolotlClient.CONFIG.customBadge.get() ? MinecraftClient.getInstance().textRenderer
+								  .getWidth(
+									  entity.getUuid() == MinecraftClient.getInstance().player.getUuid()
+										  ? (NickHider.getInstance().hideOwnName.get()
+										  ? NickHider.getInstance().hiddenNameSelf.get()
+										  : Team.decorateName(entity.getScoreboardTeam(), entity.getName())
+										  .getString())
+										  : (NickHider.getInstance().hideOtherNames.get()
+										  ? NickHider.getInstance().hiddenNameOthers.get()
+										  : Team.decorateName(entity.getScoreboardTeam(), entity.getName())
+										  .getString()))
+							  / 2
+							  + (AxolotlClient.CONFIG.customBadge.get() ? MinecraftClient.getInstance().textRenderer
 						.getWidth(" " + Formatting.strip(AxolotlClient.CONFIG.badgeText.get())) : 10));
 
 					RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -86,7 +86,8 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						RenderSystem.setShaderTexture(0, AxolotlClient.badgeIcon);
 						RenderSystem.setShader(GameRenderer::getPositionTexShader);
 						Tessellator tessellator = Tessellator.getInstance();
-						BufferBuilder builder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);;
+						BufferBuilder builder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+						;
 						Matrix4f matrix4f = matrices.peek().getModel();
 						builder.xyz(matrix4f, x, 0, 0).uv0(0, 0);
 						builder.xyz(matrix4f, x, 8, 0).uv0(0, 8);

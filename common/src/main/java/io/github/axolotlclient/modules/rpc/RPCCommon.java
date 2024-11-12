@@ -57,6 +57,7 @@ public abstract class RPCCommon implements Module {
 	private final Instant time = Instant.now();
 	private final Logger logger;
 	private IPCClient client;
+
 	public RPCCommon(Logger logger) {
 		this.logger = logger;
 	}

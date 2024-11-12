@@ -104,12 +104,12 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 
 		@Override
 		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			if (user.isSystem()){
+			if (user.isSystem()) {
 				MutableText fronters = Text.literal(user.getSystem().getFronters().stream()
 					.map(PkSystem.Member::getDisplayName).collect(Collectors.joining("/")));
-				Text tag = Text.literal("("+user.getSystem().getName()+"/"+user.getName()+")")
+				Text tag = Text.literal("(" + user.getSystem().getName() + "/" + user.getName() + ")")
 					.setStyle(Style.EMPTY.withItalic(true).withColor(Formatting.GRAY));
-				graphics.drawText(client.textRenderer, fronters.append(tag), x+3, y+1, -1, false);
+				graphics.drawText(client.textRenderer, fronters.append(tag), x + 3, y + 1, -1, false);
 			} else {
 				graphics.drawText(client.textRenderer, user.getName(), x + 3 + 33, y + 1, -1, false);
 			}

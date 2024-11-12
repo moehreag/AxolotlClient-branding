@@ -68,7 +68,7 @@ public class UsernameManagementScreen extends Screen {
 
 	@Override
 	public void resize(MinecraftClient client, int width, int height) {
-		widget.updateSize(width, height, 45, height-55);
+		widget.updateSize(width, height, 45, height - 55);
 		super.resize(client, width, height);
 	}
 

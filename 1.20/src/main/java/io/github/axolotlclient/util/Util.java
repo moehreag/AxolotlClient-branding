@@ -29,14 +29,16 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.glfw.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.scoreboard.*;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.scoreboard.ScoreboardPlayerScore;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ChatUtil;
@@ -44,7 +46,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
 
 public class Util {
 	public static String lastgame;
@@ -69,10 +70,10 @@ public class Util {
 		if (sidebar.isEmpty())
 			game = "";
 		else if (MinecraftClient.getInstance().getCurrentServerEntry() != null
-			&& MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
-			.contains(sidebar.get(0).toLowerCase())) {
+				 && MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
+					 .contains(sidebar.get(0).toLowerCase())) {
 			if (sidebar.get(sidebar.size() - 1).toLowerCase(Locale.ROOT)
-				.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
+					.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
 				|| sidebar.get(sidebar.size() - 1).contains("Playtime")) {
 				game = "In Lobby";
 			} else {
@@ -183,14 +184,6 @@ public class Util {
 
 	public static void sendChatMessage(Text msg) {
 		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(msg);
-	}
-
-	public static void applyScissor(int x, int y, int width, int height) {
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		Window window = MinecraftClient.getInstance().getWindow();
-		double scale = window.getScaleFactor();
-		GL11.glScissor((int) (x * scale), (int) ((window.getScaledHeight() - height - y) * scale),
-			(int) (width * scale), (int) (height * scale));
 	}
 
 	public static Identifier getTexture(GraphicsOption option) {

@@ -42,7 +42,7 @@ public abstract class BuiltinModelItemRendererMixin {
 		if (AxolotlClient.CONFIG.lowShield.get()
 			&& MinecraftClient.getInstance().options.getPerspective().isFirstPerson()
 			&& (mode.equals(ModelTransformationMode.FIRST_PERSON_LEFT_HAND)
-			|| mode.equals(ModelTransformationMode.FIRST_PERSON_RIGHT_HAND))) {
+				|| mode.equals(ModelTransformationMode.FIRST_PERSON_RIGHT_HAND))) {
 			matrices.translate(0, 0.2F, 0);
 		}
 	}

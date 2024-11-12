@@ -33,6 +33,7 @@ public class NoSaveConfigManager implements ConfigManager {
 
 	private final OptionCategory root;
 	private final List<String> suppressed = new ArrayList<>();
+
 	public NoSaveConfigManager(OptionCategory root) {
 		this.root = root;
 	}

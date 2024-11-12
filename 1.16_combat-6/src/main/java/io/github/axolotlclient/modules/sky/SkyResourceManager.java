@@ -122,7 +122,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 								}
 								if (id.getPath().contains("world")) {
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
-										+ "/" + option[1].replace("./", "");
+												+ "/" + option[1].replace("./", "");
 								}
 							}
 						}

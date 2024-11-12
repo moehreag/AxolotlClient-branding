@@ -198,7 +198,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 					(float) color.getBlue() / 255, (float) color.getAlpha() / 255);
 				graphics.drawTexture(ICONS_TEXTURE,
 					(int) (((client.getWindow().getScaledWidth() / getScale()) - 15) / 2),
-					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2),0, 0, 15, 15);
+					(int) (((client.getWindow().getScaledHeight() / getScale()) - 15) / 2), 0, 0, 15, 15);
 			} else {
 				// Draw crosshair
 				RenderSystem.setShaderColor((float) color.getRed() / 255, (float) color.getGreen() / 255,

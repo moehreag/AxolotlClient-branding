@@ -63,7 +63,7 @@ public class ChatHandler implements SocketMessageHandler {
 	@Override
 	public void handle(Response response) {
 		Instant time = Instant.now();
-		String channelId = response.getBody("channel", d -> Long.toUnsignedString((long)d));
+		String channelId = response.getBody("channel", d -> Long.toUnsignedString((long) d));
 		String sender = response.getBody("sender");
 		String senderName = response.getBody("sender_name");
 		String content = response.getBody("content");

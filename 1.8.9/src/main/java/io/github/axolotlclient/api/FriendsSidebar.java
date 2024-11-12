@@ -42,7 +42,6 @@ import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Formatting;
-import net.minecraft.text.TranslatableText;
 import org.lwjgl.input.Keyboard;
 
 public class FriendsSidebar extends Screen implements ContextMenuScreen {

@@ -70,7 +70,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity> extends 
 			if (NickHider.getInstance().hideOwnName.get() && instance.equals(Minecraft.getInstance().player)) {
 				return new LiteralText(NickHider.getInstance().hiddenNameSelf.get());
 			} else if (NickHider.getInstance().hideOtherNames.get()
-				&& !instance.equals(Minecraft.getInstance().player)) {
+					   && !instance.equals(Minecraft.getInstance().player)) {
 				return new LiteralText(NickHider.getInstance().hiddenNameOthers.get());
 			}
 		}

@@ -110,12 +110,15 @@ public class ContextMenu implements ParentElement, Drawable {
 			y += d.getHeight();
 			width = Math.max(width, d.getWidth());
 		}
+		matrices.push();
+		matrices.translate(0, 0, 200);
 		DrawableHelper.fill(matrices, xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(matrices, xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (AbstractButtonWidget c : children) {
 			c.setWidth(width);
 			c.render(matrices, mouseX, mouseY, delta);
 		}
+		matrices.pop();
 	}
 
 	public static class Builder {

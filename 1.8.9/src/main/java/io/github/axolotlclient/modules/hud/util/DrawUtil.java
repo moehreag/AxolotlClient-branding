@@ -24,12 +24,9 @@ package io.github.axolotlclient.modules.hud.util;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
-import io.github.axolotlclient.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.render.TextRenderer;
-import net.minecraft.client.render.Window;
-import org.lwjgl.opengl.GL11;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -104,7 +101,7 @@ public class DrawUtil extends GuiElement {
 	}
 
 	public static void enableScissor(int x1, int y1, int x2, int y2) {
-		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(x1, y1, x2-x1, y2-y1);
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(x1, y1, x2 - x1, y2 - y1);
 	}
 
 	public static void disableScissor() {

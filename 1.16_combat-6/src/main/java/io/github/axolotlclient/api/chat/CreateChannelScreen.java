@@ -59,6 +59,7 @@ public class CreateChannelScreen extends Screen {
 		renderBackground(graphics);
 		drawCenteredText(graphics, textRenderer, title, width / 2, 36 / 2 - textRenderer.fontHeight / 2, -1);
 		super.render(graphics, mouseX, mouseY, delta);
+		hoveredElement(mouseX, mouseY).filter(e -> e instanceof ButtonWidget).map(b -> (ButtonWidget)b).ifPresent(b -> b.renderToolTip(graphics, mouseX, mouseY));
 	}
 
 	@Override
@@ -145,8 +146,8 @@ public class CreateChannelScreen extends Screen {
 		addButton(new ButtonWidget(width / 2 - 150 - 4, footerY, 150, 20, ScreenTexts.CANCEL, widget -> client.openScreen(parent)));
 		addButton(new ButtonWidget(width / 2 + 4, footerY, 150, 20, ScreenTexts.DONE, widget -> {
 			ChannelRequest.createChannel(nameField.getText(),
-					Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-					Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
 			client.openScreen(parent);
 		}));
 	}
@@ -197,8 +198,8 @@ public class CreateChannelScreen extends Screen {
 				this.drawTexture(matrices, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
 				client.getTextureManager().bindTexture(new Identifier("axolotlclient", "textures/gui/sprites/cursor.png"));
 				drawTexture(matrices,
-						x + getWidth() / 2 - 4, y + getHeight() / 2 - 4,
-						8, 8, 0, 0, 8, 8, 8, 8);
+					x + getWidth() / 2 - 4, y + getHeight() / 2 - 4,
+					8, 8, 0, 0, 8, 8, 8, 8);
 
 			}
 		};
@@ -215,7 +216,7 @@ public class CreateChannelScreen extends Screen {
 
 			@Override
 			public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-				DrawUtil.drawScrollingText(matrices, getMessage(), x, y, width, height, Colors.WHITE);
+				DrawUtil.drawScrollingText(matrices, getMessage(), this.x, this.y, this.width, this.height, Colors.WHITE);
 			}
 
 			@Override
@@ -231,12 +232,12 @@ public class CreateChannelScreen extends Screen {
 
 			@Override
 			public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-				DrawUtil.drawScrollingText(matrices, getMessage(), x, y, width, height, Colors.WHITE);
+				DrawUtil.drawScrollingText(matrices, getMessage(), this.x, this.y, this.width, this.height, Colors.WHITE);
 			}
 
 			@Override
 			public void renderToolTip(MatrixStack matrices, int mouseX, int mouseY) {
-				CreateChannelScreen.this.renderTooltip(matrices, new TranslatableText(tooltipKey), mouseX, mouseY);
+				CreateChannelScreen.this.renderOrderedTooltip(matrices, textRenderer.wrapLines(new TranslatableText(tooltipKey), 170), mouseX, mouseY);
 			}
 
 			@Override

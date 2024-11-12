@@ -42,7 +42,6 @@ import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.Persistence;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.resource.Identifier;
 
@@ -53,7 +52,7 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 	private Element tooltipElement;
 
 	protected ChannelSettingsScreen(Screen parent, Channel channel) {
-		super(I18n.translate("api.chat.groups.configure"));
+		super(I18n.translate("api.channel.configure"));
 		this.parent = parent;
 		this.channel = channel;
 	}
@@ -65,7 +64,7 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 
 		if (tooltip != null) {
 			tooltipElement = hoveredElement(mouseX, mouseY).orElse(null);
-			renderTooltip(tooltip, mouseX, mouseY);
+			renderTooltip(textRenderer.split(tooltip, 170), mouseX, mouseY);
 		}
 		if (hoveredElement(mouseX, mouseY).map(e -> e != tooltipElement).orElse(true)) {
 			tooltip = null;
@@ -157,8 +156,8 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 		addDrawableChild(new VanillaButtonWidget(width / 2 - 150 - 4, footerY, 150, 20, I18n.translate("gui.cancel"), widget -> minecraft.openScreen(parent)));
 		addDrawableChild(new VanillaButtonWidget(width / 2 + 4, footerY, 150, 20, I18n.translate("gui.done"), widget -> {
 			ChannelRequest.updateChannel(channel.getId(), nameField.getText(),
-					Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-					Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
 			minecraft.openScreen(parent);
 		}));
 	}

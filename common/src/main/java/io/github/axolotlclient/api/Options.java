@@ -69,11 +69,12 @@ public abstract class Options implements Module {
 	public final BooleanOption autoproxy = new BooleanOption("api.pk_autoproxy", false);
 	public final EnumOption<PkSystem.ProxyMode> autoproxyMode = new EnumOption<>("api.pk_proxymode", PkSystem.ProxyMode.class, PkSystem.ProxyMode.PROXY_OFF);
 	public final StringOption autoproxyMember = new StringOption("api.pk_autoproxy_member", "", s -> {
-		if (API.getInstance().getSelf() != null && API.getInstance().getSelf().getSystem() != null){
+		if (API.getInstance().getSelf() != null && API.getInstance().getSelf().getSystem() != null) {
 			API.getInstance().getSelf().getSystem().updateAutoproxyMember(s);
 		}
 	});
-	Consumer<Boolean> settingUpdated = b -> {};
+	Consumer<Boolean> settingUpdated = b -> {
+	};
 	public final BooleanOption showRegistered = new BooleanOption("api.account.settings.show_registered", true, settingUpdated::accept);
 	public final BooleanOption retainUsernames = new BooleanOption("api.account.settings.retain_usernames", true, settingUpdated::accept);
 	public final BooleanOption showLastOnline = new BooleanOption("api.account.settings.show_last_online", true, settingUpdated::accept);

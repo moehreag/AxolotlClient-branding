@@ -26,12 +26,10 @@ import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -119,18 +117,10 @@ public class DrawUtil extends DrawableHelper {
 	}
 
 	public static void enableScissor(int x1, int y1, int x2, int y2) {
-		Window window = MinecraftClient.getInstance().getWindow();
-		int i = window.getFramebufferHeight();
-		double d = window.getScaleFactor();
-		double e = (double) x1 * d;
-		double f = (double) i - (double) y2 * d;
-		double g = (double) (x2 - x1) * d;
-		double h = (double) (y2 - y1) * d;
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		GL11.glScissor((int) e, (int) f, Math.max(0, (int) g), Math.max(0, (int) h));
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(x1, y1, x2 - x1, y2 - y1);
 	}
 
 	public static void disableScissor() {
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.popScissor();
 	}
 }

@@ -125,16 +125,16 @@ public class BedwarsGame {
 		String topBar = getFormattedTime();
 		if (me.getStats() != null) {
 			topBar += "\n" +
-				"K: " + me.getStats().getGameKills() +
-				" D: " + me.getStats().getGameDeaths() +
-				" B: " + me.getStats().getGameBedsBroken();
+					  "K: " + me.getStats().getGameKills() +
+					  " D: " + me.getStats().getGameDeaths() +
+					  " B: " + me.getStats().getGameBedsBroken();
 		}
 		return topBar;
 	}
 
 	private String calculateBottomBarText() {
 		return Formatting.DARK_AQUA + "Last Kill: " + Formatting.RESET + (lastKill == null ? "N/A" : lastKill.getColoredName()) +
-			Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
+			   Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
 		// left in here because it'll be useful later on
 		/*Comparator<BedwarsPlayer> comparator = Comparator.comparingInt(o -> o.getStats().getGameKills());
 		return "Top 3 Killers: \n" + players.values().stream().filter(Objects::nonNull)
@@ -223,7 +223,7 @@ public class BedwarsGame {
 	private String formatBed(BedwarsTeam team, BedwarsPlayer breaker) {
 		String playerFormatted = getPlayerFormatted(breaker);
 		return "§6§l§oBED BROKEN §8§l> " + team.getColorSection() + team.getName() + " Bed §7/broken/ " + playerFormatted +
-			(breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" + breaker.getStats().getBedsBroken());
+			   (breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" + breaker.getStats().getBedsBroken());
 	}
 
 	private String formatDeath(BedwarsPlayer player, @Nullable BedwarsPlayer killer, BedwarsDeathType type, boolean finalDeath) {

@@ -84,8 +84,8 @@ public abstract class GameMenuScreenMixin extends Screen {
 			return;
 
 		if (!Minecraft.getInstance().isInSingleplayer() && ((Minecraft.getInstance().getServer() != null
-			&& Minecraft.getInstance().getServer().isPublished())
-			|| Minecraft.getInstance().getCurrentServerEntry() != null)) {
+															 && Minecraft.getInstance().getServer().isPublished())
+															|| Minecraft.getInstance().getCurrentServerEntry() != null)) {
 			args.set(0, 20);
 			args.set(5, I18n.translate("title_short"));
 		}

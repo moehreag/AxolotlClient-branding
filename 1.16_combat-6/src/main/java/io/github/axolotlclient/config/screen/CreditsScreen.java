@@ -33,7 +33,6 @@ import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
 import io.github.axolotlclient.util.ClientColors;
-import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
@@ -58,7 +57,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 
 public class CreditsScreen extends Screen {
 
@@ -205,7 +203,7 @@ public class CreditsScreen extends Screen {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
-			|| creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			   || creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 	}
 
 	@Override
@@ -286,9 +284,9 @@ public class CreditsScreen extends Screen {
 
 		@Override
 		protected void renderList(MatrixStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
-			Util.applyScissor(0, top, this.width, bottom - top);
+			DrawUtil.enableScissor(left, top, right, bottom);
 			super.renderList(matrices, x, y, mouseX, mouseY, delta);
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			DrawUtil.disableScissor();
 		}
 
 		@Override

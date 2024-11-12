@@ -168,7 +168,7 @@ public class ScreenshotUtils extends AbstractModule {
 				action.doAction(file);
 			} else {
 				AxolotlClient.LOGGER.warn("How'd you manage to do this? "
-					+ "Now there's a screenshot ClickEvent without a File attached to it!");
+										  + "Now there's a screenshot ClickEvent without a File attached to it!");
 			}
 		}
 

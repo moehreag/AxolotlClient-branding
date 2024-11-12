@@ -549,5 +549,7 @@
 	"api.chat.groups.persistence.duration": "Persistence: Duration",
 	"api.chat.groups.persistence.duration.tooltip": "The time to keep messages for. Messages older than this duration will be deleted automatically.",
 	"api.chat.groups.participants": "Participants",
-	"api.chat.groups.add_participants": "Add Participants"
+	"api.chat.groups.add_participants": "Add Participants",
+	"api.channel.delete": "Delete Channel",
+	"api.channel.leave": "Leave Channel"
 }

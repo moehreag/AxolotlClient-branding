@@ -85,7 +85,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	public int getRowWidth() {
-		return width-60;
+		return width - 60;
 	}
 
 	private void addMessage(ChatMessage message) {
@@ -178,7 +178,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 					.spacer();
 				if (!origin.sender().equals(API.getInstance().getSelf())) {
 					builder.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
-							ChannelRequest.getOrCreateDM(origin.sender().getUuid())
+							ChannelRequest.getOrCreateDM(origin.sender())
 								.whenCompleteAsync((channel, throwable) -> client.execute(() -> client.setScreen(new ChatScreen(screen.getParent(), channel))));
 						})
 						.spacer();

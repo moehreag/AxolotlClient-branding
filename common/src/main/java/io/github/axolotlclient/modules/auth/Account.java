@@ -118,7 +118,7 @@ public class Account {
 		if (obj instanceof Account) {
 			Account other = (Account) obj;
 			return name.equals(other.name) &&
-				uuid.equals(other.uuid);
+				   uuid.equals(other.uuid);
 		}
 		return false;
 	}

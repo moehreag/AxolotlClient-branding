@@ -117,7 +117,7 @@ public class CreditsScreen extends Screen {
 		credits.clear();
 		initCredits();
 
-		creditsList = new CreditsList(client, width, height-100, 50, 25);
+		creditsList = new CreditsList(client, width, height - 100, 50, 25);
 		addSelectableElement(creditsList);
 
 		this.addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
@@ -191,7 +191,7 @@ public class CreditsScreen extends Screen {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
-			|| creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			   || creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 	}
 
 	@Override

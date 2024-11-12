@@ -181,8 +181,8 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 			World world = this.client.world;
 			if (world.getBlockState(blockPos).getBlock() != null
 				&& (world.getBlockState(blockPos).getBlock() instanceof ChestBlock
-				|| world.getBlockState(blockPos).getBlock() instanceof EnderChestBlock
-				|| world.getBlockState(blockPos).getBlock() instanceof HopperBlock)) {
+					|| world.getBlockState(blockPos).getBlock() instanceof EnderChestBlock
+					|| world.getBlockState(blockPos).getBlock() instanceof HopperBlock)) {
 				return containerColor.get();
 			}
 		}

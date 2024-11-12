@@ -66,7 +66,7 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 			groups.addChannels(list);
 			dms.addChannels(list);
 		});
-		addDrawableSelectableElement(container);
+		addDrawable(container);
 	}
 
 	@Override
@@ -82,5 +82,16 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 	@Override
 	public Screen getSelf() {
 		return this;
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (container.getMenu() != null) {
+			if (container.mouseClicked(mouseX, mouseY, button)) {
+				return true;
+			}
+			container.removeMenu();
+		}
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 }

@@ -57,13 +57,13 @@ public class UsernameManagementScreen extends Screen {
 		}
 		addDrawableChild(widget);
 		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen())
-			.positionAndSize(width/2-75, height-25-20, 150, 20).build());
+			.positionAndSize(width / 2 - 75, height - 25 - 20, 150, 20).build());
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredShadowedText(client.textRenderer, getTitle(), width/2, 25, -1);
+		graphics.drawCenteredShadowedText(client.textRenderer, getTitle(), width / 2, 25, -1);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class UsernameManagementScreen extends Screen {
 	private class UsernameListWidget extends ElementListWidget<UsernameListWidget.UsernameListEntry> {
 
 		public UsernameListWidget(List<User.OldUsername> names) {
-			super(UsernameManagementScreen.this.client, UsernameManagementScreen.this.width, UsernameManagementScreen.this.height, 45, UsernameManagementScreen.this.height-55, 20);
+			super(UsernameManagementScreen.this.client, UsernameManagementScreen.this.width, UsernameManagementScreen.this.height, 45, UsernameManagementScreen.this.height - 55, 20);
 
 			names.forEach(n -> addEntry(new UsernameListEntry(n)));
 		}
@@ -98,13 +98,13 @@ public class UsernameManagementScreen extends Screen {
 				}).width(100).build();
 				delete = ButtonWidget.builder(Text.translatable("api.account.usernames.delete"), w ->
 					client.setScreen(new ConfirmScreen(b -> {
-					if (b) {
-						AccountUsernameRequest.delete(name.getName()).thenRun(() ->
-							UsernameListWidget.this.removeEntry(this));
-					}
-					client.setScreen(UsernameManagementScreen.this);
-				}, Text.translatable("api.account.confirm_deletion"),
-					Text.translatable("api.account.usernames.delete.desc")))).width(100).build();
+						if (b) {
+							AccountUsernameRequest.delete(name.getName()).thenRun(() ->
+								UsernameListWidget.this.removeEntry(this));
+						}
+						client.setScreen(UsernameManagementScreen.this);
+					}, Text.translatable("api.account.confirm_deletion"),
+						Text.translatable("api.account.usernames.delete.desc")))).width(100).build();
 				this.name = name.getName();
 			}
 

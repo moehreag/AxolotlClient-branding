@@ -31,7 +31,6 @@ public enum Relation {
 	NONE("none"),
 	REQUEST("request"),
 	FRIEND("friend"),
-	BLOCKED("blocked")
-	;
+	BLOCKED("blocked");
 	private final String id;
 }

@@ -49,8 +49,9 @@ import net.minecraft.util.Identifier;
 public class ChannelSettingsScreen extends Screen {
 	private final Screen parent;
 	private final Channel channel;
+
 	protected ChannelSettingsScreen(Screen parent, Channel channel) {
-		super(Text.translatable("api.chat.channel.configure", channel.getName()));
+		super(Text.translatable("api.channel.configure", channel.getName()));
 		this.parent = parent;
 		this.channel = channel;
 	}
@@ -64,7 +65,7 @@ public class ChannelSettingsScreen extends Screen {
 		content.getDefaultSettings().alignVerticallyTop();
 		content.getDefaultSettings().alignHorizontallyCenter();
 
-		LinearLayoutWidget names = content.add(LinearLayoutWidget.createVertical().setSpacing(20-client.textRenderer.fontHeight+8-5));
+		LinearLayoutWidget names = content.add(LinearLayoutWidget.createVertical().setSpacing(20 - client.textRenderer.fontHeight + 8 - 5));
 		names.getDefaultSettings().setTopPadding(5);
 		LinearLayoutWidget options = content.add(LinearLayoutWidget.createVertical().setSpacing(8));
 
@@ -103,7 +104,7 @@ public class ChannelSettingsScreen extends Screen {
 		names.add(text("api.chat.groups.persistence"));
 		options.add(persistence);
 		names.add(text("api.chat.groups.persistence.count", "api.chat.groups.persistence.count.tooltip"));
-		countDisabler.set(sliderAssembly(options::add, val -> (int) (val*100d), count::set, channel.getPersistence().count() / 100d));
+		countDisabler.set(sliderAssembly(options::add, val -> (int) (val * 100d), count::set, channel.getPersistence().count() / 100d));
 		names.add(text("api.chat.groups.persistence.duration", "api.chat.groups.persistence.duration.tooltip"));
 		durationDisabler.set(sliderAssembly(options::add, val -> (long) (val * 100d), duration::set, channel.getPersistence().duration() / 100d));
 		countDisabler.get().accept(false);
@@ -155,7 +156,8 @@ public class ChannelSettingsScreen extends Screen {
 			} else {
 				try {
 					slider.onClick(slider.getX() + (1d / slider.getWidth()) * Double.parseDouble(text.getText()), slider.getY());
-				} catch (Exception ignored) {}
+				} catch (Exception ignored) {
+				}
 			}
 			slider.visible = !slider.visible;
 			text.visible = !slider.visible;

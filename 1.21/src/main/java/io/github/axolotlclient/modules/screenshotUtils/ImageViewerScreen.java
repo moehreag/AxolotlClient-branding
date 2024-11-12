@@ -150,7 +150,8 @@ public class ImageViewerScreen extends Screen {
 			}
 
 			@Override
-			public void drawScrollableText(GuiGraphics graphics, TextRenderer renderer, int color) {}
+			public void drawScrollableText(GuiGraphics graphics, TextRenderer renderer, int color) {
+			}
 		});
 
 		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK,

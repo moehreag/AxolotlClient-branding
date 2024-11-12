@@ -37,10 +37,11 @@ public class AxolotlClientCommon {
 	public static final String VERSION = readVersion();
 	private final Logger logger;
 
-	public AxolotlClientCommon(Logger logger){
+	public AxolotlClientCommon(Logger logger) {
 		instance = this;
 		this.logger = logger;
 	}
+
 	@SuppressWarnings("unchecked")
 	private static String readVersion() {
 		try {

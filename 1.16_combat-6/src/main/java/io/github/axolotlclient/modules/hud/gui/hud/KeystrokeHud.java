@@ -183,7 +183,7 @@ public class KeystrokeHud extends TextHudEntry {
 		return new Keystroke(bounds, offset, key, (stroke, matrices) -> {
 			Rectangle strokeBounds = stroke.bounds;
 			float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
-				- ((float) client.textRenderer.getWidth(word) / 2);
+					  - ((float) client.textRenderer.getWidth(word) / 2);
 			float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
 
 			drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());

@@ -72,10 +72,10 @@ public class Util {
 		if (sidebar.isEmpty())
 			game = "";
 		else if (MinecraftClient.getInstance().getCurrentServerEntry() != null
-			&& MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
-			.contains(sidebar.get(0).toLowerCase())) {
+				 && MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
+					 .contains(sidebar.get(0).toLowerCase())) {
 			if (sidebar.get(sidebar.size() - 1).toLowerCase(Locale.ROOT)
-				.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
+					.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
 				|| sidebar.get(sidebar.size() - 1).contains("Playtime")) {
 				game = "In Lobby";
 			} else {

@@ -56,7 +56,7 @@ public class SkyResourceManager extends AbstractModule {
 
 	public void reload(ResourceManager resourceManager) {
 		SkyboxManager.getInstance().clearSkyboxes();
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager)resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
 			.findResources("fabricskyboxes", "sky", identifier -> identifier.getPath().endsWith(".json"))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());
@@ -66,14 +66,14 @@ public class SkyResourceManager extends AbstractModule {
 				JsonObject.class)));
 		}
 
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager)resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
 			.findResources("minecraft", "optifine/sky", identifier -> isMCPSky(identifier.getPath()))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());
 			loadMCPSky("optifine", entry.getKey(), entry.getValue());
 		}
 
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager)resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
 			.findResources("minecraft", "mcpatcher/sky", identifier -> isMCPSky(identifier.getPath()))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());
@@ -106,7 +106,7 @@ public class SkyResourceManager extends AbstractModule {
 								}
 								if (id.getPath().contains("world")) {
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
-										+ "/" + option[1].replace("./", "");
+												+ "/" + option[1].replace("./", "");
 								}
 							}
 						}

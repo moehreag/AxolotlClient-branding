@@ -34,15 +34,18 @@ public abstract class Persistence {
 	public int count() {
 		return 0;
 	}
+
 	public long duration() {
 		return 0;
 	}
+
 	public static class Channel extends Persistence {
 		@Override
 		public Type type() {
 			return Type.CHANNEL;
 		}
 	}
+
 	@AllArgsConstructor
 	private static class Duration extends Persistence {
 
@@ -65,6 +68,7 @@ public abstract class Persistence {
 			return map;
 		}
 	}
+
 	@AllArgsConstructor
 	private static class Count extends Persistence {
 
@@ -87,10 +91,12 @@ public abstract class Persistence {
 			return map;
 		}
 	}
+
 	@AllArgsConstructor
 	private static class CountDuration extends Persistence {
 		private final int count;
 		private final long duration;
+
 		@Override
 		public Type type() {
 			return Type.COUNT_DURATION;
@@ -121,8 +127,7 @@ public abstract class Persistence {
 		CHANNEL("channel"),
 		COUNT("count"),
 		DURATION("duration"),
-		COUNT_DURATION("count_duration")
-		;
+		COUNT_DURATION("count_duration");
 		private final String id;
 	}
 

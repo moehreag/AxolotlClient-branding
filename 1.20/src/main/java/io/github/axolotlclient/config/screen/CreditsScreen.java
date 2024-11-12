@@ -28,13 +28,11 @@ import java.util.List;
 
 import com.mojang.blaze3d.glfw.Window;
 import com.mojang.blaze3d.platform.InputUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
 import io.github.axolotlclient.util.ClientColors;
-import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.GuiGraphics;
@@ -55,7 +53,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 public class CreditsScreen extends Screen {
 
@@ -196,7 +193,7 @@ public class CreditsScreen extends Screen {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
-			|| creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			   || creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 	}
 
 	@Override

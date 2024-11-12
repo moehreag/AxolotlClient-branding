@@ -25,8 +25,8 @@ package io.github.axolotlclient.api;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.chat.ChatScreen;
-import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.ChannelRequest;
+import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.LanScanWidget;
@@ -132,7 +132,7 @@ public class FriendsScreen extends Screen {
 	public void openChat() {
 		UserListWidget.UserListEntry entry = widget.getSelectedEntry();
 		if (entry != null) {
-			ChannelRequest.getOrCreateDM(entry.getUser().getUuid())
+			ChannelRequest.getOrCreateDM(entry.getUser())
 				.whenCompleteAsync((c, t) -> minecraft.submit(() -> minecraft.openScreen(new ChatScreen(this, c))));
 		}
 	}

@@ -84,7 +84,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			textRenderer.drawWithShadow(graphics, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM()) {
 				textRenderer.drawWithShadow(graphics, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
-						sidebarAnimX + 80, 30, 8421504);
+					sidebarAnimX + 80, 30, 8421504);
 			}
 			chatWidget.render(graphics, mouseX, mouseY, delta);
 		}
@@ -103,11 +103,11 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		if (parent != null) {
 			parent.children().stream().filter(element -> element instanceof AbstractButtonWidget)
-					.map(e -> (AbstractButtonWidget) e).filter(e -> e.getMessage().equals(new TranslatableText("api.friends"))).forEach(e -> e.visible = false);
+				.map(e -> (AbstractButtonWidget) e).filter(e -> e.getMessage().equals(new TranslatableText("api.friends"))).forEach(e -> e.visible = false);
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-				addChild(this.list = new ListWidget(list, 10, 30, 50, height - 60))
+			addChild(this.list = new ListWidget(list, 10, 30, 50, height - 60))
 		);
 
 		addButton(new ButtonWidget(10 - sidebarWidth, height - 30, 50, 20, new TranslatableText("gui.back"), buttonWidget -> remove()));
@@ -206,7 +206,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
 			w = Math.max(client.textRenderer.getWidth(chatUser.getStatus().getTitle() + ":" + chatUser.getStatus().getDescription()),
-					client.textRenderer.getWidth(channel.getName()));
+				client.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = client.textRenderer.getWidth(channel.getName());
 		}
@@ -268,8 +268,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			this.height = height;
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-					.map(channel -> new ButtonWidget(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
-							Text.of(channel.getName()), buttonWidget -> addChat(channel))).collect(Collectors.toList());
+				.map(channel -> new ButtonWidget(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
+					Text.of(channel.getName()), buttonWidget -> addChat(channel))).collect(Collectors.toList());
 		}
 
 		@Override

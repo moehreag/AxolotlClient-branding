@@ -29,8 +29,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -110,12 +110,15 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 			y += d.getHeight();
 			width = Math.max(width, d.getWidth());
 		}
+		graphics.getMatrices().push();
+		graphics.getMatrices().translate(0, 0, 200);
 		graphics.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		graphics.drawBorder(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ClickableWidget c : children) {
 			c.setWidth(width);
 			c.render(graphics, mouseX, mouseY, delta);
 		}
+		graphics.getMatrices().pop();
 	}
 
 	@Override

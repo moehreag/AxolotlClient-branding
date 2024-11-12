@@ -72,12 +72,15 @@ public class ContextMenu {
 			width = Math.max(width, d.getWidth());
 		}
 		height = y;
+		GlStateManager.pushMatrix();
+		GlStateManager.translatef(0, 0, 200);
 		GuiElement.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ButtonWidget c : children) {
 			c.setWidth(width);
 			c.render(Minecraft.getInstance(), mouseX, mouseY);
 		}
+		GlStateManager.popMatrix();
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

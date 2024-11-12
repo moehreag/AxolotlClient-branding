@@ -65,10 +65,9 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			if (menu.mouseClicked(mouseX, mouseY, button)) {
-				removeMenu();
-				return true;
-			}
+			boolean bl = menu.mouseClicked(mouseX, mouseY, button);
+			removeMenu();
+			return bl;
 		}
 		return false;
 	}
