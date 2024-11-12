@@ -28,6 +28,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.glfw.Window;
 import com.mojang.blaze3d.platform.InputUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
@@ -91,14 +92,15 @@ public class CreditsScreen extends Screen {
 		}
 
 		renderBackground(graphics);
+		if (creditOverlay == null) {
+			creditsList.render(graphics, mouseX, mouseY, tickDelta);
+		}
 		super.render(graphics, mouseX, mouseY, tickDelta);
 
 		DrawUtil.drawCenteredString(graphics, this.textRenderer, I18n.translate("credits"), width / 2, 20, -1, true);
 
 		if (creditOverlay != null) {
 			creditOverlay.render(graphics);
-		} else {
-			creditsList.render(graphics, mouseX, mouseY, tickDelta);
 		}
 	}
 
@@ -116,22 +118,12 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public List<? extends Element> children() {
-		if (CreditsScreen.this.creditOverlay != null) {
-			List<? extends Element> l = new ArrayList<>(super.children());
-			l.remove(creditsList);
-			return l;
-		}
-		return super.children();
-	}
-
-	@Override
 	public void init() {
 		credits.clear();
 		initCredits();
 
 		creditsList = new CreditsList(client, width, height, 50, height - 50, 25);
-		addDrawableChild(creditsList);
+		addSelectableChild(creditsList);
 
 		this.addDrawableChild(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
 			if (creditOverlay == null) {
@@ -238,13 +230,6 @@ public class CreditsScreen extends Screen {
 				}
 				builder.put(NarrationPart.HINT, cs.toString());
 			}
-		}
-
-		@Override
-		protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-			Util.applyScissor(0, top, this.width, bottom-top);
-			super.renderList(graphics, mouseX, mouseY, delta);
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}
 
 		@Override

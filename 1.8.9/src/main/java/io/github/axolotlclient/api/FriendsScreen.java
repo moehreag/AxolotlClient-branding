@@ -133,7 +133,7 @@ public class FriendsScreen extends Screen {
 		UserListWidget.UserListEntry entry = widget.getSelectedEntry();
 		if (entry != null) {
 			ChannelRequest.getOrCreateDM(entry.getUser().getUuid())
-				.whenCompleteAsync((c, t) -> minecraft.openScreen(new ChatScreen(this, c)));
+				.whenCompleteAsync((c, t) -> minecraft.submit(() -> minecraft.openScreen(new ChatScreen(this, c))));
 		}
 	}
 

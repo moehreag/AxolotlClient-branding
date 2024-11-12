@@ -37,7 +37,7 @@ public class Credits {
 		contributor("YakisikliBaran", "Turkish Translation");
 		contributor("TheKodeToad", "Contributor", "Motion Blur", "Freelook", "Zoom");
 		contributor("DragonEggBedrockBreaking", "Bugfixes", "Inspiration of new Features");
-		contributor("Astralchroma", "Backend development");
+		contributor("Astralchroma", "Backend Development", "Backend Hosting");
 		contributor("gart", "gartbin dev and host", "Image sharing help", "https://gart.sh", "Backend developer");
 		contributor("xlingy", "Website author");
 		contributor("DarkKronicle", "Bedwars Overlay", "Author of KronHUD, the best HUD mod!");

@@ -205,7 +205,7 @@ public class FriendsScreen extends Screen {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
 		if (entry != null) {
 			ChannelRequest.getOrCreateDM(entry.getUser().getUuid())
-				.whenCompleteAsync((c, t) -> client.setScreen(new ChatScreen(this, c)));
+				.whenCompleteAsync((c, t) -> client.execute(() -> client.setScreen(new ChatScreen(this, c))));
 		}
 	}
 

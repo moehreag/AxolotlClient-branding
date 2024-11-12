@@ -113,22 +113,12 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public List<? extends Element> children() {
-		if (CreditsScreen.this.creditOverlay != null) {
-			List<? extends Element> l = new ArrayList<>(super.children());
-			l.remove(creditsList);
-			return l;
-		}
-		return super.children();
-	}
-
-	@Override
 	public void init() {
 		credits.clear();
 		initCredits();
 
-		creditsList = new CreditsList(client, width, height, 50, height - 50, 25);
-		addDrawableSelectableElement(creditsList);
+		creditsList = new CreditsList(client, width, height-100, 50, 25);
+		addSelectableElement(creditsList);
 
 		this.addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.BACK, buttonWidget -> {
 			if (creditOverlay == null) {
@@ -211,9 +201,9 @@ public class CreditsScreen extends Screen {
 
 	private class CreditsList extends ElementListWidget<Credit> {
 
-		public CreditsList(MinecraftClient minecraftClient, int width, int height, int top, int bottom,
+		public CreditsList(MinecraftClient minecraftClient, int width, int height, int top,
 						   int entryHeight) {
-			super(minecraftClient, top, width, bottom-top, entryHeight);
+			super(minecraftClient, width, height, top, entryHeight);
 			this.setRenderHeader(false, 0);
 
 			for (Credit c : credits) {
