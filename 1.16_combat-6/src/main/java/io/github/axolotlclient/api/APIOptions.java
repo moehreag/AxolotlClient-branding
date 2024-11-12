@@ -54,7 +54,7 @@ public class APIOptions extends Options {
 		KeyBinding binding = new KeyBinding("api.friends.sidebar.open", GLFW.GLFW_KEY_O, "category.axolotlclient");
 		KeyBindingHelper.registerKeyBinding(binding);
 		ClientTickEvents.END_CLIENT_TICK.register(c -> {
-			if (binding.wasPressed()) {
+			if (binding.wasPressed() && API.getInstance().isAuthenticated()) {
 				c.openScreen(new FriendsSidebar(c.currentScreen));
 			}
 		});

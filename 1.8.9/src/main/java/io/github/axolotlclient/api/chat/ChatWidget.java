@@ -22,10 +22,13 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.api.ContextMenu;
@@ -37,7 +40,6 @@ import io.github.axolotlclient.api.types.ChatMessage;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.util.ClientColors;
-import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -70,22 +72,26 @@ public class ChatWidget extends EntryListWidget {
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		ThreadExecuter.scheduleTask(() ->
-			Arrays.stream(channel.getMessages()).forEach(this::addMessage));
+		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
+
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);
-		ChatHandler.getInstance().setEnableNotifications(message -> !Arrays.stream(channel.getUsers()).collect(Collectors.toSet()).contains(message.sender()));
+		ChatHandler.getInstance().setEnableNotifications(message -> !message.channelId().equals(channel.getId()));
 
 		scroll(getMaxScroll());
+		renderSelectionHighlight = false;
 	}
-
 
 	@Override
 	protected int getScrollbarPosition() {
-		return x + width - 5;
+		return x + width - 6;
 	}
 
 	@Override
+	public int getRowWidth() {
+		return width - 60;
+	}
+
 	protected boolean isEntrySelected(int i) {
 		return i == selectedEntry;
 	}
@@ -95,12 +101,12 @@ public class ChatWidget extends EntryListWidget {
 
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
-		if (messages.size() > 0) {
-			ChatMessage prev = messages.get(messages.size() - 1);
-			if (!prev.sender().equals(message.sender())) {
+		if (!messages.isEmpty()) {
+			ChatMessage prev = messages.getLast();
+			if (!(prev.sender().equals(message.sender()) && prev.senderDisplayName().equals(message.senderDisplayName()))) {
 				entries.add(new NameChatLine(message));
 			} else {
-				if (prev.timestamp() - message.timestamp() > 150) {
+				if (prev.timestamp().getEpochSecond() - message.timestamp().getEpochSecond() > 150) {
 					entries.add(new NameChatLine(message));
 				}
 			}
@@ -111,18 +117,18 @@ public class ChatWidget extends EntryListWidget {
 		list.forEach(t -> entries.add(new ChatLine(t, message)));
 		messages.add(message);
 
-		entries.sort(Comparator.comparingLong(c -> c.getOrigin().timestamp()));
+		entries.sort(Comparator.comparingLong(c -> c.getOrigin().timestamp().getEpochSecond()));
 
 		if (scrollToBottom) {
 			scroll(getMaxScroll());
 		}
-		messages.sort(Comparator.comparingLong(ChatMessage::timestamp));
+		messages.sort(Comparator.comparingLong(value -> value.timestamp().getEpochSecond()));
 	}
 
 	private void loadMessages() {
 		long before;
-		if (messages.size() > 0) {
-			before = messages.get(0).timestamp();
+		if (!messages.isEmpty()) {
+			before = messages.getFirst().timestamp().getEpochSecond();
 		} else {
 			before = Instant.now().getEpochSecond();
 		}
@@ -184,25 +190,27 @@ public class ChatWidget extends EntryListWidget {
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
 			if (button == 0) {
 				ChatWidget.this.selectedEntry = index;
+				return true;
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
-					.entry(origin.sender().getName(), buttonWidget -> {
-					})
-					.spacer()
-					.entry("api.friends.chat", buttonWidget -> {
-						ChannelRequest.getOrCreateDM(origin.sender().getUuid())
-							.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
-					})
-					.spacer()
-					.entry("api.chat.report.message", buttonWidget -> {
-						ChatHandler.getInstance().reportMessage(origin);
-					})
-					.spacer()
-					.entry("action.copy", buttonWidget -> {
-						Screen.setClipboard(origin.content());
-					});
+						.entry(origin.sender().getName(), buttonWidget -> {
+						})
+						.spacer()
+						.entry("api.friends.chat", buttonWidget -> {
+							ChannelRequest.getOrCreateDM(origin.sender().getUuid())
+									.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
+						})
+						.spacer()
+						.entry("api.chat.report.message", buttonWidget -> {
+							ChatHandler.getInstance().reportMessage(origin);
+						})
+						.spacer()
+						.entry("action.copy", buttonWidget -> {
+							Screen.setClipboard(origin.content());
+						});
 				screen.setContextMenu(builder.build());
+				return true;
 			}
 			return false;
 		}
@@ -236,7 +244,7 @@ public class ChatWidget extends EntryListWidget {
 				}
 			}
 			renderExtras(x, y, mouseX, mouseY);
-			Minecraft.getInstance().textRenderer.draw(content, x, y, -1);
+			client.textRenderer.draw(content, x, y, -1);
 		}
 	}
 
@@ -246,10 +254,10 @@ public class ChatWidget extends EntryListWidget {
 
 		public NameChatLine(ChatMessage message) {
 			super(new LiteralText(message.senderDisplayName())
-				.setStyle(new Style().setBold(true)).getFormattedString(), message);
+					.setStyle(new Style().setBold(true)).getFormattedString(), message);
 
-			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.timestamp() * 1000));
+			DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy H:mm");
+			formattedTime = DATE_FORMAT.format(message.timestamp().atZone(ZoneId.systemDefault()));
 		}
 
 		@Override
@@ -257,7 +265,7 @@ public class ChatWidget extends EntryListWidget {
 			GlStateManager.disableBlend();
 			GlStateManager.enableTexture();
 			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(getOrigin().sender().getUuid(),
-				getOrigin().sender().getName()));
+					getOrigin().sender().getName()));
 			drawTexture(x - 22, y, 8, 8, 8, 8, 18, 18, 64, 64);
 			drawTexture(x - 22, y, 40, 8, 8, 8, 18, 18, 64, 64);
 			GlStateManager.enableBlend();

@@ -25,17 +25,17 @@ package io.github.axolotlclient.api.chat;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
-import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.ChannelRequest;
+import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
-import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
@@ -49,7 +49,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 	private final ChatScreen screen;
 
 	public ChatUserListWidget(ChatScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
-		super(client, width, height, top, bottom, entryHeight);
+		super(client, width, bottom - top, top, bottom, entryHeight);
 		this.screen = screen;
 	}
 
@@ -76,7 +76,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 		return this.screen.getFocused() == this;
 	}
 
-	public class UserListEntry extends AlwaysSelectedEntryListWidget.Entry<UserListEntry> {
+	public class UserListEntry extends Entry<UserListEntry> {
 
 		@Getter
 		private final User user;
@@ -101,25 +101,25 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 		}
 
 		@Override
-		public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+		public void render(MatrixStack graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
 			if (hovered && !screen.hasContextMenu()) {
-				DrawableHelper.fill(matrices, x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
+				fill(graphics, x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
-			DrawUtil.drawScrollableText(matrices, client.textRenderer, Text.of(user.getName()), x + 3 + entryHeight,
-				y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
-			client.textRenderer.draw(matrices, user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
+			DrawUtil.drawScrollingText(graphics, Text.of(user.getName()), x + 3 + entryHeight,
+					y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, Colors.WHITE);
+			client.textRenderer.draw(graphics, user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
-				client.textRenderer.draw(matrices, user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);
+				client.textRenderer.draw(graphics, user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);
 			}
 
 			if (note != null) {
-				client.textRenderer.draw(matrices, note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
+				client.textRenderer.drawWithShadow(graphics, note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
 			}
 
 			client.getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
 			RenderSystem.enableBlend();
-			drawTexture(matrices, x, y, entryHeight, entryHeight, 8, 8, 8, 8, 64, 64);
-			drawTexture(matrices, x, y, entryHeight, entryHeight, 40, 8, 8, 8, 64, 64);
+			drawTexture(graphics, x, y, entryHeight, entryHeight, 8, 8, 8, 8, 64, 64);
+			drawTexture(graphics, x, y, entryHeight, entryHeight, 40, 8, 8, 8, 64, 64);
 			RenderSystem.disableBlend();
 		}
 
@@ -133,28 +133,28 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 				this.time = Util.getMeasuringTimeMs();
 			} else if (button == 1) { // right click
 
-
 				if (!user.equals(API.getInstance().getSelf())) {
 					ContextMenu.Builder menu = ContextMenu.builder()
-						.entry(Text.of(user.getName()), buttonWidget -> {
-						})
-						.spacer()
-						.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
-							ChannelRequest.getOrCreateDM(user.getUuid()).whenCompleteAsync(((channel, throwable) ->
-								client.openScreen(new ChatScreen(screen.getParent(), channel))));
-						})
-						.spacer()
-						.entry(new TranslatableText("api.chat.report.user"), buttonWidget -> {
-							ChatHandler.getInstance().reportUser(user);
-						});
+							.entry(Text.of(user.getName()), buttonWidget -> {
+							})
+							.spacer()
+							.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
+								ChannelRequest.getOrCreateDM(user.getUuid()).whenCompleteAsync(((channel, throwable) ->
+										client.openScreen(new ChatScreen(screen.getParent(), channel))));
+							})
+							.spacer()
+							.entry(new TranslatableText("api.chat.report.user"), buttonWidget -> {
+								ChatHandler.getInstance().reportUser(user);
+							});
 					if (FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(new TranslatableText("api.users.block"), buttonWidget ->
-							FriendRequest.getInstance().blockUser(user.getUuid()));
+								FriendRequest.getInstance().blockUser(user.getUuid()));
 					} else {
 						menu.entry(new TranslatableText("api.users.unblock"), buttonWidget ->
-							FriendRequest.getInstance().unblockUser(user.getUuid()));
+								FriendRequest.getInstance().unblockUser(user.getUuid()));
 					}
 					screen.setContextMenu(menu.build());
+					return true;
 				}
 			}
 

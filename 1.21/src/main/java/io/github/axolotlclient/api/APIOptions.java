@@ -52,7 +52,11 @@ public class APIOptions extends Options {
 			client.execute(() -> client.setScreen(new PrivacyNoticeScreen(client.currentScreen, n)));
 		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("api.friends.sidebar.open",
 				InputUtil.KEY_O_CODE, "category.axolotlclient"),
-			() -> client.setScreen(new FriendsSidebar(client.currentScreen)));
+			() -> {
+				if (API.getInstance().isAuthenticated()) {
+					client.setScreen(new FriendsSidebar(client.currentScreen));
+				}
+			});
 		category.add(new GenericOption("viewFriends", "clickToOpen",
 			() -> client.setScreen(new FriendsScreen(client.currentScreen))));
 		category.add(new GenericOption("viewChats", "clickToOpen",

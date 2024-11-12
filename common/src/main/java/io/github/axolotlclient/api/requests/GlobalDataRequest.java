@@ -37,10 +37,9 @@ public class GlobalDataRequest {
 		if (cachedData.get() != null) {
 			return cachedData.get();
 		}
-		// TODO
 		return (cachedData = new WeakReference<>(API.getInstance().get(Request.Route.GLOBAL_DATA.create())
 			.thenApply(res -> new GlobalData(true, res.getBody("total_players"),
-				res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBody("notes")))
+				res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", "")))
 			.getNow(GlobalData.EMPTY))).get();
 	}
 }

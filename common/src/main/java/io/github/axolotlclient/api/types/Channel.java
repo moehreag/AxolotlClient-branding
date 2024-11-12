@@ -36,15 +36,16 @@ public abstract class Channel {
 	private final String id;
 	protected String name;
 	protected Persistence persistence;
-	private User[] users;
+	private User[] allUsers;
+	private User owner;
 	private final ChatMessage[] messages;
 
 	public abstract boolean isDM();
 
 	public static class Group extends Channel {
 
-		public Group(String id, String name, Persistence persistence, User[] users, ChatMessage[] messages) {
-			super(id, name, persistence, users, messages);
+		public Group(String id, String name, Persistence persistence, User[] allUsers, User owner, ChatMessage[] messages) {
+			super(id, name, persistence, allUsers, owner, messages);
 		}
 
 		public boolean isDM() {
@@ -57,9 +58,9 @@ public abstract class Channel {
 
 		private final User receiver;
 
-		public DM(String id, String name, Persistence persistence, User[] users, ChatMessage[] messages) {
-			super(id, name, persistence, users, messages);
-			receiver = Arrays.stream(users).filter(user -> !user.getUuid()
+		public DM(String id, String name, Persistence persistence, User[] allUsers, User owner, ChatMessage[] messages) {
+			super(id, name, persistence, allUsers, owner, messages);
+			receiver = Arrays.stream(allUsers).filter(user -> !user.getUuid()
 				.equals(API.getInstance().getUuid())).findFirst().orElseThrow(IllegalStateException::new);
 		}
 

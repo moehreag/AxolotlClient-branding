@@ -22,26 +22,28 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.util.Arrays;
-
-import io.github.axolotlclient.api.SimpleTextInputScreen;
+import io.github.axolotlclient.api.ContextMenuContainer;
+import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 
-public class ChatListScreen extends Screen {
+public class ChatListScreen extends Screen implements ContextMenuScreen {
 
 	private final Screen parent;
+	private final ContextMenuContainer container;
 	private ChatListWidget dms;
 	private ChatListWidget groups;
 
 	public ChatListScreen(Screen parent) {
 		super(new TranslatableText("api.chats"));
 		this.parent = parent;
+		container = new ContextMenuContainer();
 	}
 
 	@Override
@@ -51,25 +53,39 @@ public class ChatListScreen extends Screen {
 		groups.render(matrices, mouseX, mouseY, delta);
 		super.render(matrices, mouseX, mouseY, delta);
 
-		drawCenteredText(matrices, client.textRenderer, new TranslatableText("api.chats"), width / 2, 20, -1);
-		drawCenteredText(matrices, client.textRenderer, new TranslatableText("api.chat.dms"), width / 2 + 80, 40, -1);
-		drawCenteredText(matrices, client.textRenderer, new TranslatableText("api.chat.groups"), width / 2 - 80, 40, -1);
+		drawCenteredString(matrices, client.textRenderer, I18n.translate("api.chats"), width / 2, 20, -1);
+		drawCenteredString(matrices, client.textRenderer, I18n.translate("api.chat.dms"), width / 2 + 80, 40, -1);
+		drawCenteredString(matrices, client.textRenderer, I18n.translate("api.chat.groups"), width / 2 - 80, 40, -1);
 	}
 
 	@Override
 	protected void init() {
-		addChild(dms = new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
-		addChild(groups = new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
+		groups = addChild(new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM()));
+		dms = addChild(new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM));
 
 		addButton(new ButtonWidget(this.width / 2 + 5, this.height - 40, 150, 20, ScreenTexts.BACK, buttonWidget ->
-			client.openScreen(parent)));
-		addButton(new ButtonWidget(this.width / 2 - 155, this.height - 40, 150, 20,
-			new TranslatableText("api.chat.groups.create"), buttonWidget ->
-			client.openScreen(new SimpleTextInputScreen(this, new TranslatableText("api.chat.groups.create"),
-				new TranslatableText("api.chat.groups.create.label"), s -> {
-				if (!s.trim().isEmpty()) {
-					ChannelRequest.createGroup(Arrays.stream(s.split(",")).map(String::trim).toArray(String[]::new));
-				}
-			}))));
+				client.openScreen(parent)));
+		addButton(new ButtonWidget(this.width / 2 - 155, this.height - 40, 150, 20, new TranslatableText("api.chat.groups.create"), buttonWidget ->
+				client.openScreen(new CreateChannelScreen(this))));
+		ChannelRequest.getChannelList().whenCompleteAsync((list, t) -> {
+			groups.addChannels(list);
+			dms.addChannels(list);
+		});
+		addChild(container);
+	}
+
+	@Override
+	public ContextMenuContainer getMenuContainer() {
+		return container;
+	}
+
+	@Override
+	public Screen getParent() {
+		return parent;
+	}
+
+	@Override
+	public Screen getSelf() {
+		return this;
 	}
 }

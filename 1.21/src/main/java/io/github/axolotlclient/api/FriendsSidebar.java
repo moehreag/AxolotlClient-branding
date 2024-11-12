@@ -182,6 +182,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private void removeChat() {
 		hasChat = false;
 		remove(chatWidget);
+		remove(input);
 	}
 
 	private void addChat(Channel channel) {
@@ -221,13 +222,13 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		contextMenu.setMenu(menu);
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public Screen getSelf() {
+		return this;
 	}
 
 	@Override

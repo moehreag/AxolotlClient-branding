@@ -24,7 +24,6 @@ package io.github.axolotlclient.api;
 
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 
 
@@ -55,6 +54,7 @@ public class ClientEndpoint implements WebSocket.Listener {
 
 	@Override
 	public void onOpen(WebSocket webSocket) {
+		webSocket.request(1);
 		API.getInstance().onOpen(webSocket);
 	}
 
@@ -65,19 +65,7 @@ public class ClientEndpoint implements WebSocket.Listener {
 	}
 
 	@Override
-	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
-		byte[] bytes = new byte[message.remaining()];
-		message.get(bytes);
-		API.getInstance().logDetailed("received pong: {}", Arrays.toString(bytes));
-		webSocket.request(1);
-		return WebSocket.Listener.super.onPong(webSocket, message);
-	}
-
-	@Override
 	public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-		byte[] bytes = new byte[message.remaining()];
-		message.get(bytes);
-		API.getInstance().logDetailed("received ping: {}", Arrays.toString(bytes));
 		webSocket.request(1);
 		return WebSocket.Listener.super.onPing(webSocket, message);
 	}

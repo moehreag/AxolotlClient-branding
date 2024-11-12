@@ -24,7 +24,6 @@ package io.github.axolotlclient.api.chat;
 
 import java.util.Arrays;
 
-import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -37,14 +36,14 @@ import org.lwjgl.input.Keyboard;
 
 public class ChatScreen extends Screen implements ContextMenuScreen {
 
-	private final ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private final Channel channel;
 	private final Screen parent;
-
+	private final ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private ChatWidget widget;
 	private ChatListWidget chatListWidget;
 	private ChatUserListWidget users;
 	private TextFieldWidget input;
+	private final String title = I18n.translate("api.screen.chat");
 
 	public ChatScreen(Screen parent, Channel channel) {
 		super();
@@ -74,18 +73,18 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	@Override
 	public void init() {
 
-		chatListWidget = new ChatListWidget(this, width, height, 0, 30, 50, height - 90);
+		chatListWidget = new ChatListWidget(this, width, height, 0, 30, 55, height - 90);
 
-		widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this);
+		widget = new ChatWidget(channel, 65, 30, width - (!channel.isDM() ? 155 : 115), height - 90, this);
 
 		if (!channel.isDM()) {
-			users = new ChatUserListWidget(this, minecraft, 80, height, 30, height - 60, 25);
+			users = new ChatUserListWidget(this, minecraft, 80, height - 20, 30, height - 60, 25);
 			users.setX(width - 80);
-			users.setUsers(Arrays.asList(channel.getUsers()));
+			users.setUsers(Arrays.asList(channel.getAllUsers()));
 		}
 
 		input = new TextFieldWidget(5, minecraft.textRenderer, width / 2 - 150, height - 50,
-			300, 20) {
+				300, 20) {
 
 			@Override
 			public boolean keyPressed(char c, int i) {
@@ -102,14 +101,16 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 				super.render();
 				if (getText().isEmpty()) {
 					drawString(textRenderer, I18n.translate(channel.isDM() ? "api.chat.messageUser" : "api.chat.messageGroup", channel.getName()),
-						x + 2, y + 6, -8355712);
+							x + 2, y + 6, -8355712);
 				}
 			}
 		};
 		input.setMaxLength(1024);
 
+		buttons.add(new ButtonWidget(2, width - 110, 15, 100, 20, I18n.translate("api.channel.configure")));
+
 		this.buttons.add(new ButtonWidget(1, this.width / 2 - 75, this.height - 28, 150, 20,
-			I18n.translate("gui.back")));
+				I18n.translate("gui.back")));
 		Keyboard.enableRepeatEvents(true);
 	}
 
@@ -130,6 +131,8 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 1) {
 			this.minecraft.openScreen(this.parent);
+		} else if (buttonWidget.id == 2) {
+			minecraft.openScreen(new ChannelSettingsScreen(this, channel));
 		}
 	}
 
@@ -164,17 +167,17 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		this.contextMenu.setMenu(menu);
-	}
-
-	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
 	public Screen getParent() {
 		return parent;
+	}
+
+	@Override
+	public Screen getSelf() {
+		return this;
 	}
 }

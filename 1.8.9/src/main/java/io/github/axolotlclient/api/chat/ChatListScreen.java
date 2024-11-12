@@ -24,6 +24,8 @@ package io.github.axolotlclient.api.chat;
 
 import java.util.Arrays;
 
+import io.github.axolotlclient.api.ContextMenuContainer;
+import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.SimpleTextInputScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
@@ -31,15 +33,17 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 
-public class ChatListScreen extends Screen {
+public class ChatListScreen extends Screen implements ContextMenuScreen {
 
 	private final Screen parent;
+	private final ContextMenuContainer container;
 	private ChatListWidget dms;
 	private ChatListWidget groups;
 
 	public ChatListScreen(Screen parent) {
 		super();
 		this.parent = parent;
+		container = new ContextMenuContainer();
 	}
 
 	@Override
@@ -48,6 +52,7 @@ public class ChatListScreen extends Screen {
 		dms.render(mouseX, mouseY, delta);
 		groups.render(mouseX, mouseY, delta);
 		super.render(mouseX, mouseY, delta);
+		container.render(minecraft, mouseX, mouseY);
 
 		drawCenteredString(minecraft.textRenderer, I18n.translate("api.chats"), width / 2, 20, -1);
 		drawCenteredString(minecraft.textRenderer, I18n.translate("api.chat.dms"), width / 2 + 80, 40, -1);
@@ -56,36 +61,50 @@ public class ChatListScreen extends Screen {
 
 	@Override
 	public void init() {
-		dms = new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM());
-		groups = new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM);
+		groups = new ChatListWidget(this, width, height, width / 2 - 155, 55, 150, height - 105, c -> !c.isDM());
+		dms = new ChatListWidget(this, width, height, width / 2 + 5, 55, 150, height - 105, Channel::isDM);
 
 		buttons.add(new ButtonWidget(0, this.width / 2 + 5, this.height - 40, 150, 20, I18n.translate("gui.back")));
 		buttons.add(new ButtonWidget(1, this.width / 2 - 155, this.height - 40, 150, 20,
-			I18n.translate("api.chat.groups.create")));
+				I18n.translate("api.chat.groups.create")));
+		ChannelRequest.getChannelList().whenCompleteAsync((list, t) -> {
+			groups.addChannels(list);
+			dms.addChannels(list);
+		});
 	}
 
 	@Override
+	public ContextMenuContainer getMenuContainer() {
+		return container;
+	}
+
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 0) {
 			minecraft.openScreen(parent);
 		} else if (buttonWidget.id == 1) {
-			minecraft.openScreen(new SimpleTextInputScreen(this, I18n.translate("api.chat.groups.create"),
-				I18n.translate("api.chat.groups.create.label"), s -> {
-				if (!s.trim().isEmpty()) {
-					ChannelRequest.createGroup(Arrays.stream(s.split(",")).map(String::trim).toArray(String[]::new));
-				}
-			}));
+			minecraft.openScreen(new CreateChannelScreen(this));
 		}
 	}
 
 	@Override
+	public Screen getParent() {
+		return parent;
+	}
+
 	protected void mouseClicked(int i, int j, int k) {
+		if (container.mouseClicked(i, j, k)) {
+			return;
+		}
 		super.mouseClicked(i, j, k);
 		dms.mouseClicked(i, j, k);
 		groups.mouseClicked(i, j, k);
 	}
 
 	@Override
+	public Screen getSelf() {
+		return this;
+	}
+
 	public void handleMouse() {
 		super.handleMouse();
 		dms.handleMouse();

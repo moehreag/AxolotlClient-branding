@@ -29,7 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public abstract class Persistence {
-	protected abstract Type type();
+	public abstract Type type();
 
 	public int count() {
 		throw new UnsupportedOperationException();
@@ -39,7 +39,7 @@ public abstract class Persistence {
 	}
 	public static class Channel extends Persistence {
 		@Override
-		protected Type type() {
+		public Type type() {
 			return Type.CHANNEL;
 		}
 	}
@@ -49,7 +49,7 @@ public abstract class Persistence {
 		protected final long duration;
 
 		@Override
-		protected Type type() {
+		public Type type() {
 			return Type.DURATION;
 		}
 
@@ -71,7 +71,7 @@ public abstract class Persistence {
 		private final int count;
 
 		@Override
-		protected Type type() {
+		public Type type() {
 			return Type.COUNT;
 		}
 
@@ -92,7 +92,7 @@ public abstract class Persistence {
 		private final int count;
 		private final long duration;
 		@Override
-		protected Type type() {
+		public Type type() {
 			return Type.COUNT_DURATION;
 		}
 

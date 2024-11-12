@@ -36,9 +36,9 @@ import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -46,7 +46,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
-	private static final int ANIM_STEP = 5;
+	private static final int ANIM_STEP = 8;
 	private final Screen parent;
 	private int sidebarAnimX;
 	private int sidebarWidth;
@@ -61,7 +61,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private ContextMenuContainer contextMenu;
 
 	public FriendsSidebar(Screen parent) {
-		super(Text.translatable("api.friends.sidebar"));
+		super(Text.translatable("api.chats.sidebar"));
 		this.parent = parent;
 	}
 
@@ -74,8 +74,6 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		graphics.drawShadowedText(client.textRenderer, Text.translatable("api.friends"), 10 + sidebarAnimX, 10, -1);
 
-		super.render(graphics, mouseX, mouseY, delta);
-
 		if (hasChat) {
 			graphics.fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			graphics.drawShadowedText(client.textRenderer, channel.getName(), sidebarAnimX + 75, 20, -1);
@@ -83,15 +81,16 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 				graphics.drawShadowedText(client.textRenderer, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
 					sidebarAnimX + 80, 30, 8421504);
 			}
-
-			chatWidget.render(graphics, mouseX, mouseY, delta);
 		}
+
+		super.render(graphics, mouseX, mouseY, delta);
 
 		animate();
 	}
 
 	@Override
 	protected void init() {
+		removeChat();
 		sidebarWidth = 70;
 		sidebarAnimX = -sidebarWidth;
 
@@ -180,6 +179,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
+	private void removeChat() {
+		hasChat = false;
+		remove(chatWidget);
+		remove(input);
+	}
+
 	private void addChat(Channel channel) {
 		hasChat = true;
 		this.channel = channel;
@@ -192,7 +197,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			w = client.textRenderer.getWidth(channel.getName());
 		}
 		sidebarWidth = Math.max(width * 5 / 12, w + 5);
-		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 60, this);
+		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
+		addDrawableChild(chatWidget);
 		addDrawableChild(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, Text.translatable("api.friends.chat.input")) {
 			@Override
 			public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -204,16 +210,25 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 				return super.keyPressed(keyCode, scanCode, modifiers);
 			}
 		});
+		input.setSuggestion(input.getMessage().getString());
+		input.setChangedListener(s -> {
+			if (s.isEmpty()) {
+				input.setSuggestion(input.getMessage().getString());
+			} else {
+				input.setSuggestion("");
+			}
+		});
+		input.setMaxLength(1024);
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		contextMenu.setMenu(menu);
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public Screen getSelf() {
+		return this;
 	}
 
 	@Override
@@ -239,7 +254,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			this.height = height;
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-				.map(user -> ButtonWidget.builder(Text.of(user.getName()), buttonWidget -> addChat(channel))
+				.map(channel -> ButtonWidget.builder(Text.of(channel.getName()), buttonWidget -> addChat(channel))
 					.positionAndSize(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5).build()).collect(Collectors.toList());
 		}
 
@@ -264,16 +279,16 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		@Override
-		public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		public boolean mouseScrolled(double mouseX, double mouseY, double amountY) {
 			if (this.isMouseOver(mouseX, mouseY)) {
 				if (elements.size() * entryHeight > height) {
 					int a = scrollAmount;
-					a += (int) (amount * (entryHeight / 2f));
+					a += (int) (amountY * (entryHeight / 2f));
 					scrollAmount = MathHelper.clamp(a, 0, -elements.size() * entryHeight);
 					return true;
 				}
 			}
-			return super.mouseScrolled(mouseX, mouseY, amount);
+			return super.mouseScrolled(mouseX, mouseY, amountY);
 		}
 
 		@Override
@@ -296,8 +311,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		@Override
-		public Selectable.SelectionType getType() {
-			return this.hovered ? Selectable.SelectionType.HOVERED : Selectable.SelectionType.NONE;
+		public SelectionType getType() {
+			return this.hovered ? SelectionType.HOVERED : SelectionType.NONE;
 		}
 	}
 }

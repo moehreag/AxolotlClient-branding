@@ -24,7 +24,6 @@ package io.github.axolotlclient.api.chat;
 
 import java.util.Arrays;
 
-import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -39,10 +38,9 @@ import org.lwjgl.glfw.GLFW;
 
 public class ChatScreen extends Screen implements ContextMenuScreen {
 
-	private final ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private final Channel channel;
 	private final Screen parent;
-
+	private final ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private ChatWidget widget;
 	private ChatListWidget chatListWidget;
 	private ChatUserListWidget users;
@@ -75,19 +73,19 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	@Override
 	protected void init() {
 
-		addChild(chatListWidget = new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
+		addChild(chatListWidget = new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
 
-		addChild(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
+		addChild(widget = new ChatWidget(channel, 65, 30, width - (!channel.isDM() ? 155 : 115), height - 90, this));
 
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
 			users.setLeftPos(width - 80);
-			users.setUsers(Arrays.asList(channel.getUsers()));
+			users.setUsers(Arrays.asList(channel.getAllUsers()));
 			addChild(users);
 		}
 
 		addButton(input = new TextFieldWidget(client.textRenderer, width / 2 - 150, height - 50,
-			300, 20, new TranslatableText("api.chat.enterMessage")) {
+				300, 20, new TranslatableText("api.chat.enterMessage")) {
 
 			@Override
 			public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -110,8 +108,10 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		});
 		input.setMaxLength(1024);
 
+		addButton(new ButtonWidget(width - 110, 15, 100, 20, new TranslatableText("api.channel.configure"), b -> client.openScreen(new ChannelSettingsScreen(this, channel))));
+
 		this.addButton(new ButtonWidget(this.width / 2 - 75, this.height - 28, 150, 20,
-			ScreenTexts.BACK, button -> this.client.openScreen(this.parent)));
+				ScreenTexts.BACK, button -> this.client.openScreen(this.parent)));
 
 		addChild(contextMenu);
 	}
@@ -140,17 +140,17 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		this.contextMenu.setMenu(menu);
-	}
-
-	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
 	public Screen getParent() {
 		return parent;
+	}
+
+	@Override
+	public Screen getSelf() {
+		return this;
 	}
 }

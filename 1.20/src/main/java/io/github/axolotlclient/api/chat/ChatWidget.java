@@ -22,12 +22,13 @@
 
 package io.github.axolotlclient.api.chat;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -57,7 +58,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
-		super(MinecraftClient.getInstance(), width, height, y, y + height, 13);
+		super(MinecraftClient.getInstance(), width, height, y, y+height, 13);
 		this.channel = channel;
 		this.client = MinecraftClient.getInstance();
 		setX(x + 5);
@@ -72,14 +73,19 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);
-		ChatHandler.getInstance().setEnableNotifications(message -> !Arrays.stream(channel.getUsers()).collect(Collectors.toUnmodifiableSet()).contains(message.sender()));
+		ChatHandler.getInstance().setEnableNotifications(message -> !message.channelId().equals(channel.getId()));
 
 		setScrollAmount(getMaxScroll());
 	}
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return x + width - 5;
+		return x + width - 6;
+	}
+
+	@Override
+	public int getRowWidth() {
+		return width-60;
 	}
 
 	private void addMessage(ChatMessage message) {
@@ -87,12 +93,12 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
-		if (messages.size() > 0) {
-			ChatMessage prev = messages.get(messages.size() - 1);
-			if (!prev.sender().equals(message.sender())) {
+		if (!messages.isEmpty()) {
+			ChatMessage prev = messages.getLast();
+			if (!(prev.sender().equals(message.sender()) && prev.senderDisplayName().equals(message.senderDisplayName()))) {
 				addEntry(new NameChatLine(message));
 			} else {
-				if (prev.timestamp() - message.timestamp() > 150) {
+				if (prev.timestamp().getEpochSecond() - message.timestamp().getEpochSecond() > 150) {
 					addEntry(new NameChatLine(message));
 				}
 			}
@@ -103,18 +109,18 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		list.forEach(t -> addEntry(new ChatLine(t, message)));
 		messages.add(message);
 
-		children().sort(Comparator.comparingLong(c -> c.getOrigin().timestamp()));
+		children().sort(Comparator.comparingLong(c -> c.getOrigin().timestamp().getEpochSecond()));
 
 		if (scrollToBottom) {
 			setScrollAmount(getMaxScroll());
 		}
-		messages.sort(Comparator.comparingLong(ChatMessage::timestamp));
+		messages.sort(Comparator.comparingLong(value -> value.timestamp().getEpochSecond()));
 	}
 
 	private void loadMessages() {
 		long before;
-		if (messages.size() > 0) {
-			before = messages.get(0).timestamp();
+		if (!messages.isEmpty()) {
+			before = messages.getFirst().timestamp().getEpochSecond();
 		} else {
 			before = Instant.now().getEpochSecond();
 		}
@@ -122,8 +128,8 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		double scrollAmount = (this.getScrollAmount() - amount * (double) this.itemHeight / 2.0);
+	public boolean mouseScrolled(double mouseX, double mouseY, double amountY) {
+		double scrollAmount = (this.getScrollAmount() - amountY * (double) this.itemHeight / 2.0);
 		if (scrollAmount < 0) {
 			loadMessages();
 		}
@@ -139,10 +145,10 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 
 	@Override
 	protected void drawEntrySelectionHighlight(GuiGraphics graphics, int y, int entryWidth, int entryHeight, int borderColor, int fillColor) {
-		int i = this.getX() + (this.width - entryWidth) / 2;
+		/*int i = this.getX() + (this.width - entryWidth) / 2;
 		int j = this.getX() + (this.width + entryWidth) / 2;
-		graphics.fill(i, y - 2, j, y + entryHeight, borderColor);
-		graphics.fill(i + 1, y - 1, j - 1, y + entryHeight - 1, fillColor);
+		//graphics.fill(i, y - 2, j, y + entryHeight, borderColor);
+		graphics.fill(i + 1, y - 1, j - 1, y + entryHeight - 1, fillColor);*/
 	}
 
 	public class ChatLine extends AlwaysSelectedEntryListWidget.Entry<ChatLine> {
@@ -162,18 +168,21 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			if (button == 0) {
 				ChatWidget.this.setSelected(this);
+				return true;
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
 					.entry(Text.of(origin.sender().getName()), buttonWidget -> {
 					})
-					.spacer()
-					.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
-						ChannelRequest.getOrCreateDM(origin.sender().getUuid())
-							.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
-					})
-					.spacer()
-					.entry(Text.translatable("api.chat.report.message"), buttonWidget -> {
+					.spacer();
+				if (!origin.sender().equals(API.getInstance().getSelf())) {
+					builder.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
+							ChannelRequest.getOrCreateDM(origin.sender().getUuid())
+								.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
+						})
+						.spacer();
+				}
+				builder.entry(Text.translatable("api.chat.report.message"), buttonWidget -> {
 						ChatHandler.getInstance().reportMessage(origin);
 					})
 					.spacer()
@@ -181,6 +190,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 						client.keyboard.setClipboard(origin.content());
 					});
 				screen.setContextMenu(builder.build());
+				return true;
 			}
 			return false;
 		}
@@ -225,8 +235,8 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			super(Text.literal(message.senderDisplayName())
 				.setStyle(Style.EMPTY.withBold(true)).asOrderedText(), message);
 
-			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("d/M/yyyy H:mm");
-			formattedTime = DATE_FORMAT.format(new Date(message.timestamp() * 1000));
+			DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy H:mm");
+			formattedTime = DATE_FORMAT.format(message.timestamp().atZone(ZoneId.systemDefault()));
 		}
 
 		@Override

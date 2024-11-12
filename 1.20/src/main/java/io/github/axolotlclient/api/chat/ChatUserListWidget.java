@@ -28,8 +28,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
-import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.ChannelRequest;
+import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 	private final ChatScreen screen;
 
 	public ChatUserListWidget(ChatScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
-		super(client, width, height, top, bottom, entryHeight);
+		super(client, width, bottom-top, top, bottom, entryHeight);
 		this.screen = screen;
 	}
 
@@ -156,7 +156,6 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 				this.time = Util.getMeasuringTimeMs();
 			} else if (button == 1) { // right click
 
-
 				if (!user.equals(API.getInstance().getSelf())) {
 					ContextMenu.Builder menu = ContextMenu.builder()
 						.entry(Text.of(user.getName()), buttonWidget -> {
@@ -178,6 +177,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 							FriendRequest.getInstance().unblockUser(user.getUuid()));
 					}
 					screen.setContextMenu(menu.build());
+					return true;
 				}
 			}
 

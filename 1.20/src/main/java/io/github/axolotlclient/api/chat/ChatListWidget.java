@@ -22,33 +22,44 @@
 
 package io.github.axolotlclient.api.chat;
 
+import java.util.List;
 import java.util.function.Predicate;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.ContextMenu;
+import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.Text;
 
 public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget.ChatListEntry> {
 
-	protected final Screen screen;
+	protected final ContextMenuScreen screen;
+	private final Predicate<Channel> predicate;
 
-	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
-		super(MinecraftClient.getInstance(), width, screenHeight, y, y+height, 25);
-		setRenderHeader(false, 0);
+	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
+		super(MinecraftClient.getInstance(), width, height, y, y+height, 25);
 		setLeftPos(x);
 		this.screen = screen;
-		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			list.stream().filter(filter).forEach(c -> addEntryToTop(new ChatListEntry(c)))
-		);
+		this.predicate = filter;
 	}
 
-	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
+	public void addChannels(List<Channel> channels) {
+		channels.stream().filter(predicate).forEach(c -> addEntryToTop(new ChatListEntry(c)));
+	}
+
+	@Override
+	public int getRowWidth() {
+		return width-8;
+	}
+
+	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
+		ChannelRequest.getChannelList().thenAccept(this::addChannels);
 	}
 
 	public class ChatListEntry extends Entry<ChatListEntry> {
@@ -73,6 +84,29 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 			widget.setX(x);
 			widget.setY(y);
 			widget.render(graphics, mouseX, mouseY, tickDelta);
+		}
+
+		@Override
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+			if (widget.isMouseOver(mouseX, mouseY)) {
+				if (button == 0) {
+					return widget.mouseClicked(mouseX, mouseY, button);
+				} else if (button == 1) {
+					ContextMenu.Builder builder = ContextMenu.builder()
+						.entry(Text.of(channel.getName()), w -> {})
+						.spacer()
+						.entry(Text.translatable("api.channel.configure"), w -> client.setScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
+						.spacer();
+					if (channel.getOwner().equals(API.getInstance().getSelf())) {
+						builder.entry(Text.translatable("api.channel.delete"), w -> ChannelRequest.leaveOrDeleteChannel(channel));
+					} else {
+						builder.entry(Text.translatable("api.channel.leave"), w -> ChannelRequest.leaveOrDeleteChannel(channel));
+					}
+					ChatListWidget.this.screen.setContextMenu(builder.build());
+					return true;
+				}
+			}
+			return super.mouseClicked(mouseX, mouseY, button);
 		}
 	}
 }

@@ -50,17 +50,17 @@ public class Credits {
 	@Getter
 	private final String[] things;
 
-	public Credits(String name, String... things) {
+	private Credits(String name, String... things) {
 		this.name = name;
 		this.things = things;
 	}
 
-	public static void contributor(String name, String... things) {
+	private static void contributor(String name, String... things) {
 		Credits c = new Credits(name, things);
 		contributors.add(c);
 	}
 
-	public static void otherPerson(String name, String... things) {
+	private static void otherPerson(String name, String... things) {
 		Credits c = new Credits(name, things);
 		otherPeople.add(c);
 	}

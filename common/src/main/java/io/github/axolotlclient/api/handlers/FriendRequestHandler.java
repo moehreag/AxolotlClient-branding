@@ -44,23 +44,4 @@ public class FriendRequestHandler implements SocketMessageHandler {
 			FriendRequest.getInstance().setRelation(from, Relation.NONE);
 		}
 	}
-
-	/*@Override
-	public boolean isApplicable(int packetType) {
-		return packetType == RequestOld.Type.INCOMING_FRIEND_REQUEST.getType();
-	}*/
-
-	/*@Override
-	public void handle(ByteBuf object, APIError error) {
-		if (API.getInstance().getApiOptions().friendRequestsEnabled.get()) {
-			String fromUUID = getString(object, 0x09, 32);
-			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request", UUIDHelper.getUsername(fromUUID));
-		} else {
-			API.getInstance().send(new RequestOld(RequestOld.Type.FRIEND_REQUEST_REACTION, (byte) 0)).whenCompleteAsync((o, t) -> {
-				if (t != null) {
-					APIError.display(t);
-				}
-			});
-		}
-	}*/
 }

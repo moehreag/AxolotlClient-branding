@@ -26,14 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
-import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.ChannelRequest;
+import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
-import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
@@ -93,7 +94,7 @@ public class ChatUserListWidget extends EntryListWidget {
 
 	}
 
-	public class UserListEntry extends GuiElement implements Entry {
+	public class UserListEntry extends GuiElement implements EntryListWidget.Entry {
 
 		@Getter
 		private final User user;
@@ -125,17 +126,17 @@ public class ChatUserListWidget extends EntryListWidget {
 		@Override
 		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			if (hovered && !screen.hasContextMenu()) {
-				GuiElement.fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
+				fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
-			DrawUtil.drawScrollableText(client.textRenderer, user.getName(), x + 3 + entryHeight,
-				y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
+			DrawUtil.drawScrollingText(user.getName(), x + 3 + entryHeight,
+				y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, Colors.WHITE);
 			client.textRenderer.draw(user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
 				client.textRenderer.draw(user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);
 			}
 
 			if (note != null) {
-				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
+				client.textRenderer.drawWithShadow(note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
 			}
 
 			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
@@ -155,7 +156,6 @@ public class ChatUserListWidget extends EntryListWidget {
 				}
 				this.time = Minecraft.getTime();
 			} else if (button == 1) { // right click
-
 
 				if (!user.equals(API.getInstance().getSelf())) {
 					ContextMenu.Builder menu = ContextMenu.builder()
@@ -178,6 +178,7 @@ public class ChatUserListWidget extends EntryListWidget {
 							FriendRequest.getInstance().unblockUser(user.getUuid()));
 					}
 					screen.setContextMenu(menu.build());
+					return true;
 				}
 			}
 

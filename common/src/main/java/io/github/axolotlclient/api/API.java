@@ -320,7 +320,6 @@ public class API {
 				logDetailed("Connecting to websocket..");
 				socket = ((Methanol) client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
 					.buildAsync(URI.create(Constants.SOCKET_URL), new ClientEndpoint()).get();
-				socket.request(1);
 				logDetailed("Socket connected");
 			} catch (Exception e) {
 				logger.error("Failed to start Socket! ", e);

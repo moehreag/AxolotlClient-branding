@@ -22,6 +22,9 @@
 
 package io.github.axolotlclient.api.chat;
 
+import io.github.axolotlclient.api.ContextMenu;
+import io.github.axolotlclient.api.ContextMenuContainer;
+import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,13 +33,15 @@ import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
-public class ChatListScreen extends Screen {
+public class ChatListScreen extends Screen implements ContextMenuScreen {
 
 	private final Screen parent;
+	private final ContextMenuContainer container;
 
 	public ChatListScreen(Screen parent) {
 		super(Text.translatable("api.chats"));
 		this.parent = parent;
+		container = new ContextMenuContainer();
 	}
 
 	@Override
@@ -62,5 +67,21 @@ public class ChatListScreen extends Screen {
 			groups.addChannels(list);
 			dms.addChannels(list);
 		});
+		addDrawableSelectableElement(container);
+	}
+
+	@Override
+	public ContextMenuContainer getMenuContainer() {
+		return container;
+	}
+
+	@Override
+	public Screen getParent() {
+		return parent;
+	}
+
+	@Override
+	public Screen getSelf() {
+		return this;
 	}
 }

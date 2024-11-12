@@ -26,9 +26,17 @@ import net.minecraft.client.gui.screen.Screen;
 
 public interface ContextMenuScreen {
 
-	void setContextMenu(ContextMenu menu);
+	default void setContextMenu(ContextMenu menu) {
+		getMenuContainer().setMenu(menu);
+	}
 
-	boolean hasContextMenu();
+	default boolean hasContextMenu() {
+		return getMenuContainer().hasMenu();
+	}
+
+	ContextMenuContainer getMenuContainer();
 
 	Screen getParent();
+
+	Screen getSelf();
 }

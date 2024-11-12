@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.ContextMenu;
+import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
@@ -33,26 +36,35 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.resource.language.I18n;
 
 public class ChatListWidget extends EntryListWidget {
 
-	protected final Screen screen;
+	protected final ContextMenuScreen screen;
+	private final Predicate<Channel> predicate;
 
 	private final List<ChatListEntry> entries = new ArrayList<>();
 
-	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> predicate) {
-		super(Minecraft.getInstance(), screenWidth, screenHeight, y, y + height, 25);
+	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
+		super(Minecraft.getInstance(), width, height, y, y + height, 25);
 		minX = x;
-		maxX = x + width;
+		maxX = x+width;
 		this.screen = screen;
-		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			list.stream().filter(predicate).forEach(c ->
-				entries.add(0, new ChatListEntry(c)))
-		);
+		this.predicate = filter;
 	}
 
-	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
+	public void addChannels(List<Channel> channels) {
+		channels.stream().filter(predicate).forEach(c -> entries.add(0, new ChatListEntry(c)));
+	}
+
+	@Override
+	public int getRowWidth() {
+		return width - 8;
+	}
+
+	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
+		ChannelRequest.getChannelList().thenAccept(this::addChannels);
 	}
 
 	@Override
@@ -65,13 +77,6 @@ public class ChatListWidget extends EntryListWidget {
 		return entries.size();
 	}
 
-	@Override
-	protected void renderList(int x, int y, int mouseX, int mouseY) {
-		DrawUtil.enableScissor(x, this.minY, x + this.width, y + height);
-		super.renderList(x, y, mouseX, mouseY);
-		DrawUtil.disableScissor();
-	}
-
 	public class ChatListEntry implements Entry {
 
 		private final Channel channel;
@@ -79,7 +84,7 @@ public class ChatListWidget extends EntryListWidget {
 
 		public ChatListEntry(Channel channel) {
 			this.channel = channel;
-			widget = new ButtonWidget(0, 0, 0, getRowWidth(), 20, channel.getName());
+			widget = new ButtonWidget(-1, 0, 0, getRowWidth(), 20, channel.getName());
 		}
 
 		@Override
@@ -95,9 +100,26 @@ public class ChatListWidget extends EntryListWidget {
 		}
 
 		@Override
-		public boolean mouseClicked(int i, int j, int k, int l, int m, int n) {
-			if (widget.isHovered()) {
-				minecraft.openScreen(new ChatScreen(minecraft.screen, channel));
+		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int m, int n) {
+			if (widget.isMouseOver(minecraft, mouseX, mouseY)) {
+				if (button == 0) {
+					minecraft.openScreen(new ChatScreen(ChatListWidget.this.screen.getSelf(), channel));
+					return true;
+				} else if (button == 1) {
+					ContextMenu.Builder builder = ContextMenu.builder()
+							.entry(channel.getName(), w -> {
+							})
+							.spacer()
+							.entry(I18n.translate("api.channel.configure"), w -> minecraft.openScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
+							.spacer();
+					if (channel.getOwner().equals(API.getInstance().getSelf())) {
+						builder.entry(I18n.translate("api.channel.delete"), w -> ChannelRequest.leaveOrDeleteChannel(channel));
+					} else {
+						builder.entry(I18n.translate("api.channel.leave"), w -> ChannelRequest.leaveOrDeleteChannel(channel));
+					}
+					ChatListWidget.this.screen.setContextMenu(builder.build());
+					return true;
+				}
 			}
 			return false;
 		}

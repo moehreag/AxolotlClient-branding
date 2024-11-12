@@ -87,9 +87,9 @@ public class ChannelRequest {
 				}
 			}).join();
 		if (cFs.length == 2) {
-			return new Channel.DM(id, name, persistence, users, deserialized.toArray(ChatMessage[]::new));
+			return new Channel.DM(id, name, persistence, users, users[0], deserialized.toArray(ChatMessage[]::new));
 		}
-		return new Channel.Group(id, name, persistence, users, deserialized.toArray(ChatMessage[]::new));
+		return new Channel.Group(id, name, persistence, users, users[0], deserialized.toArray(ChatMessage[]::new));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -102,7 +102,7 @@ public class ChannelRequest {
 			});
 	}
 
-	private static CompletableFuture<Channel> createChannel(String name, Persistence persistence) {
+	/*private static CompletableFuture<Channel> createChannel(String name, Persistence persistence) {
 		return API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", name)
 				.field("persistence", persistence)
@@ -111,7 +111,7 @@ public class ChannelRequest {
 				String id = response.getPlainBody();
 				return getById(id).join();
 			});
-	}
+	}*/
 
 	public static CompletableFuture<Channel> createChannel(String name, Persistence persistence, String... users) {
 		List<String> participants = new ArrayList<>();
@@ -124,10 +124,13 @@ public class ChannelRequest {
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
 	}
 
-	public static CompletableFuture<Channel> getOrCreateGroup(String... users) {
-		/*return API.getInstance().send(new RequestOld(RequestOld.Type.GET_OR_CREATE_CHANNEL,
-			new RequestOld.Data(users.length).add(users))).handleAsync(ChannelRequest::parseChannelResponse);*/
-		return new CompletableFuture<>();
+	public static void updateChannel(String id, String name, Persistence persistence, String... additionalUsers) {
+		API.getInstance().patch(Request.Route.CHANNEL.builder().path(id).field("name", name)
+			.field("persistence", persistence.toJson()).field("participants", additionalUsers).build());
+	}
+
+	public static void leaveOrDeleteChannel(Channel channel) {
+		API.getInstance().delete(Request.Route.CHANNEL.builder().path(channel.getId()).build());
 	}
 
 	public static CompletableFuture<Channel> getOrCreateDM(String uuid) {

@@ -26,29 +26,32 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import io.github.axolotlclient.AxolotlClientConfig.impl.ui.Selectable;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.chat.ChatWidget;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
-import io.github.axolotlclient.util.Util;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 
 public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
-	private static final int ANIM_STEP = 5;
+	private static final int ANIM_STEP = 8;
 	private final Screen parent;
 	private int sidebarAnimX;
 	private int sidebarWidth;
@@ -63,56 +66,51 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private ContextMenuContainer contextMenu;
 
 	public FriendsSidebar(Screen parent) {
-		super(new TranslatableText("api.friends.sidebar"));
+		super(new TranslatableText("api.chats.sidebar"));
 		this.parent = parent;
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(MatrixStack graphics, int mouseX, int mouseY, float delta) {
 		if (parent != null) {
-			parent.render(matrices, mouseX, mouseY, delta);
+			parent.render(graphics, mouseX, mouseY, delta);
 		}
-		fill(matrices, sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
+		fill(graphics, sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
-		if (list != null) {
-			list.render(matrices, mouseX, mouseY, delta);
-		}
-
-		client.textRenderer.drawWithShadow(matrices, new TranslatableText("api.friends"), 10 + sidebarAnimX, 10, -1);
-
-		super.render(matrices, mouseX, mouseY, delta);
+		textRenderer.drawWithShadow(graphics, I18n.translate("api.friends"), 10 + sidebarAnimX, 10, -1);
 
 		if (hasChat) {
-			drawVerticalLine(matrices, 70 + sidebarAnimX, 0, height, 0xFF000000);
-			client.textRenderer.drawWithShadow(matrices, channel.getName(), sidebarAnimX + 75, 20, -1);
+			fill(graphics, 70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
+			textRenderer.drawWithShadow(graphics, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM()) {
-				client.textRenderer.drawWithShadow(matrices, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
-					sidebarAnimX + 80, 30, 8421504);
+				textRenderer.drawWithShadow(graphics, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
+						sidebarAnimX + 80, 30, 8421504);
 			}
-
-			chatWidget.render(matrices, mouseX, mouseY, delta);
+			chatWidget.render(graphics, mouseX, mouseY, delta);
 		}
 
-		contextMenu.render(matrices, mouseX, mouseY, delta);
+		super.render(graphics, mouseX, mouseY, delta);
 
+		contextMenu.render(graphics, mouseX, mouseY, delta);
 		animate();
 	}
 
 	@Override
 	protected void init() {
+		removeChat();
 		sidebarWidth = 70;
 		sidebarAnimX = -sidebarWidth;
 
 		if (parent != null) {
 			parent.children().stream().filter(element -> element instanceof AbstractButtonWidget)
-				.map(e -> (AbstractButtonWidget) e).filter(e -> e.getMessage().equals(new TranslatableText("api.friends"))).forEach(e -> e.visible = false);
+					.map(e -> (AbstractButtonWidget) e).filter(e -> e.getMessage().equals(new TranslatableText("api.friends"))).forEach(e -> e.visible = false);
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			addChild(this.list = new ListWidget(list, 10, 30, 50, height - 60))
+				addChild(this.list = new ListWidget(list, 10, 30, 50, height - 60))
 		);
 
-		addButton(new ButtonWidget(10 - sidebarWidth, height - 30, 50, 20, ScreenTexts.BACK, buttonWidget -> remove()));
+		addButton(new ButtonWidget(10 - sidebarWidth, height - 30, 50, 20, new TranslatableText("gui.back"), buttonWidget -> remove()));
 		addChild(contextMenu = new ContextMenuContainer());
 	}
 
@@ -195,6 +193,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
+	private void removeChat() {
+		hasChat = false;
+		children().remove(chatWidget);
+		children().remove(input);
+	}
+
 	private void addChat(Channel channel) {
 		hasChat = true;
 		this.channel = channel;
@@ -202,12 +206,13 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
 			w = Math.max(client.textRenderer.getWidth(chatUser.getStatus().getTitle() + ":" + chatUser.getStatus().getDescription()),
-				client.textRenderer.getWidth(channel.getName()));
+					client.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = client.textRenderer.getWidth(channel.getName());
 		}
 		sidebarWidth = Math.max(width * 5 / 12, w + 5);
-		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 60, this);
+		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
+		addChild(chatWidget);
 		addButton(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, new TranslatableText("api.friends.chat.input")) {
 			@Override
 			public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -219,16 +224,25 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 				return super.keyPressed(keyCode, scanCode, modifiers);
 			}
 		});
+		input.setSuggestion(input.getMessage().getString());
+		input.setChangedListener(s -> {
+			if (s.isEmpty()) {
+				input.setSuggestion(input.getMessage().getString());
+			} else {
+				input.setSuggestion("");
+			}
+		});
+		input.setMaxLength(1024);
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		contextMenu.setMenu(menu);
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public Screen getSelf() {
+		return this;
 	}
 
 	@Override
@@ -236,76 +250,78 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		return parent;
 	}
 
-	public static class ButtonEntry extends EntryListWidget.Entry<ButtonEntry> {
-
-		private final ButtonWidget widget;
-
-		public ButtonEntry(ButtonWidget widget) {
-			this.widget = widget;
-		}
-
-		@Override
-		public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			widget.y = y;
-			widget.x = x;
-			//MinecraftClient.getInstance().textRenderer.draw(matrices, widget.getMessage(), x, y, -1);
-			widget.render(matrices, mouseX, mouseY, tickDelta);
-		}
-
-		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			return widget.mouseClicked(mouseX, mouseY, button);
-		}
-	}
-
-	public class ListWidget extends EntryListWidget<ButtonEntry> {
+	private class ListWidget extends AbstractParentElement implements Drawable, Element, Selectable {
+		private final List<AbstractButtonWidget> elements;
+		private final int y;
+		private final int width;
+		private final int height;
 		private final int entryHeight = 25;
+		protected boolean hovered;
+		private int x;
+		private int scrollAmount;
 		private boolean visible;
 
 		public ListWidget(List<Channel> list, int x, int y, int width, int height) {
-			super(FriendsSidebar.this.client, width, height, y, y + height, 25);
-			left = x;
-			right = x + width;
-			top = y;
-			bottom = y + height;
-			this.setRenderHeader(false, 0);
-
-			setRenderSelection(false);
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
 			AtomicInteger buttonY = new AtomicInteger(y);
-			list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-				.map(user -> new ButtonWidget(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
-					Text.of(user.getName()), buttonWidget -> addChat(user))).forEach(b -> addEntry(new ButtonEntry(b)));
+			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
+					.map(channel -> new ButtonWidget(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
+							Text.of(channel.getName()), buttonWidget -> addChat(channel))).collect(Collectors.toList());
 		}
 
 		@Override
-		public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+		public void render(MatrixStack graphics, int mouseX, int mouseY, float delta) {
 			if (visible) {
-				this.renderBackground(matrices);
-				int k = this.getRowLeft();
-				int l = this.top + 4 - (int) this.getScrollAmount();
-				this.renderList(matrices, k, l, mouseX, mouseY, delta);
+				graphics.push();
+				DrawUtil.pushScissor(x, y, width, height);
+
+				graphics.translate(0, -scrollAmount, 0);
+
+				elements.forEach(e -> e.render(graphics, mouseX, mouseY, delta));
+
+				DrawUtil.popScissor();
+				graphics.pop();
 			}
 		}
 
 		@Override
-		protected void renderList(MatrixStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
-			Util.applyScissor(left, top, right, height);
-			super.renderList(matrices, x, y, mouseX, mouseY, delta);
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		public List<? extends Element> children() {
+			return elements;
 		}
 
 		@Override
-		public int getRowLeft() {
-			return left;
+		public boolean mouseScrolled(double mouseX, double mouseY, double amountY) {
+			if (this.isMouseOver(mouseX, mouseY)) {
+				if (elements.size() * entryHeight > height) {
+					int a = scrollAmount;
+					a += (int) (amountY * (entryHeight / 2f));
+					scrollAmount = MathHelper.clamp(a, 0, -elements.size() * entryHeight);
+					return true;
+				}
+			}
+			return super.mouseScrolled(mouseX, mouseY, amountY);
+		}
+
+		@Override
+		public boolean isMouseOver(double mouseX, double mouseY) {
+			return hovered = visible && mouseX >= (double) this.x && mouseY >= (double) this.y && mouseX < (double) (this.x + this.width) && mouseY < (double) (this.y + this.height);
 		}
 
 		public int getX() {
-			return left;
+			return x;
 		}
 
 		public void setX(int x) {
-			left = x;
-			right = x + width;
+			this.x = x;
+			elements.forEach(e -> e.x = x);
+		}
+
+		@Override
+		public SelectionType getType() {
+			return this.hovered ? SelectionType.HOVERED : SelectionType.NONE;
 		}
 	}
 }

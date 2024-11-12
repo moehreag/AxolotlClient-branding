@@ -74,22 +74,6 @@ public class ChatHandler implements SocketMessageHandler {
 		messageConsumer.accept(message);
 	}
 
-	/*@Override
-	public boolean isApplicable(int packetType) {
-		return packetType == RequestOld.Type.SEND_MESSAGE.getType();
-	}*/
-
-	/*@Override
-	public void handle(ByteBuf buf, APIError error) {
-
-		ChatMessage message = unwrap(BufferUtil.removeMetadata(buf));
-
-		if (enableNotifications.showNotification(message)) {
-			API.getInstance().getNotificationProvider().addStatus(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.getSender().getName()), message.getContent());
-		}
-		messageConsumer.accept(message);
-	}*/
-
 	public void sendMessage(Channel channel, String message) {
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
 
@@ -99,11 +83,7 @@ public class ChatHandler implements SocketMessageHandler {
 			displayName += (" §r§o§7("+ API.getInstance() // gray + italic
 				.getSelf().getSystem().getName()+
 				"/"+ API.getInstance().getSelf().getName()+")§r");
-		}
-		API.getInstance().send(new RequestOld(RequestOld.Type.SEND_MESSAGE,
-			new RequestOld.Data(channel.getId()).add(
-				Instant.now().getEpochSecond()).add(displayName.length()).add(displayName)
-				.add(message.length()).add(message)));*/
+		}*/
 		messageConsumer.accept(new ChatMessage(channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now()));
 	}
 
@@ -125,27 +105,6 @@ public class ChatHandler implements SocketMessageHandler {
 				messagesConsumer.accept(deserialized);
 			});
 	}
-
-	/*private void handleMessages(ByteBuf object, Throwable t) {
-		if (t == null) {
-			List<ChatMessage> list = new ArrayList<>();
-
-			int i = 0x16;
-			while (i < object.getInt(0x0E)) {
-				int length = 0x1d + object.getInt(i + 0x19);
-				list.add(unwrap(object.slice(i, length)));
-				i += length;
-			}
-			messagesConsumer.accept(list);
-
-		} else {
-			APIError.display(t);
-		}
-	}*/
-
-	/*private ChatMessage unwrap(ByteBuf buf) {
-		return BufferUtil.unwrap(buf, ChatMessage.class);
-	}*/
 
 	public void getMessagesAfter(Channel channel, long getAfter) {
 		/*API.getInstance().send(new RequestOld(RequestOld.Type.GET_MESSAGES,

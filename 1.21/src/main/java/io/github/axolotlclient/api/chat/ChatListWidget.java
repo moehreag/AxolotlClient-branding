@@ -25,21 +25,23 @@ package io.github.axolotlclient.api.chat;
 import java.util.List;
 import java.util.function.Predicate;
 
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.ContextMenu;
+import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.Text;
 
 public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget.ChatListEntry> {
 
-	protected final Screen screen;
+	protected final ContextMenuScreen screen;
 	private final Predicate<Channel> predicate;
 
-	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
+	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
 		super(MinecraftClient.getInstance(), width, height, y, 25);
 		setX(x);
 		this.screen = screen;
@@ -55,7 +57,7 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 		return getWidth()-8;
 	}
 
-	public ChatListWidget(Screen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
+	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
 		ChannelRequest.getChannelList().thenAccept(this::addChannels);
 	}
@@ -87,7 +89,22 @@ public class ChatListWidget extends AlwaysSelectedEntryListWidget<ChatListWidget
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			if (widget.isMouseOver(mouseX, mouseY)) {
-				return widget.mouseClicked(mouseX, mouseY, button);
+				if (button == 0) {
+					return widget.mouseClicked(mouseX, mouseY, button);
+				} else if (button == 1) {
+					ContextMenu.Builder builder = ContextMenu.builder()
+						.entry(Text.of(channel.getName()), w -> {})
+						.spacer()
+						.entry(Text.translatable("api.channel.configure"), w -> client.setScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
+						.spacer();
+					if (channel.getOwner().equals(API.getInstance().getSelf())) {
+						builder.entry(Text.translatable("api.channel.delete"), w -> ChannelRequest.leaveOrDeleteChannel(channel));
+					} else {
+						builder.entry(Text.translatable("api.channel.leave"), w -> ChannelRequest.leaveOrDeleteChannel(channel));
+					}
+					ChatListWidget.this.screen.setContextMenu(builder.build());
+					return true;
+				}
 			}
 			return super.mouseClicked(mouseX, mouseY, button);
 		}

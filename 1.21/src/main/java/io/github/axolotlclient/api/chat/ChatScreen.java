@@ -41,7 +41,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	private final Channel channel;
 	private final Screen parent;
-	private ContextMenuContainer contextMenu = new ContextMenuContainer();
+	private final ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private ChatWidget widget;
 	private ChatUserListWidget users;
 	private TextFieldWidget input;
@@ -69,7 +69,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
 			users.setX(width - 80);
-			users.setUsers(Arrays.asList(channel.getUsers()));
+			users.setUsers(Arrays.asList(channel.getAllUsers()));
 			addDrawableSelectableElement(users);
 		}
 
@@ -96,6 +96,9 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 			}
 		});
 		input.setMaxLength(1024);
+
+		addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.channel.configure"), b -> client.setScreen(new ChannelSettingsScreen(this, channel)))
+			.positionAndSize(width - 110, 15, 100, 20).build());
 
 		this.addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 			.positionAndSize(this.width / 2 - 75, this.height - 28, 150, 20)
@@ -124,17 +127,17 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		this.contextMenu.setMenu(menu);
-	}
-
-	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
 	public Screen getParent() {
 		return parent;
+	}
+
+	@Override
+	public Screen getSelf() {
+		return this;
 	}
 }

@@ -104,20 +104,10 @@ public class DrawUtil extends GuiElement {
 	}
 
 	public static void enableScissor(int x1, int y1, int x2, int y2) {
-		GlStateManager.pushMatrix();
-		Window window = Util.getWindow();
-		int i = Minecraft.getInstance().height;
-		double d = window.getScale();
-		double e = (double) x1 * d;
-		double f = (double) i - (double) y2 * d;
-		double g = (double) (x2 - x1) * d;
-		double h = (double) (y2 - y1) * d;
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		GL11.glScissor((int) e, (int) f, Math.max(0, (int) g), Math.max(0, (int) h));
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(x1, y1, x2-x1, y2-y1);
 	}
 
 	public static void disableScissor() {
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
-		GlStateManager.popMatrix();
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.popScissor();
 	}
 }

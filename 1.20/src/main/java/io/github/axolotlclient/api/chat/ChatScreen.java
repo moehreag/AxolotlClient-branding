@@ -25,7 +25,6 @@ package io.github.axolotlclient.api.chat;
 import java.util.Arrays;
 
 import com.mojang.blaze3d.platform.InputUtil;
-import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -41,7 +40,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	private final Channel channel;
 	private final Screen parent;
-	private ContextMenuContainer contextMenu = new ContextMenuContainer();
+	private final ContextMenuContainer contextMenu = new ContextMenuContainer();
 	private ChatWidget widget;
 	private ChatUserListWidget users;
 	private TextFieldWidget input;
@@ -57,20 +56,20 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 
-		graphics.drawCenteredShadowedText(this.textRenderer, channel.getName(), this.width / 2, 20, 16777215);
+		graphics.drawCenteredShadowedText(this.textRenderer, channel.getName(), this.width / 2, 15, 16777215);
 	}
 
 	@Override
 	protected void init() {
 
-		addDrawableChild(new ChatListWidget(this, width, height, 0, 30, 50, height - 90));
+		addDrawableChild(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
 
-		addDrawableChild(widget = new ChatWidget(channel, 50, 30, width - (!channel.isDM() ? 140 : 100), height - 90, this));
+		addDrawableChild(widget = new ChatWidget(channel, 65, 30, width - (!channel.isDM() ? 155 : 115), height - 90, this));
 
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
 			users.setLeftPos(width - 80);
-			users.setUsers(Arrays.asList(channel.getUsers()));
+			users.setUsers(Arrays.asList(channel.getAllUsers()));
 			addDrawableChild(users);
 		}
 
@@ -97,6 +96,9 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 			}
 		});
 		input.setMaxLength(1024);
+
+		addDrawableChild(ButtonWidget.builder(Text.translatable("api.channel.configure"), b -> client.setScreen(new ChannelSettingsScreen(this, channel)))
+			.positionAndSize(width - 110, 15, 100, 20).build());
 
 		this.addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 			.positionAndSize(this.width / 2 - 75, this.height - 28, 150, 20)
@@ -125,17 +127,17 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 	}
 
 	@Override
-	public void setContextMenu(ContextMenu menu) {
-		this.contextMenu.setMenu(menu);
-	}
-
-	@Override
-	public boolean hasContextMenu() {
-		return contextMenu.hasMenu();
+	public ContextMenuContainer getMenuContainer() {
+		return contextMenu;
 	}
 
 	@Override
 	public Screen getParent() {
 		return parent;
+	}
+
+	@Override
+	public Screen getSelf() {
+		return this;
 	}
 }
