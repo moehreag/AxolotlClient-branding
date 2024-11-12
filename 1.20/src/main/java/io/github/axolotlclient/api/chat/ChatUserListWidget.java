@@ -48,7 +48,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 	private final ChatScreen screen;
 
 	public ChatUserListWidget(ChatScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
-		super(client, width, bottom-top, top, bottom, entryHeight);
+		super(client, width, bottom - top, top, bottom, entryHeight);
 		this.screen = screen;
 	}
 
@@ -163,7 +163,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 						.spacer()
 						.entry(Text.translatable("api.friends.chat"), buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user.getUuid())
-								.whenCompleteAsync((channel, throwable) -> client.setScreen(new ChatScreen(screen.getParent(), channel)));
+								.whenCompleteAsync((channel, throwable) -> client.execute(() -> client.setScreen(new ChatScreen(screen.getParent(), channel))));
 						})
 						.spacer()
 						.entry(Text.translatable("api.chat.report.user"), buttonWidget -> {

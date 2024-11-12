@@ -191,23 +191,23 @@ public class ChatWidget extends EntryListWidget {
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
-						.entry(origin.sender().getName(), buttonWidget -> {
-						})
-						.spacer();
+					.entry(origin.sender().getName(), buttonWidget -> {
+					})
+					.spacer();
 				if (!origin.sender().equals(API.getInstance().getSelf())) {
 					builder.entry("api.friends.chat", buttonWidget -> {
-								ChannelRequest.getOrCreateDM(origin.sender().getUuid())
-										.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
-							})
-							.spacer();
+							ChannelRequest.getOrCreateDM(origin.sender().getUuid())
+								.whenCompleteAsync((channel, throwable) -> client.submit(() -> client.openScreen(new ChatScreen(screen.getParent(), channel))));
+						})
+						.spacer();
 				}
 				builder.entry("api.chat.report.message", buttonWidget -> {
-							ChatHandler.getInstance().reportMessage(origin);
-						})
-						.spacer()
-						.entry("action.copy", buttonWidget -> {
-							Screen.setClipboard(origin.content());
-						});
+						ChatHandler.getInstance().reportMessage(origin);
+					})
+					.spacer()
+					.entry("action.copy", buttonWidget -> {
+						Screen.setClipboard(origin.content());
+					});
 				screen.setContextMenu(builder.build());
 				return true;
 			}
@@ -253,7 +253,7 @@ public class ChatWidget extends EntryListWidget {
 
 		public NameChatLine(ChatMessage message) {
 			super(new LiteralText(message.senderDisplayName())
-					.setStyle(new Style().setBold(true)).getFormattedString(), message);
+				.setStyle(new Style().setBold(true)).getFormattedString(), message);
 
 			DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(message.timestamp().atZone(ZoneId.systemDefault()));
@@ -264,7 +264,7 @@ public class ChatWidget extends EntryListWidget {
 			GlStateManager.disableBlend();
 			GlStateManager.enableTexture();
 			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(getOrigin().sender().getUuid(),
-					getOrigin().sender().getName()));
+				getOrigin().sender().getName()));
 			drawTexture(x - 22, y, 8, 8, 8, 8, 18, 18, 64, 64);
 			drawTexture(x - 22, y, 40, 8, 8, 8, 18, 18, 64, 64);
 			GlStateManager.enableBlend();

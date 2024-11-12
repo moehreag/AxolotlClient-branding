@@ -25,7 +25,6 @@ package io.github.axolotlclient.api.chat;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -36,7 +35,6 @@ import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
@@ -44,7 +42,6 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 
 public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserListWidget.UserListEntry> {
 
@@ -109,7 +106,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 				fill(graphics, x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
 			DrawUtil.drawScrollableText(graphics, client.textRenderer, Text.of(user.getName()), x + 3 + entryHeight,
-					y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
+				y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
 			client.textRenderer.draw(graphics, user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
 				client.textRenderer.draw(graphics, user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);
@@ -138,23 +135,23 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 
 				if (!user.equals(API.getInstance().getSelf())) {
 					ContextMenu.Builder menu = ContextMenu.builder()
-							.entry(Text.of(user.getName()), buttonWidget -> {
-							})
-							.spacer()
-							.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
-								ChannelRequest.getOrCreateDM(user.getUuid()).whenCompleteAsync(((channel, throwable) ->
-										client.openScreen(new ChatScreen(screen.getParent(), channel))));
-							})
-							.spacer()
-							.entry(new TranslatableText("api.chat.report.user"), buttonWidget -> {
-								ChatHandler.getInstance().reportUser(user);
-							});
+						.entry(Text.of(user.getName()), buttonWidget -> {
+						})
+						.spacer()
+						.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
+							ChannelRequest.getOrCreateDM(user.getUuid()).whenCompleteAsync(((channel, throwable) ->
+								client.execute(() -> client.openScreen(new ChatScreen(screen.getParent(), channel)))));
+						})
+						.spacer()
+						.entry(new TranslatableText("api.chat.report.user"), buttonWidget -> {
+							ChatHandler.getInstance().reportUser(user);
+						});
 					if (FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(new TranslatableText("api.users.block"), buttonWidget ->
-								FriendRequest.getInstance().blockUser(user.getUuid()));
+							FriendRequest.getInstance().blockUser(user.getUuid()));
 					} else {
 						menu.entry(new TranslatableText("api.users.unblock"), buttonWidget ->
-								FriendRequest.getInstance().unblockUser(user.getUuid()));
+							FriendRequest.getInstance().unblockUser(user.getUuid()));
 					}
 					screen.setContextMenu(menu.build());
 					return true;

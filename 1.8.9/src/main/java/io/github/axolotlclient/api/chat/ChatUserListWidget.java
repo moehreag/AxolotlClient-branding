@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
@@ -42,7 +41,6 @@ import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Formatting;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 public class ChatUserListWidget extends EntryListWidget {
@@ -149,7 +147,7 @@ public class ChatUserListWidget extends EntryListWidget {
 			if (hovered) {
 				fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
-			DrawUtil.drawScrollableText(client.textRenderer, user.getName(), x + 3 + entryHeight, y+1, x+entryWidth - 6, y + 1 + client.textRenderer.fontHeight +2, -1);
+			DrawUtil.drawScrollableText(client.textRenderer, user.getName(), x + 3 + entryHeight, y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
 			client.textRenderer.draw(user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
 			if (user.getStatus().isOnline()) {
 				client.textRenderer.draw(user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);
@@ -184,7 +182,7 @@ public class ChatUserListWidget extends EntryListWidget {
 						.spacer()
 						.entry("api.friends.chat", buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user.getUuid())
-								.whenCompleteAsync((channel, throwable) -> client.openScreen(new ChatScreen(screen.getParent(), channel)));
+								.whenCompleteAsync((channel, throwable) -> client.submit(() -> client.openScreen(new ChatScreen(screen.getParent(), channel))));
 						})
 						.spacer()
 						.entry("api.chat.report.user", buttonWidget -> {
