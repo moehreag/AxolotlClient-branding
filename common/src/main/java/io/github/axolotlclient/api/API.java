@@ -229,7 +229,13 @@ public class API {
 				String body = response.body();
 
 				int code = response.statusCode();
-				logDetailed("Response: code: " + code + " body: " + body);
+				if (apiOptions.detailedLogging.get()) {
+					if (!url.getPath().endsWith(Request.Route.AUTHENTICATE.getPath())) {
+						logDetailed("Response: code: " + code + " body: " + body);
+					} else {
+						logDetailed("Response: code: " + code + " body: " + String.valueOf(body).replaceAll("(\"access_token\": ?\")[^\"]+(\")", "$1[token redacted]$2"));
+					}
+				}
 				return Response.builder().body(body).status(code).headers(response.headers().map()).build();
 			} catch (ConnectException e) {
 				logger.warn("Backend unreachable!");
@@ -285,9 +291,6 @@ public class API {
 
 	public void logDetailed(String message, Object... args) {
 		if (apiOptions.detailedLogging.get()) {
-			if (message.contains(token)) {
-				message = message.replace(token, "[token redacted]");
-			}
 			logger.debug("[DETAIL] " + message, args);
 		}
 	}
