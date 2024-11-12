@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -285,6 +285,9 @@ public class API {
 
 	public void logDetailed(String message, Object... args) {
 		if (apiOptions.detailedLogging.get()) {
+			if (message.contains(token)) {
+				message = message.replace(token, "[token redacted]");
+			}
 			logger.debug("[DETAIL] " + message, args);
 		}
 	}

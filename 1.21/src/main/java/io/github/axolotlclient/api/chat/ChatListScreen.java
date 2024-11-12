@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.api.chat;
 
-import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
