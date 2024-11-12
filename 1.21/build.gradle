@@ -97,7 +97,7 @@ modrinth {
 	versionType = "release"
 	uploadFile = remapJar
 	gameVersions.set(["${project.minecraft_121}"])
-	loaders.set(["quilt"])
+	loaders.set(["quilt", "fabric"])
 	additionalFiles.set([remapSourcesJar])
 
 	// Changelog fetching: Credit LambdAurora.

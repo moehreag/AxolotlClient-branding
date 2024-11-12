@@ -25,11 +25,13 @@ jobs:
           distribution: "temurin"
           java-version: 21
 
-      - name: Build with Gradle
+      - name: Setup Gradle
         uses: gradle/actions/gradle-build@v4
         with:
-          arguments: build
           cache-read-only: true
+
+      - name: Build
+        run: ./gradlew build
 
       - name: Release
         uses: Kir-Antipov/mc-publish@v3.3

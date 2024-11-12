@@ -165,3 +165,4 @@
     - Hypixel
 - rewrite DiscordRPC
 - 1.8.9 + 1.16_combat-6 now require java 17
+- rewritten config library
