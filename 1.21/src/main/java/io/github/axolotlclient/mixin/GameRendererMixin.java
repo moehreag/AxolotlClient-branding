@@ -48,9 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-	@Final
-	@Shadow
-	MinecraftClient client;
+	@Final @Shadow MinecraftClient client;
 
 	@Inject(method = "getFov", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
 	public void axolotlclient$setZoom(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Double> cir) {
@@ -66,8 +64,8 @@ public abstract class GameRendererMixin {
 			}
 
 			CameraSubmersionType cameraSubmersionType = camera.getSubmersionType();
-			if (cameraSubmersionType == CameraSubmersionType.LAVA
-				|| cameraSubmersionType == CameraSubmersionType.WATER) {
+			if (cameraSubmersionType == CameraSubmersionType.LAVA ||
+				cameraSubmersionType == CameraSubmersionType.WATER) {
 				f *= MathHelper.lerp(this.client.options.getFovEffectScale().get(), 1.0, 0.85714287F);
 			}
 			returnValue = f;
@@ -77,7 +75,8 @@ public abstract class GameRendererMixin {
 		cir.setReturnValue(returnValue);
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getFramebuffer()Lcom/mojang/blaze3d/framebuffer/Framebuffer;"))
+	@Inject(method = "render",
+		at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/framebuffer/Framebuffer;beginWrite(Z)V"))
 	public void axolotlclient$worldMotionBlur(DeltaTracker tracker, boolean tick, CallbackInfo ci) {
 		axolotlclient$motionBlur(tracker, tick, null);
 	}
@@ -99,19 +98,29 @@ public abstract class GameRendererMixin {
 		this.client.getProfiler().pop();
 	}
 
-	@Inject(method = "bobView", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V"), cancellable = true)
-	private void axolotlclient$minimalViewBob(MatrixStack matrices, float tickDelta, CallbackInfo ci, @Local(ordinal = 2) float g, @Local(ordinal = 3) float h) {
+	@Inject(method = "bobView",
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V"),
+		cancellable = true)
+	private void axolotlclient$minimalViewBob(MatrixStack matrices, float tickDelta, CallbackInfo ci,
+											  @Local(ordinal = 2) float g, @Local(ordinal = 3) float h) {
 		if (AxolotlClient.CONFIG.minimalViewBob.get()) {
 			g /= 2;
 			h /= 2;
-			matrices.translate(MathHelper.sin(g * (float) Math.PI) * h * 0.5F, -Math.abs(MathHelper.cos(g * (float) Math.PI) * h), 0.0F);
-			matrices.multiply(Axis.Z_POSITIVE.rotationDegrees(MathHelper.sin(g * (float) Math.PI) * h * 3.0F).get(new Matrix4f()));
-			matrices.multiply(Axis.X_POSITIVE.rotationDegrees(Math.abs(MathHelper.cos(g * (float) Math.PI - 0.2F) * h) * 5.0F).get(new Matrix4f()));
+			matrices.translate(MathHelper.sin(g * (float) Math.PI) * h * 0.5F,
+							   -Math.abs(MathHelper.cos(g * (float) Math.PI) * h), 0.0F
+							  );
+			matrices.multiply(
+				Axis.Z_POSITIVE.rotationDegrees(MathHelper.sin(g * (float) Math.PI) * h * 3.0F).get(new Matrix4f()));
+			matrices.multiply(
+				Axis.X_POSITIVE.rotationDegrees(Math.abs(MathHelper.cos(g * (float) Math.PI - 0.2F) * h) * 5.0F)
+					.get(new Matrix4f()));
 			ci.cancel();
 		}
 	}
 
-	@Inject(method = "bobViewWhenHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;"), cancellable = true)
+	@Inject(method = "bobViewWhenHurt", at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;"),
+		cancellable = true)
 	private void axolotlclient$noHurtCam(MatrixStack matrixStack, float f, CallbackInfo ci) {
 		if (AxolotlClient.CONFIG.noHurtCam.get()) {
 			ci.cancel();

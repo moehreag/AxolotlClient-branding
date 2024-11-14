@@ -166,3 +166,5 @@
 - rewrite DiscordRPC
 - 1.8.9 + 1.16_combat-6 now require java 17
 - rewritten config library
+- removed custom skies on 1.21.3 (there are better implementations available already)
+- removed HotbarHUD on 1.21.3 (big maintenance burden with buggy feature)
