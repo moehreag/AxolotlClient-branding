@@ -22,9 +22,13 @@
 
 package io.github.axolotlclient.mixin;
 
+import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.TPSHud;
+import io.github.axolotlclient.util.ThreadExecuter;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,5 +42,10 @@ public abstract class ClientPlayNetworkHandlerMixin {
 	private void axolotlclient$onWorldUpdate(ClientboundSetTimePacket packet, CallbackInfo ci) {
 		TPSHud tpsHud = (TPSHud) HudManager.getInstance().get(TPSHud.ID);
 		tpsHud.updateTime(packet.gameTime());
+	}
+
+	@Inject(method = "applyPlayerInfoUpdate", at = @At(value = "INVOKE", target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"))
+	private void preloadOnlineInfo(ClientboundPlayerInfoUpdatePacket.Action action, ClientboundPlayerInfoUpdatePacket.Entry entry, PlayerInfo playerInfo, CallbackInfo ci) {
+		ThreadExecuter.scheduleTask(() -> UserRequest.getOnline(playerInfo.getProfile().getId().toString()));
 	}
 }

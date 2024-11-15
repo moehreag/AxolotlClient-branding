@@ -77,7 +77,6 @@ java {
 
 runClient {
 	classpath(sourceSets.test.runtimeClasspath)
-	args("--tracy")
 }
 
 // Configure the maven publication

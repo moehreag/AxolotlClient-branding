@@ -22,30 +22,20 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RenderSystem.class)
 public abstract class RenderSystemMixin {
 
-	@Shadow(remap = false)
-	@Final
-	private static float[] shaderColor;
-
-	@Inject(method = "setShaderColor", at = @At(value = "HEAD"), cancellable = true, remap = false)
-	private static void axolotlclient$reduceBlue(float red, float green, float blue, float alpha, CallbackInfo ci) {
+	@WrapMethod(method = "setShaderColor", remap = false)
+	private static void axolotlclient$reduceBlue(float red, float green, float blue, float alpha, Operation<Void> original) {
 		if (AxolotlClient.CONFIG.nightMode.get()) {
-			shaderColor[0] = red;
-			shaderColor[1] = green;
-			shaderColor[2] = blue / 2;
-			shaderColor[3] = alpha;
-			ci.cancel();
+			blue /= 2;
 		}
+		original.call(red, green, blue, alpha);
 	}
 }

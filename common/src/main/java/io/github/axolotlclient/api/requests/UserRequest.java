@@ -23,6 +23,7 @@
 package io.github.axolotlclient.api.requests;
 
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -35,14 +36,14 @@ import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.TimestampParser;
+import io.github.axolotlclient.util.ThreadExecuter;
 
 @SuppressWarnings("UnstableApiUsage")
 public class UserRequest {
 
 	private static final Cache<String, User> userCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
 		.maximumSize(400).build();
-	private static final Cache<String, Boolean> onlineCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).maximumSize(200)
-		.build();
+	private static final WeakHashMap<String, Boolean> onlineCache = new WeakHashMap<>();
 
 	public static boolean getOnline(String uuid) {
 
@@ -50,18 +51,17 @@ public class UserRequest {
 			return false;
 		}
 
-		uuid = API.getInstance().sanitizeUUID(uuid);
+		String sanitized = API.getInstance().sanitizeUUID(uuid);
 
-		if (uuid.equals(API.getInstance().getUuid())) {
+		if (sanitized.equals(API.getInstance().getUuid())) {
 			return true;
 		}
 
-		final String fUuid = uuid;
-		try {
-			return onlineCache.get(uuid, () -> get(fUuid).thenApply(User::getStatus).thenApply(Status::isOnline).handle((b, th) -> b != null && b).getNow(false));
-		} catch (ExecutionException e) {
+		if (!onlineCache.containsKey(sanitized)) {
+			ThreadExecuter.scheduleTask(() -> onlineCache.put(sanitized, get(sanitized).thenApply(User::getStatus).thenApply(Status::isOnline).handle((b, th) -> b != null && b).join()));
 			return false;
 		}
+		return onlineCache.get(sanitized);
 	}
 
 	public static CompletableFuture<User> get(String dUuid) {

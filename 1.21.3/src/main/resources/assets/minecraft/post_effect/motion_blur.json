@@ -5,10 +5,17 @@
 	},
 	"passes": [
 		{
+			"program": "minecraft:post/blit",
+			"inputs": [
+				{ "sampler_name": "In", "target": "minecraft:main"}
+			],
+			"output": "previous"
+		},
+		{
 			"program": "minecraft:post/motion_blur",
 			"inputs": [
-				{ "sampler_name": "In", "target": "minecraft:main"},
-				{ "sampler_name": "Blur", "target": "previous" }
+				{ "sampler_name": "Diffuse", "target": "minecraft:main"},
+				{ "sampler_name": "Prev", "target": "previous" }
 			],
 			"output": "swap",
 			"uniforms": [
@@ -18,28 +25,16 @@
 		{
 			"program": "minecraft:post/blit",
 			"inputs": [
-				{ "sampler_name": "Blur", "target": "swap" }
+				{ "sampler_name": "In", "target": "swap" }
 			],
-			"output": "previous",
-			"uniforms": [
-				{
-					"name": "ColorModulate",
-					"values": [ 1.0, 1.0, 1.0, 1.0 ]
-				}
-			]
+			"output": "previous"
 		},
 		{
 			"program": "minecraft:post/blit",
 			"inputs": [
 				{ "sampler_name": "In", "target": "swap" }
 			],
-			"output": "minecraft:main",
-			"uniforms": [
-				{
-					"name": "ColorModulate",
-					"values": [ 1.0, 1.0, 1.0, 1.0 ]
-				}
-			]
+			"output": "minecraft:main"
 		}
 	]
 }

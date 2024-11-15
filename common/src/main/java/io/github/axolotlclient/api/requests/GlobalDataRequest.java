@@ -22,15 +22,14 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.lang.ref.WeakReference;
-
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.GlobalData;
 import io.github.axolotlclient.api.types.SemVer;
 
-public class GlobalDataRequest {
+import java.lang.ref.WeakReference;
 
+public class GlobalDataRequest {
 	private static WeakReference<GlobalData> cachedData = new WeakReference<>(null);
 
 	public static GlobalData get() {

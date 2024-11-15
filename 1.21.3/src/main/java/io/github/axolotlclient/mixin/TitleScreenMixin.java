@@ -22,8 +22,6 @@
 
 package io.github.axolotlclient.mixin;
 
-import java.net.URI;
-
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import io.github.axolotlclient.AxolotlClient;
@@ -52,6 +50,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
+import java.net.URI;
+
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
 
@@ -72,7 +72,7 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addRenderableWidget(new AuthWidget());
 		}
-		if (APIOptions.getInstance().updateNotifications.get() &&
+		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().success() &&
 			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"), widget ->
@@ -83,7 +83,7 @@ public abstract class TitleScreenMixin extends Screen {
 					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
 				.bounds(width - 125, 10, 120, 20).build());
 		}
-		if (APIOptions.getInstance().displayNotes.get() &&
+		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
 			addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
 					minecraft.setScreen(new NewsScreen(this)))
@@ -110,7 +110,7 @@ public abstract class TitleScreenMixin extends Screen {
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)I"), index = 1)
 	private String axolotlclient$setVersionText(String s) {
 		return "Minecraft " + SharedConstants.getCurrentVersion().getName() + "/AxolotlClient "
-			   + AxolotlClient.VERSION;
+			+ AxolotlClient.VERSION;
 	}
 
 	@Inject(method = "realmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)

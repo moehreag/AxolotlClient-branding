@@ -111,7 +111,7 @@ public class Zoom extends AbstractModule {
 	}
 
 	public static void setOptions() {
-		originalSensitivity = Minecraft.getInstance().options.mouseWheelSensitivity().get();
+		originalSensitivity = Minecraft.getInstance().options.sensitivity().get();
 
 		if (smoothCamera.get()) {
 			originalSmoothCamera = Minecraft.getInstance().options.smoothCamera;
@@ -122,13 +122,13 @@ public class Zoom extends AbstractModule {
 	}
 
 	public static void restoreOptions() {
-		Minecraft.getInstance().options.mouseWheelSensitivity().set(originalSensitivity);
+		Minecraft.getInstance().options.sensitivity().set(originalSensitivity);
 		Minecraft.getInstance().options.smoothCamera = originalSmoothCamera;
 	}
 
 	private static void updateSensitivity() {
 		if (decreaseSensitivity.get()) {
-			Minecraft.getInstance().options.mouseWheelSensitivity().set(originalSensitivity / (divisor * divisor));
+			Minecraft.getInstance().options.sensitivity().set(originalSensitivity / (divisor * divisor));
 		}
 	}
 
@@ -167,6 +167,6 @@ public class Zoom extends AbstractModule {
 
 	public void tick() {
 		lastAnimatedFactor = animatedFactor;
-		animatedFactor += (targetFactor - animatedFactor) * (zoomSpeed.get() / 10F);
+		animatedFactor += (float) ((targetFactor - animatedFactor) * (zoomSpeed.get() / 10F));
 	}
 }

@@ -22,10 +22,7 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud;
 
-import java.util.List;
-
 import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
@@ -41,9 +38,10 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
-import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+
+import java.util.List;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -55,7 +53,8 @@ import org.joml.Vector3f;
 public class PlayerHud extends BoxHudEntry {
 
 	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("kronhud", "playerhud");
-	@Getter private static boolean currentlyRendering;
+	@Getter
+	private static boolean currentlyRendering;
 	private final DoubleOption rotation = new DoubleOption("rotation", 0d, 0d, 360d);
 	private final BooleanOption dynamicRotation = new BooleanOption("dynamicrotation", true);
 	private final BooleanOption autoHide = new BooleanOption("autoHide", false);
@@ -132,8 +131,8 @@ public class PlayerHud extends BoxHudEntry {
 	@Override
 	public void renderPlaceholderComponent(GuiGraphics graphics, float delta) {
 		renderPlayer(graphics, true, getTruePos().x() + 31 * getScale(), getTruePos().y() + 86 * getScale(),
-					 0
-					); // If delta was delta, it would start jittering
+			0
+		); // If delta was delta, it would start jittering
 	}
 
 	public void renderPlayer(GuiGraphics graphics, boolean placeholder, double x, double y, float delta) {
@@ -155,17 +154,8 @@ public class PlayerHud extends BoxHudEntry {
 
 		float lerpY = (lastYOffset + ((yOffset - lastYOffset) * delta));
 
-		//InventoryScreen.renderEntityInInventory(graphics, getX(), getY(), -getHeight(), new Vector3f(), new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw - 180 + rotation.get().floatValue()), null, client.player);
-
-		Matrix4fStack matrixStack = RenderSystem.getModelViewStack();
-		matrixStack.pushMatrix();
-		//PoseStack matrixStack = graphics.pose();
-		matrixStack.translate((float) x, (float) (y - lerpY), 1050);
-		matrixStack.scale(1, 1, -1);
-
-		// TODO check
-		//RenderSystem.applyModelViewMatrix();
 		PoseStack nextStack = new PoseStack();
+		nextStack.translate(x, (y - lerpY), 1050);
 		nextStack.translate(0, 0, 1000);
 		float scale = getScale() * 40;
 		nextStack.scale(scale, scale, scale);
@@ -179,7 +169,7 @@ public class PlayerHud extends BoxHudEntry {
 			deltaYaw -= (lastYawOffset + ((yawOffset - lastYawOffset) * delta));
 		}
 		nextStack.mulPose(
-			new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw - 180 + rotation.get().floatValue())
+			new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw + rotation.get().floatValue())
 				.get(new Matrix4f()));
 
 		// Save these to set them back later
@@ -195,8 +185,6 @@ public class PlayerHud extends BoxHudEntry {
 		graphics.drawSpecial(v -> renderer.render(client.player, 0, 0, 0, delta, nextStack, v, 15728880));
 		currentlyRendering = false;
 		renderer.setRenderShadow(true);
-		//matrixStack.translate((float) -x, (float) -(y - lerpY), -1050);
-		matrixStack.popMatrix();
 
 		client.player.setYRot(pastYaw);
 		client.player.yRotO = pastPrevYaw;
@@ -208,7 +196,7 @@ public class PlayerHud extends BoxHudEntry {
 		// inspired by tr7zw's mod
 		LocalPlayer player = client.player;
 		return player.isCrouching() || player.isSprinting() || player.isFallFlying() || player.getAbilities().flying ||
-			   player.isUnderWater() || player.isVisuallySwimming() || player.isPassenger() || player.isUsingItem() ||
-			   player.isHandsBusy() || player.hurtTime > 0 || player.isOnFire();
+			player.isUnderWater() || player.isVisuallySwimming() || player.isPassenger() || player.isUsingItem() ||
+			player.isHandsBusy() || player.hurtTime > 0 || player.isOnFire();
 	}
 }

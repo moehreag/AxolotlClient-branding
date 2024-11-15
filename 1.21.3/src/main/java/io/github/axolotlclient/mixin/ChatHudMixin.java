@@ -22,12 +22,16 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
+import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -37,7 +41,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatComponent.class)
 public abstract class ChatHudMixin {
 
-	@ModifyVariable(
+	@WrapMethod(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V")
+	private void onChatMessage(Component chatComponent, MessageSignature headerSignature, GuiMessageTag tag, Operation<Void> original) {
+		ReceiveChatMessageEvent event = new ReceiveChatMessageEvent(false, chatComponent.getString(), chatComponent);
+		Events.RECEIVE_CHAT_MESSAGE_EVENT.invoker().invoke(event);
+		if (event.isCancelled()) {
+			return;
+		} else if (event.getNewMessage() != null) {
+			chatComponent = event.getNewMessage();
+		}
+		original.call(chatComponent, headerSignature, tag);
+	}
+
+	/*@ModifyVariable(
 		method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
 		at = @At("HEAD"), index = 1, argsOnly = true)
 	private Component axolotlclient$onChatMessage(Component message, @Cancellable CallbackInfo ci) {
@@ -50,14 +66,14 @@ public abstract class ChatHudMixin {
 			return event.getNewMessage();
 		}
 		return message;
-	}
+	}*/
 
-	@ModifyArg(
+	/*@ModifyArg(
 		method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
 		at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/client/GuiMessage;<init>(ILnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V"),
 		index = 1)
 	private Component axolotlclient$editChat(Component content) {
 		return NickHider.getInstance().editMessage(content);
-	}
+	}*/
 }

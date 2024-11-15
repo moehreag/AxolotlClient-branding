@@ -24,7 +24,6 @@ package io.github.axolotlclient.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.PotionsHud;
@@ -39,8 +38,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
-import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -56,21 +53,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public abstract class InGameHudMixin {
 
-	@Shadow private @Nullable Component overlayMessageString;
+	@Shadow
+	private @Nullable Component overlayMessageString;
 
-	@Shadow private int overlayMessageTime;
+	@Shadow
+	private int overlayMessageTime;
 
-	@Shadow @Final private Minecraft minecraft;
+	@Shadow
+	@Final
+	private Minecraft minecraft;
 
-	@Shadow @Final private ChatComponent chat;
-
-	@Inject(method = "<init>", at = @At(value = "TAIL"))
-	private void onHudRender(Minecraft client, CallbackInfo ci, @Local(ordinal = 1) LayeredDraw list) {
-		list.add((guiGraphics, deltaTracker) -> {
-			if (!client.options.hideGui) {
-				HudManager.getInstance().render(guiGraphics, deltaTracker);
-			}
-		});
+	@Inject(method = "render", at = @At(value = "HEAD"))
+	private void onHudRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+		if (!minecraft.options.hideGui) {
+			HudManager.getInstance().render(guiGraphics, deltaTracker);
+		}
 	}
 
 	@Inject(method = "renderEffects", at = @At(value = "HEAD"))
@@ -95,6 +92,7 @@ public abstract class InGameHudMixin {
 			if (minecraft.gui.getDebugOverlay().showDebugScreen() && !hud.overridesF3()) {
 				return;
 			}
+			hud.renderCrosshair(graphics, tracker.getGameTimeDeltaTicks());
 			ci.cancel();
 		}
 	}
@@ -135,8 +133,8 @@ public abstract class InGameHudMixin {
 		target = "Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"))
 	public void axolotlclient$displayHardcoreHearts(Gui instance, GuiGraphics graphics, Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean half, Operation<Void> original) {
 		boolean hardcoreMod = BedwarsMod.getInstance().isEnabled() && BedwarsMod.getInstance().inGame() &&
-							  BedwarsMod.getInstance().hardcoreHearts.get() &&
-							  !BedwarsMod.getInstance().getGame().get().getSelf().isBed();
+			BedwarsMod.getInstance().hardcoreHearts.get() &&
+			!BedwarsMod.getInstance().getGame().get().getSelf().isBed();
 		original.call(instance, graphics, type, x, y, hardcoreMod || hardcore, blinking, half);
 	}
 

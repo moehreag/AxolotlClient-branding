@@ -22,14 +22,9 @@
 
 package io.github.axolotlclient.mixin;
 
-import java.util.List;
-import java.util.UUID;
-
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.requests.UserRequest;
@@ -53,23 +48,29 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.List;
+import java.util.UUID;
 
 @Mixin(PlayerTabOverlay.class)
 public abstract class PlayerListHudMixin {
 
-	@Shadow private Component header;
-	@Shadow private Component footer;
-	@Unique private GameProfile axolotlclient$profile;
-	@Shadow @Final private Minecraft minecraft;
+	@Shadow
+	private Component header;
+	@Shadow
+	private Component footer;
+	@Shadow
+	@Final
+	private Minecraft minecraft;
 
 	@Shadow
 	protected abstract Component decorateName(PlayerInfo entry, MutableComponent name);
@@ -81,39 +82,33 @@ public abstract class PlayerListHudMixin {
 			cir.setReturnValue(
 				this.decorateName(entry, Component.literal(NickHider.getInstance().hiddenNameSelf.get())));
 		} else if (!entry.getProfile().equals(minecraft.player.getGameProfile()) &&
-				   NickHider.getInstance().hideOtherNames.get()) {
+			NickHider.getInstance().hideOtherNames.get()) {
 			cir.setReturnValue(
 				this.decorateName(entry, Component.literal(NickHider.getInstance().hiddenNameOthers.get())));
 		}
 	}
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/gui/components/PlayerTabOverlay;getNameForDisplay(Lnet/minecraft/client/multiplayer/PlayerInfo;)Lnet/minecraft/network/chat/Component;"))
-	private PlayerInfo axolotlclient$getPlayer(PlayerInfo entry) {
-		axolotlclient$profile = entry.getProfile();
-		return entry;
-	}
-
-	@Redirect(method = "render", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/gui/Font;width(Lnet/minecraft/network/chat/FormattedText;)I"))
-	private int axolotlclient$moveName(Font instance, FormattedText text) {
-		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() &&
-			UserRequest.getOnline(axolotlclient$profile.getId().toString())) return instance.width(text) + 10;
-		return instance.width(text);
+	@WrapOperation(method = "render", at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/client/gui/Font;width(Lnet/minecraft/network/chat/FormattedText;)I", ordinal = 0))
+	private int axolotlclient$moveName(Font instance, FormattedText text, Operation<Integer> original, @Local PlayerInfo info) {
+		int width = original.call(instance, text);
+		if (AxolotlClient.CONFIG.showBadges.get() &&
+			UserRequest.getOnline(info.getProfile().getId().toString())) width += 10;
+		if (Tablist.getInstance().numericalPing.get())
+			width += (instance.width(String.valueOf(info.getLatency())) - 10);
+		return width;
 	}
 
 	@WrapOperation(method = "render", at = @At(value = "INVOKE",
 		target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)I"))
-	public int axolotlclient$moveName2(GuiGraphics instance, Font font, Component component, int x, int y, int color, Operation<Integer> original) {
-		if (axolotlclient$profile != null && AxolotlClient.CONFIG.showBadges.get() &&
-			UserRequest.getOnline(axolotlclient$profile.getId().toString())) {
-			RenderSystem.setShaderColor(1, 1, 1, 1);
+	public int axolotlclient$moveName2(GuiGraphics instance, Font font, Component component, int x, int y, int color, Operation<Integer> original, @Local PlayerInfo info) {
+		if (AxolotlClient.CONFIG.showBadges.get() &&
+			UserRequest.getOnline(info.getProfile().getId().toString())) {
 
-			instance.blit(RenderType::guiTextured, AxolotlClient.badgeIcon, x, y, 8, 8, 0, 0, 8, 8, 8, 8);
+			instance.blit(RenderType::guiTextured, AxolotlClient.badgeIcon, x, y, 0, 0, 8, 8, 8, 8);
 
 			x += 9;
 		}
-		axolotlclient$profile = null;
 		return original.call(instance, font, component, x, y, color);
 	}
 
@@ -201,8 +196,8 @@ public abstract class PlayerListHudMixin {
 			return;
 		}
 		graphics.drawString(minecraft.font, render,
-								  (endX - this.minecraft.font.width(render)) + 20, y, -1
-								 );
+			(endX - this.minecraft.font.width(render)) + 20, y, -1
+		);
 	}
 
 	@Inject(method = "renderTablistScore", at = @At(value = "INVOKE",

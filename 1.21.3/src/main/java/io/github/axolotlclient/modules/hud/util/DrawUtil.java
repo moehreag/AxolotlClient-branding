@@ -53,10 +53,7 @@ public class DrawUtil {
 	}
 
 	public static void outlineRect(GuiGraphics graphics, int x, int y, int width, int height, int color) {
-		fillRect(graphics, x, y, 1, height - 1, color);
-		fillRect(graphics, x + width - 1, y + 1, 1, height - 1, color);
-		fillRect(graphics, x + 1, y, width - 1, 1, color);
-		fillRect(graphics, x, y + height - 1, width - 1, 1, color);
+		graphics.renderOutline(x, y, width, height, color);
 	}
 
 	public static void drawCenteredString(GuiGraphics graphics, Font renderer, String text, int x, int y, Color color, boolean shadow) {

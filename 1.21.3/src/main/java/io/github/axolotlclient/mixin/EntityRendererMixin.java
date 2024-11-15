@@ -66,8 +66,6 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 						assert Minecraft.getInstance().player != null;
 						int x = -(Minecraft.getInstance().font.width(entity == Minecraft.getInstance().player ? (NickHider.getInstance().hideOwnName.get() ? NickHider.getInstance().hiddenNameSelf.get() : PlayerTeam.formatNameForTeam(entity.getTeam(), entity.getName()).getString()) : (NickHider.getInstance().hideOtherNames.get() ? NickHider.getInstance().hiddenNameOthers.get() : PlayerTeam.formatNameForTeam(entity.getTeam(), entity.getName()).getString())) / 2 + (AxolotlClient.CONFIG.customBadge.get() ? Minecraft.getInstance().font.width(" " + ChatFormatting.stripFormatting(AxolotlClient.CONFIG.badgeText.get())) : 10));
 
-						RenderSystem.setShaderColor(1, 1, 1, 1);
-
 						if (AxolotlClient.CONFIG.customBadge.get()) {
 							Component badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
 							Minecraft.getInstance().font.drawInBatch(badgeText, x, 0, -1, AxolotlClient.CONFIG.useShadows.get(), matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 15728880);

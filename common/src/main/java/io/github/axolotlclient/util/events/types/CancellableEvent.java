@@ -22,11 +22,18 @@
 
 package io.github.axolotlclient.util.events.types;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
 public abstract class CancellableEvent {
 
 	private boolean cancelled;
 
+	public void setCancelled(boolean cancel) {
+		cancelled |= cancel;
+	}
 }

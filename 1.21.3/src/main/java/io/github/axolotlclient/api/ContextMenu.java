@@ -216,7 +216,6 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 				graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x55ffffff);
 			}
 
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			int i = this.active ? 16777215 : 10526880;
 			this.renderString(graphics, client.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
 		}

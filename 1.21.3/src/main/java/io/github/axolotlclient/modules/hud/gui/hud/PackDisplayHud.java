@@ -39,6 +39,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.IoSupplier;
@@ -83,6 +84,9 @@ public class PackDisplayHud extends TextHudEntry {
 		int listSize = client.getResourcePackRepository().getSelectedPacks().size();
 		client.getResourcePackRepository().getSelectedPacks().forEach(profile -> {
 			try (PackResources pack = profile.open()) {
+				if (pack.location().title().getContents() instanceof TranslatableContents tr && tr.getKey().matches("pack\\.name\\.fabricMods?")) {
+					return;
+				}
 
 				if (listSize == 1) {
 					widgets.add(createWidget(profile.getTitle(), pack));

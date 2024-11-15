@@ -26,6 +26,8 @@ import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
+import io.github.axolotlclient.util.events.Events;
+import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -50,6 +52,7 @@ public class NickHider implements AbstractHypixelMod {
 		category.add(hideOtherNames);
 		category.add(hideOwnSkin);
 		category.add(hideOtherSkins);
+		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(this::editMessage);
 	}
 
 	@Override
@@ -57,9 +60,9 @@ public class NickHider implements AbstractHypixelMod {
 		return category;
 	}
 
-	public Component editMessage(Component message) {
+	private void editMessage(ReceiveChatMessageEvent event) {
 		if (hideOwnName.get() || hideOtherNames.get()) {
-			String msg = message.getString();
+			String msg = event.getOriginalMessage();
 
 			String playerName = Minecraft.getInstance().player.getName().getString();
 			if (NickHider.Instance.hideOwnName.get() && msg.contains(playerName)) {
@@ -73,8 +76,7 @@ public class NickHider implements AbstractHypixelMod {
 					}
 				}
 			}
-			return Component.literal(msg).copy().setStyle(message.getStyle());
+			event.setNewMessage(Component.literal(msg).copy().setStyle(event.getFormattedMessage().getStyle()));
 		}
-		return message;
 	}
 }
