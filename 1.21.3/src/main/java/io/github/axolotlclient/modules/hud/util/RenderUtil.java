@@ -22,9 +22,6 @@
 
 package io.github.axolotlclient.modules.hud.util;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
@@ -32,7 +29,6 @@ import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
 /**

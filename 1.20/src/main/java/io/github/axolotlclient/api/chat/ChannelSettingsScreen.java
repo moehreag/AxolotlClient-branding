@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -124,7 +125,7 @@ public class ChannelSettingsScreen extends Screen {
 		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, widget -> {
 			ChannelRequest.updateChannel(channel.getId(), nameField.getText(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new));
 			client.setScreen(parent);
 		}).positionAndSize(width / 2 + 4, footerY, 150, 20).build());
 	}

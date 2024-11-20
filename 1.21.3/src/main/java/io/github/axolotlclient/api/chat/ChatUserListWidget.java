@@ -39,9 +39,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.UserListEntry> {
@@ -148,13 +149,9 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 								   );
 			}
 
+			ResourceLocation texture = Auth.getInstance().getSkinTexture(user.getUuid(), user.getName());
 			RenderSystem.enableBlend();
-			graphics.blit(RenderType::guiTextured, Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()), x,
-						  y, entryHeight, entryHeight, 8, 8, 8, 8, 64, 64
-						 );
-			graphics.blit(RenderType::guiTextured, Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()), x,
-						  y, entryHeight, entryHeight, 40, 8, 8, 8, 64, 64
-						 );
+			PlayerFaceRenderer.draw(graphics, texture, x, y, entryHeight, true, false, -1);
 			RenderSystem.disableBlend();
 		}
 

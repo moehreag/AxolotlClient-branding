@@ -34,19 +34,11 @@ public class ThreadExecuter {
 		new ThreadFactoryBuilder().setNameFormat("ExecutionService Thread #%d").setDaemon(true).build());
 
 	public static void scheduleTask(Runnable runnable) {
-		scheduleTask(runnable, 0, TimeUnit.MILLISECONDS);
+		EXECUTER_SERVICE.execute(runnable);
 	}
 
 	public static void scheduleTask(Runnable runnable, long delay, TimeUnit timeUnit) {
 		EXECUTER_SERVICE.schedule(runnable, delay, timeUnit);
-	}
-
-	public static void removeTask(Runnable runnable) {
-		EXECUTER_SERVICE.remove(runnable);
-	}
-
-	public static void purge() {
-		EXECUTER_SERVICE.purge();
 	}
 
 	public static Executor service() {

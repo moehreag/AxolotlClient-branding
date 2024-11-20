@@ -41,6 +41,9 @@ import io.github.axolotlclient.api.util.UUIDHelper;
 public class ChannelRequest {
 
 	public static CompletableFuture<Channel> getById(String id) {
+		if (id.isEmpty()) {
+			return CompletableFuture.failedFuture(new IllegalArgumentException("Empty channel id"));
+		}
 		return API.getInstance().get(Request.Route.CHANNEL.builder().path(id).build()).thenApply(ChannelRequest::parseChannel);
 	}
 

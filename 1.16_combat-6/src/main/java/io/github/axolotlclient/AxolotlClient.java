@@ -54,7 +54,6 @@ import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.FeatureDisabler;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.LoggerImpl;
-import io.github.axolotlclient.util.UnsupportedMod;
 import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.translation.Translations;
 import net.fabricmc.api.ClientModInitializer;
@@ -75,9 +74,6 @@ public class AxolotlClient implements ClientModInitializer {
 	public static Logger LOGGER;
 	public static AxolotlClientConfig CONFIG;
 	public static ConfigManager configManager;
-	public static UnsupportedMod badmod;
-	public static boolean titleDisclaimer = false;
-	public static boolean showWarning = true;
 
 	public static void getModules() {
 		modules.add(SkyResourceManager.getInstance());
@@ -114,26 +110,6 @@ public class AxolotlClient implements ClientModInitializer {
 		VERSION = FabricLoader.getInstance().getModContainer(MODID).orElseThrow(IllegalStateException::new)
 			.getMetadata().getVersion().getFriendlyString();
 
-		if (FabricLoader.getInstance().isModLoaded("ares")) {
-			badmod = new UnsupportedMod("Ares Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (FabricLoader.getInstance().isModLoaded("inertia")) {
-			badmod = new UnsupportedMod("Inertia Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (FabricLoader.getInstance().isModLoaded("meteor-client")) {
-			badmod = new UnsupportedMod("Meteor Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (FabricLoader.getInstance().isModLoaded("wurst")) {
-			badmod = new UnsupportedMod("Wurst Client", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (FabricLoader.getInstance().isModLoaded("baritone")) {
-			badmod = new UnsupportedMod("Baritone", UnsupportedMod.UnsupportedReason.BAN_REASON);
-		} else if (FabricLoader.getInstance().isModLoaded("essential-container")) {
-			badmod = new UnsupportedMod("Essential", UnsupportedMod.UnsupportedReason.MIGHT_CRASH,
-				UnsupportedMod.UnsupportedReason.UNKNOWN_CONSEQUENSES);
-		} else if (FabricLoader.getInstance().isModLoaded("optifabric")) {
-			badmod = new UnsupportedMod("OptiFine", UnsupportedMod.UnsupportedReason.MIGHT_CRASH,
-				UnsupportedMod.UnsupportedReason.UNKNOWN_CONSEQUENSES);
-		} else {
-			showWarning = false;
-		}
-
 		CONFIG = new AxolotlClientConfig();
 		config.add(someNiceBackground);
 
@@ -162,8 +138,6 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::lateInit);
 
-        /*ResourceLoader.registerBuiltinResourcePack(new Identifier("axolotlclient", "axolotlclient-ui"), container,
-                ResourcePackActivationType.NORMAL);*/
 		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
 
 		FeatureDisabler.init();

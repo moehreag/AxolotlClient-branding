@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
 import com.github.mizosoft.methanol.Methanol;
 import com.google.gson.JsonElement;
@@ -74,6 +75,7 @@ public class NetworkUtil {
 	public HttpClient createHttpClient(String id) {
 		return Methanol.newBuilder().userAgent("AxolotlClient/" + id + " (" + AxolotlClientCommon.VERSION + ") contact: moehreag<at>gmail.com")
 			.followRedirects(HttpClient.Redirect.NORMAL)
+			.requestTimeout(Duration.ofMinutes(1))
 			.executor(ThreadExecuter.service()).build();
 	}
 }

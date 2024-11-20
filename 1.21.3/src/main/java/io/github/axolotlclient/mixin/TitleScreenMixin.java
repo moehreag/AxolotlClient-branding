@@ -22,6 +22,8 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.net.URI;
+
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import io.github.axolotlclient.AxolotlClient;
@@ -49,8 +51,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
-
-import java.net.URI;
 
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {

@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.Layout;
@@ -115,7 +116,7 @@ public class ChannelSettingsScreen extends Screen {
 		footer.addChild(Button.builder(CommonComponents.GUI_DONE, widget -> {
 			ChannelRequest.updateChannel(channel.getId(), nameField.getValue(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getValue().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Arrays.stream(namesInput.getValue().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new));
 			minecraft.setScreen(parent);
 		}).build());
 		layout.addToFooter(footer);

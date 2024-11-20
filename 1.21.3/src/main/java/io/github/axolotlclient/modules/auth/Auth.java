@@ -22,6 +22,10 @@
 
 package io.github.axolotlclient.modules.auth;
 
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.util.UndashedUuid;
@@ -48,9 +52,6 @@ import net.minecraft.client.multiplayer.chat.report.ReportingContext;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-
-import java.nio.file.Path;
-import java.util.*;
 
 public class Auth extends Accounts implements Module {
 
@@ -110,7 +111,7 @@ public class Auth extends Accounts implements Module {
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.login.successful", current.getName()));
-				API.getInstance().startup(account);
+				ThreadExecuter.scheduleTask(() -> API.getInstance().startup(account), 50, TimeUnit.MILLISECONDS);
 			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.login.failed"));
 			}

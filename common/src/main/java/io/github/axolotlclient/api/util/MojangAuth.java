@@ -32,6 +32,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.Arrays;
 
 import com.google.gson.JsonObject;
@@ -49,7 +50,7 @@ public class MojangAuth {
 		Result.Builder result = Result.builder();
 		try (HttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
 
-			HttpRequest.Builder builder = HttpRequest.newBuilder();
+			HttpRequest.Builder builder = HttpRequest.newBuilder().timeout(Duration.ofSeconds(10));
 			builder.header("Content-Type", "application/json");
 			builder.header("Accept", "application/json");
 

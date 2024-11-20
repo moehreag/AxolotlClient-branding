@@ -56,8 +56,6 @@ import io.github.axolotlclient.util.notifications.Notifications;
 import io.github.axolotlclient.util.translation.Translations;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -117,7 +115,7 @@ public class AxolotlClient implements ClientModInitializer {
 
 		new AxolotlClientCommon(LOGGER);
 		new API(LOGGER, Notifications.getInstance(), Translations.getInstance(), new StatusUpdateProviderImpl(),
-				APIOptions.getInstance()
+			APIOptions.getInstance()
 		);
 
 		modules.forEach(Module::init);
@@ -125,18 +123,18 @@ public class AxolotlClient implements ClientModInitializer {
 		CONFIG.getConfig().add(config);
 
 		io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig.getInstance().register(configManager =
-																									   new VersionedJsonConfigManager(
-																										   FabricLoader.getInstance()
-																											   .getConfigDir()
-																											   .resolve(
-																												   "AxolotlClient.json"),
-																										   CONFIG.getConfig(),
-																										   1,
-																										   (oldVersion, newVersion, config, json) -> {
-																											   // convert changed Options between versions here
-																											   return json;
-																										   }
-																									   ));
+			new VersionedJsonConfigManager(
+				FabricLoader.getInstance()
+					.getConfigDir()
+					.resolve(
+						"AxolotlClient.json"),
+				CONFIG.getConfig(),
+				1,
+				(oldVersion, newVersion, config, json) -> {
+					// convert changed Options between versions here
+					return json;
+				}
+			));
 		configManager.load();
 		configManager.suppressName("x");
 		configManager.suppressName("y");
@@ -144,10 +142,6 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::lateInit);
 
-		ResourceManagerHelper.registerBuiltinResourcePack(
-			ResourceLocation.fromNamespaceAndPath("axolotlclient", "axolotlclient-ui"),
-			FabricLoader.getInstance().getModContainer(MODID).orElseThrow(), ResourcePackActivationType.NORMAL
-														 );
 		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
 
 		FeatureDisabler.init();

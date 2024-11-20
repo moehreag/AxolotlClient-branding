@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -110,11 +111,11 @@ public class CreateChannelScreen extends Screen {
 		footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, widget -> minecraft.setScreen(parent)).build());
 		footer.addChild(Button.builder(CommonComponents.GUI_DONE, widget -> {
 			ChannelRequest.createChannel(nameField.getValue(), Persistence.of(persistence.getValue(), count.get().get(),
-																			  duration.get().get()
-																			 ),
-										 Arrays.stream(namesInput.getValue().split(",")).filter(s -> !s.isEmpty())
-											 .toArray(String[]::new)
-										);
+					duration.get().get()
+				),
+				Arrays.stream(namesInput.getValue().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid)
+					.toArray(String[]::new)
+			);
 			minecraft.setScreen(parent);
 		}).build());
 		layout.addToFooter(footer);
@@ -150,8 +151,8 @@ public class CreateChannelScreen extends Screen {
 			} else {
 				try {
 					slider.onClick(slider.getX() + (1d / slider.getWidth()) * Double.parseDouble(text.getValue()),
-								   slider.getY()
-								  );
+						slider.getY()
+					);
 				} catch (Exception ignored) {
 				}
 			}

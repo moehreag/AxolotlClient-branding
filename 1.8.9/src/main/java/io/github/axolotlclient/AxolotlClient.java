@@ -136,11 +136,6 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::lateInit);
 
-        /*FabricLoader.getInstance().getModContainer("axolotlclient").ifPresent(modContainer -> {
-            Optional<Path> optional = modContainer.findPath("resourcepacks/AxolotlClientUI.zip");
-            optional.ifPresent(path -> MinecraftClient.getInstance().getResourcePackLoader().method_10366(path.toFile()));
-        });*/
-
 		MinecraftClientEvents.TICK_END.register(client -> tickClient());
 
 		FeatureDisabler.init();

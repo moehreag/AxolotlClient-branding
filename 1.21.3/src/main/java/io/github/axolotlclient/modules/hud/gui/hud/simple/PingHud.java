@@ -30,8 +30,6 @@ import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import io.github.axolotlclient.util.ThreadExecuter;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerStatusPinger;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.resources.ResourceLocation;
 
 /**

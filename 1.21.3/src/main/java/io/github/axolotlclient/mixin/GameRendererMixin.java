@@ -85,7 +85,7 @@ public abstract class GameRendererMixin {
 	}
 
 	@SuppressWarnings("deprecation")
-	@Inject(method = "render", at = @At("TAIL"))
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;flush()V", ordinal = 1))
 	public void axolotlclient$motionBlur(DeltaTracker tracker, boolean tick, CallbackInfo ci) {
 		if (ci != null && !MotionBlur.getInstance().inGuis.get()) {
 			return;
@@ -96,6 +96,9 @@ public abstract class GameRendererMixin {
 		if (MotionBlur.getInstance().enabled.get()) {
 			MotionBlur blur = MotionBlur.getInstance();
 			blur.onUpdate();
+			/*RenderSystem.disableBlend();
+			RenderSystem.disableDepthTest();
+			RenderSystem.resetTextureMatrix();*/
 			blur.shader.process(minecraft.getMainRenderTarget(), this.resourcePool);
 		}
 

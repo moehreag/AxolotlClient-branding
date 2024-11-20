@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.SliderWidget;
@@ -115,7 +116,7 @@ public class CreateChannelScreen extends Screen {
 		footer.add(ButtonWidget.builder(CommonTexts.DONE, widget -> {
 			ChannelRequest.createChannel(nameField.getText(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new));
 			client.setScreen(parent);
 		}).build());
 		layout.addToFooter(footer);

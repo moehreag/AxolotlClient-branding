@@ -24,7 +24,6 @@ package io.github.axolotlclient.api;
 
 import java.util.function.Consumer;
 
-import io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
@@ -34,7 +33,6 @@ import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.types.AccountSettings;
 import io.github.axolotlclient.api.types.PkSystem;
 import io.github.axolotlclient.modules.Module;
-import io.github.axolotlclient.util.NoSaveConfigManager;
 import io.github.axolotlclient.util.ThreadExecuter;
 
 public abstract class Options implements Module {
@@ -86,7 +84,6 @@ public abstract class Options implements Module {
 
 	@Override
 	public void init() {
-		AxolotlClientConfig.getInstance().register(new NoSaveConfigManager(account));
 		settingUpdated = b -> {
 			AccountSettingsRequest.update(new AccountSettings(
 				showRegistered.get(),

@@ -22,6 +22,8 @@
 
 package io.github.axolotlclient.modules.blur;
 
+import java.io.IOException;
+
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.shader.GlUniform;
 import io.github.axolotlclient.AxolotlClient;
@@ -35,8 +37,6 @@ import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
 
 public class MotionBlur extends AbstractModule {
 

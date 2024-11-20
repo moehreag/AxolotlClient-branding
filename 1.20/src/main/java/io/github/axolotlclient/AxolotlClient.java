@@ -59,7 +59,6 @@ import io.github.axolotlclient.util.translation.Translations;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceType;
@@ -138,8 +137,6 @@ public class AxolotlClient implements ClientModInitializer {
 
 		modules.forEach(Module::lateInit);
 
-		ResourceManagerHelper.registerBuiltinResourcePack(new Identifier("axolotlclient", "axolotlclient-ui"), FabricLoader.getInstance().getModContainer(MODID).orElseThrow(),
-			ResourcePackActivationType.NORMAL);
 		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SkyResourceManager.getInstance());
 

@@ -373,13 +373,13 @@ public class API {
 		});
 	}
 
-	void startupAPI() {
+	private void startupAPI() {
 		if (!isSocketConnected()) {
 
 			if (Constants.TESTING) {
 				return;
 			}
-			logger.debug("Starting API...");
+			logger.info("Starting API...");
 			ThreadExecuter.scheduleTask(this::authenticate);
 		} else {
 			logger.warn("API is already running!");

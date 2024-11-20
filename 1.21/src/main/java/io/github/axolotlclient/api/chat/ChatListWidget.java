@@ -35,8 +35,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
-import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.gui.widget.list.ButtonListWidget;
 import net.minecraft.client.gui.widget.list.ElementListWidget;
 import net.minecraft.text.Text;
 

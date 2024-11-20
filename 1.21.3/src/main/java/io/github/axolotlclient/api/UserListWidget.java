@@ -35,7 +35,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -80,7 +80,8 @@ public class UserListWidget extends ObjectSelectionList<UserListWidget.UserListE
 
 	public static class UserListEntry extends Entry<UserListEntry> {
 
-		@Getter private final User user;
+		@Getter
+		private final User user;
 		private final Minecraft client;
 		private long time;
 		private MutableComponent note;
@@ -129,14 +130,13 @@ public class UserListWidget extends ObjectSelectionList<UserListWidget.UserListE
 
 			if (note != null) {
 				graphics.drawString(client.font, note, x + entryWidth - client.font.width(note) - 2,
-									y + entryHeight - 10, 8421504, false
-								   );
+					y + entryHeight - 10, 8421504, false
+				);
 			}
 
 			ResourceLocation texture = Auth.getInstance().getSkinTexture(user.getUuid(), user.getName());
 			RenderSystem.enableBlend();
-			graphics.blit(RenderType::guiTextured, texture, x - 1, y - 1, 33, 33, 8, 8, 8, 8, 64, 64);
-			graphics.blit(RenderType::guiTextured, texture, x - 1, y - 1, 33, 33, 40, 8, 8, 8, 64, 64);
+			PlayerFaceRenderer.draw(graphics, texture, x - 1, y - 1, 33, true, false, -1);
 			RenderSystem.disableBlend();
 		}
 

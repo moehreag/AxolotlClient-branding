@@ -33,21 +33,16 @@ import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.OSUtil;
-import io.github.axolotlclient.util.UnsupportedMod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
-import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -115,47 +110,5 @@ public abstract class TitleScreenMixin extends Screen {
 	@Inject(method = "areRealmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$noRealmsIcons(CallbackInfoReturnable<Boolean> cir) {
 		cir.setReturnValue(false);
-	}
-
-	@Inject(method = "init", at = @At("HEAD"))
-	public void axolotlclient$showBadModsScreen(CallbackInfo ci) {
-		if (AxolotlClient.showWarning) {
-			StringBuilder description = new StringBuilder();
-			for (int i = 0; i < AxolotlClient.badmod.reason().length; i++) {
-				UnsupportedMod.UnsupportedReason reason = AxolotlClient.badmod.reason()[i];
-				if (i > 0 && i < AxolotlClient.badmod.reason().length - 1) {
-					description.append(", to ");
-				} else if (i > 0) {
-					description.append(" and to ");
-				}
-				description.append(reason);
-			}
-			description.append(". ");
-
-			MinecraftClient.getInstance().openScreen(new ConfirmScreen((boolean confirmed) -> {
-				if (confirmed) {
-					AxolotlClient.showWarning = false;
-					AxolotlClient.titleDisclaimer = true;
-					System.out.println("Proceed with Caution!");
-					MinecraftClient.getInstance().openScreen(new TitleScreen());
-				} else {
-					MinecraftClient.getInstance().stop();
-				}
-			}, new LiteralText("Axolotlclient warning").formatted(Formatting.RED), new LiteralText("The mod ")
-				.append(new LiteralText(AxolotlClient.badmod.name()).formatted(Formatting.BOLD, Formatting.DARK_RED))
-				.append(" is known to ").append(description.toString())
-				.append("AxolotlClient will not be responsible for any punishment or crashes you will encounter while using it.\n Proceed with Caution!"),
-				new TranslatableText("gui.proceed"), new TranslatableText("menu.quit")));
-		}
-	}
-
-	@Inject(method = "render", at = @At("TAIL"))
-	public void axolotlclient$addDisclaimer(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		if (AxolotlClient.titleDisclaimer) {
-			TitleScreen.drawCenteredString(matrices, this.textRenderer,
-				"You are playing at your own risk with unsupported Mods", this.width / 2, 5, 0xFFCC8888);
-			TitleScreen.drawCenteredString(matrices, this.textRenderer, "Things could break!", this.width / 2, 15,
-				0xFFCC8888);
-		}
 	}
 }

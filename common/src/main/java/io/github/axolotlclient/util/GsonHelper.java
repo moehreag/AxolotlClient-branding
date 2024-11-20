@@ -38,7 +38,7 @@ import com.google.gson.stream.JsonReader;
 
 public class GsonHelper {
 
-	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	public static final Gson GSON = new GsonBuilder().create();
 
 	public static JsonObject fromJson(String s) {
 		return GSON.fromJson(s, JsonObject.class);

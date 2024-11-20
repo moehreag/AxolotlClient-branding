@@ -33,6 +33,7 @@ import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
@@ -59,7 +60,7 @@ public class CreateChannelScreen extends Screen {
 		renderBackground(graphics);
 		drawCenteredText(graphics, textRenderer, title, width / 2, 36 / 2 - textRenderer.fontHeight / 2, -1);
 		super.render(graphics, mouseX, mouseY, delta);
-		hoveredElement(mouseX, mouseY).filter(e -> e instanceof ButtonWidget).map(b -> (ButtonWidget)b).ifPresent(b -> b.renderToolTip(graphics, mouseX, mouseY));
+		hoveredElement(mouseX, mouseY).filter(e -> e instanceof ButtonWidget).map(b -> (ButtonWidget) b).ifPresent(b -> b.renderToolTip(graphics, mouseX, mouseY));
 	}
 
 	@Override
@@ -147,7 +148,7 @@ public class CreateChannelScreen extends Screen {
 		addButton(new ButtonWidget(width / 2 + 4, footerY, 150, 20, ScreenTexts.DONE, widget -> {
 			ChannelRequest.createChannel(nameField.getText(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new));
 			client.openScreen(parent);
 		}));
 	}

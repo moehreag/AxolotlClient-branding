@@ -30,6 +30,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.FloatOption;
 import io.github.axolotlclient.mixin.ShaderEffectAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.PostChain;
@@ -37,12 +38,13 @@ import net.minecraft.resources.ResourceLocation;
 
 public class MotionBlur extends AbstractModule {
 
+	@Getter
 	private static final MotionBlur Instance = new MotionBlur();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
 	public final FloatOption strength = new FloatOption("strength", 50F, 1F, 99F);
 	public final BooleanOption inGuis = new BooleanOption("inGuis", false);
 	public final OptionCategory category = OptionCategory.create("motionBlur");
-	private final ResourceLocation postChainId = ResourceLocation.withDefaultNamespace("motion_blur");
+	private final ResourceLocation postChainId = ResourceLocation.fromNamespaceAndPath("axolotlclient","motion_blur");
 	private final Minecraft client = Minecraft.getInstance();
 	public PostChain shader;
 	private float currentBlur;
@@ -52,10 +54,6 @@ public class MotionBlur extends AbstractModule {
 
 	private static float getBlur() {
 		return getInstance().strength.get() / 100F;
-	}
-
-	public static MotionBlur getInstance() {
-		return Instance;
 	}
 
 	@Override

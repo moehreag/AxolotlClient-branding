@@ -41,6 +41,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.Persistence;
+import io.github.axolotlclient.api.util.UUIDHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.resource.Identifier;
@@ -157,7 +158,7 @@ public class ChannelSettingsScreen extends io.github.axolotlclient.AxolotlClient
 		addDrawableChild(new VanillaButtonWidget(width / 2 + 4, footerY, 150, 20, I18n.translate("gui.done"), widget -> {
 			ChannelRequest.updateChannel(channel.getId(), nameField.getText(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).toArray(String[]::new));
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new));
 			minecraft.openScreen(parent);
 		}));
 	}

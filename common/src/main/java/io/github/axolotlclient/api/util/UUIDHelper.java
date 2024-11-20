@@ -23,6 +23,7 @@
 package io.github.axolotlclient.api.util;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
 import com.google.gson.JsonElement;
@@ -56,5 +57,18 @@ public class UUIDHelper {
 			}
 			return username;
 		});
+	}
+
+	public static String ensureUuid(String uuidOrUsername) {
+		String uuid;
+		try {
+			uuid = API.getInstance().sanitizeUUID(UUID.fromString(uuidOrUsername
+					.trim()
+					.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"))
+				.toString());
+		} catch (IllegalArgumentException e) {
+			uuid = getUuid(uuidOrUsername.trim());
+		}
+		return uuid;
 	}
 }

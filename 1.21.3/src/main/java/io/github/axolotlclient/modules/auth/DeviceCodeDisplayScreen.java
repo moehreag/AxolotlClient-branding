@@ -22,6 +22,9 @@
 
 package io.github.axolotlclient.modules.auth;
 
+import java.net.URI;
+import java.util.List;
+
 import io.github.axolotlclient.util.OSUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,9 +32,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-
-import java.net.URI;
-import java.util.List;
 
 public class DeviceCodeDisplayScreen extends Screen {
 	private final Screen parent;
