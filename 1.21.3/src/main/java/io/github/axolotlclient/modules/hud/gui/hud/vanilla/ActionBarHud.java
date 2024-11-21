@@ -48,7 +48,8 @@ public class ActionBarHud extends TextHudEntry {
 	public final IntegerOption timeShown = new IntegerOption("timeshown", 60, 40, 300);
 	public final BooleanOption customTextColor = new BooleanOption("customtextcolor", false);
 	private final String placeholder = "Action Bar";
-	@Getter private Component actionBar;
+	@Getter
+	private Component actionBar;
 	private int ticksShown;
 	private int color;
 
@@ -69,13 +70,13 @@ public class ActionBarHud extends TextHudEntry {
 		Color vanillaColor = new Color(color);
 		if (this.actionBar != null) {
 			graphics.drawString(client.font, actionBar,
-								(int) ((float) getPos().x() + Math.round((float) getWidth() / 2) -
-									   (float) client.font.width(actionBar) / 2), (int) ((float) getPos().y() + 3),
-								customTextColor.get() ? (textColor.get().getAlpha() == 255 ? new Color(
-									textColor.get().getRed(), textColor.get().getGreen(), textColor.get().getBlue(),
-									vanillaColor.getAlpha()
-								).toInt() : textColor.get().toInt()) : color, shadow.get()
-							   );
+				(int) ((float) getPos().x() + Math.round((float) getWidth() / 2) -
+					(float) client.font.width(actionBar) / 2), (int) ((float) getPos().y() + 3),
+				customTextColor.get() ? (textColor.get().getAlpha() == 255 ? new Color(
+					textColor.get().getRed(), textColor.get().getGreen(), textColor.get().getBlue(),
+					vanillaColor.getAlpha()
+				).toInt() : textColor.get().toInt()) : color, shadow.get()
+			);
 			ticksShown++;
 		} else {
 			ticksShown = 0;
@@ -85,9 +86,9 @@ public class ActionBarHud extends TextHudEntry {
 	@Override
 	public void renderPlaceholderComponent(GuiGraphics graphics, float delta) {
 		graphics.drawString(client.font, placeholder, (int) ((float) getPos().x() + Math.round((float) getWidth() / 2) -
-															 (float) client.font.width(placeholder) / 2),
-							(int) ((float) getPos().y() + 3), -1, false
-						   );
+				(float) client.font.width(placeholder) / 2),
+			(int) ((float) getPos().y() + 3), -1, false
+		);
 	}
 
 	@Override

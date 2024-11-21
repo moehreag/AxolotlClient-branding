@@ -39,11 +39,11 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class HypixelAbstractionLayer {
 
-	private static final Map<String, Map<RequestDataType, Object>> cachedPlayerData = new HashMap<>();
-	private static final Map<String, Integer> tempValues = new HashMap<>();
-	private static Instant ratelimitReset = Instant.now();
+	private final Map<String, Map<RequestDataType, Object>> cachedPlayerData = new HashMap<>();
+	private final Map<String, Integer> tempValues = new HashMap<>();
+	private Instant ratelimitReset = Instant.now();
 
-	public static int getPlayerLevel(String uuid, LevelHeadMode mode) {
+	public int getPlayerLevel(String uuid, LevelHeadMode mode) {
 		int value = -1;
 		if (Objects.equals(mode, LevelHeadMode.NETWORK)) {
 			value = getLevel(uuid, RequestDataType.NETWORK_LEVEL);
@@ -133,15 +133,15 @@ public class HypixelAbstractionLayer {
 		return API.getInstance().get(Request.Route.HYPIXEL.builder().field("request_type", type.getId()).field("target_player", uuid).build());
 	}
 
-	public static void clearPlayerData() {
+	public void clearPlayerData() {
 		cachedPlayerData.clear();
 	}
 
-	public static void handleDisconnectEvents(UUID uuid) {
+	public void handleDisconnectEvents(UUID uuid) {
 		freePlayerData(uuid.toString());
 	}
 
-	private static void freePlayerData(String uuid) {
+	private void freePlayerData(String uuid) {
 		cachedPlayerData.remove(uuid);
 	}
 

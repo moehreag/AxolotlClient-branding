@@ -28,6 +28,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class ScrollableTooltips extends AbstractModule {
 
@@ -55,17 +56,19 @@ public class ScrollableTooltips extends AbstractModule {
 	}
 
 	public void onScroll(boolean reverse) {
-		if (Screen.hasShiftDown()) {
-			if (applyInverse(reverse)) {
-				tooltipOffsetX -= scrollAmount.get();
+		if (client.screen instanceof AbstractContainerScreen<?>) {
+			if (Screen.hasShiftDown()) {
+				if (applyInverse(reverse)) {
+					tooltipOffsetX -= scrollAmount.get();
+				} else {
+					tooltipOffsetX += scrollAmount.get();
+				}
 			} else {
-				tooltipOffsetX += scrollAmount.get();
-			}
-		} else {
-			if (applyInverse(reverse)) {
-				tooltipOffsetY -= scrollAmount.get();
-			} else {
-				tooltipOffsetY += scrollAmount.get();
+				if (applyInverse(reverse)) {
+					tooltipOffsetY -= scrollAmount.get();
+				} else {
+					tooltipOffsetY += scrollAmount.get();
+				}
 			}
 		}
 	}

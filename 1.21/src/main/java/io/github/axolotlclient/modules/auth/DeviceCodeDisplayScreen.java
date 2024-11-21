@@ -25,13 +25,16 @@ package io.github.axolotlclient.modules.auth;
 import java.net.URI;
 import java.util.List;
 
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
 import io.github.axolotlclient.util.OSUtil;
+import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class DeviceCodeDisplayScreen extends Screen {
 	private final Screen parent;
@@ -40,6 +43,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 	private int ticksLeft;
 	private Text status;
 	private boolean working;
+	private final Identifier qrCode;
 
 	public DeviceCodeDisplayScreen(Screen parent, DeviceFlowData data) {
 		super(Text.translatable("auth.add"));
@@ -48,6 +52,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 		this.verificationUri = data.getVerificationUri();
 		this.userCode = data.getUserCode();
 		this.ticksLeft = data.getExpiresIn() * 20;
+		this.qrCode = Util.getTexture(data.getQrCode(), "device_auth_"+ data.getUserCode());
 		this.status = Text.translatable("auth.time_left",
 			((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s");
 		data.setStatusConsumer(s -> {
@@ -83,6 +88,12 @@ public class DeviceCodeDisplayScreen extends Screen {
 		graphics.drawCenteredShadowedText(client.textRenderer, working ? status : Text.translatable("auth.time_left",
 				((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s"),
 			width / 2, y + 10, -1);
+
+		y = height/2+30;
+		if (height-y > 40) {
+			int qrImageSize = height - y - 20;
+			graphics.drawTexture(qrCode, width/2 - qrImageSize/2, y, 0, 0, qrImageSize, qrImageSize, qrImageSize, qrImageSize);
+		}
 	}
 
 	@Override

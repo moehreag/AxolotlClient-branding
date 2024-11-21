@@ -72,5 +72,10 @@ public abstract class Channel {
 		public boolean isDM() {
 			return true;
 		}
+
+		@Override
+		public String getName() {
+			return receiver.getName();
+		}
 	}
 }

@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -49,31 +48,25 @@ public class Account {
 	private final String refreshToken;
 	private final Instant expiration;
 
-	public Account(String name, String uuid, String accessToken) {
+	public Account(String name, String uuid, String accessToken, Instant expiration, String refreshToken, String msaToken) {
 		this.name = name;
-		this.uuid = uuid.replace("-", "");
+		this.uuid = uuid;
 		this.authToken = accessToken;
-		expiration = Instant.EPOCH;
-		refreshToken = "";
-		msaToken = "";
+		this.expiration = expiration;
+		this.refreshToken = refreshToken;
+		this.msaToken = msaToken;
+	}
+
+	public Account(String name, String uuid, String accessToken) {
+		this(name, uuid.replace("-", ""), accessToken, Instant.EPOCH, "", "");
 	}
 
 	public Account(JsonObject profile, String authToken, String msaToken, String refreshToken) {
-		uuid = profile.get("id").getAsString();
-		name = profile.get("name").getAsString();
-		this.authToken = authToken;
-		this.msaToken = msaToken;
-		this.refreshToken = refreshToken;
-		expiration = Instant.now().plus(1, ChronoUnit.DAYS);
+		this(profile.get("name").getAsString(), profile.get("id").getAsString(), authToken, Instant.now().plus(1, ChronoUnit.DAYS), refreshToken, msaToken);
 	}
 
 	private Account(String uuid, String name, String authToken, String msaToken, String refreshToken, long expiration) {
-		this.uuid = uuid;
-		this.name = name;
-		this.authToken = authToken;
-		this.msaToken = msaToken;
-		this.refreshToken = refreshToken;
-		this.expiration = Instant.ofEpochSecond(expiration);
+		this(name, uuid, authToken, Instant.ofEpochSecond(expiration), refreshToken, msaToken);
 	}
 
 	public static Account deserialize(JsonObject object) {
@@ -96,12 +89,12 @@ public class Account {
 
 	public JsonObject serialize() {
 		JsonObject object = new JsonObject();
-		object.add("uuid", new JsonPrimitive(uuid));
-		object.add("name", new JsonPrimitive(name));
-		object.add("authToken", new JsonPrimitive(authToken));
-		object.add("msToken", new JsonPrimitive(msaToken));
-		object.add("refreshToken", new JsonPrimitive(refreshToken == null ? "" : refreshToken));
-		object.add("expiration", new JsonPrimitive(expiration == null ? 0 : expiration.getEpochSecond()));
+		object.addProperty("uuid", uuid);
+		object.addProperty("name", name);
+		object.addProperty("authToken", authToken);
+		object.addProperty("msToken", msaToken);
+		object.addProperty("refreshToken", refreshToken == null ? "" : refreshToken);
+		object.addProperty("expiration", expiration == null ? 0 : expiration.getEpochSecond());
 		return object;
 	}
 
@@ -117,7 +110,7 @@ public class Account {
 	public boolean equals(Object obj) {
 		if (obj instanceof Account other) {
 			return name.equals(other.name) &&
-				   uuid.equals(other.uuid);
+				uuid.equals(other.uuid);
 		}
 		return false;
 	}

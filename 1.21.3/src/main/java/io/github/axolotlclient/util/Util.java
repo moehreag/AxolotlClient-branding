@@ -30,6 +30,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -171,24 +172,28 @@ public class Util {
 	}
 
 	public static ResourceLocation getTexture(GraphicsOption option) {
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
+		return getTexture(option.get(), option.getName());
+	}
+
+	public static ResourceLocation getTexture(Graphics graphics, String name) {
+		ResourceLocation id = ResourceLocation.fromNamespaceAndPath("axolotlclient", "graphics_"+ name.toLowerCase(Locale.ROOT));
 		try {
 			DynamicTexture texture;
 			if (Minecraft.getInstance().getTextureManager().getTexture(id, null) == null) {
-				texture = new DynamicTexture(NativeImage.read(option.get().getPixelData()));
+				texture = new DynamicTexture(NativeImage.read(graphics.getPixelData()));
 				Minecraft.getInstance().getTextureManager().register(id, texture);
 			} else {
 				texture = (DynamicTexture) Minecraft.getInstance().getTextureManager().getTexture(id);
-				for (int x = 0; x < option.get().getWidth(); x++) {
-					for (int y = 0; y < option.get().getHeight(); y++) {
-						texture.getPixels().setPixel(x, y, option.get().getPixelColor(x, y));
+				for (int x = 0; x < graphics.getWidth(); x++) {
+					for (int y = 0; y < graphics.getHeight(); y++) {
+						texture.getPixels().setPixel(x, y, graphics.getPixelColor(x, y));
 					}
 				}
 			}
 
 			texture.upload();
 		} catch (IOException e) {
-			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
+			AxolotlClient.LOGGER.error("Failed to bind texture for " + name + ": ", e);
 		}
 		return id;
 	}

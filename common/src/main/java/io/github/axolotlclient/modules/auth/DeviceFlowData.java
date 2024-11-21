@@ -22,6 +22,10 @@
 
 package io.github.axolotlclient.modules.auth;
 
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.GraphicsImpl;
+import io.nayuki.qrcodegen.QrCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -48,6 +52,19 @@ public class DeviceFlowData {
 		if (statusConsumer != null) {
 			statusConsumer.emit(status);
 		}
+	}
+
+	public Graphics getQrCode() {
+		QrCode qr = QrCode.encodeText(getVerificationUri()+"?code="+getUserCode(), QrCode.Ecc.MEDIUM);
+		int size = qr.size;
+		int borderWidth = 1;
+		Graphics gr = new GraphicsImpl(size+borderWidth*2, size+borderWidth*2);
+		for (int x = 0;x<gr.getWidth();x++) {
+			for (int y = 0;y<gr.getHeight();y++) {
+				gr.setPixelColor(x, y, qr.getModule(x-borderWidth, y-borderWidth) ? Colors.BLACK : Colors.WHITE);
+			}
+		}
+		return gr;
 	}
 
 	public interface StatusConsumer {

@@ -46,6 +46,7 @@ dependencies {
 	shadow implementation("com.kohlschutter.junixsocket:junixsocket-core:2.8.3")
 
 	shadow implementation("com.github.mizosoft.methanol:methanol:1.7.0")
+	shadow implementation("io.nayuki:qrcodegen:1.8.0")
 }
 
 build {
@@ -75,6 +76,7 @@ shadowJar {
 
 	relocate 'com.jagrosh', 'io.github.axolotlclient.shadow.jagrosh'
 	relocate 'com.github.mizosoft', 'io.github.axolotlclient.shadow.mizosoft'
+	relocate 'io.nayuki', 'io.github.axolotlclient.shadow.nayuki'
 
 	exclude 'META-INF/versions/**'
 	exclude 'META-INF/maven/**'

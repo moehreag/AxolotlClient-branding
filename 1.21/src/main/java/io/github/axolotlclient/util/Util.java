@@ -30,6 +30,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -182,24 +183,28 @@ public class Util {
 	}
 
 	public static Identifier getTexture(GraphicsOption option) {
-		Identifier id = Identifier.of("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
+		return getTexture(option.get(), option.getName());
+	}
+
+	public static Identifier getTexture(Graphics graphics, String name) {
+		Identifier id = Identifier.of("axolotlclient", "graphics_"+ name.toLowerCase(Locale.ROOT));
 		try {
 			NativeImageBackedTexture texture;
 			if (MinecraftClient.getInstance().getTextureManager().getOrDefault(id, null) == null) {
-				texture = new NativeImageBackedTexture(NativeImage.read(option.get().getPixelData()));
+				texture = new NativeImageBackedTexture(NativeImage.read(graphics.getPixelData()));
 				MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
 			} else {
 				texture = (NativeImageBackedTexture) MinecraftClient.getInstance().getTextureManager().getTexture(id);
-				for (int x = 0; x < option.get().getWidth(); x++) {
-					for (int y = 0; y < option.get().getHeight(); y++) {
-						texture.getImage().setPixelColor(x, y, option.get().getPixelColor(x, y));
+				for (int x = 0; x < graphics.getWidth(); x++) {
+					for (int y = 0; y < graphics.getHeight(); y++) {
+						texture.getImage().setPixelColor(x, y, graphics.getPixelColor(x, y));
 					}
 				}
 			}
 
 			texture.upload();
 		} catch (IOException e) {
-			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
+			AxolotlClient.LOGGER.error("Failed to bind texture for " + name + ": ", e);
 		}
 		return id;
 	}

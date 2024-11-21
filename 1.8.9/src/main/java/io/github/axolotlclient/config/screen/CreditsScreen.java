@@ -38,7 +38,6 @@ import io.github.axolotlclient.mixin.SoundSystemAccessor;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
 import io.github.axolotlclient.util.ClientColors;
-import io.github.axolotlclient.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -53,7 +52,6 @@ import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
 import paulscode.sound.SoundSystem;
 
 public class CreditsScreen extends Screen {
@@ -148,7 +146,7 @@ public class CreditsScreen extends Screen {
 			AxolotlClient.configManager.save();
 			stopBGM();
 			button.message = I18n.translate("creditsBGM") + ": "
-							 + I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off");
+				+ I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off");
 		}
 	}
 
@@ -158,7 +156,7 @@ public class CreditsScreen extends Screen {
 			new ButtonWidget(0, width / 2 - 75, height - 50 + 22, 150, 20, I18n.translate("back")));
 
 		this.buttons.add(new ButtonWidget(1, 6, this.height - 26, 100, 20, I18n.translate("creditsBGM")
-																		   + ": " + I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off")));
+			+ ": " + I18n.translate(AxolotlClient.CONFIG.creditsBGM.get() ? "options.on" : "options.off")));
 
 		credits.clear();
 		initCredits();
@@ -231,9 +229,9 @@ public class CreditsScreen extends Screen {
 
 			@Override
 			protected void renderList(int x, int y, int mouseX, int mouseY) {
-				Util.applyScissor(0, minY, this.width, maxY - minY);
+				io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(0, minY, this.width, maxY - minY);
 				super.renderList(x, y, mouseX, mouseY);
-				GL11.glDisable(GL11.GL_SCISSOR_TEST);
+				io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.popScissor();
 			}
 
 			@Override

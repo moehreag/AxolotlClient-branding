@@ -22,13 +22,12 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.modules.scrollableTooltips.ScrollableTooltips;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.Slot;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,13 +36,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractContainerScreen.class)
 public abstract class HandledScreenMixin {
 
-	@Shadow @Nullable protected Slot hoveredSlot;
-	@Unique private Slot cachedSlot;
+	@Unique private ItemStack cachedStack;
 
-	@Inject(method = "renderTooltip", at = @At("HEAD"))
-	public void axolotlclient$resetScrollOnChange(GuiGraphics graphics, int x, int y, CallbackInfo ci) {
-		if (ScrollableTooltips.getInstance().enabled.get() && cachedSlot != hoveredSlot) {
-			cachedSlot = hoveredSlot;
+	@Inject(method = "renderTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;renderTooltip(Lnet/minecraft/client/gui/Font;Ljava/util/List;Ljava/util/Optional;IILnet/minecraft/resources/ResourceLocation;)V"))
+	public void axolotlclient$resetScrollOnChange(GuiGraphics graphics, int x, int y, CallbackInfo ci, @Local ItemStack stack) {
+		if (ScrollableTooltips.getInstance().enabled.get() && cachedStack != stack) {
+			cachedStack = stack;
 			ScrollableTooltips.getInstance().resetScroll();
 		}
 	}

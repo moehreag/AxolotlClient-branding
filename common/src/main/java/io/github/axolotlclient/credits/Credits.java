@@ -22,15 +22,15 @@
 
 package io.github.axolotlclient.credits;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import lombok.Getter;
 
 public class Credits {
 
 	@Getter
-	private static final Set<Credits> contributors = new LinkedHashSet<>(), otherPeople = new LinkedHashSet<>();
+	private static final Collection<Credits> contributors = new LinkedHashSet<>(), otherPeople = new LinkedHashSet<>();
 
 	static {
 		contributor("moehreag", "Author, Programming", "https://github.com/moehreag");

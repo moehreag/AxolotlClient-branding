@@ -83,13 +83,18 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			graphics.drawString(font, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM()) {
 				graphics.drawString(font, ChatFormatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
-					sidebarAnimX + 80, 30, 8421504);
+					sidebarAnimX + 80, 30, 0x808080);
 			}
 		}
 
 		super.render(graphics, mouseX, mouseY, delta);
 
 		animate();
+	}
+
+	@Override
+	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+
 	}
 
 	@Override

@@ -83,7 +83,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 					}
 				}
 			}
-
+		} else if (MinecraftClient.getInstance().player != null) {
 			String gamemode = getGameMode(MinecraftClient.getInstance().player);
 			return StatusUpdate.inGameUnknown(entry.address, "", entry.name, gamemode);
 
@@ -98,17 +98,15 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 	private String getGameMode(PlayerEntity entity) {
 		PlayerListEntry entry = MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(entity.getUuid());
-		switch (entry.getGameMode()) {
-			case CREATIVE:
-				return "Creative Mode";
-			case SURVIVAL:
-				return "Survival Mode";
-			case SPECTATOR:
-				return "Spectator Mode";
-			case ADVENTURE:
-				return "Adventure Mode";
-			default:
-				return "";
+		if (entry == null) {
+			return "";
 		}
+		return switch (entry.getGameMode()) {
+			case CREATIVE -> "Creative Mode";
+			case SURVIVAL -> "Survival Mode";
+			case SPECTATOR -> "Spectator Mode";
+			case ADVENTURE -> "Adventure Mode";
+			default -> "";
+		};
 	}
 }

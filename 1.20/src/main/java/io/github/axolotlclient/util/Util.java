@@ -22,16 +22,15 @@
 
 package io.github.axolotlclient.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -70,10 +69,10 @@ public class Util {
 		if (sidebar.isEmpty())
 			game = "";
 		else if (MinecraftClient.getInstance().getCurrentServerEntry() != null
-				 && MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
-					 .contains(sidebar.get(0).toLowerCase())) {
+			&& MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
+			.contains(sidebar.get(0).toLowerCase())) {
 			if (sidebar.get(sidebar.size() - 1).toLowerCase(Locale.ROOT)
-					.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
+				.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
 				|| sidebar.get(sidebar.size() - 1).contains("Playtime")) {
 				game = "In Lobby";
 			} else {
@@ -144,11 +143,11 @@ public class Util {
 
 		List<Formatting> modifiers = new ArrayList<>();
 		for (String s : arr) {
-			Formatting formatting = Formatting.byCode(s.length() > 0 ? s.charAt(0) : 0);
+			Formatting formatting = Formatting.byCode(!s.isEmpty() ? s.charAt(0) : 0);
 			if (formatting != null && formatting.isModifier()) {
 				modifiers.add(formatting);
 			}
-			MutableText part = Text.literal(s.length() > 0 ? s.substring(1) : "");
+			MutableText part = Text.literal(!s.isEmpty() ? s.substring(1) : "");
 			if (formatting != null) {
 				part.formatted(formatting);
 
@@ -187,25 +186,28 @@ public class Util {
 	}
 
 	public static Identifier getTexture(GraphicsOption option) {
-		Identifier id = new Identifier("graphicsoption", option.getName().toLowerCase(Locale.ROOT));
+		return getTexture(option.get(), option.getName());
+	}
+
+	public static Identifier getTexture(Graphics graphics, String name) {
+		Identifier id = new Identifier("axolotlclient", "graphics_" + name.toLowerCase(Locale.ROOT));
 		try {
 			NativeImageBackedTexture texture;
 			if (MinecraftClient.getInstance().getTextureManager().getOrDefault(id, null) == null) {
-				texture = new NativeImageBackedTexture(NativeImage.read(new ByteArrayInputStream(option.get().getPixelData())));
+				texture = new NativeImageBackedTexture(NativeImage.read(graphics.getPixelData()));
 				MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
 			} else {
 				texture = (NativeImageBackedTexture) MinecraftClient.getInstance().getTextureManager().getTexture(id);
-				for (int x = 0; x < option.get().getWidth(); x++) {
-					for (int y = 0; y < option.get().getHeight(); y++) {
-						texture.getImage().setPixelColor(x, y, option.get().getPixelColor(x, y));
+				for (int x = 0; x < graphics.getWidth(); x++) {
+					for (int y = 0; y < graphics.getHeight(); y++) {
+						texture.getImage().setPixelColor(x, y, graphics.getPixelColor(x, y));
 					}
 				}
 			}
 
 			texture.upload();
-			RenderSystem.setShaderTexture(0, id);
 		} catch (IOException e) {
-			AxolotlClient.LOGGER.error("Failed to bind texture of " + option.getName() + ": ", e);
+			AxolotlClient.LOGGER.error("Failed to bind texture for " + name + ": ", e);
 		}
 		return id;
 	}

@@ -25,12 +25,16 @@ package io.github.axolotlclient.modules.auth;
 import java.net.URI;
 import java.util.List;
 
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
 import io.github.axolotlclient.util.OSUtil;
+import io.github.axolotlclient.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
 public class DeviceCodeDisplayScreen extends Screen {
@@ -40,6 +44,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 	private int ticksLeft;
 	private Component status;
 	private boolean working;
+	private final ResourceLocation qrCode;
 
 	public DeviceCodeDisplayScreen(Screen parent, DeviceFlowData data) {
 		super(Component.translatable("auth.add"));
@@ -50,6 +55,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 		this.ticksLeft = data.getExpiresIn() * 20;
 		this.status = Component.translatable("auth.time_left",
 			((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s");
+		this.qrCode = Util.getTexture(data.getQrCode(), "device_auth_"+ data.getUserCode());
 		data.setStatusConsumer(s -> {
 			if (s.equals("auth.finished")) {
 				minecraft.execute(() -> minecraft.setScreen(parent));
@@ -83,6 +89,12 @@ public class DeviceCodeDisplayScreen extends Screen {
 		graphics.drawCenteredString(font, working ? status : Component.translatable("auth.time_left",
 				((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s"),
 			width / 2, y + 10, -1);
+
+		y = height/2+30;
+		if (height-y > 40) {
+			int qrImageSize = height - y - 20;
+			graphics.blit(RenderType::guiTextured, qrCode, width/2 - qrImageSize/2, y, 0, 0, qrImageSize, qrImageSize, qrImageSize, qrImageSize);
+		}
 	}
 
 	@Override

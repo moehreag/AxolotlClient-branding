@@ -24,10 +24,7 @@ package io.github.axolotlclient.api;
 
 import java.net.ConnectException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.WebSocket;
+import java.net.http.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -237,7 +234,7 @@ public class API {
 					}
 				}
 				return Response.builder().body(body).status(code).headers(response.headers().map()).build();
-			} catch (ConnectException e) {
+			} catch (ConnectException | HttpTimeoutException e) {
 				logger.warn("Backend unreachable!");
 				return Response.CLIENT_ERROR;
 			} catch (Exception e) {

@@ -83,12 +83,10 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 					}
 				}
 			}
-
+		} else if (Minecraft.getInstance().player != null) {
 			String gamemode = getGameMode(Minecraft.getInstance().player);
 			return StatusUpdate.inGameUnknown(entry.ip, "", entry.name, gamemode);
-
 		}
-
 		return null;
 	}
 
@@ -98,6 +96,9 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 	private String getGameMode(Player entity) {
 		PlayerInfo entry = Minecraft.getInstance().getConnection().getPlayerInfo(entity.getUUID());
+		if (entry == null) {
+			return "";
+		}
 		return switch (entry.getGameMode()) {
 			case CREATIVE -> "Creative Mode";
 			case SURVIVAL -> "Survival Mode";
