@@ -45,13 +45,14 @@ dependencies {
 
 	modImplementation include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")
 
-	api("org.lwjgl:lwjgl-nanovg:3.3.2")
-	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux')
-	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux-arm64')
-	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows')
-	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64')
-	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos')
-	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64')
+	ext.lwjglVersion = "3.3.4"
+	api("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux-arm64")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-windows")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-windows-arm64")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-macos")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-macos-arm64")
 
 	include("org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9") {
 		exclude group: 'org.apache.logging.log4j', module: "log4j-api"

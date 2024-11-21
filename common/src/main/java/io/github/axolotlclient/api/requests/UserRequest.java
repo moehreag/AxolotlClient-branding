@@ -81,9 +81,9 @@ public class UserRequest {
 				response.getBody("registered", TimestampParser::parse),
 				new Status(response.getBody("status.type").equals("online"),
 					response.getBody("status.last_online", TimestampParser::parse),
-					response.ifBodyHas("activity", () -> new Status.Activity(response.getBody("activity.title"),
-						response.getBody("activity.description"),
-						response.getBody("activity.started", TimestampParser::parse)))
+					response.ifBodyHas("status.activity", () -> new Status.Activity(response.getBody("status.activity.title"),
+						response.getBody("status.activity.description"),
+						response.getBody("status.activity.started", TimestampParser::parse)))
 				),
 				response.getBody("previous_usernames", (List<String> list) ->
 					list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));

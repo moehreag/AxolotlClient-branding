@@ -30,10 +30,10 @@ import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
+import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
-import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -41,7 +41,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -54,8 +53,8 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 		this.screen = screen;
 	}
 
-	public void setUsers(List<User> users) {
-		users.forEach(user -> addEntry(new UserListEntry(user)));
+	public void setUsers(List<User> users, Channel channel) {
+		users.forEach(user -> addEntry(new UserListEntry(user, channel)));
 	}
 
 	@Override
@@ -78,26 +77,23 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 	}
 
 	@Override
-	protected boolean isValidClickButton(int index) {
+	protected boolean isValidMouseClick(int index) {
 		return true;
 	}
 
 	public class UserListEntry extends Entry<UserListEntry> {
 
-		@Getter private final User user;
+		@Getter
+		private final User user;
 		private final Minecraft client;
+		private final Channel channel;
 		private long time;
-		private Component note;
 		private ChatScreen screen;
 
-		public UserListEntry(User user, MutableComponent note) {
-			this(user);
-			this.note = note.withStyle(ChatFormatting.ITALIC);
-		}
-
-		public UserListEntry(User user) {
+		public UserListEntry(User user, Channel channel) {
 			this.client = Minecraft.getInstance();
 			this.user = user;
+			this.channel = channel;
 		}
 
 		protected static void drawScrollableText(GuiGraphics graphics, Font textRenderer, Component text, int left, int top, int right, int bottom, int color) {
@@ -134,20 +130,10 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 				graphics.fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
 			drawScrollableText(graphics, client.font, Component.literal(user.getName()), x + 3 + entryHeight, y + 1,
-							   x + entryWidth - 6, y + 1 + client.font.lineHeight + 2, -1
-							  );
-			graphics.drawString(client.font, user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504, false);
-			if (user.getStatus().isOnline()) {
-				graphics.drawString(client.font, user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23,
-									8421504, false
-								   );
-			}
-
-			if (note != null) {
-				graphics.drawString(client.font, note, x + entryWidth - client.font.width(note) - 2,
-									y + entryHeight - 10, 8421504, false
-								   );
-			}
+				x + entryWidth - 6, y + 1 + client.font.lineHeight + 2, -1
+			);
+			drawScrollableText(graphics, client.font, Component.literal(user.getStatus().getTitle()), x + 3 + entryHeight,
+				y + 12, x + entryWidth - 6, y + 12 + client.font.lineHeight + 2, 8421504);
 
 			ResourceLocation texture = Auth.getInstance().getSkinTexture(user.getUuid(), user.getName());
 			RenderSystem.enableBlend();
@@ -174,14 +160,17 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 						}).spacer().entry(Component.translatable("api.chat.report.user"), buttonWidget -> {
 							ChatHandler.getInstance().reportUser(user);
 						});
-					if (FriendRequest.getInstance().isBlocked(user.getUuid())) {
+					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(Component.translatable("api.users.block"),
-								   buttonWidget -> FriendRequest.getInstance().blockUser(user.getUuid())
-								  );
+							buttonWidget -> FriendRequest.getInstance().blockUser(user.getUuid())
+						);
 					} else {
 						menu.entry(Component.translatable("api.users.unblock"),
-								   buttonWidget -> FriendRequest.getInstance().unblockUser(user.getUuid())
-								  );
+							buttonWidget -> FriendRequest.getInstance().unblockUser(user.getUuid())
+						);
+					}
+					if (channel.getOwner().equals(API.getInstance().getSelf())) {
+						menu.entry(Component.translatable("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));
 					}
 					screen.setContextMenu(menu.build());
 					return true;

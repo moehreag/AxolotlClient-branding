@@ -72,9 +72,10 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (parent != null) {
 			parent.render(mouseX, mouseY, delta);
 		}
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(0, 0, sidebarWidth + sidebarAnimX, height);
 		fill(sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
-		textRenderer.drawWithShadow(I18n.translate("api.friends"), 10 + sidebarAnimX, 10, -1);
+		textRenderer.drawWithShadow(I18n.translate("api.chats"), 10 + sidebarAnimX, 10, -1);
 
 		if (list != null) {
 			list.render(mouseX, mouseY, delta);
@@ -98,6 +99,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		contextMenu.render(minecraft, mouseX, mouseY);
 		animate();
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.popScissor();
 	}
 
 	@Override
@@ -108,7 +110,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		if (parent != null) {
 			((ScreenAccessor) parent).getButtons().stream()
-				.filter(e -> e.message.equals(I18n.translate("api.friends"))).forEach(e -> e.visible = false);
+				.filter(e -> e.message.equals(I18n.translate("api.chats"))).forEach(e -> e.visible = false);
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->

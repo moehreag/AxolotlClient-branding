@@ -198,6 +198,7 @@ public class FriendsScreen extends Screen {
 			removeButton.visible = false;
 			denyButton.visible = true;
 			acceptButton.visible = true;
+			denyButton.active = acceptButton.active = entry != null;
 		} else if (current == Tab.BLOCKED) {
 			blockedTab.active = false;
 			onlineTab.active = allTab.active = pendingTab.active = true;

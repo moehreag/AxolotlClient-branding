@@ -51,7 +51,7 @@ public class MojangAuth {
 		try (HttpClient client = NetworkUtil.createHttpClient("MojangAuth")) {
 
 			HttpRequest.Builder builder = HttpRequest.newBuilder().timeout(Duration.ofSeconds(10));
-			builder.header("Content-Type", "application/json");
+			builder.header("Content-Type", "application/json; charset=utf-8");
 			builder.header("Accept", "application/json");
 
 			JsonObject body = new JsonObject();
@@ -62,8 +62,9 @@ public class MojangAuth {
 
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
+			builder.header("Authorization", "Bearer "+account.getAuthToken());
 
-			builder.POST(HttpRequest.BodyPublishers.ofString(body.toString()));
+			builder.POST(HttpRequest.BodyPublishers.ofByteArray(body.toString().getBytes(StandardCharsets.UTF_8)));
 			builder.uri(URI.create("https://sessionserver.mojang.com/session/minecraft/join"));
 
 			HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
@@ -72,6 +73,7 @@ public class MojangAuth {
 				return result.status(Status.SUCCESS).build();
 			} else {
 				JsonObject element = GsonHelper.fromJson(response.body());
+				API.getInstance().logDetailed("Response code: "+response.statusCode());
 				API.getInstance().logDetailed(element.toString());
 
 				if (element.get("error").getAsString().equals("InsufficientPrivilegesException")) {

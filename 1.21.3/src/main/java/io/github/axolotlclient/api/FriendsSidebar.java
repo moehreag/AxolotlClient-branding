@@ -76,7 +76,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 		graphics.fill(sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
-		graphics.drawString(font, Component.translatable("api.friends"), 10 + sidebarAnimX, 10, -1);
+		graphics.drawString(font, Component.translatable("api.chats"), 10 + sidebarAnimX, 10, -1);
 
 		if (hasChat) {
 			graphics.fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
@@ -100,7 +100,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		if (parent != null) {
 			parent.children().stream().filter(element -> element instanceof AbstractButton)
-				.map(e -> (AbstractButton) e).filter(e -> e.getMessage().equals(Component.translatable("api.friends"))).forEach(e -> e.visible = false);
+				.map(e -> (AbstractButton) e).filter(e -> e.getMessage().equals(Component.translatable("api.chats"))).forEach(e -> e.visible = false);
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->

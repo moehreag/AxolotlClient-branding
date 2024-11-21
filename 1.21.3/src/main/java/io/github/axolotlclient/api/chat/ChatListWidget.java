@@ -61,7 +61,7 @@ public class ChatListWidget extends ContainerObjectSelectionList<ChatListWidget.
 	}
 
 	@Override
-	protected boolean isValidClickButton(int index) {
+	protected boolean isValidMouseClick(int index) {
 		return true;
 	}
 

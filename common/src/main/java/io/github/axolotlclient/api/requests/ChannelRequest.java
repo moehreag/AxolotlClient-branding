@@ -120,4 +120,8 @@ public class ChannelRequest {
 				.field("participants", List.of(user.getUuid())).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById).join()));
 	}
+
+	public static CompletableFuture<Void> removeUserFromChannel(Channel channel, User user) {
+		return CompletableFuture.completedFuture(null);
+	}
 }

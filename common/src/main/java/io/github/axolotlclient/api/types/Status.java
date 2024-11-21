@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 @AllArgsConstructor
 public class Status {
-	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
+	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
 	public static final Status UNKNOWN = new Status(false, null, Activity.UNKNOWN);
 
@@ -50,13 +50,13 @@ public class Status {
 	public String getDescription() {
 		return activity == null || activity.description.isEmpty() ? "" :
 			API.getInstance().getTranslationProvider()
-				.translate("api.status.description." + activity.description.toLowerCase(Locale.ROOT));
+				.translate(activity.description.toLowerCase(Locale.ROOT));
 	}
 
 	public String getTitle() {
-		return activity == null || activity.title.isEmpty() ? "" :
+		return activity == null || activity.title.isEmpty() ? "api.status.title.online" :
 			API.getInstance().getTranslationProvider()
-				.translate("api.status.title." + activity.title.toLowerCase(Locale.ROOT));
+				.translate(activity.title.toLowerCase(Locale.ROOT));
 	}
 
 	public String getLastOnline() {

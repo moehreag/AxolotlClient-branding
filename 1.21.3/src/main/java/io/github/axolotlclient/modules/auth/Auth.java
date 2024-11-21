@@ -24,7 +24,7 @@ package io.github.axolotlclient.modules.auth;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
@@ -111,7 +111,7 @@ public class Auth extends Accounts implements Module {
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.login.successful", current.getName()));
-				ThreadExecuter.scheduleTask(() -> API.getInstance().startup(account), 50, TimeUnit.MILLISECONDS);
+				API.getInstance().startup(account);
 			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.login.failed"));
 			}
@@ -121,9 +121,9 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.refreshing", account.getName()));
 			}
-			account.refresh(auth, runnable);
+			account.refresh(auth, () -> {});
 		} else {
-			new Thread(runnable).start();
+			runnable.run();
 		}
 	}
 

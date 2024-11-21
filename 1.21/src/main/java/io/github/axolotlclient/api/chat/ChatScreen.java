@@ -67,7 +67,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		if (!channel.isDM()) {
 			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
 			users.setX(width - 80);
-			users.setUsers(channel.getAllUsers());
+			users.setUsers(channel.getAllUsers(), channel);
 			addDrawableSelectableElement(users);
 		}
 

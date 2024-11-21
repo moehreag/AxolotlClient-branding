@@ -74,7 +74,7 @@ public class UserListWidget extends ObjectSelectionList<UserListWidget.UserListE
 	}
 
 	@Override
-	protected boolean isValidClickButton(int index) {
+	protected boolean isValidMouseClick(int index) {
 		return true;
 	}
 

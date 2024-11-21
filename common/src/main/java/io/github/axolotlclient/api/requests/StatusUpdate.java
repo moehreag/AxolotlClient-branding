@@ -51,7 +51,7 @@ public class StatusUpdate {
 	}
 
 	public static Request online(MenuId menuId) {
-		return createStatusUpdate("api.status.menu", "api.status.menu." + menuId.getIdentifier());
+		return createStatusUpdate("api.status.title.online", "api.status.description.menu." + menuId.getIdentifier());
 	}
 
 	public static Request inGame(SupportedServer server, String gameType, String gameMode, String map, int players, int maxPlayers) {

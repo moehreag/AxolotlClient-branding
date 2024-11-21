@@ -110,13 +110,12 @@ public class Account {
 	}
 
 	public boolean needsRefresh() {
-		return expiration.isBefore(Instant.now().minus(12, ChronoUnit.HOURS));
+		return expiration.isBefore(Instant.now().minus(6, ChronoUnit.HOURS));
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Account) {
-			Account other = (Account) obj;
+		if (obj instanceof Account other) {
 			return name.equals(other.name) &&
 				   uuid.equals(other.uuid);
 		}

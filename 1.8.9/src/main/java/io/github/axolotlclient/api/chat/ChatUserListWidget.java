@@ -31,6 +31,7 @@ import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
+import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
@@ -38,10 +39,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Formatting;
-import net.minecraft.util.math.MathHelper;
 
 public class ChatUserListWidget extends EntryListWidget {
 
@@ -54,8 +52,8 @@ public class ChatUserListWidget extends EntryListWidget {
 		this.screen = screen;
 	}
 
-	public void setUsers(List<User> users) {
-		users.forEach(user -> addEntry(new UserListEntry(user)));
+	public void setUsers(List<User> users, Channel channel) {
+		users.forEach(user -> addEntry(new UserListEntry(user, channel)));
 	}
 
 	@Override
@@ -100,18 +98,14 @@ public class ChatUserListWidget extends EntryListWidget {
 		@Getter
 		private final User user;
 		private final Minecraft client;
+		private final Channel channel;
 		private long time;
-		private String note;
 		private ChatScreen screen;
 
-		public UserListEntry(User user, String note) {
-			this(user);
-			this.note = Formatting.ITALIC + note + Formatting.RESET;
-		}
-
-		public UserListEntry(User user) {
+		public UserListEntry(User user, Channel channel) {
 			this.client = Minecraft.getInstance();
 			this.user = user;
+			this.channel = channel;
 		}
 
 		public UserListEntry init(ChatScreen screen) {
@@ -124,38 +118,14 @@ public class ChatUserListWidget extends EntryListWidget {
 
 		}
 
-		protected static void drawScrollableText(TextRenderer textRenderer, String text, int left, int top, int right, int bottom, int color) {
-			int i = textRenderer.getWidth(text);
-			int j = (top + bottom - 9) / 2 + 1;
-			int k = right - left;
-			if (i > k) {
-				int l = i - k;
-				double d = (double) Minecraft.getTime() / 1000.0;
-				double e = Math.max((double) l * 0.5, 3.0);
-				double f = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d / e)) / 2.0 + 0.5;
-				double g = MathHelper.clampedLerp(f, 0.0, l);
-				//DrawUtil.pushScissor(left, top, right - left, bottom - top);
-				textRenderer.drawWithShadow(text, left - (int) g, j, color);
-				//DrawUtil.popScissor();
-			} else {
-				textRenderer.drawWithShadow(text, left, j, color);
-			}
-		}
-
 		@Override
 		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			if (hovered) {
 				fill(x - 2, y - 1, x + entryWidth - 3, y + entryHeight + 1, 0x55ffffff);
 			}
 			DrawUtil.drawScrollableText(client.textRenderer, user.getName(), x + 3 + entryHeight, y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
-			client.textRenderer.draw(user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504);
-			if (user.getStatus().isOnline()) {
-				client.textRenderer.draw(user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504);
-			}
-
-			if (note != null) {
-				client.textRenderer.drawWithShadow(note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
-			}
+			DrawUtil.drawScrollableText(client.textRenderer, user.getStatus().getTitle(), x + 3 + entryHeight,
+				y + 12, x + entryWidth - 6, y + 12 + client.textRenderer.fontHeight + 2, 8421504);
 
 			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));
 			GlStateManager.enableBlend();
@@ -194,6 +164,9 @@ public class ChatUserListWidget extends EntryListWidget {
 					} else {
 						menu.entry(I18n.translate("api.users.unblock"), buttonWidget ->
 							FriendRequest.getInstance().unblockUser(user.getUuid()));
+					}
+					if (channel.getOwner().equals(API.getInstance().getSelf())) {
+						menu.entry(I18n.translate("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));
 					}
 					screen.setContextMenu(menu.build());
 					return true;

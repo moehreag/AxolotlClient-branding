@@ -148,7 +148,7 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 	}
 
 	@Override
-	protected boolean isValidClickButton(int index) {
+	protected boolean isValidMouseClick(int index) {
 		return true;
 	}
 

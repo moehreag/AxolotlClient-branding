@@ -30,6 +30,7 @@ import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
+import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
@@ -52,8 +53,8 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 		this.screen = screen;
 	}
 
-	public void setUsers(List<User> users) {
-		users.forEach(user -> addEntry(new UserListEntry(user)));
+	public void setUsers(List<User> users, Channel channel) {
+		users.forEach(user -> addEntry(new UserListEntry(user, channel)));
 	}
 
 	@Override
@@ -80,18 +81,14 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 		@Getter
 		private final User user;
 		private final MinecraftClient client;
+		private final Channel channel;
 		private long time;
-		private Text note;
 		private ChatScreen screen;
 
-		public UserListEntry(User user, MutableText note) {
-			this(user);
-			this.note = note.formatted(Formatting.ITALIC);
-		}
-
-		public UserListEntry(User user) {
+		public UserListEntry(User user, Channel channel) {
 			this.client = MinecraftClient.getInstance();
 			this.user = user;
+			this.channel = channel;
 		}
 
 		protected static void drawScrollableText(GuiGraphics graphics, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
@@ -129,14 +126,8 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 			}
 			drawScrollableText(graphics, client.textRenderer, Text.of(user.getName()), x + 3 + entryHeight,
 				y + 1, x + entryWidth - 6, y + 1 + client.textRenderer.fontHeight + 2, -1);
-			graphics.drawText(client.textRenderer, user.getStatus().getTitle(), x + 3 + entryHeight, y + 12, 8421504, false);
-			if (user.getStatus().isOnline()) {
-				graphics.drawText(client.textRenderer, user.getStatus().getDescription(), x + 3 + entryHeight + 7, y + 23, 8421504, false);
-			}
-
-			if (note != null) {
-				graphics.drawText(client.textRenderer, note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504, false);
-			}
+			drawScrollableText(graphics, client.textRenderer, Text.literal(user.getStatus().getTitle()), x + 3 + entryHeight,
+				y + 12, x + entryWidth - 6, y + 12 + client.textRenderer.fontHeight + 2, 8421504);
 
 			RenderSystem.enableBlend();
 			graphics.drawTexture(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()),
@@ -169,12 +160,15 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 						.entry(Text.translatable("api.chat.report.user"), buttonWidget -> {
 							ChatHandler.getInstance().reportUser(user);
 						});
-					if (FriendRequest.getInstance().isBlocked(user.getUuid())) {
+					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(Text.translatable("api.users.block"), buttonWidget ->
 							FriendRequest.getInstance().blockUser(user.getUuid()));
 					} else {
 						menu.entry(Text.translatable("api.users.unblock"), buttonWidget ->
 							FriendRequest.getInstance().unblockUser(user.getUuid()));
+					}
+					if (channel.getOwner().equals(API.getInstance().getSelf())) {
+						menu.entry(Text.translatable("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));
 					}
 					screen.setContextMenu(menu.build());
 					return true;
