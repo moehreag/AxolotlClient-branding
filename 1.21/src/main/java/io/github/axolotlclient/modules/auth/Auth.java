@@ -124,6 +124,7 @@ public class Auth extends Accounts implements Module {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
 			}
 			account.refresh(auth, () -> {
+				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
 			});
 		} else {
 			runnable.run();

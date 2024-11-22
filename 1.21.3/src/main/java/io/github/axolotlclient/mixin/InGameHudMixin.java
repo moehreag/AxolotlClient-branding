@@ -107,22 +107,14 @@ public abstract class InGameHudMixin {
 		}
 	}
 
-	@Inject(method = "renderOverlayMessage", at = @At(value = "HEAD"))
-	public void axolotlclient$clearActionBar(GuiGraphics graphics, DeltaTracker tracker, CallbackInfo ci) {
-		ActionBarHud hud = (ActionBarHud) HudManager.getInstance().get(ActionBarHud.ID);
-		if (hud != null && hud.isEnabled()) {
-			if (overlayMessageString == null || overlayMessageTime <= 0 && hud.getActionBar() != null) {
-				hud.setActionBar(null, 0);
-			}
-		}
-	}
-
 	@WrapOperation(method = "renderOverlayMessage", at = @At(value = "INVOKE",
 		target = "Lnet/minecraft/client/gui/GuiGraphics;drawStringWithBackdrop(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIII)I"))
 	public int axolotlclient$getActionBar(GuiGraphics instance, Font font, Component text, int x, int y, int width, int color, Operation<Integer> original) {
 		ActionBarHud hud = (ActionBarHud) HudManager.getInstance().get(ActionBarHud.ID);
 		if (hud != null && hud.isEnabled()) {
-			hud.setActionBar(text, color);// give ourselves the correct values
+			instance.pose().popPose();
+			hud.render(instance, text, color);
+			instance.pose().pushPose();
 			return 0; // Doesn't matter since return value is not used
 		} else {
 			return original.call(instance, font, text, x, y, width, color);

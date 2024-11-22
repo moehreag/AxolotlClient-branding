@@ -29,10 +29,11 @@ import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
-import lombok.Getter;
+import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -48,39 +49,26 @@ public class ActionBarHud extends TextHudEntry {
 	public final IntegerOption timeShown = new IntegerOption("timeshown", 60, 40, 300);
 	public final BooleanOption customTextColor = new BooleanOption("customtextcolor", false);
 	private final String placeholder = "Action Bar";
-	@Getter
-	private Component actionBar;
-	private int ticksShown;
-	private int color;
 
 	public ActionBarHud() {
 		super(115, 13, false);
 	}
 
-	public void setActionBar(Component bar, int color) {
-		this.actionBar = bar;
-		this.color = color;
-	}
-
 	@Override
 	public void renderComponent(GuiGraphics graphics, float delta) {
-		if (ticksShown >= timeShown.get()) {
-			this.actionBar = null;
-		}
-		Color vanillaColor = new Color(color);
-		if (this.actionBar != null) {
-			graphics.drawString(client.font, actionBar,
-				(int) ((float) getPos().x() + Math.round((float) getWidth() / 2) -
-					(float) client.font.width(actionBar) / 2), (int) ((float) getPos().y() + 3),
-				customTextColor.get() ? (textColor.get().getAlpha() == 255 ? new Color(
-					textColor.get().getRed(), textColor.get().getGreen(), textColor.get().getBlue(),
-					vanillaColor.getAlpha()
-				).toInt() : textColor.get().toInt()) : color, shadow.get()
-			);
-			ticksShown++;
-		} else {
-			ticksShown = 0;
-		}
+	}
+
+	public void render(GuiGraphics graphics, Component actionBar, int color) {
+
+		graphics.drawString(client.font, actionBar,
+			(int) ((float) getPos().x() + Math.round((float) getWidth() / 2) -
+				(float) client.font.width(actionBar) / 2), (int) ((float) getPos().y() + 3),
+			customTextColor.get() ? (textColor.get().getAlpha() == 255 ? new Color(
+				textColor.get().getRed(), textColor.get().getGreen(), textColor.get().getBlue(),
+				ARGB.alpha(color)
+			).toInt() : textColor.get().toInt()) : color, shadow.get()
+		);
+
 	}
 
 	@Override

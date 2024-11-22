@@ -113,7 +113,9 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.refreshing", account.getName());
 			}
-			account.refresh(auth, () -> {});
+			account.refresh(auth, () -> {
+				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
+			});
 		} else {
 			runnable.run();
 		}

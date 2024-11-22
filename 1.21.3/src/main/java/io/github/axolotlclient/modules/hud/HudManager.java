@@ -76,7 +76,6 @@ public class HudManager extends AbstractModule {
 	}
 
 	public void init() {
-		//KeyBindingHelper.registerKeyBinding(key);
 
 		AxolotlClient.CONFIG.addCategory(hudCategory);
 
