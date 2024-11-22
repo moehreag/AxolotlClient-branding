@@ -24,8 +24,6 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 
 import java.util.List;
 
-import com.mojang.blaze3d.lighting.DiffuseLighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
@@ -33,17 +31,12 @@ import io.github.axolotlclient.modules.hud.gui.entry.BoxHudEntry;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Axis;
 import net.minecraft.util.math.MathHelper;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -129,15 +122,15 @@ public class PlayerHud extends BoxHudEntry {
 
 	@Override
 	public void renderComponent(GuiGraphics graphics, float delta) {
-		renderPlayer(false, getTruePos().x() + 31 * getScale(), getTruePos().y() + 86 * getScale(), delta);
+		renderPlayer(graphics, false, getTruePos().x() + 31 * getScale(), getTruePos().y() + 86 * getScale(), delta);
 	}
 
 	@Override
 	public void renderPlaceholderComponent(GuiGraphics graphics, float delta) {
-		renderPlayer(true, getTruePos().x() + 31 * getScale(), getTruePos().y() + 86 * getScale(), 0); // If delta was delta, it would start jittering
+		renderPlayer(graphics, true, getTruePos().x() + 31 * getScale(), getTruePos().y() + 86 * getScale(), 0); // If delta was delta, it would start jittering
 	}
 
-	public void renderPlayer(boolean placeholder, double x, double y, float delta) {
+	public void renderPlayer(GuiGraphics graphics, boolean placeholder, double x, double y, float delta) {
 		if (client.player == null) {
 			return;
 		}
@@ -156,58 +149,34 @@ public class PlayerHud extends BoxHudEntry {
 
 		float lerpY = (lastYOffset + ((yOffset - lastYOffset) * delta));
 
-		Matrix4fStack matrixStack = RenderSystem.getModelViewStack();
-		matrixStack.pushMatrix();
-		matrixStack.translate((float) x, (float) (y - lerpY), 1050);
-		matrixStack.scale(1, 1, -1);
-
-		RenderSystem.applyModelViewMatrix();
-		MatrixStack nextStack = new MatrixStack();
-		nextStack.translate(0, 0, 1000);
 		float scale = getScale() * 40;
-		nextStack.scale(scale, scale, scale);
 
 		Quaternionf quaternion = Axis.Z_POSITIVE.rotationDegrees(180.0F);
 
-		nextStack.multiply(quaternion.get(new Matrix4f()));
 		// Rotate to whatever is wanted. Also make sure to offset the yaw
 		float deltaYaw = client.player.getYaw(delta);
 		if (dynamicRotation.get()) {
 			deltaYaw -= (lastYawOffset + ((yawOffset - lastYawOffset) * delta));
 		}
-		nextStack.multiply(new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw - 180 + rotation.get().floatValue()).get(new Matrix4f()));
+		Quaternionf quaternionf2 = new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw - 180 + rotation.get().floatValue());
+		quaternion.mul(quaternionf2);
 
 		// Save these to set them back later
 		float pastYaw = client.player.getYaw();
 		float pastPrevYaw = client.player.prevYaw;
-
-		DiffuseLighting.setupInventoryShaderLighting();
-		EntityRenderDispatcher renderer = client.getEntityRenderDispatcher();
-		renderer.setRotation(quaternion);
-		renderer.setRenderShadows(false);
-
-		VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders()
-			.getEntityVertexConsumers();
-
 		currentlyRendering = true;
-		renderer.render(client.player, 0, 0, 0, 0, delta, nextStack, immediate, 15728880);
-		immediate.draw();
+		InventoryScreen.drawEntity(graphics, (float) x, (float) y - lerpY, scale, new Vector3f(), quaternion, quaternionf2, client.player);
 		currentlyRendering = false;
-		renderer.setRenderShadows(true);
-		matrixStack.popMatrix();
 
 		client.player.setYaw(pastYaw);
 		client.player.prevYaw = pastPrevYaw;
-
-		RenderSystem.applyModelViewMatrix();
-		DiffuseLighting.setup3DGuiLighting();
 	}
 
 	private boolean isPerformingAction() {
 		// inspired by tr7zw's mod
 		ClientPlayerEntity player = client.player;
 		return player.isSneaking() || player.isSprinting() || player.isFallFlying() || player.getAbilities().flying
-			   || player.isSubmergedInWater() || player.isInSwimmingPose() || player.hasVehicle()
-			   || player.isUsingItem() || player.handSwinging || player.hurtTime > 0 || player.isOnFire();
+			|| player.isSubmergedInWater() || player.isInSwimmingPose() || player.hasVehicle()
+			|| player.isUsingItem() || player.handSwinging || player.hurtTime > 0 || player.isOnFire();
 	}
 }

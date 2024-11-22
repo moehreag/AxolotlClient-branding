@@ -84,14 +84,12 @@ public abstract class Options implements Module {
 
 	@Override
 	public void init() {
-		settingUpdated = b -> {
-			AccountSettingsRequest.update(new AccountSettings(
-				showRegistered.get(),
-				retainUsernames.get(),
-				showLastOnline.get(),
-				showActivity.get()
-			));
-		};
+		settingUpdated = b -> AccountSettingsRequest.update(new AccountSettings(
+			showRegistered.get(),
+			retainUsernames.get(),
+			showLastOnline.get(),
+			showActivity.get()
+		));
 		pkToken.setMaxLength(65);
 		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
 		account.add(showRegistered, retainUsernames, showLastOnline, showActivity);

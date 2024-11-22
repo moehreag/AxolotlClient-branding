@@ -33,12 +33,20 @@ public class GlobalDataRequest {
 	private static WeakReference<GlobalData> cachedData = new WeakReference<>(null);
 
 	public static GlobalData get() {
-		if (cachedData.get() != null) {
-			return cachedData.get();
+		if (API.getInstance().getApiOptions().enabled.get()) {
+			if (cachedData.get() != null) {
+				return cachedData.get();
+			}
+			return (cachedData = new WeakReference<>(API.getInstance().get(Request.Route.GLOBAL_DATA.create())
+				.thenApply(res -> {
+					if (res.isError()) {
+						return GlobalData.EMPTY;
+					}
+					return new GlobalData(true, res.getBody("total_players"),
+						res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", ""));
+				})
+				.getNow(GlobalData.EMPTY))).get();
 		}
-		return (cachedData = new WeakReference<>(API.getInstance().get(Request.Route.GLOBAL_DATA.create())
-			.thenApply(res -> new GlobalData(true, res.getBody("total_players"),
-				res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", "")))
-			.getNow(GlobalData.EMPTY))).get();
+		return GlobalData.EMPTY;
 	}
 }

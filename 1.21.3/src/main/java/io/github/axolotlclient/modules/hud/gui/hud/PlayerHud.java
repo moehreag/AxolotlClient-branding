@@ -24,8 +24,6 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 
 import java.util.List;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
@@ -35,11 +33,10 @@ import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -154,42 +151,64 @@ public class PlayerHud extends BoxHudEntry {
 
 		float lerpY = (lastYOffset + ((yOffset - lastYOffset) * delta));
 
-		PoseStack nextStack = new PoseStack();
-		nextStack.translate(x, (y - lerpY), 1050);
-		nextStack.translate(0, 0, 1000);
 		float scale = getScale() * 40;
-		nextStack.scale(scale, scale, scale);
 
 		Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
 
-		nextStack.mulPose(quaternion.get(new Matrix4f()));
 		// Rotate to whatever is wanted. Also make sure to offset the yaw
 		float deltaYaw = client.player.getYRot(delta);
 		if (dynamicRotation.get()) {
 			deltaYaw -= (lastYawOffset + ((yawOffset - lastYawOffset) * delta));
 		}
-		nextStack.mulPose(
-			new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw + rotation.get().floatValue())
-				.get(new Matrix4f()));
+		Quaternionf quaternionf2 = new Quaternionf().fromAxisAngleDeg(new Vector3f(0, 1, 0), deltaYaw - 180 + rotation.get().floatValue());
+		quaternion.mul(quaternionf2);
 
 		// Save these to set them back later
 		float pastYaw = client.player.getYRot();
 		float pastPrevYaw = client.player.yRotO;
-
-		Lighting.setupForEntityInInventory();
-		EntityRenderDispatcher renderer = client.getEntityRenderDispatcher();
-		renderer.overrideCameraOrientation(quaternion);
-		renderer.setRenderShadow(false);
-
 		currentlyRendering = true;
-		graphics.drawSpecial(v -> renderer.render(client.player, 0, 0, 0, delta, nextStack, v, 15728880));
+		InventoryScreen.renderEntityInInventory(graphics, (float) x, (float) y - lerpY, scale, new Vector3f(), quaternion, quaternionf2, client.player);
 		currentlyRendering = false;
-		renderer.setRenderShadow(true);
 
 		client.player.setYRot(pastYaw);
 		client.player.yRotO = pastPrevYaw;
+	}
 
-		Lighting.setupFor3DItems();
+	private void renderPlayer(
+		GuiGraphics guiGraphics, double x, double y, float delta
+	) {
+		var entity = client.player;
+
+		float deltaYaw = entity.getYRot(delta);
+		if (dynamicRotation.get()) {
+			deltaYaw -= (lastYawOffset + ((yawOffset - lastYawOffset) * delta));
+		}
+		Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
+		Quaternionf quaternionf2 = new Quaternionf().rotateX(20.0F * (float) (Math.PI / 180.0));
+		//quaternionf2.rotateY(deltaYaw/40);
+		quaternionf.mul(quaternionf2);
+		float j = entity.yBodyRot;
+		float k = entity.getYRot();
+		float l = entity.getXRot();
+		float m = entity.yHeadRotO;
+		float n = entity.yHeadRot;
+		float lerpY = (lastYOffset + ((yOffset - lastYOffset) * delta));
+		deltaYaw /= 40;
+		entity.yBodyRot = 180.0F + deltaYaw * 20.0F;
+		entity.setYRot(180.0F + deltaYaw * 40.0F);
+		entity.setXRot(20.0F);
+		entity.yHeadRot = entity.getYRot();
+		entity.yHeadRotO = entity.getYRot();
+		float o = entity.getScale();
+		Vector3f vector3f = new Vector3f(0.0F, yOffset * o, 0.0F);
+		float scale = getScale() * 40;
+		float p = scale / o;
+		InventoryScreen.renderEntityInInventory(guiGraphics, (float) x, (float) y - lerpY, p, vector3f, quaternionf, quaternionf2, entity);
+		entity.yBodyRot = j;
+		entity.setYRot(k);
+		entity.setXRot(l);
+		entity.yHeadRotO = m;
+		entity.yHeadRot = n;
 	}
 
 	private boolean isPerformingAction() {

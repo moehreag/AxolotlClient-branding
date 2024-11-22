@@ -192,6 +192,9 @@ public class API {
 
 	private CompletableFuture<Response> request(URI url, Map<String, ?> payload, byte[] rawBody, String method, Map<String, String> headers) {
 		return CompletableFuture.supplyAsync(() -> {
+			if (!getApiOptions().enabled.get()) {
+				return Response.builder().status(0).body("{\"description\":\"Integration disabled!\"}").build();
+			}
 			try {
 				logDetailed("Starting request to " + method + " " + url);
 

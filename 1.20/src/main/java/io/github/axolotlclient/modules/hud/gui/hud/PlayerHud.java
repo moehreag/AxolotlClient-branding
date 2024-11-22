@@ -107,7 +107,7 @@ public class PlayerHud extends BoxHudEntry {
 				yOffset -= ((1 / (1 + Math.exp(-pitch / 4))) - .5) * 20;
 			}
 		} else {
-			yOffset *= .8;
+			yOffset *= .8f;
 		}
 	}
 
@@ -193,7 +193,7 @@ public class PlayerHud extends BoxHudEntry {
 			.getEntityVertexConsumers();
 
 		currentlyRendering = true;
-		renderer.render(client.player, 0, 0, 0, 0, delta, nextStack, immediate, 15728880);
+		renderer.render(client.player, 0, 0, 0, 0, delta, nextStack, immediate, 0xF000F0);
 		immediate.draw();
 		currentlyRendering = false;
 		renderer.setRenderShadows(true);
