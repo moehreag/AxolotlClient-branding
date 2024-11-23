@@ -64,7 +64,7 @@ public class ChannelRequest {
 				List<Map<String, Object>> messages = (List<Map<String, Object>>) res.getBody();
 
 				for (Map<String, Object> o : messages) {
-					deserialized.add(new ChatMessage(Long.toUnsignedString((long) o.get("channel_id")),
+					deserialized.add(new ChatMessage(Long.toUnsignedString((long) o.get("id")), Long.toUnsignedString((long) o.get("channel_id")),
 						UserRequest.get((String) o.get("sender")).join(), (String) o.get("sender_name"),
 						(String) o.get("content"), Instant.parse((CharSequence) o.get("timestamp"))));
 				}
@@ -121,7 +121,8 @@ public class ChannelRequest {
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById).join()));
 	}
 
-	public static CompletableFuture<Void> removeUserFromChannel(Channel channel, User user) {
-		return CompletableFuture.completedFuture(null);
+	public static void removeUserFromChannel(Channel channel, User user) {
+		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).path("remove").query("user", user.getUuid()).build());
+
 	}
 }

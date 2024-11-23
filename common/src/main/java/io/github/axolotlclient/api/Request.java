@@ -53,9 +53,10 @@ public record Request(Route route, List<String> path, List<String> query,
 		ACCOUNT_RELATIONS_FRIENDS("account/relations/friends", true),
 		ACCOUNT_RELATIONS_BLOCKED("account/relations/blocked", true),
 		ACCOUNT_RELATIONS_REQUESTS("account/relations/requests", true),
+		REPORT("report", true),
 		GLOBAL_DATA("global_data"),
-		IMAGE("image"),
-		HYPIXEL("hypixel");
+		IMAGE("image", true),
+		HYPIXEL("hypixel", true);
 
 		private final String path;
 		private final boolean requiresAuthentication;

@@ -34,7 +34,6 @@ import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.ChatMessage;
-import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.SocketMessageHandler;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,10 +63,11 @@ public class ChatHandler implements SocketMessageHandler {
 	public void handle(Response response) {
 		Instant time = Instant.now();
 		String channelId = response.getBody("channel", d -> Long.toUnsignedString((long) d));
+		String id = response.getBody("id", d -> Long.toUnsignedString((long) d));
 		String sender = response.getBody("sender");
 		String senderName = response.getBody("sender_name");
 		String content = response.getBody("content");
-		ChatMessage message = new ChatMessage(channelId, UserRequest.get(sender).join(), senderName, content, time);
+		ChatMessage message = new ChatMessage(id, channelId, UserRequest.get(sender).join(), senderName, content, time);
 		if (enableNotifications.showNotification(message)) {
 			API.getInstance().getNotificationProvider().addStatus(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.sender().getName()), message.content());
 		}
@@ -78,13 +78,9 @@ public class ChatHandler implements SocketMessageHandler {
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
 
 		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).field("content", message)
-			.field("display_name", displayName).build());
-		/*if (API.getInstance().getSelf().isSystem()){
-			displayName += (" §r§o§7("+ API.getInstance() // gray + italic
-				.getSelf().getSystem().getName()+
-				"/"+ API.getInstance().getSelf().getName()+")§r");
-		}*/
-		messageConsumer.accept(new ChatMessage(channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now()));
+			.field("display_name", displayName).build())
+			.whenComplete((res, th) ->
+				messageConsumer.accept(new ChatMessage(res.getPlainBody(), channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now())));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -97,7 +93,8 @@ public class ChatHandler implements SocketMessageHandler {
 				List<ChatMessage> deserialized = new ArrayList<>();
 
 				for (Map<String, Object> o : messages) {
-					deserialized.add(new ChatMessage(Long.toUnsignedString((Long) o.get("channel_id")),
+					deserialized.add(new ChatMessage(Long.toUnsignedString((long) o.get("id")),
+						Long.toUnsignedString((long) o.get("channel_id")),
 						UserRequest.get((String) o.get("sender")).join(), (String) o.get("sender_name"),
 						(String) o.get("content"), Instant.parse((CharSequence) o.get("timestamp"))));
 				}
@@ -106,20 +103,8 @@ public class ChatHandler implements SocketMessageHandler {
 			});
 	}
 
-	public void getMessagesAfter(Channel channel, long getAfter) {
-		/*API.getInstance().send(new RequestOld(RequestOld.Type.GET_MESSAGES,
-			new RequestOld.Data(channel.getId()).add(25).add(getAfter).add(0x01))).whenCompleteAsync(this::handleMessages);*/
-	}
-
 	public void reportMessage(ChatMessage message) {
-		/*API.getInstance().send(new RequestOld(RequestOld.Type.REPORT_MESSAGE,
-			new RequestOld.Data(message.getSender().getUuid()).add(message.getTimestamp())
-				.add(message.getSenderDisplayName().length()).add(message.getSenderDisplayName())
-				.add(message.getContent().length()).add(message.getContent())));*/
-	}
-
-	public void reportUser(User user) {
-		//API.getInstance().send(new RequestOld(RequestOld.Type.REPORT_USER, user.getUuid()));
+		API.getInstance().post(Request.Route.REPORT.builder().path(message.id()).build());
 	}
 
 	public interface NotificationsEnabler {

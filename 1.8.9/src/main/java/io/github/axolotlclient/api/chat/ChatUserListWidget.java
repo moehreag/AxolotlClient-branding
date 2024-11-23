@@ -153,20 +153,16 @@ public class ChatUserListWidget extends EntryListWidget {
 						.entry("api.friends.chat", buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user)
 								.whenCompleteAsync((channel, throwable) -> client.submit(() -> client.openScreen(new ChatScreen(screen.getParent(), channel))));
-						})
-						.spacer()
-						.entry("api.chat.report.user", buttonWidget -> {
-							ChatHandler.getInstance().reportUser(user);
 						});
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
-						menu.entry(I18n.translate("api.users.block"), buttonWidget ->
+						menu.entry("api.users.block", buttonWidget ->
 							FriendRequest.getInstance().blockUser(user.getUuid()));
 					} else {
-						menu.entry(I18n.translate("api.users.unblock"), buttonWidget ->
+						menu.entry("api.users.unblock", buttonWidget ->
 							FriendRequest.getInstance().unblockUser(user.getUuid()));
 					}
 					if (channel.getOwner().equals(API.getInstance().getSelf())) {
-						menu.entry(I18n.translate("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));
+						menu.entry("api.channel.remove_user", b -> ChannelRequest.removeUserFromChannel(channel, user));
 					}
 					screen.setContextMenu(menu.build());
 					return true;

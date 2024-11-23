@@ -157,8 +157,6 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 						}).spacer().entry(Component.translatable("api.friends.chat"), buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user).whenCompleteAsync((channel, throwable) -> client.execute(
 								() -> client.setScreen(new ChatScreen(screen.getParent(), channel))));
-						}).spacer().entry(Component.translatable("api.chat.report.user"), buttonWidget -> {
-							ChatHandler.getInstance().reportUser(user);
 						});
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(Component.translatable("api.users.block"),
