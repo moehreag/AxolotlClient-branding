@@ -54,7 +54,10 @@ public class Status {
 	}
 
 	public String getTitle() {
-		return activity == null || activity.title.isEmpty() ? "api.status.title.online" :
+		if (!isOnline()) {
+			return API.getInstance().getTranslationProvider().translate("api.status.title.offline");
+		}
+		return activity == null || activity.title.isEmpty() ? API.getInstance().getTranslationProvider().translate("api.status.title.online") :
 			API.getInstance().getTranslationProvider()
 				.translate(activity.title.toLowerCase(Locale.ROOT));
 	}

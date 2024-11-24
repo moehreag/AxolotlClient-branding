@@ -28,7 +28,6 @@ import java.util.List;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
-import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.Channel;
@@ -39,7 +38,6 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.resource.language.I18n;
 
 public class ChatUserListWidget extends EntryListWidget {
 

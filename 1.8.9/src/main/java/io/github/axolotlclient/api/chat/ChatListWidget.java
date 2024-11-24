@@ -45,8 +45,7 @@ public class ChatListWidget extends EntryListWidget {
 
 	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height, Predicate<Channel> filter) {
 		super(Minecraft.getInstance(), width, height, y, y + height, 25);
-		minX = x;
-		maxX = x + width;
+		setX(x);
 		this.screen = screen;
 		this.predicate = filter;
 	}
@@ -63,6 +62,11 @@ public class ChatListWidget extends EntryListWidget {
 	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
 		ChannelRequest.getChannelList().thenAccept(this::addChannels);
+	}
+
+	@Override
+	protected int getScrollbarPosition() {
+		return this.minX + this.width / 2 - this.getRowWidth() / 2 + 2 + width - 8;
 	}
 
 	@Override

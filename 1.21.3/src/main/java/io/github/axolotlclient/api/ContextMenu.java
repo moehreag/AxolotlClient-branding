@@ -116,6 +116,12 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 		}
 		graphics.pose().pushPose();
 		graphics.pose().translate(0, 0, 200);
+		if (xStart + width + 1 > graphics.guiWidth()) {
+			graphics.pose().translate(Math.min(graphics.guiWidth() - (xStart + width + 1) - 2, 0), 0, 0);
+		}
+		if (y > graphics.guiHeight()) {
+			graphics.pose().translate(0, Math.min(graphics.guiHeight() - y - 2, 0), 0);
+		}
 		graphics.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		graphics.renderOutline(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (AbstractButton c : children) {

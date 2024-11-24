@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
+import io.github.axolotlclient.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -74,11 +75,17 @@ public class ContextMenu {
 		height = y;
 		GlStateManager.pushMatrix();
 		GlStateManager.translatef(0, 0, 200);
+		if (xStart + width + 1 > Util.getWindow().getScaledWidth()) {
+			GlStateManager.translated(Math.min(Util.getWindow().getScaledWidth() - (xStart + width + 1) - 2, 0), 0, 0);
+		}
+		if (y > Util.getWindow().getScaledHeight()) {
+			GlStateManager.translated(0, Math.min(Util.getWindow().getScaledHeight() - y - 2, 0), 0);
+		}
 		GuiElement.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ButtonWidget c : children) {
 			c.setWidth(width);
-			c.render(Minecraft.getInstance(), mouseX, mouseY);
+			c.render(client, mouseX, mouseY);
 		}
 		GlStateManager.popMatrix();
 	}

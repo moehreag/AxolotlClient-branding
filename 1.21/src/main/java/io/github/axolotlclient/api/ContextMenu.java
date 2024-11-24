@@ -112,6 +112,12 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 		}
 		graphics.getMatrices().push();
 		graphics.getMatrices().translate(0, 0, 200);
+		if (xStart + width + 1 > graphics.getScaledWindowWidth()) {
+			graphics.getMatrices().translate(Math.min(graphics.getScaledWindowWidth() - (xStart + width + 1) - 2, 0), 0, 0);
+		}
+		if (y > graphics.getScaledWindowHeight()) {
+			graphics.getMatrices().translate(0, Math.min(graphics.getScaledWindowHeight() - y - 2, 0), 0);
+		}
 		graphics.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		graphics.drawBorder(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ClickableWidget c : children) {

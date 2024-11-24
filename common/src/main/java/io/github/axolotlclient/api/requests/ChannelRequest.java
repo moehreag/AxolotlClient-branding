@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
@@ -81,7 +80,7 @@ public class ChannelRequest {
 			.thenApply(response -> {
 				List<Long> ids = (List<Long>) response.getBody();
 				return ids.stream().map(Long::toUnsignedString)
-					.map(ChannelRequest::getById).map(CompletableFuture::join).collect(Collectors.toList());
+					.map(ChannelRequest::getById).map(CompletableFuture::join).toList();
 			});
 	}
 
@@ -114,7 +113,7 @@ public class ChannelRequest {
 			if (dm.getOwner().equals(API.getInstance().getSelf()) && dm.getReceiver().equals(user)) {
 				return true;
 			}
-			return c.getOwner().equals(user) && dm.getReceiver().equals(API.getInstance().getSelf());
+			return c.getOwner().equals(user) && dm.getParticipants().getFirst().equals(API.getInstance().getSelf());
 		}).findFirst()).thenApply(opt -> opt.orElseGet(() -> API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", user.getName() + " - " + API.getInstance().getSelf().getName()).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
 				.field("participants", List.of(user.getUuid())).build())

@@ -62,14 +62,12 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 		addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
 
-		addDrawableSelectableElement(widget = new ChatWidget(channel, 65, 30, width - (!channel.isDM() ? 155 : 115), height - 90, this));
+		addDrawableSelectableElement(widget = new ChatWidget(channel, 65, 30, width - 155, height - 90, this));
 
-		if (!channel.isDM()) {
-			users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
-			users.setX(width - 80);
-			users.setUsers(channel.getAllUsers(), channel);
-			addDrawableSelectableElement(users);
-		}
+		users = new ChatUserListWidget(this, client, 80, height - 20, 30, height - 60, 25);
+		users.setX(width - 80);
+		users.setUsers(channel.getAllUsers(), channel);
+		addDrawableSelectableElement(users);
 
 		addDrawableSelectableElement(input = new TextFieldWidget(client.textRenderer, width / 2 - 150, height - 50,
 			300, 20, Text.translatable("api.chat.enterMessage")) {

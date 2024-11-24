@@ -75,6 +75,9 @@ public class ChatHandler implements SocketMessageHandler {
 	}
 
 	public void sendMessage(Channel channel, String message) {
+		if (message == null || message.isEmpty() || message.isBlank()) {
+			return;
+		}
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
 
 		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).field("content", message)

@@ -64,7 +64,7 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 		buttons.add(new ButtonWidget(0, this.width / 2 + 5, this.height - 40, 150, 20, I18n.translate("gui.back")));
 		buttons.add(new ButtonWidget(1, this.width / 2 - 155, this.height - 40, 150, 20,
 			I18n.translate("api.chat.groups.create")));
-		ChannelRequest.getChannelList().whenCompleteAsync((list, t) -> {
+		ChannelRequest.getChannelList().thenAccept(list -> {
 			groups.addChannels(list);
 			dms.addChannels(list);
 		});

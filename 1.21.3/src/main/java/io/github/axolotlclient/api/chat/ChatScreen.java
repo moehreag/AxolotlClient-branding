@@ -62,14 +62,12 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 		addRenderableWidget(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
 
-		addRenderableWidget(widget = new ChatWidget(channel, 65, 30, width - (!channel.isDM() ? 155 : 115), height - 90, this));
+		addRenderableWidget(widget = new ChatWidget(channel, 65, 30, width - 155, height - 90, this));
 
-		if (!channel.isDM()) {
-			users = new ChatUserListWidget(this, minecraft, 80, height - 20, 30, height - 60, 25);
-			users.setX(width - 80);
-			users.setUsers(channel.getAllUsers(), channel);
-			addRenderableWidget(users);
-		}
+		users = new ChatUserListWidget(this, minecraft, 80, height - 20, 30, height - 60, 25);
+		users.setX(width - 80);
+		users.setUsers(channel.getAllUsers(), channel);
+		addRenderableWidget(users);
 
 		addRenderableWidget(input = new EditBox(font, width / 2 - 150, height - 50,
 			300, 20, Component.translatable("api.chat.enterMessage")) {

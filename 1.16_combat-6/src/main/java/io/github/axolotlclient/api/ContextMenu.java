@@ -112,6 +112,12 @@ public class ContextMenu implements ParentElement, Drawable {
 		}
 		matrices.push();
 		matrices.translate(0, 0, 200);
+		if (xStart + width + 1 > MinecraftClient.getInstance().getWindow().getScaledWidth()) {
+			matrices.translate(Math.min(MinecraftClient.getInstance().getWindow().getScaledWidth() - (xStart + width + 1) - 2, 0), 0, 0);
+		}
+		if (y > MinecraftClient.getInstance().getWindow().getScaledHeight()) {
+			matrices.translate(0, Math.min(MinecraftClient.getInstance().getWindow().getScaledHeight() - y - 2, 0), 0);
+		}
 		DrawableHelper.fill(matrices, xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(matrices, xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (AbstractButtonWidget c : children) {
