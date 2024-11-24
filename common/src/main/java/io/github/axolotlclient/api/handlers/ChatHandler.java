@@ -69,7 +69,7 @@ public class ChatHandler implements SocketMessageHandler {
 		String content = response.getBody("content");
 		ChatMessage message = new ChatMessage(id, channelId, UserRequest.get(sender).join(), senderName, content, time);
 		if (enableNotifications.showNotification(message)) {
-			API.getInstance().getNotificationProvider().addStatus(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.sender().getName()), message.content());
+			notification(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.sender().getName()), message.content());
 		}
 		messageConsumer.accept(message);
 	}
@@ -79,8 +79,11 @@ public class ChatHandler implements SocketMessageHandler {
 
 		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).field("content", message)
 			.field("display_name", displayName).build())
-			.whenComplete((res, th) ->
-				messageConsumer.accept(new ChatMessage(res.getPlainBody(), channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now())));
+			.whenComplete((res, th) -> {
+				ChatMessage msg = new ChatMessage(res.getPlainBody(), channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now());
+				messageConsumer.accept(msg);
+				channel.getMessages().add(msg);
+			});
 	}
 
 	@SuppressWarnings("unchecked")

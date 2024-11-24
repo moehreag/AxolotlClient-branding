@@ -71,7 +71,7 @@ public class ChannelSettingsScreen extends Screen {
 		LinearLayoutWidget options = content.add(LinearLayoutWidget.createVertical().setSpacing(8));
 
 		var nameField = new TextFieldWidget(client.textRenderer, 150, 20, Text.empty());
-		nameField.setText(channel.getName());
+		nameField.setText(channel.getRealName());
 		names.add(text("api.chat.groups.name"));
 		options.add(nameField);
 

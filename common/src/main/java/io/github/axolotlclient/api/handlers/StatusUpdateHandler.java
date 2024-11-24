@@ -22,42 +22,25 @@
 
 package io.github.axolotlclient.api.handlers;
 
+import java.time.Instant;
+
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.util.SocketMessageHandler;
+import io.github.axolotlclient.api.util.UUIDHelper;
 
 public class StatusUpdateHandler implements SocketMessageHandler {
 	@Override
 	public boolean isApplicable(String target) {
-		return false;
+		return "activity_update".equals(target) && API.getInstance().getApiOptions().statusUpdateNotifs.get();
 	}
 
 	@Override
 	public void handle(Response response) {
-
+		String uuid = response.getBody("user");
+		String title = response.getBody("activity.title");
+		String desc = response.getBody("activity.description");
+		Instant started = response.getBody("activity.started", Instant::parse);
+		notification("api.friends.activity.update", translate(title)+": "+translate(desc), UUIDHelper.getUsername(uuid));
 	}
-	/*@Override
-	public boolean isApplicable(int packetType) {
-		return packetType == RequestOld.Type.STATUS_UPDATE.getType() && API.getInstance().getApiOptions().statusUpdateNotifs.get();
-	}
-
-	@Override
-	public void handle(ByteBuf object, APIError error) {
-		String uuid = getString(object, 0x09, 32);
-		AtomicReference<User> user = new AtomicReference<>();
-		FriendHandler.getInstance().getFriends().whenCompleteAsync((list, t) -> user.set(list.stream().filter(u -> u.getUuid().equals(uuid)).collect(Collectors.toList()).get(0)));
-		StatusUpdate.Type type = StatusUpdate.Type.fromCode(object.getByte(0x29));
-		if (type == StatusUpdate.Type.ONLINE) {
-			API.getInstance().getNotificationProvider()
-				.addStatus("api.friends", "api.friends.statusChange.online",
-					user.get().getName());
-		} else if (type == StatusUpdate.Type.OFFLINE) {
-			API.getInstance().getNotificationProvider()
-				.addStatus("api.friends", "api.friends.statusChange.offline",
-					user.get().getName());
-		} else if (type == StatusUpdate.Type.IN_GAME || type == StatusUpdate.Type.IN_GAME_UNKNOWN) {
-			API.getInstance().getNotificationProvider()
-				.addStatus("api.friends", "api.friends.statusChange.inGame",
-					user.get().getName(), user.get().getStatus().getTitle());
-		}
-	}*/
 }

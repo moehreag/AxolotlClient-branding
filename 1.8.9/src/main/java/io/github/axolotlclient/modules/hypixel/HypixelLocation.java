@@ -22,25 +22,24 @@
 
 package io.github.axolotlclient.modules.hypixel;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.util.Util;
 
 public class HypixelLocation {
 
-	private static boolean waiting;
-	private static Consumer<String> consumer;
+	private static CompletableFuture<String> consumer;
 
-	public static void get(Consumer<String> location) {
+	public static CompletableFuture<String> get() {
 		Util.sendChatMessage("/locraw");
-		waiting = true;
-		consumer = location;
+		consumer = new CompletableFuture<>();
+		return consumer;
 	}
 
 	public static boolean waitingForResponse(String message) {
-		boolean consume = waiting && message.startsWith("{") && message.endsWith("}") && message.contains("gameType") && consumer != null;
+		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("gameType");
 		if (consume) {
-			consumer.accept(message);
+			consumer.complete(message);
 			consumer = null;
 		}
 		return consume;

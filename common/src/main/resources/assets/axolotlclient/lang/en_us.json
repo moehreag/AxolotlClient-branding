@@ -458,9 +458,6 @@
 	"api.success.denyFriend": "Friend Request Denied",
 	"api.success.denyFriend.desc": "Denied friend request from %s.",
 	"api.friends": "Friends",
-	"api.friends.statusChange.online": "%s is now online!",
-	"api.friends.statusChange.inGame": "%s is now playing %s!",
-	"api.friends.statusChange.offline": "%s is now offline!",
 	"api.friends.request": "New Friend Request from %s!",
 	"api.friends.request.accepted": "%s accepted your Friend Request!",
 	"api.friends.request.declined": "%s declined your Friend Request.",
@@ -553,5 +550,6 @@
 	"api.status.description.menu.settings": "In the settings...",
 	"api.status.description.menu.main_menu": "Watching the Main menu panorama...",
 	"api.status.title.in_game": "Playing on %s",
-	"api.status.title.in_game_unknown": "Enjoying Minecraft"
+	"api.status.title.in_game_unknown": "Enjoying Minecraft",
+	"api.friends.activity.update": "New Activity from %s"
 }

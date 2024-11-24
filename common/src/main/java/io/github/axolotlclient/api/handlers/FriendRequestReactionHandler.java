@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.api.handlers;
 
-import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Response;
 import io.github.axolotlclient.api.util.SocketMessageHandler;
 import io.github.axolotlclient.api.util.UUIDHelper;
@@ -37,9 +36,9 @@ public class FriendRequestReactionHandler implements SocketMessageHandler {
 	public void handle(Response response) {
 		String from = response.getBody("from");
 		if ("friend_request_accept".equals(response.getBody("target"))) {
-			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.accepted", UUIDHelper.getUsername(from));
+			notification("api.friends", "api.friends.request.accepted", UUIDHelper.getUsername(from));
 		} else {
-			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request.declined", UUIDHelper.getUsername(from));
+			notification("api.friends", "api.friends.request.declined", UUIDHelper.getUsername(from));
 		}
 	}
 }

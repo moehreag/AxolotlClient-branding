@@ -24,7 +24,6 @@ package io.github.axolotlclient.modules.auth;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
@@ -93,7 +92,14 @@ public class Auth extends Accounts implements Module {
 			return;
 		}
 
-		Runnable runnable = () -> {
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.refreshing", account.getName()));
+			}
+			account.refresh(auth, () -> {
+				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
+			});
+		} else {
 			try {
 				API.getInstance().shutdown();
 				((MinecraftClientAccessor) mc).axolotlclient$setSession(new User(account.getName(), UndashedUuid.fromString(account.getUuid()), account.getAuthToken(), Optional.empty(), Optional.empty(), User.Type.MSA));
@@ -115,17 +121,6 @@ public class Auth extends Accounts implements Module {
 			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.login.failed"));
 			}
-		};
-
-		if (account.needsRefresh() && !account.isOffline()) {
-			if (account.isExpired()) {
-				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.refreshing", account.getName()));
-			}
-			account.refresh(auth, () -> {
-				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
-			});
-		} else {
-			runnable.run();
 		}
 	}
 

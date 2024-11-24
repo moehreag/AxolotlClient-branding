@@ -76,7 +76,7 @@ public class ChannelSettingsScreen extends Screen {
 		int rightColY = 36 + 30;
 
 		var nameField = new TextFieldWidget(textRenderer, rightColX, rightColY, 150, 20, LiteralText.EMPTY);
-		nameField.setText(channel.getName());
+		nameField.setText(channel.getRealName());
 		addButton(text("api.chat.groups.name", leftColX, leftColY));
 		addButton(nameField);
 		rightColY += rightColYStep;

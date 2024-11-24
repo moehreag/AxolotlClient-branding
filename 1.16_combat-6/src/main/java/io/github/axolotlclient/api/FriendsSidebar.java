@@ -75,6 +75,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (parent != null) {
 			parent.render(graphics, mouseX, mouseY, delta);
 		}
+		graphics.push();
+		graphics.translate(0, 0, 1000);
 		fill(graphics, sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
 		textRenderer.drawWithShadow(graphics, I18n.translate("api.chats"), 10 + sidebarAnimX, 10, -1);
@@ -82,8 +84,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (hasChat) {
 			fill(graphics, 70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			textRenderer.drawWithShadow(graphics, channel.getName(), sidebarAnimX + 75, 20, -1);
-			if (channel.isDM()) {
-				textRenderer.drawWithShadow(graphics, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
+			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
+				textRenderer.drawWithShadow(graphics, Formatting.ITALIC + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getTitle()) + ":" + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getDescription()),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 			chatWidget.render(graphics, mouseX, mouseY, delta);
@@ -93,6 +95,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 		contextMenu.render(graphics, mouseX, mouseY, delta);
 		animate();
+		graphics.pop();
 	}
 
 	@Override
@@ -200,17 +203,20 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	}
 
 	private void addChat(Channel channel) {
+		if (hasChat) {
+			removeChat();
+		}
 		hasChat = true;
 		this.channel = channel;
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(client.textRenderer.getWidth(chatUser.getStatus().getTitle() + ":" + chatUser.getStatus().getDescription()),
+			w = Math.max(client.textRenderer.getWidth(I18n.translate(chatUser.getStatus().getTitle()) + ":" + I18n.translate(chatUser.getStatus().getDescription())),
 				client.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = client.textRenderer.getWidth(channel.getName());
 		}
-		sidebarWidth = Math.max(width * 5 / 12, w + 5);
+		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width/2);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
 		addChild(chatWidget);
 		addButton(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, new TranslatableText("api.friends.chat.input")) {

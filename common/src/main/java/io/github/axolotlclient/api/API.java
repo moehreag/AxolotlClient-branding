@@ -244,7 +244,7 @@ public class API {
 				onError(e);
 				return Response.CLIENT_ERROR;
 			}
-		});
+		}, ThreadExecuter.service());
 	}
 
 	URI getUrl(Request request) {

@@ -93,7 +93,14 @@ public class Auth extends Accounts implements Module {
 			return;
 		}
 
-		Runnable runnable = () -> {
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
+			}
+			account.refresh(auth, () -> {
+				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
+			});
+		} else {
 			try {
 				API.getInstance().shutdown();
 				((MinecraftClientAccessor) client).axolotlclient$setSession(new Session(account.getName(), UndashedUuid.fromString(account.getUuid()), account.getAuthToken(),
@@ -117,17 +124,6 @@ public class Auth extends Accounts implements Module {
 			} catch (Exception e) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.login.failed"));
 			}
-		};
-
-		if (account.needsRefresh() && !account.isOffline()) {
-			if (account.isExpired()) {
-				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
-			}
-			account.refresh(auth, () -> {
-				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
-			});
-		} else {
-			runnable.run();
 		}
 	}
 

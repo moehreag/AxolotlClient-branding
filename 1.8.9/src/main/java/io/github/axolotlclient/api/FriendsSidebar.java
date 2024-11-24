@@ -72,6 +72,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (parent != null) {
 			parent.render(mouseX, mouseY, delta);
 		}
+		GlStateManager.pushMatrix();
+		GlStateManager.translatef(0, 0, 1000);
 		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(0, 0, sidebarWidth + sidebarAnimX, height);
 		fill(sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
@@ -90,8 +92,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		if (hasChat) {
 			fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			textRenderer.drawWithShadow(channel.getName(), sidebarAnimX + 75, 20, -1);
-			if (channel.isDM()) {
-				textRenderer.drawWithShadow(Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ":" + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
+			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
+				textRenderer.drawWithShadow(Formatting.ITALIC + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getTitle()) + ":" + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getDescription()),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 			chatWidget.render(mouseX, mouseY, delta);
@@ -100,6 +102,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		contextMenu.render(minecraft, mouseX, mouseY);
 		animate();
 		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.popScissor();
+		GlStateManager.popMatrix();
 	}
 
 	@Override
@@ -216,17 +219,20 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	}
 
 	private void addChat(Channel channel) {
+		if (hasChat) {
+			removeChat();
+		}
 		hasChat = true;
 		this.channel = channel;
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(minecraft.textRenderer.getWidth(chatUser.getStatus().getTitle() + ":" + chatUser.getStatus().getDescription()),
+			w = Math.max(minecraft.textRenderer.getWidth(I18n.translate(chatUser.getStatus().getTitle()) + ":" + I18n.translate(chatUser.getStatus().getDescription())),
 				minecraft.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = minecraft.textRenderer.getWidth(channel.getName());
 		}
-		sidebarWidth = Math.max(width * 5 / 12, w + 5);
+		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width/2);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
 		input = new TextFieldWidget(2, textRenderer, 75, height - 30, sidebarWidth - 80, 20) {
 			@Override

@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class ChatWidget extends EntryListWidget {
 
 		setHeader(false, 0);
 		this.screen = screen;
-		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
+		channel.getMessages().forEach(this::addMessage);
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);

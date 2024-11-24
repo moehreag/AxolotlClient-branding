@@ -22,10 +22,8 @@
 
 package io.github.axolotlclient.api;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.requests.StatusUpdate;
@@ -36,14 +34,11 @@ import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.network.ServerInfo;
-import net.minecraft.entity.player.PlayerEntity;
 
 public class StatusUpdateProviderImpl implements StatusUpdateProvider {
-
-	private final Instant time = Instant.now();
 
 	@Override
 	public void initialize() {
@@ -59,7 +54,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
 		} else if (current instanceof MultiplayerScreen) {
 			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
-		} else if (current != null) {
+		} else if (!(current instanceof HandledScreen<?>)) {
 			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
 		}
 
@@ -71,9 +66,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 				if (optional.isPresent()) {
 					StatusUpdate.SupportedServer server = optional.get();
 					if (server.equals(StatusUpdate.SupportedServer.HYPIXEL)) {
-						AtomicReference<JsonObject> loc = new AtomicReference<>();
-						HypixelLocation.get(s -> loc.set(GsonHelper.GSON.fromJson(s, JsonObject.class)));
-						JsonObject object = loc.get();
+						JsonObject object = HypixelLocation.get().thenApply(GsonHelper::fromJson).join();
 						StatusUpdate.GameType gameType = StatusUpdate.GameType.valueOf(object.get("gametype").getAsString());
 						String gameMode = getOrEmpty(object, "mode");
 						String map = getOrEmpty(object, "map");
@@ -83,10 +76,9 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 					}
 				}
 			}
-		} else if (MinecraftClient.getInstance().player != null) {
-			String gamemode = getGameMode(MinecraftClient.getInstance().player);
-			return StatusUpdate.inGameUnknown(entry.address, "", entry.name, gamemode);
-
+			return StatusUpdate.inGameUnknown(entry.name);
+		} else if (MinecraftClient.getInstance().getServer() != null) {
+			return StatusUpdate.inGameUnknown(MinecraftClient.getInstance().getServer().getSaveProperties().getLevelName());
 		}
 
 		return null;
@@ -94,19 +86,5 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 	private String getOrEmpty(JsonObject object, String name) {
 		return object.has(name) ? object.get(name).getAsString() : "";
-	}
-
-	private String getGameMode(PlayerEntity entity) {
-		PlayerListEntry entry = MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(entity.getUuid());
-		if (entry == null) {
-			return "";
-		}
-		return switch (entry.getGameMode()) {
-			case CREATIVE -> "Creative Mode";
-			case SURVIVAL -> "Survival Mode";
-			case SPECTATOR -> "Spectator Mode";
-			case ADVENTURE -> "Adventure Mode";
-			default -> "";
-		};
 	}
 }

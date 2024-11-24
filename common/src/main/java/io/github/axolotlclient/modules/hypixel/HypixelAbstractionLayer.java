@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
@@ -40,6 +40,7 @@ import lombok.experimental.UtilityClass;
 public class HypixelAbstractionLayer {
 
 	private final Map<String, Map<RequestDataType, Object>> cachedPlayerData = new HashMap<>();
+	private final Map<String, Map<RequestDataType, CompletableFuture<Optional<Object>>>> cachedRequests = new HashMap<>();
 	private final Map<String, Integer> tempValues = new HashMap<>();
 	private Instant ratelimitReset = Instant.now();
 
@@ -63,24 +64,10 @@ public class HypixelAbstractionLayer {
 	}
 
 	private int getLevel(String uuid, RequestDataType type) {
-		return cache(uuid, type, () -> {
-			synchronized (tempValues) {
-				if (ratelimitReset.isAfter(Instant.now())) {
-					return -1;
-				}
-			}
-			return getHypixelApiData(uuid, type).thenApply(res -> {
-				if (res.getStatus() == 429) {
-					int header = res.firstHeader("RateLimit-Reset").map(Integer::parseInt).orElse(2);
-					ratelimitReset = Instant.now().plus(header, ChronoUnit.SECONDS);
-				}
-				if (res.isError()) {
-					return -1;
-				}
-				Number lvl = res.getBody(type.getId());
-				return lvl.intValue();
-			}).join();
-		});
+		return cache(uuid, type, res -> {
+			Number lvl = res.getBody(type.getId());
+			return lvl.intValue();
+		}, -1);
 	}
 
 	public int getBedwarsLevel(String uuid) {
@@ -88,45 +75,68 @@ public class HypixelAbstractionLayer {
 	}
 
 	public BedwarsData getBedwarsData(String playerUuid) {
-
-		return cache(playerUuid, RequestDataType.BEDWARS_DATA, () -> {
-			synchronized (tempValues) {
-				if (ratelimitReset.isAfter(Instant.now())) {
-					return BedwarsData.EMPTY;
-				}
-			}
-			return getHypixelApiData(playerUuid, RequestDataType.BEDWARS_DATA).thenApply(res -> {
-				if (res.getStatus() == 429) {
-					ratelimitReset = Instant.now().plus(res.firstHeader("RateLimit-Reset").map(Integer::parseInt).orElse(2), ChronoUnit.SECONDS);
-				}
-				if (res.isError()) {
-					return BedwarsData.EMPTY;
-				}
-				return new BedwarsData(
-					res.getBody("final_kills_bedwars"),
-					res.getBody("final_deaths_bedwars"),
-					res.getBody("beds_broken_bedwars"),
-					res.getBody("deaths_bedwars"),
-					res.getBody("kills_bedwars"),
-					res.getBody("losses_bedwars"),
-					res.getBody("wins_bedwars"),
-					res.getBody("winstreak")
-				);
-			}).join();
-		});
+		return cache(playerUuid, RequestDataType.BEDWARS_DATA, res -> new BedwarsData(
+			res.getBody("final_kills_bedwars"),
+			res.getBody("final_deaths_bedwars"),
+			res.getBody("beds_broken_bedwars"),
+			res.getBody("deaths_bedwars"),
+			res.getBody("kills_bedwars"),
+			res.getBody("losses_bedwars"),
+			res.getBody("wins_bedwars"),
+			res.getBody("winstreak")
+		), BedwarsData.EMPTY);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T cache(String uuid, RequestDataType type, Supplier<T> dataSupplier) {
+	private <T> T cache(String uuid, RequestDataType type, Function<Response, T> func, T absent) {
 		Map<RequestDataType, Object> map = cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>());
+		Map<RequestDataType, CompletableFuture<Optional<Object>>> requests = cachedRequests.computeIfAbsent(uuid, s -> new HashMap<>());
 		if (map.containsKey(type)) {
-			if (map.get(type).equals(-1) || map.get(type).equals(BedwarsData.EMPTY)) {
-				T data = dataSupplier.get();
-				map.put(type, data);
-				return data;
+			return (T) map.get(type);
+		} else  {
+			if (requests.containsKey(type)) {
+				var request = requests.get(type);
+				if (request.isDone()) {
+					requests.remove(type);
+					Optional<T> option = (Optional<T>) request.resultNow();
+					if (option.isPresent()) {
+						T value = option.get();
+						map.put(type, value);
+						return value;
+					}
+				}
+			} else {
+				CompletableFuture<Optional<Object>> request;
+				synchronized (tempValues) {
+					if (ratelimitReset.isAfter(Instant.now())) {
+						return absent;
+					}
+
+					request = getHypixelApiData(uuid, type).thenApply(res -> {
+						if (res.getStatus() == 429) {
+							ratelimitReset = Instant.now().plus(res.firstHeader("RateLimit-Reset").map(Integer::parseInt).orElse(2), ChronoUnit.SECONDS);
+						} else {
+							ratelimitReset = Instant.now().plus(100, ChronoUnit.MILLIS);
+						}
+						if (res.isError()) {
+							return Optional.empty();
+						}
+						return Optional.ofNullable(func.apply(res));
+					});
+				}
+				if (request.isDone()) {
+					Optional<T> option = (Optional<T>) request.resultNow();
+					if (option.isPresent()) {
+						T value = option.get();
+						map.put(type, value);
+						return value;
+					}
+				} else {
+					requests.put(type, request);
+				}
 			}
 		}
-		return (T) map.computeIfAbsent(type, t -> dataSupplier.get());
+		return absent;
 	}
 
 	private CompletableFuture<Response> getHypixelApiData(String uuid, RequestDataType type) {

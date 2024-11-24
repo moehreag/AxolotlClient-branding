@@ -39,7 +39,7 @@ public class FriendRequestHandler implements SocketMessageHandler {
 	public void handle(Response response) {
 		String from = response.getBody("from");
 		if (API.getInstance().getApiOptions().friendRequestsEnabled.get()) {
-			API.getInstance().getNotificationProvider().addStatus("api.friends", "api.friends.request", UUIDHelper.getUsername(from));
+			notification("api.friends", "api.friends.request", UUIDHelper.getUsername(from));
 		} else {
 			FriendRequest.getInstance().setRelation(from, Relation.NONE);
 		}

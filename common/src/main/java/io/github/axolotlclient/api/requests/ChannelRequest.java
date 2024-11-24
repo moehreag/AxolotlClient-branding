@@ -70,9 +70,9 @@ public class ChannelRequest {
 				}
 			}).join();
 		if (participants.size() == 1) {
-			return new Channel.DM(id, name, persistence, participants, owner, deserialized.toArray(ChatMessage[]::new));
+			return new Channel.DM(id, name, persistence, participants, owner, deserialized);
 		}
-		return new Channel.Group(id, name, persistence, participants, owner, deserialized.toArray(ChatMessage[]::new));
+		return new Channel.Group(id, name, persistence, participants, owner, deserialized);
 	}
 
 	@SuppressWarnings("unchecked")

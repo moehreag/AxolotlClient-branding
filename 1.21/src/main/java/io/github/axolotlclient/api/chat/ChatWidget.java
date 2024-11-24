@@ -25,7 +25,10 @@ package io.github.axolotlclient.api.chat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.api.API;
@@ -69,7 +72,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
+		channel.getMessages().forEach(this::addMessage);
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);

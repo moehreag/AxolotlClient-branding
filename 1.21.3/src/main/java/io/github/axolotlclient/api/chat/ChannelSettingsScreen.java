@@ -66,7 +66,7 @@ public class ChannelSettingsScreen extends Screen {
 		LinearLayout options = content.addChild(LinearLayout.vertical().spacing(8));
 
 		var nameField = new EditBox(minecraft.font, 150, 20, Component.empty());
-		nameField.setValue(channel.getName());
+		nameField.setValue(channel.getRealName());
 		names.addChild(text("api.chat.groups.name"));
 		options.addChild(nameField);
 

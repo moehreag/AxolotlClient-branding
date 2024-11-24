@@ -25,6 +25,7 @@ package io.github.axolotlclient.api.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.axolotlclient.api.API;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public abstract class Channel {
 	protected Persistence persistence;
 	private List<User> participants;
 	private User owner;
-	private final ChatMessage[] messages;
+	private final List<ChatMessage> messages;
 
 	public List<User> getAllUsers() {
 		List<User> list = new ArrayList<>(participants);
@@ -46,11 +47,15 @@ public abstract class Channel {
 		return list;
 	}
 
+	public String getRealName() {
+		return name;
+	}
+
 	public abstract boolean isDM();
 
 	public static class Group extends Channel {
 
-		public Group(String id, String name, Persistence persistence, List<User> participants, User owner, ChatMessage[] messages) {
+		public Group(String id, String name, Persistence persistence, List<User> participants, User owner, List<ChatMessage> messages) {
 			super(id, name, persistence, participants, owner, messages);
 		}
 
@@ -64,9 +69,9 @@ public abstract class Channel {
 
 		private final User receiver;
 
-		public DM(String id, String name, Persistence persistence, List<User> participants, User owner, ChatMessage[] messages) {
+		public DM(String id, String name, Persistence persistence, List<User> participants, User owner, List<ChatMessage> messages) {
 			super(id, name, persistence, participants, owner, messages);
-			receiver = participants.get(0);
+			receiver = API.getInstance().getSelf().equals(owner) ? participants.get(0) : owner;
 		}
 
 		public boolean isDM() {

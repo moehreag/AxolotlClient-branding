@@ -25,7 +25,10 @@ package io.github.axolotlclient.api.chat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.api.API;
@@ -42,7 +45,7 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -68,7 +71,7 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		Arrays.stream(channel.getMessages()).forEach(this::addMessage);
+		channel.getMessages().forEach(this::addMessage);
 
 		ChatHandler.getInstance().setMessagesConsumer(chatMessages -> chatMessages.forEach(this::addMessage));
 		ChatHandler.getInstance().setMessageConsumer(this::addMessage);
@@ -243,8 +246,7 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 			RenderSystem.disableBlend();
 			ResourceLocation texture =
 				Auth.getInstance().getSkinTexture(getOrigin().sender().getUuid(), getOrigin().sender().getName());
-			graphics.blit(RenderType::guiTextured, texture, x - 22, y, 18, 18, 8, 8, 8, 8, 64, 64);
-			graphics.blit(RenderType::guiTextured, texture, x - 22, y, 18, 18, 40, 8, 8, 8, 64, 64);
+			PlayerFaceRenderer.draw(graphics, texture, x-22, y, 18, true, false, -1);
 			RenderSystem.enableBlend();
 			graphics.drawString(client.font, formattedTime, client.font.width(getContent()) + x + 5, y,
 								ClientColors.GRAY.toInt(), false

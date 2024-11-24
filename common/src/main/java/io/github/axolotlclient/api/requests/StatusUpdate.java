@@ -59,8 +59,8 @@ public class StatusUpdate {
 		return createStatusUpdate(tr.translate("api.status.title.in_game", server.name), gameType + ": " + gameMode);
 	}
 
-	public static Request inGameUnknown(String server, String worldType, String worldName, String gamemode) {
-		return createStatusUpdate("api.status.title.in_game_unknown", worldName);
+	public static Request inGameUnknown(String description) {
+		return createStatusUpdate("api.status.title.in_game_unknown", description);
 	}
 
 	@RequiredArgsConstructor
@@ -76,7 +76,7 @@ public class StatusUpdate {
 	@RequiredArgsConstructor
 	@Getter
 	public enum SupportedServer {
-		HYPIXEL("HYPIXEL", Pattern.compile("^hypixel\\.net.$"));
+		HYPIXEL("HYPIXEL", Pattern.compile("^(?:mc\\.)?hypixel\\.net$"));
 		private final String name;
 		private final Pattern adress;
 	}

@@ -92,7 +92,14 @@ public class Auth extends Accounts implements Module {
 			return;
 		}
 
-		Runnable runnable = () -> {
+		if (account.needsRefresh() && !account.isOffline()) {
+			if (account.isExpired()) {
+				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.refreshing", account.getName());
+			}
+			account.refresh(auth, () -> {
+				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
+			});
+		} else {
 			try {
 				API.getInstance().shutdown();
 				((MinecraftClientAccessor) client).setSession(new Session(account.getName(), account.getUuid(), account.getAuthToken(), Session.Type.MOJANG.name()));
@@ -107,17 +114,6 @@ public class Auth extends Accounts implements Module {
 				AxolotlClient.LOGGER.error("Failed to log in! ", e);
 				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.login.failed");
 			}
-		};
-
-		if (account.needsRefresh() && !account.isOffline()) {
-			if (account.isExpired()) {
-				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.refreshing", account.getName());
-			}
-			account.refresh(auth, () -> {
-				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
-			});
-		} else {
-			runnable.run();
 		}
 	}
 
