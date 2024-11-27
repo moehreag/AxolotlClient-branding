@@ -27,12 +27,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Constants {
 	public final boolean ENABLED = true; // Completely disable these features and hide their existence
-	private final String API_BASE = "localhost:8000";
-	//private final String API_BASE = "axolotlclient-api.astralchroma.dev/dev";
-	private final boolean SSL = !API_BASE.startsWith("localhost");
-	public final String API_URL = "http"+(SSL ? "s" : "")+"://"+API_BASE;
-	public final String SOCKET_URL = "ws"+(SSL ? "s" : "")+"://"+API_BASE+"/gateway";
-	public final String PRIVACY_POLICY = "https://axolotlclient.github.io/privacy";
+	private final boolean DEVELOPMENT = false;
+	public final String API_URL = DEVELOPMENT ? "http://localhost:8000" : "https://api.axolotlclient.com";
+	public final String SOCKET_URL = DEVELOPMENT ? "ws://localhost:8000/gateway" : "wss://api.axolotlclient.com/gateway";
+	public final String PRIVACY_POLICY = "https://axolotlclient.com/privacy";
 	public final int STATUS_UPDATE_DELAY = 15; // The Delay between Status updates, in seconds. Discord uses 15 seconds so we will as well.
 	public final boolean TESTING = false; // When set to true, no requests will be sent
 }

@@ -31,10 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.Response;
-import io.github.axolotlclient.api.types.Channel;
-import io.github.axolotlclient.api.types.ChatMessage;
-import io.github.axolotlclient.api.types.Persistence;
-import io.github.axolotlclient.api.types.User;
+import io.github.axolotlclient.api.types.*;
 import io.github.axolotlclient.api.util.UUIDHelper;
 
 public class ChannelRequest {
@@ -84,12 +81,12 @@ public class ChannelRequest {
 			});
 	}
 
-	public static CompletableFuture<Channel> createChannel(String name, Persistence persistence, String... users) {
+	public static void createChannel(String name, Persistence persistence, String... users) {
 		List<String> participants = new ArrayList<>();
 		for (String username : users) {
 			participants.add(UUIDHelper.getUuid(username));
 		}
-		return API.getInstance().post(Request.Route.CHANNEL.builder()
+		API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", name).field("persistence", persistence.toJson())
 				.field("participants", participants).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
@@ -122,6 +119,21 @@ public class ChannelRequest {
 
 	public static void removeUserFromChannel(Channel channel, User user) {
 		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).path("remove").query("user", user.getUuid()).build());
+	}
 
+	@SuppressWarnings("unchecked")
+	public static CompletableFuture<List<ChannelInvite>> getChannelInvites() {
+		return API.getInstance().get(Request.Route.CHANNELS_INVITES.create()).thenApply(res -> {
+			List<Map<String, Object>> invites = (List<Map<String, Object>>) res.getBody();
+			return invites.stream().map(m -> new ChannelInvite(Long.toUnsignedString((long) m.get("id")), (String) m.get("channel_name"), (String) m.get("from"))).toList();
+		});
+	}
+
+	public static void acceptChannelInvite(ChannelInvite invite) {
+		API.getInstance().post(Request.Route.CHANNELS_INVITES.builder().query("id", invite.channelId()).query("accept", true).build());
+	}
+
+	public static void ignoreChannelInvite(ChannelInvite invite) {
+		API.getInstance().post(Request.Route.CHANNELS_INVITES.builder().query("id", invite.channelId()).query("accept", false).build());
 	}
 }

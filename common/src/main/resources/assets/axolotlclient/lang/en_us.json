@@ -518,6 +518,7 @@
 	"api.account.deletion.failure": "Deletion Failure",
 	"api.account.deletion.failure.desc": "Failed to delete your account!",
 	"api.account": "Account Management",
+	"api.account.tooltip": "These are your account settings. <br>Options in this category are synchronized to the server and across clients.",
 	"api.account.settings.show_registered": "Show registered",
 	"api.account.settings.retain_usernames": "Retain previous usernames",
 	"api.account.settings.show_last_online": "Show last online",
@@ -551,5 +552,18 @@
 	"api.status.description.menu.main_menu": "Watching the Main menu panorama...",
 	"api.status.title.in_game": "Playing on %s",
 	"api.status.title.in_game_unknown": "Enjoying Minecraft",
-	"api.friends.activity.update": "New Activity from %s"
+	"api.friends.activity.update": "New Activity from %s",
+	"api.channels.invite": "New Channel Invite",
+	"api.channels.invite.desc": "%s invites you to join %s.",
+	"api.channels.invite.accepted": "Invite Accepted",
+	"api.channels.invite.accepted.desc": "%s accepted your invite to %s.",
+	"api.channels.invite.denied": "Invite Denied",
+	"api.channels.invite.denied.desc": "%s denied your invite to %s.",
+	"api.channels.invite.accept": "Accept",
+	"api.channels.invite.ignore": "Ignore",
+	"api.channels.invites.enabled": "Allow Channel Invites",
+	"api.channels.invites": "Channel Invitations",
+	"api.channels.invite.name": "Name: %s",
+	"api.channels.invite.from": "From: %s",
+	"api.channels.invites.view": "View Channel Invitations"
 }

@@ -167,7 +167,7 @@ public class PlayerHud extends BoxHudEntry {
 		float pastYaw = client.player.getYRot();
 		float pastPrevYaw = client.player.yRotO;
 		currentlyRendering = true;
-		InventoryScreen.renderEntityInInventory(graphics, (float) x, (float) y - lerpY, scale, new Vector3f(), quaternion, quaternionf2, client.player);
+		InventoryScreen.renderEntityInInventory(graphics, (float) x/getScale(), ((float) y - lerpY)/getScale(), scale, new Vector3f(), quaternion, quaternionf2, client.player);
 		currentlyRendering = false;
 
 		client.player.setYRot(pastYaw);

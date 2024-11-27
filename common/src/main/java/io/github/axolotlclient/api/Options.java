@@ -42,6 +42,7 @@ public abstract class Options implements Module {
 	public StringArrayOption privacyAccepted = new StringArrayOption("privacyPolicyAccepted", new String[]{"unset", "accepted", "denied"}, "unset");
 	public final BooleanOption statusUpdateNotifs = new BooleanOption("statusUpdateNotifs", true);
 	public final BooleanOption friendRequestsEnabled = new BooleanOption("friendRequestsEnabled", true);
+	public final BooleanOption channelInvitesEnabled = new BooleanOption("api.channels.invites.enabled", false);
 	public final BooleanOption detailedLogging = new BooleanOption("detailedLogging", false);
 	public final BooleanOption enabled = new BooleanOption("enabled", true, value -> {
 		if (value) {
@@ -94,6 +95,6 @@ public abstract class Options implements Module {
 		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
 		account.add(showRegistered, retainUsernames, showLastOnline, showActivity);
 		category.add(pluralkit, account);
-		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, detailedLogging, updateNotifications, displayNotes);
+		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, channelInvitesEnabled, detailedLogging, updateNotifications, displayNotes);
 	}
 }

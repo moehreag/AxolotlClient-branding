@@ -33,10 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import com.github.mizosoft.methanol.Methanol;
-import io.github.axolotlclient.api.handlers.ChatHandler;
-import io.github.axolotlclient.api.handlers.FriendRequestHandler;
-import io.github.axolotlclient.api.handlers.FriendRequestReactionHandler;
-import io.github.axolotlclient.api.handlers.StatusUpdateHandler;
+import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.types.AccountSettings;
 import io.github.axolotlclient.api.types.PkSystem;
@@ -97,6 +94,7 @@ public class API {
 		handlers.add(new FriendRequestHandler());
 		handlers.add(new FriendRequestReactionHandler());
 		handlers.add(new StatusUpdateHandler());
+		handlers.add(new ChannelInviteHandler());
 		Instance = this;
 		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 	}
@@ -299,11 +297,16 @@ public class API {
 		logDetailed("Handling socket message: {}", message);
 
 		Response res = Response.builder().status(200).body(message).build();
+		String target = res.getBody("target");
+		boolean handled = false;
 		for (SocketMessageHandler handler : handlers) {
-			if (handler.isApplicable(res.getBody("target"))) {
+			if (handler.isApplicable(target)) {
 				handler.handle(res);
-				break;
+				handled = true;
 			}
+		}
+		if (!handled) {
+			logger.warn("Unhandled socket message target {}! This may be caused by using an outdated client.", target);
 		}
 	}
 

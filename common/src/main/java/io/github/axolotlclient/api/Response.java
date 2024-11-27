@@ -100,14 +100,20 @@ public class Response {
 		Object o = getBody();
 		for (String s : elements) {
 			s = s.replace("_#+#_", ".");
-			if (!(o instanceof Map<?, ?> map)) {
-				return null;
+			if (o instanceof Map<?, ?> map) {
+				if (map.containsKey(s)) {
+					o = map.get(s);
+					continue;
+				}
+			} else if (o instanceof List<?> list) {
+				try {
+					int i = Integer.parseInt(s);
+					o = list.get(i);
+					continue;
+				} catch (Exception ignored) {
+				}
 			}
-			if (map.containsKey(s)) {
-				o = map.get(s);
-			} else {
-				return null;
-			}
+			return null;
 		}
 		return (T) o;
 	}
