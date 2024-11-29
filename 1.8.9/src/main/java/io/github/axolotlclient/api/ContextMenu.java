@@ -24,7 +24,6 @@ package io.github.axolotlclient.api;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
@@ -92,7 +91,7 @@ public class ContextMenu {
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		List<ContextMenuEntryWidget> stream = children.stream().filter(b -> b instanceof ContextMenuEntryWidget)
-			.map(b -> (ContextMenuEntryWidget) b).filter(ButtonWidget::isHovered).collect(Collectors.toList());
+			.map(b -> (ContextMenuEntryWidget) b).filter(ButtonWidget::isHovered).toList();
 		boolean clicked = false;
 		for (ContextMenuEntryWidget c : stream) {
 			c.onPress(mouseX, mouseY, button);

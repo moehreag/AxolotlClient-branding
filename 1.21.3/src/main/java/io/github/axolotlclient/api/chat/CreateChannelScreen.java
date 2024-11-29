@@ -115,8 +115,7 @@ public class CreateChannelScreen extends Screen {
 				),
 				Arrays.stream(namesInput.getValue().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid)
 					.toArray(String[]::new)
-			);
-			minecraft.setScreen(parent);
+			).thenRun(() -> minecraft.submit(() -> minecraft.setScreen(parent)));
 		}).build());
 		layout.addToFooter(footer);
 

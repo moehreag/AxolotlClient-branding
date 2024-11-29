@@ -42,8 +42,10 @@ import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 
@@ -201,7 +203,14 @@ public class ChatWidget extends EntryListWidget {
 						.spacer();
 				}
 				builder.entry("api.chat.report.message", buttonWidget -> {
-						ChatHandler.getInstance().reportMessage(origin);
+						Screen previous = client.screen;
+						client.openScreen(new ConfirmScreen((b, i) -> {
+							if (b) {
+								ChatHandler.getInstance().reportMessage(origin);
+							}
+							client.openScreen(previous);
+						}, I18n.translate("api.channels.confirm_report"),
+							I18n.translate("api.channels.confirm_report.desc", origin.content()), 0));
 					})
 					.spacer()
 					.entry("action.copy", buttonWidget -> {

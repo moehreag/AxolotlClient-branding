@@ -30,12 +30,14 @@ import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
+import io.github.axolotlclient.api.types.Relation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -107,11 +109,19 @@ public class ChatListWidget extends ContainerObjectSelectionList<ChatListWidget.
 						.entry(Component.translatable("api.channel.configure"), w -> minecraft.setScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
 						.spacer();
 					if (channel.getOwner().equals(API.getInstance().getSelf())) {
-						builder.entry(Component.translatable("api.channel.delete"), w ->
-							ChannelRequest.leaveOrDeleteChannel(channel).whenComplete((o, throwable) -> minecraft.execute(() -> minecraft.setScreen(screen.getSelf()))));
+						builder.entry(Component.translatable("api.channel.delete"), w -> minecraft.setScreen(new ConfirmScreen(bl -> {
+							if (bl) {
+								ChannelRequest.leaveOrDeleteChannel(channel).whenComplete((o, throwable) -> minecraft.execute(() -> minecraft.setScreen(screen.getSelf())));
+							}
+							}, Component.translatable("api.channels.delete.confirm"), Component.translatable("api.channels.delete.confirm.desc", channel.getName()))));
 					} else {
-						builder.entry(Component.translatable("api.channel.leave"), w ->
-							ChannelRequest.leaveOrDeleteChannel(channel).whenComplete((o, throwable) -> minecraft.execute(() -> minecraft.setScreen(screen.getSelf()))));
+						builder.entry(Component.translatable("api.channel.leave"), w -> minecraft.setScreen(new ConfirmScreen(bl -> {
+							if (bl) {
+								ChannelRequest.leaveOrDeleteChannel(channel).whenComplete((o, throwable) -> minecraft.execute(() -> minecraft.setScreen(screen.getSelf())));
+							}
+						}, Component.translatable("api.channels.leave.confirm"), channel.getOwner().getRelation() == Relation.FRIEND ?
+							Component.translatable("api.channels.leave.confirm.desc_add", channel.getName()) :
+							Component.translatable("api.channels.leave.confirm.desc_invite", channel.getName()))));
 					}
 					ChatListWidget.this.screen.setContextMenu(builder.build());
 					return true;

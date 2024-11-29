@@ -120,8 +120,8 @@ public class CreateChannelScreen extends Screen {
 		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, widget -> {
 			ChannelRequest.createChannel(nameField.getText(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new));
-			client.setScreen(parent);
+				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new))
+				.thenRun(() -> client.submit(() -> client.setScreen(parent)));
 		}).positionAndSize(width / 2 + 4, footerY, 150, 20).build());
 	}
 

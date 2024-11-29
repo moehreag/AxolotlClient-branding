@@ -22,6 +22,11 @@
 
 package io.github.axolotlclient.api.types;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -33,4 +38,10 @@ public enum Relation {
 	FRIEND("friend"),
 	BLOCKED("blocked");
 	private final String id;
+
+	private static final Map<String, Relation> idMap = Arrays.stream(values()).collect(Collectors.toMap(r -> r.id, Function.identity()));
+
+	public static Relation get(String id) {
+		return idMap.get(id);
+	}
 }

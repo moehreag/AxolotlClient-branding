@@ -565,5 +565,12 @@
 	"api.channels.invites": "Channel Invitations",
 	"api.channels.invite.name": "Name: %s",
 	"api.channels.invite.from": "From: %s",
-	"api.channels.invites.view": "View Channel Invitations"
+	"api.channels.invites.view": "View Channel Invitations",
+	"api.channels.confirm_report": "Confirm Report",
+	"api.channels.confirm_report.desc": "Are you sure you want to report \"%s\"? Please note that each message is attached to the channel it was sent in, allowing us to gather context after reports.",
+	"api.channels.delete.confirm": "Confirm Channel Deletion",
+	"api.channels.delete.confirm.desc": "%s will be irreversibly deleted. Are you sure?",
+	"api.channels.leave.confirm": "Confirm Leaving channel",
+	"api.channels.leave.confirm.desc_add": "You will not be able to access %s unless you are added back.",
+	"api.channels.leave.confirm.desc_invite": "You will not be able to access %s unless you are invited again."
 }

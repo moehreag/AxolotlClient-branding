@@ -33,6 +33,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.types.Relation;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.TimestampParser;
@@ -81,7 +82,7 @@ public class UserRequest {
 				return new User(
 					response.getBody("uuid"),
 					response.getBody("username"),
-					response.getBodyOrElse("relation", "none"),
+					Relation.get(response.getBodyOrElse("relation", "none")),
 					response.getBody("registered", TimestampParser::parse),
 					new Status(response.getBody("status.type").equals("online"),
 						response.getBody("status.last_online", TimestampParser::parse),

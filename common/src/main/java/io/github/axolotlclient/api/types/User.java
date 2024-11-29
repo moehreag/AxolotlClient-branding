@@ -36,14 +36,14 @@ public class User {
 
 	private String uuid;
 	protected String name;
-	private String relation;
+	private Relation relation;
 	private Instant registered;
 	private Status status;
 	private List<OldUsername> previousUsernames;
 	@Nullable
 	private PkSystem system;
 
-	public User(String uuid, String name, String relation, Instant registered, Status status, List<OldUsername> previousUsernames) {
+	public User(String uuid, String name, Relation relation, Instant registered, Status status, List<OldUsername> previousUsernames) {
 		this.uuid = API.getInstance().sanitizeUUID(uuid);
 		this.status = status;
 		this.name = name;

@@ -6,7 +6,6 @@ The axolotls are not what they seem!
 9Q3brQVQZN!
 See you ingame!
 private final SoundInstance bgm = PositionedSoundInstance.method_7051(new Identifier("minecraft", "records.chirp"));!
-Quilt Edition!
 Not on minecraft.net!
 AxolotlClient-branding/tree/1.19.x!
 Türkçe'de kullanılabilir!
@@ -37,4 +36,4 @@ Works with Prismlauncher!
 Chroma colors supported!
 Commit change-able!
 Can show activity!
-Upto 40 splashes!
+Up to 40 splashes!

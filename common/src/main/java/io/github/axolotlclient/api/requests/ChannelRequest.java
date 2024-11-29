@@ -81,15 +81,15 @@ public class ChannelRequest {
 			});
 	}
 
-	public static void createChannel(String name, Persistence persistence, String... users) {
+	public static CompletableFuture<?> createChannel(String name, Persistence persistence, String... users) {
 		List<String> participants = new ArrayList<>();
 		for (String username : users) {
 			participants.add(UUIDHelper.getUuid(username));
 		}
-		API.getInstance().post(Request.Route.CHANNEL.builder()
+		return API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", name).field("persistence", persistence.toJson())
-				.field("participants", participants).build())
-			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
+				.field("participants", participants).build());
+			//.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
 	}
 
 	public static void updateChannel(String id, String name, Persistence persistence, String... additionalUsers) {

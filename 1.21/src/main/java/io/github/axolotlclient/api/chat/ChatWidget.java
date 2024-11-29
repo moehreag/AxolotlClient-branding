@@ -44,6 +44,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
@@ -187,7 +189,13 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 						.spacer();
 				}
 				builder.entry(Text.translatable("api.chat.report.message"), buttonWidget -> {
-						ChatHandler.getInstance().reportMessage(origin);
+						Screen previous = client.currentScreen;
+						client.setScreen(new ConfirmScreen(b -> {
+							if (b) {
+								ChatHandler.getInstance().reportMessage(origin);
+							}
+							client.setScreen(previous);
+						}, Text.translatable("api.channels.confirm_report"), Text.translatable("api.channels.confirm_report.desc", origin.content())));
 					})
 					.spacer()
 					.entry(Text.translatable("action.copy"), buttonWidget -> {

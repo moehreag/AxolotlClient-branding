@@ -46,6 +46,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -184,7 +186,13 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 					}).spacer();
 				}
 				builder.entry(Component.translatable("api.chat.report.message"), buttonWidget -> {
-					ChatHandler.getInstance().reportMessage(origin);
+					Screen previous = client.screen;
+					client.setScreen(new ConfirmScreen(b -> {
+						if (b) {
+							ChatHandler.getInstance().reportMessage(origin);
+						}
+						client.setScreen(previous);
+					}, Component.translatable("api.channels.confirm_report"), Component.translatable("api.channels.confirm_report.desc", origin.content())));
 				}).spacer().entry(Component.translatable("action.copy"), buttonWidget -> {
 					client.keyboardHandler.setClipboard(origin.content());
 				});

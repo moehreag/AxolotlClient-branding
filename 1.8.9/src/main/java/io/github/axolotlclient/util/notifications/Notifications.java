@@ -75,18 +75,17 @@ public class Notifications implements NotificationProvider {
 				fading = true;
 				lastX += lastX / 45;
 			}
-			GuiElement.fill(x - 5 - 1, 0, Util.getWindow().getWidth(), 20 + currentStatus.getDescription().size() * 12 + 1, 0xFF0055FF);
-			GuiElement.fill(x - 5, 0, Util.getWindow().getWidth(), 20 + currentStatus.getDescription().size() * 12, 0xFF00CFFF);
+			int lines = currentStatus.getDescription().size();
+			GuiElement.fill(x - 5 - 1, 0, Util.getWindow().getWidth(), 20 + lines * 12 + 1, 0xFF0055FF);
+			GuiElement.fill(x - 5, 0, Util.getWindow().getWidth(), 20 + lines * 12, 0xFF00CFFF);
 			client.textRenderer.draw(currentStatus.getTitle(), x, 7, -256, true);
-			for (int i = 0; i < currentStatus.getDescription().size(); i++) {
+			for (int i = 0; i < lines; i++) {
 				client.textRenderer.draw(currentStatus.getDescription().get(i), x, 18 + i * 12, -1, true);
 			}
 			if (x > Util.getWindow().getWidth() + 20) {
 				currentStatus = null;
 				if (!statusQueue.isEmpty()) {
-					Status s = statusQueue.get(0);
-					statusQueue.remove(0);
-					setStatus(s);
+					setStatus(statusQueue.remove(0));
 				}
 			}
 		}
@@ -103,8 +102,8 @@ public class Notifications implements NotificationProvider {
 
 		public Status(String title, String description) {
 			this.title = title;
-			width = Math.max(
-				160,
+			width = Math.min(
+				400,
 				Math.max(Minecraft.getInstance().textRenderer.getWidth(title),
 					description == null ? 0 : Minecraft.getInstance().textRenderer.getWidth(description)));
 			//this.width = description.stream().mapToInt(MinecraftClient.getInstance().textRenderer::getStringWidth).max().orElse(200);

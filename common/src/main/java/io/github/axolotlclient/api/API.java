@@ -35,10 +35,7 @@ import java.util.stream.Collectors;
 import com.github.mizosoft.methanol.Methanol;
 import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
-import io.github.axolotlclient.api.types.AccountSettings;
-import io.github.axolotlclient.api.types.PkSystem;
-import io.github.axolotlclient.api.types.Status;
-import io.github.axolotlclient.api.types.User;
+import io.github.axolotlclient.api.types.*;
 import io.github.axolotlclient.api.util.MojangAuth;
 import io.github.axolotlclient.api.util.SocketMessageHandler;
 import io.github.axolotlclient.api.util.StatusUpdateProvider;
@@ -141,7 +138,7 @@ public class API {
 			CompletableFuture.allOf(get(Request.Route.ACCOUNT.builder().build())
 					.thenAccept(r -> {
 						self = new User(sanitizeUUID(r.getBody("uuid")),
-							r.getBody("username"), "self",
+							r.getBody("username"), Relation.NONE,
 							r.getBody("registered", TimestampParser::parse),
 							Status.UNKNOWN,
 							r.ifBodyHas("previous_usernames", () -> {
@@ -182,7 +179,7 @@ public class API {
 	private CompletableFuture<Response> request(Request request, String method) {
 		if (request.requiresAuthentication() && !isAuthenticated()) {
 			logger.warn("Tried to request {} {} without authentication, but this request requires it!", method, request);
-			return CompletableFuture.failedFuture(new Throwable("Not Authenticated"));
+			return CompletableFuture.completedFuture(Response.CLIENT_ERROR);
 		}
 		URI route = getUrl(request);
 		return request(route, request.bodyFields(), request.rawBody(), method, request.headers());

@@ -116,13 +116,13 @@ public class ScreenshotUtils extends AbstractModule {
 
 	private @Nullable Component getUtilsText(File file) {
 		if (!autoExec.get().equals("off")) {
-			actions.parallelStream().filter(action -> autoExec.get().equals(action.getName())).toList()
-				.get(0).clickEvent.setFile(file).doAction();
+			actions.stream().filter(action -> autoExec.get().equals(action.getName())).toList()
+				.getFirst().clickEvent.setFile(file).doAction();
 			return null;
 		}
 
 		MutableComponent message = Component.empty();
-		actions.parallelStream().map(action -> action.getText(file)).iterator().forEachRemaining(text -> {
+		actions.stream().map(action -> action.getText(file)).forEachOrdered(text -> {
 			message.append(text);
 			message.append(" ");
 		});

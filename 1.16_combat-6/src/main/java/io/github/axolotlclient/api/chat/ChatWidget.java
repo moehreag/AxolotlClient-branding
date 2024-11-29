@@ -43,6 +43,8 @@ import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.util.ClientColors;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.*;
@@ -187,7 +189,13 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 						.spacer();
 				}
 				builder.entry(new TranslatableText("api.chat.report.message"), buttonWidget -> {
-						ChatHandler.getInstance().reportMessage(origin);
+						Screen previous = client.currentScreen;
+						client.openScreen(new ConfirmScreen(b -> {
+							if (b) {
+								ChatHandler.getInstance().reportMessage(origin);
+							}
+							client.openScreen(previous);
+						}, new TranslatableText("api.channels.confirm_report"), new TranslatableText("api.channels.confirm_report.desc", origin.content())));
 					})
 					.spacer()
 					.entry(new TranslatableText("action.copy"), buttonWidget -> {
