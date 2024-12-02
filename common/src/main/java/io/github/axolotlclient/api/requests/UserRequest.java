@@ -37,6 +37,7 @@ import io.github.axolotlclient.api.types.Relation;
 import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.TimestampParser;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.ThreadExecuter;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -60,18 +61,18 @@ public class UserRequest {
 
 		synchronized (onlineCache) {
 			if (!onlineCache.containsKey(sanitized)) {
-				ThreadExecuter.scheduleTask(() -> get(sanitized).thenApply(u -> u != null && u.getStatus().isOnline()).thenAccept(b -> onlineCache.put(sanitized, b)));
+				ThreadExecuter.scheduleTask(() -> get(sanitized).thenApply(u -> u.isPresent() && u.get().getStatus().isOnline()).thenAccept(b -> onlineCache.put(sanitized, b)));
 				return false;
 			}
 			return onlineCache.get(sanitized);
 		}
 	}
 
-	public static CompletableFuture<User> get(String dUuid) {
+	public static CompletableFuture<Optional<User>> get(String dUuid) {
 		final String uuid = API.getInstance().sanitizeUUID(dUuid);
 		Optional<User> cached = userCache.getIfPresent(uuid);
 		if (cached != null && cached.isPresent()) {
-			return CompletableFuture.completedFuture(cached.get());
+			return CompletableFuture.completedFuture(cached);
 		}
 
 		synchronized (userCache) {
@@ -86,15 +87,30 @@ public class UserRequest {
 					response.getBody("registered", TimestampParser::parse),
 					new Status(response.getBody("status.type").equals("online"),
 						response.getBody("status.last_online", TimestampParser::parse),
-						response.ifBodyHas("status.activity", () -> new Status.Activity(response.getBody("status.activity.title"),
-							response.getBody("status.activity.description"),
-							response.getBody("status.activity.started", TimestampParser::parse)))
+						response.ifBodyHas("status.activity", () -> {
+							String desc = response.getBody("status.activity.description");
+							String description;
+							if (desc.contains("{")) {
+								try {
+									var json = GsonHelper.fromJson(desc);
+									description = json.has("value") ? json.get("value").getAsString() : "";
+								} catch (Throwable t) {
+									description = desc;
+								}
+							} else {
+								description = desc;
+							}
+							return new Status.Activity(response.getBody("status.activity.title"),
+								description, desc,
+								response.getBody("status.activity.started", TimestampParser::parse));
+						})
 					),
 					response.getBody("previous_usernames", (List<String> list) ->
 						list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));
 			}).thenApply(u -> {
-				userCache.put(uuid, Optional.ofNullable(u));
-				return u;
+				Optional<User> opt = Optional.ofNullable(u);
+				userCache.put(uuid, opt);
+				return opt;
 			});
 		}
 	}

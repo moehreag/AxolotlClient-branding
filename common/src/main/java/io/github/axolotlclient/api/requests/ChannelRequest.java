@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
@@ -48,9 +49,9 @@ public class ChannelRequest {
 		String id = Long.toUnsignedString(response.<Long>getBody("id"));
 		String name = response.getBody("name");
 		List<String> participantUuids = response.getBody("participants");
-		User owner = UserRequest.get(response.getBody("owner")).join();
+		User owner = UserRequest.get(response.getBody("owner")).join().orElseThrow();
 		List<User> participants = participantUuids.stream().map(UserRequest::get)
-			.map(CompletableFuture::join).toList();
+			.map(CompletableFuture::join).map(Optional::orElseThrow).toList();
 
 		List<ChatMessage> deserialized = new ArrayList<>();
 		Persistence persistence = Persistence.fromJson(response.getBody("persistence"));
@@ -61,7 +62,7 @@ public class ChannelRequest {
 
 				for (Map<String, Object> o : messages) {
 					deserialized.add(new ChatMessage(Long.toUnsignedString((long) o.get("id")), Long.toUnsignedString((long) o.get("channel_id")),
-						UserRequest.get((String) o.get("sender")).join(), (String) o.get("sender_name"),
+						UserRequest.get((String) o.get("sender")).join().orElseThrow(), (String) o.get("sender_name"),
 						(String) o.get("content"), Instant.parse((CharSequence) o.get("timestamp"))));
 				}
 			}).join();

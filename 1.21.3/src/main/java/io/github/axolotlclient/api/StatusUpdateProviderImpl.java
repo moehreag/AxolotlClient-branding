@@ -28,13 +28,13 @@ import java.util.Optional;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.requests.StatusUpdate;
 import io.github.axolotlclient.api.util.StatusUpdateProvider;
+import io.github.axolotlclient.api.worldhost.AxolotlClientWorldHostPlugin;
 import io.github.axolotlclient.modules.hypixel.HypixelLocation;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 
@@ -48,17 +48,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 	@Override
 	public Request getStatus() {
-
 		Minecraft mc = Minecraft.getInstance();
-		Screen current = mc.screen;
-		if (current instanceof TitleScreen) {
-			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
-		} else if (current instanceof JoinMultiplayerScreen) {
-			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
-		} else if (!(current instanceof AbstractContainerScreen<?>)) {
-			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
-		}
-
 		ServerData entry = mc.getCurrentServer();
 		if (entry != null) {
 
@@ -82,7 +72,18 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 			}
 			return StatusUpdate.inGameUnknown(entry.name);
 		} else if (mc.getSingleplayerServer() != null) {
+			if (AxolotlClientWorldHostPlugin.getWHStatusDescription() != null) {
+				return StatusUpdate.worldHostStatusUpdate(AxolotlClientWorldHostPlugin.getWHStatusDescription());
+			}
 			return StatusUpdate.inGameUnknown(mc.getSingleplayerServer().getWorldData().getLevelName());
+		}
+		Screen current = mc.screen;
+		if (current instanceof TitleScreen) {
+			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
+		} else if (current instanceof JoinMultiplayerScreen) {
+			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
+		} else if (current != null) {
+			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
 		}
 		return null;
 	}

@@ -50,9 +50,8 @@ public class PrivacyNoticeScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		renderBackground(graphics, mouseX, mouseY, delta);
 		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawString(this.font, this.title, this.width / 2, getTitleY(), -1);
+		graphics.drawCenteredString(this.font, this.title, this.width / 2, getTitleY(), -1);
 		message.renderCentered(graphics, width / 2, getMessageY());
 	}
 

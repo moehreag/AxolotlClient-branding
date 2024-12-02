@@ -26,6 +26,9 @@
 		],
 		"modmenu": [
 			"io.github.axolotlclient.config.modmenu.ModMenuCompat"
+		],
+		"worldhost": [
+			"io.github.axolotlclient.api.worldhost.AxolotlClientWorldHostPlugin"
 		]
 	},
 	"mixins": [

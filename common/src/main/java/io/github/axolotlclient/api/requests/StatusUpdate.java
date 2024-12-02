@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Status;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.translation.TranslationProvider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,15 +37,26 @@ public class StatusUpdate {
 
 	private static Request createStatusUpdate(String titleString, String descriptionString) {
 		Status status = API.getInstance().getSelf().getStatus();
-		if (status.getActivity() != null) {
-			Status.Activity prev = status.getActivity();
-			if (prev.title().equals(titleString) && prev.description().equals(descriptionString)) {
-				return null;
-			} else {
-				status.setActivity(new Status.Activity(titleString, descriptionString, Instant.now()));
+		String description;
+		if (descriptionString.contains("{")) {
+			try {
+				var json = GsonHelper.fromJson(descriptionString);
+				description = json.has("value") ? json.get("value").getAsString() : "";
+			} catch (Throwable t) {
+				description = descriptionString;
 			}
 		} else {
-			status.setActivity(new Status.Activity(titleString, descriptionString, Instant.now()));
+			description = descriptionString;
+		}
+		if (status.getActivity() != null) {
+			Status.Activity prev = status.getActivity();
+			if (prev.title().equals(titleString) && prev.description().equals(description)) {
+				return null;
+			} else {
+				status.setActivity(new Status.Activity(titleString, description, descriptionString, Instant.now()));
+			}
+		} else {
+			status.setActivity(new Status.Activity(titleString, description, descriptionString, Instant.now()));
 		}
 		return Request.Route.ACCOUNT_ACTIVITY.builder().field("title", titleString).field("description", descriptionString)
 			.field("started", status.getActivity().started().toString()).build();
@@ -61,6 +73,10 @@ public class StatusUpdate {
 
 	public static Request inGameUnknown(String description) {
 		return createStatusUpdate("api.status.title.in_game_unknown", description);
+	}
+
+	public static Request worldHostStatusUpdate(String description) {
+		return createStatusUpdate("api.status.title.world_host", description);
 	}
 
 	@RequiredArgsConstructor

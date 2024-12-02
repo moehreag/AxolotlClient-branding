@@ -67,7 +67,7 @@ public class ChatHandler implements SocketMessageHandler {
 		String sender = response.getBody("sender");
 		String senderName = response.getBody("sender_name");
 		String content = response.getBody("content");
-		ChatMessage message = new ChatMessage(id, channelId, UserRequest.get(sender).join(), senderName, content, time);
+		ChatMessage message = new ChatMessage(id, channelId, UserRequest.get(sender).join().orElseThrow(), senderName, content, time);
 		if (enableNotifications.showNotification(message)) {
 			notification(API.getInstance().getTranslationProvider().translate("api.chat.newMessageFrom", message.sender().getName()), message.content());
 		}
@@ -101,7 +101,7 @@ public class ChatHandler implements SocketMessageHandler {
 				for (Map<String, Object> o : messages) {
 					deserialized.add(new ChatMessage(Long.toUnsignedString((long) o.get("id")),
 						Long.toUnsignedString((long) o.get("channel_id")),
-						UserRequest.get((String) o.get("sender")).join(), (String) o.get("sender_name"),
+						UserRequest.get((String) o.get("sender")).join().orElseThrow(), (String) o.get("sender_name"),
 						(String) o.get("content"), Instant.parse((CharSequence) o.get("timestamp"))));
 				}
 

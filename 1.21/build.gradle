@@ -22,6 +22,20 @@ loom {
 	}
 }
 
+repositories {
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_121}"
 	mappings "org.quiltmc:quilt-mappings:${project.mappings_121}:intermediary-v2"
@@ -50,6 +64,10 @@ dependencies {
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.3:natives-windows-arm64')
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.3:natives-macos')
 	runtimeOnly('org.lwjgl:lwjgl-nanovg:3.3.3:natives-macos-arm64')
+
+	modImplementation("maven.modrinth:world-host:0.5.0+1.21.1-fabric")
+	implementation("org.quiltmc.parsers:json:0.3.0")
+	implementation("org.semver4j:semver4j:5.3.0")
 }
 
 processResources {

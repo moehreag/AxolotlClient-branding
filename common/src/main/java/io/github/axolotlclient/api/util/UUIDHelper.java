@@ -23,6 +23,7 @@
 package io.github.axolotlclient.api.util;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -36,38 +37,54 @@ public class UUIDHelper {
 	private static final WeakHashMap<String, String> uuidCache = new WeakHashMap<>();
 
 	public static String getUsername(String uuid) {
-		return nameCache.computeIfAbsent(uuid, s -> {
+		return getUsername0(uuid).orElse(uuid);
+	}
+
+	private static Optional<String> getUsername0(String uuid) {
+		return Optional.ofNullable(nameCache.computeIfAbsent(uuid, s -> {
 			try {
 				JsonElement e = NetworkUtil.getRequest("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid, NetworkUtil.createHttpClient("API"));
 				return e.getAsJsonObject().get("name").getAsString();
 			} catch (IOException e) {
-				API.getInstance().getLogger().warn("Conversion uuid -> username failed: ", e);
+				if (API.getInstance().getApiOptions().detailedLogging.get()) {
+					API.getInstance().getLogger().warn("Conversion uuid -> username failed: {}", e.getMessage());
+				}
 			}
-			return uuid;
-		});
+			return "";
+		})).map(s -> s.isEmpty() ? null : s);
 	}
 
 	public static String getUuid(String username) {
-		return uuidCache.computeIfAbsent(username, s -> {
+		return getUuid0(username).orElse(username);
+	}
+
+	private static Optional<String> getUuid0(String username) {
+		return Optional.of(uuidCache.computeIfAbsent(username, s -> {
 			try {
 				JsonElement response = NetworkUtil.getRequest("https://api.mojang.com/users/profiles/minecraft/" + username, NetworkUtil.createHttpClient("API"));
 				return response.getAsJsonObject().get("id").getAsString();
 			} catch (IOException e) {
-				API.getInstance().getLogger().warn("Conversion username -> uuid failed: ", e);
+				if (API.getInstance().getApiOptions().detailedLogging.get()) {
+					API.getInstance().getLogger().warn("Conversion username -> uuid failed: {}", e.getMessage());
+				}
 			}
-			return username;
-		});
+			return "";
+		})).map(s -> s.isEmpty() ? null : s);
 	}
 
 	public static String ensureUuid(String uuidOrUsername) {
-		String uuid;
+		return ensureUuidOpt(uuidOrUsername).orElse(uuidOrUsername);
+	}
+
+	public static Optional<String> ensureUuidOpt(String uuidOrUsername) {
+		Optional<String> uuid;
 		try {
-			uuid = API.getInstance().sanitizeUUID(UUID.fromString(uuidOrUsername
+			uuid = Optional.of(API.getInstance().sanitizeUUID(UUID.fromString(uuidOrUsername
 					.trim()
 					.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"))
-				.toString());
+				.toString()));
 		} catch (IllegalArgumentException e) {
-			uuid = getUuid(uuidOrUsername.trim());
+			uuid = getUuid0(uuidOrUsername.trim());
 		}
 		return uuid;
 	}

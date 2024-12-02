@@ -34,7 +34,6 @@ import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.inventory.menu.InventoryMenuScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.options.ServerListEntry;
 import net.minecraft.entity.living.player.PlayerEntity;
@@ -50,16 +49,6 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 	@Override
 	public Request getStatus() {
-
-		Screen current = Minecraft.getInstance().screen;
-		if (current instanceof TitleScreen) {
-			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
-		} else if (current instanceof MultiplayerScreen) {
-			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
-		} else if (!(current instanceof InventoryMenuScreen)) {
-			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
-		}
-
 		ServerListEntry entry = Minecraft.getInstance().getCurrentServerEntry();
 		if (entry != null) {
 
@@ -83,7 +72,14 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 		} else if (Minecraft.getInstance().getServer() != null) {
 			return StatusUpdate.inGameUnknown(Minecraft.getInstance().getServer().getWorldName());
 		}
-
+		Screen current = Minecraft.getInstance().screen;
+		if (current instanceof TitleScreen) {
+			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
+		} else if (current instanceof MultiplayerScreen) {
+			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
+		} else if (current != null) {
+			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
+		}
 		return null;
 	}
 

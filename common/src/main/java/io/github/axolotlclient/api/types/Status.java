@@ -50,7 +50,7 @@ public class Status {
 	public String getDescription() {
 		return activity == null || activity.description.isEmpty() ? "" :
 			API.getInstance().getTranslationProvider()
-				.translate(activity.description.toLowerCase(Locale.ROOT));
+				.translate(activity.description);
 	}
 
 	public String getTitle() {
@@ -68,7 +68,7 @@ public class Status {
 				.translate("api.status.last_online", lastOnline.atZone(ZoneId.systemDefault()).format(format));
 	}
 
-	public record Activity(String title, String description, Instant started) {
-		private static final Activity UNKNOWN = new Activity("", "", Instant.EPOCH);
+	public record Activity(String title, String description, String rawDescription, Instant started) {
+		private static final Activity UNKNOWN = new Activity("", "", "", Instant.EPOCH);
 	}
 }

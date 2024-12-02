@@ -22,7 +22,12 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
@@ -37,6 +42,7 @@ import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -69,25 +75,48 @@ public abstract class TitleScreenMixin extends Screen {
 			minecraft.options.keySaveHotbarActivator.setKey(InputConstants.UNKNOWN);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
+		List<AbstractWidget> buttons = new ArrayList<>();
 		if (Auth.getInstance().showButton.get()) {
-			addRenderableWidget(new AuthWidget());
+			buttons.add(addRenderableWidget(new AuthWidget()));
 		}
 		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().updateNotifications.get() &&
 			GlobalDataRequest.get().success() &&
 			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"), widget ->
+			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"), widget ->
 					minecraft.setScreen(new ConfirmLinkScreen(r -> {
 						if (r) {
 							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 						}
 					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
-				.bounds(width - 125, 10, 120, 20).build());
+				.bounds(width - 125, 10, 120, 20).build()));
 		}
 		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().displayNotes.get() &&
 			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
-			addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
+			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
 					minecraft.setScreen(new NewsScreen(this)))
-				.bounds(width - 125, 25, 120, 20).build());
+				.bounds(width - 125, 25, 120, 20).build()));
+		}
+
+		// Thanks modmenu.. >:3
+		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+			try {
+				Class<?> booleanConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.BooleanConfigOption");
+				Class<?> enumConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.EnumConfigOption");
+				Class<?> titleMenuButtonStyle = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig$TitleMenuButtonStyle");
+				Class<?> modmenuConfig = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig");
+				MethodHandle modifyTitleScreenHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODIFY_TITLE_SCREEN", booleanConfigOpt);
+				MethodHandle getValueB = MethodHandles.lookup().findVirtual(booleanConfigOpt, "getValue", MethodType.methodType(boolean.class));
+				MethodHandle getValueE = MethodHandles.lookup().findVirtual(enumConfigOpt, "getValue", MethodType.methodType(Enum.class));
+				var modifyTitleScreen = modifyTitleScreenHandle.invoke();
+				boolean isModifyTitleScreen = (boolean) getValueB.invoke(modifyTitleScreen);
+				MethodHandle modsButtonStyleHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODS_BUTTON_STYLE", enumConfigOpt);
+				var modsButtonStyle = getValueE.invoke(modsButtonStyleHandle.invoke());
+				var classic = titleMenuButtonStyle.getEnumConstants()[0];
+				if (isModifyTitleScreen && modsButtonStyle == classic) {
+					buttons.forEach(r -> r.setY(r.getY() + 24 / 2));
+				}
+			} catch (Throwable ignored) {
+			}
 		}
 	}
 

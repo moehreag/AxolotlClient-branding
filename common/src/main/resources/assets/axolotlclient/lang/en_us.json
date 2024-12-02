@@ -550,6 +550,7 @@
 	"api.status.description.menu": "Browsing the menus...",
 	"api.status.description.menu.settings": "In the settings...",
 	"api.status.description.menu.main_menu": "Watching the Main menu panorama...",
+	"api.status.description.menu.server_list": "Choosing a server to play on",
 	"api.status.title.in_game": "Playing on %s",
 	"api.status.title.in_game_unknown": "Enjoying Minecraft",
 	"api.friends.activity.update": "New Activity from %s",
@@ -572,5 +573,7 @@
 	"api.channels.delete.confirm.desc": "%s will be irreversibly deleted. Are you sure?",
 	"api.channels.leave.confirm": "Confirm Leaving channel",
 	"api.channels.leave.confirm.desc_add": "You will not be able to access %s unless you are added back.",
-	"api.channels.leave.confirm.desc_invite": "You will not be able to access %s unless you are invited again."
+	"api.channels.leave.confirm.desc_invite": "You will not be able to access %s unless you are invited again.",
+	"api.status.title.world_host": "Playing with WorldHost",
+	"api.worldhost.joinability.not_published": "World isn't published!"
 }

@@ -23,8 +23,8 @@
 package io.github.axolotlclient.api.requests;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
@@ -89,7 +89,7 @@ public class FriendRequest {
 		return api.get(Request.Route.ACCOUNT_RELATIONS_FRIENDS.builder().build())
 			.thenApply(r -> {
 				List<String> uuids = (List<String>) r.getBody();
-				return uuids.stream().map(UserRequest::get).map(CompletableFuture::join).collect(Collectors.toList());
+				return uuids.stream().map(UserRequest::get).map(CompletableFuture::join).map(Optional::orElseThrow).toList();
 			});
 	}
 
@@ -98,8 +98,8 @@ public class FriendRequest {
 			.thenApply(res -> {
 				List<String> in = res.getBody("in");
 				List<String> out = res.getBody("out");
-				List<User> incoming = in.stream().map(UserRequest::get).map(CompletableFuture::join).collect(Collectors.toList());
-				List<User> outgoing = out.stream().map(UserRequest::get).map(CompletableFuture::join).collect(Collectors.toList());
+				List<User> incoming = in.stream().map(UserRequest::get).map(CompletableFuture::join).map(Optional::orElseThrow).toList();
+				List<User> outgoing = out.stream().map(UserRequest::get).map(CompletableFuture::join).map(Optional::orElseThrow).toList();
 				return BiContainer.of(incoming, outgoing);
 			});
 	}
@@ -109,7 +109,7 @@ public class FriendRequest {
 		return api.get(Request.Route.ACCOUNT_RELATIONS_BLOCKED.create())
 			.thenApply(res -> {
 				List<String> uuids = (List<String>) res.getBody();
-				return uuids.stream().map(UserRequest::get).map(CompletableFuture::join).collect(Collectors.toList());
+				return uuids.stream().map(UserRequest::get).map(CompletableFuture::join).map(Optional::orElseThrow).toList();
 			});
 	}
 

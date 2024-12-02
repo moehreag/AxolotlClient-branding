@@ -57,7 +57,7 @@ public abstract class Options implements Module {
 			ThreadExecuter.scheduleTask(() -> API.getInstance().shutdown());
 		}
 	});
-	public final BooleanOption updateNotifications = new BooleanOption("api.update_notifications", true);
+	public final BooleanOption updateNotifications = new BooleanOption("api.update_notifications", false);
 	public final BooleanOption displayNotes = new BooleanOption("api.display_notes", true);
 	public final StringOption pkToken = new StringOption("api.pk_token", "", s ->
 		PkSystem.fromToken(s).thenAccept(sys -> {

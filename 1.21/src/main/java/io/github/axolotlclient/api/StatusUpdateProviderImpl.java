@@ -28,13 +28,13 @@ import java.util.Optional;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.requests.StatusUpdate;
 import io.github.axolotlclient.api.util.StatusUpdateProvider;
+import io.github.axolotlclient.api.worldhost.AxolotlClientWorldHostPlugin;
 import io.github.axolotlclient.modules.hypixel.HypixelLocation;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.multiplayer.SelectServerScreen;
 import net.minecraft.client.network.ServerInfo;
 
@@ -48,16 +48,6 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 	@Override
 	public Request getStatus() {
-
-		Screen current = MinecraftClient.getInstance().currentScreen;
-		if (current instanceof TitleScreen) {
-			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
-		} else if (current instanceof SelectServerScreen) {
-			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
-		} else if (!(current instanceof HandledScreen<?>)) {
-			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
-		}
-
 		ServerInfo entry = MinecraftClient.getInstance().getCurrentServerEntry();
 		if (entry != null) {
 
@@ -78,7 +68,18 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 			}
 			return StatusUpdate.inGameUnknown(entry.name);
 		} else if (MinecraftClient.getInstance().getServer() != null) {
+			if (AxolotlClientWorldHostPlugin.getWHStatusDescription() != null) {
+				return StatusUpdate.worldHostStatusUpdate(AxolotlClientWorldHostPlugin.getWHStatusDescription());
+			}
 			return StatusUpdate.inGameUnknown(MinecraftClient.getInstance().getServer().getSaveProperties().getWorldName());
+		}
+		Screen current = MinecraftClient.getInstance().currentScreen;
+		if (current instanceof TitleScreen) {
+			return StatusUpdate.online(StatusUpdate.MenuId.MAIN_MENU);
+		} else if (current instanceof SelectServerScreen) {
+			return StatusUpdate.online(StatusUpdate.MenuId.SERVER_LIST);
+		} else if (current != null) {
+			return StatusUpdate.online(StatusUpdate.MenuId.SETTINGS);
 		}
 		return null;
 	}

@@ -25,10 +25,7 @@ package io.github.axolotlclient.api;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -75,6 +72,7 @@ public class API {
 	@Setter
 	private AccountSettings settings;
 	private HttpClient client;
+	private static final List<Runnable> afterStartupListeners = new ArrayList<>();
 
 	public API(Logger logger, NotificationProvider notificationProvider, TranslationProvider translationProvider,
 			   StatusUpdateProvider statusUpdateProvider, Options apiOptions) {
@@ -96,10 +94,15 @@ public class API {
 		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 	}
 
+	public static void addStartupListener(Runnable listener) {
+		afterStartupListeners.add(listener);
+	}
+
 
 	public void onOpen(WebSocket channel) {
 		this.socket = channel;
 		logger.debug("API connected!");
+		afterStartupListeners.forEach(Runnable::run);
 	}
 
 	private void authenticate() {
@@ -314,9 +317,12 @@ public class API {
 	public void onClose(int statusCode, String reason) {
 		logDetailed("Session closed! code: " + statusCode + " reason: " + reason);
 		if (apiOptions.enabled.get()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException ignored) {
+			}
 			logDetailed("Restarting API session...");
 			startup(account);
-			logDetailed("Restarted API session!");
 		}
 	}
 
