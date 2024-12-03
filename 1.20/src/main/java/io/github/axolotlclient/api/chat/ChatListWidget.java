@@ -54,6 +54,12 @@ public class ChatListWidget extends ElementListWidget<ChatListWidget.ChatListEnt
 
 	public void addChannels(List<Channel> channels) {
 		channels.stream().filter(predicate).forEach(c -> addEntryToTop(new ChatListEntry(c)));
+		setScrollAmount(0);
+	}
+
+	public void setActiveChannel(Channel channel) {
+		children().stream().filter(e -> e.channel.equals(channel))
+			.findFirst().ifPresent(c -> c.widget.active = false);
 	}
 
 	@Override
@@ -61,9 +67,14 @@ public class ChatListWidget extends ElementListWidget<ChatListWidget.ChatListEnt
 		return width - 8;
 	}
 
+
+	@Override
+	protected int getScrollbarPositionX() {
+		return super.getScrollbarPositionX() - 6;
+	}
+
 	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {
 		this(screen, screenWidth, screenHeight, x, y, width, height, c -> true);
-		ChannelRequest.getChannelList().thenAccept(this::addChannels);
 	}
 
 	public class ChatListEntry extends Entry<ChatListEntry> {

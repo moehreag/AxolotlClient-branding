@@ -27,6 +27,7 @@ import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenuContainer;
 import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
+import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
@@ -59,8 +60,8 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	protected void init() {
-
-		addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
+		var chatList = addDrawableSelectableElement(new ChatListWidget(this, width, height, 0, 30, 55, height - 90));
+		ChannelRequest.getChannelList().thenAccept(chatList::addChannels).thenRun(() -> chatList.setActiveChannel(channel));
 
 		addDrawableSelectableElement(widget = new ChatWidget(channel, 65, 30, width - 155, height - 90, this));
 
@@ -103,7 +104,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 			.build()
 		);
 
-		addDrawableSelectableElement(contextMenu);
+		addDrawable(contextMenu);
 	}
 
 	@Override

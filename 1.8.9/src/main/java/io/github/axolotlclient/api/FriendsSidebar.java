@@ -93,7 +93,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			textRenderer.drawWithShadow(channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
-				textRenderer.drawWithShadow(Formatting.ITALIC + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getTitle()) + ":" + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getDescription()),
+				textRenderer.drawWithShadow(Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 			chatWidget.render(mouseX, mouseY, delta);
@@ -117,7 +117,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			this.list = new ListWidget(list, 10, 30, 50, height - 60)
+			this.list = new ListWidget(list, 10, 30, 50, height - 70)
 		);
 
 		buttons.add(new ButtonWidget(0, 10 - sidebarWidth, height - 30, 50, 20, I18n.translate("gui.back")));
@@ -223,16 +223,17 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			removeChat();
 		}
 		hasChat = true;
+		list.elements.forEach(b -> b.active = true);
 		this.channel = channel;
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(minecraft.textRenderer.getWidth(I18n.translate(chatUser.getStatus().getTitle()) + ":" + I18n.translate(chatUser.getStatus().getDescription())),
+			w = Math.max(minecraft.textRenderer.getWidth(chatUser.getStatus().getTitle() + ": " + chatUser.getStatus().getDescription()) + 5,
 				minecraft.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = minecraft.textRenderer.getWidth(channel.getName());
 		}
-		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width/2);
+		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width / 2);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
 		input = new TextFieldWidget(2, textRenderer, 75, height - 30, sidebarWidth - 80, 20) {
 			@Override
@@ -272,6 +273,25 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		return parent;
 	}
 
+	@Override
+	public void handleMouse() {
+		super.handleMouse();
+		if (list != null) {
+			list.handleMouse();
+		}
+		if (chatWidget != null) {
+			chatWidget.handleMouse();
+		}
+	}
+
+	@Override
+	protected void keyPressed(char c, int i) {
+		if (input != null) {
+			input.keyPressed(c, i);
+		}
+		super.keyPressed(c, i);
+	}
+
 	public interface Action {
 		void onPress(ListWidget.UserButton button);
 	}
@@ -279,7 +299,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private class ListWidget extends EntryListWidget {
 		private final List<UserButton> elements;
 		private final int entryHeight = 25;
-		private boolean visible;
+		private boolean visible = true;
 
 		public ListWidget(List<Channel> list, int x, int y, int width, int height) {
 			super(Minecraft.getInstance(), width, height, y, FriendsSidebar.this.height - y, 25);
@@ -290,7 +310,10 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
 				.map(channel -> new UserButton(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
-					channel.getName(), buttonWidget -> addChat(channel))).collect(Collectors.toList());
+					channel.getName(), buttonWidget -> {
+					addChat(channel);
+					buttonWidget.active = false;
+				})).collect(Collectors.toList());
 		}
 
 		public int getX() {
@@ -311,30 +334,19 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		@Override
 		public void render(int mouseX, int mouseY, float delta) {
 			if (this.visible) {
-				GlStateManager.enableDepthTest();
-				GlStateManager.pushMatrix();
-				GlStateManager.translatef(0, 0, 1F);
 				this.mouseX = mouseX;
 				this.mouseY = mouseY;
 				this.capScrolling();
-				GlStateManager.disableLighting();
-				GlStateManager.disableFog();
-				int k = this.width / 2;
-				int l = this.minY + 4 - (int) this.scrollAmount;
-				GlStateManager.enableTexture();
+				int m = this.minX + this.width / 2 - this.getRowWidth() / 2 + 2;
+				int n = this.minY + 4 - (int) this.scrollAmount;
 
-				this.renderList(k, l, mouseX, mouseY);
-
-				GlStateManager.shadeModel(7424);
-				GlStateManager.enableAlphaTest();
-				GlStateManager.popMatrix();
-				GlStateManager.disableBlend();
+				this.renderList(m, n, mouseX, mouseY);
 			}
 		}
 
 		@Override
 		protected void renderList(int x, int y, int mouseX, int mouseY) {
-			DrawUtil.enableScissor(minX, minY, minX + this.width, maxX - minY);
+			DrawUtil.enableScissor(minX, minY, minX + this.width, maxY);
 			super.renderList(x, y, mouseX, mouseY);
 			DrawUtil.disableScissor();
 		}

@@ -157,6 +157,19 @@ public class ChatWidget extends EntryListWidget {
 	}
 
 	@Override
+	public void render(int mouseX, int mouseY, float delta) {
+		if (this.visible) {
+			this.mouseX = mouseX;
+			this.mouseY = mouseY;
+			this.capScrolling();
+			int m = this.minX + this.width / 2 - this.getRowWidth() / 2 + 2;
+			int n = this.minY + 4 - (int)this.scrollAmount;
+
+			this.renderList(m, n, mouseX, mouseY);
+		}
+	}
+
+	@Override
 	public Entry getEntry(int i) {
 		return entries.get(i);
 	}

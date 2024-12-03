@@ -39,7 +39,6 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -81,7 +80,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			graphics.fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			graphics.drawShadowedText(client.textRenderer, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
-				graphics.drawShadowedText(client.textRenderer, Formatting.ITALIC + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getTitle()) + ":" + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getDescription()),
+				graphics.drawShadowedText(client.textRenderer, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 		}
@@ -104,7 +103,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			addDrawableChild(this.list = new ListWidget(list, 10, 30, 50, height - 60))
+			addDrawableChild(this.list = new ListWidget(list, 10, 30, 50, height - 70))
 		);
 
 		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> remove()).positionAndSize(10 - sidebarWidth, height - 30, 50, 20).build());
@@ -194,11 +193,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			removeChat();
 		}
 		hasChat = true;
+		list.elements.forEach(b -> b.active = true);
 		this.channel = channel;
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(client.textRenderer.getWidth(I18n.translate(chatUser.getStatus().getTitle()) + ":" + I18n.translate(chatUser.getStatus().getDescription())),
+			w = Math.max(client.textRenderer.getWidth(chatUser.getStatus().getTitle() + ": " + chatUser.getStatus().getDescription()) + 5,
 				client.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = client.textRenderer.getWidth(channel.getName());
@@ -261,7 +261,10 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			this.height = height;
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-				.map(channel -> ButtonWidget.builder(Text.of(channel.getName()), buttonWidget -> addChat(channel))
+				.map(channel -> ButtonWidget.builder(Text.of(channel.getName()), buttonWidget -> {
+						addChat(channel);
+						buttonWidget.active = false;
+					})
 					.positionAndSize(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5).build()).collect(Collectors.toList());
 		}
 
@@ -271,9 +274,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 				graphics.getMatrices().push();
 				graphics.enableScissor(x, y, x + width, y + height);
 
-				graphics.getMatrices().translate(0, -scrollAmount, 0);
-
-				elements.forEach(e -> e.render(graphics, mouseX, mouseY, delta));
+				AtomicInteger buttonY = new AtomicInteger(y);
+				elements.forEach(e -> {
+					e.setY(buttonY.get() - scrollAmount);
+					e.render(graphics, mouseX, mouseY, delta);
+					buttonY.getAndAdd(entryHeight);
+				});
 
 				graphics.disableScissor();
 				graphics.getMatrices().pop();
@@ -290,8 +296,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			if (this.isMouseOver(mouseX, mouseY)) {
 				if (elements.size() * entryHeight > height) {
 					int a = scrollAmount;
-					a += (int) (amountY * (entryHeight / 2f));
-					scrollAmount = MathHelper.clamp(a, 0, -elements.size() * entryHeight);
+					a -= (int) (amountY * (entryHeight / 2f));
+					scrollAmount = MathHelper.clamp(a, 0, elements.size() * entryHeight - height);
 					return true;
 				}
 			}

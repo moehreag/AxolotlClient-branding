@@ -24,6 +24,7 @@ package io.github.axolotlclient.api.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.axolotlclient.api.API;
 import lombok.AccessLevel;
@@ -49,6 +50,17 @@ public abstract class Channel {
 
 	public String getRealName() {
 		return name;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Channel channel)) return false;
+		return Objects.equals(getId(), channel.getId());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getId());
 	}
 
 	public abstract boolean isDM();

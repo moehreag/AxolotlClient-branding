@@ -85,7 +85,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			fill(graphics, 70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			textRenderer.drawWithShadow(graphics, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
-				textRenderer.drawWithShadow(graphics, Formatting.ITALIC + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getTitle()) + ":" + I18n.translate(((Channel.DM) channel).getReceiver().getStatus().getDescription()),
+				textRenderer.drawWithShadow(graphics, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 			chatWidget.render(graphics, mouseX, mouseY, delta);
@@ -207,11 +207,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			removeChat();
 		}
 		hasChat = true;
+		list.elements.forEach(b -> b.active = true);
 		this.channel = channel;
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(client.textRenderer.getWidth(I18n.translate(chatUser.getStatus().getTitle()) + ":" + I18n.translate(chatUser.getStatus().getDescription())),
+			w = Math.max(client.textRenderer.getWidth(chatUser.getStatus().getTitle() + ": " + chatUser.getStatus().getDescription()) + 5,
 				client.textRenderer.getWidth(channel.getName()));
 		} else {
 			w = client.textRenderer.getWidth(channel.getName());
@@ -275,7 +276,10 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
 				.map(channel -> new ButtonWidget(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5,
-					Text.of(channel.getName()), buttonWidget -> addChat(channel))).collect(Collectors.toList());
+					Text.of(channel.getName()), buttonWidget -> {
+					addChat(channel);
+					buttonWidget.active = false;
+				})).collect(Collectors.toList());
 		}
 
 		@Override
@@ -284,9 +288,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 				graphics.push();
 				DrawUtil.pushScissor(x, y, width, height);
 
-				graphics.translate(0, -scrollAmount, 0);
-
-				elements.forEach(e -> e.render(graphics, mouseX, mouseY, delta));
+				AtomicInteger buttonY = new AtomicInteger(y);
+				elements.forEach(e -> {
+					e.y = buttonY.get() - scrollAmount;
+					e.render(graphics, mouseX, mouseY, delta);
+					buttonY.getAndAdd(entryHeight);
+				});
 
 				DrawUtil.popScissor();
 				graphics.pop();
@@ -303,8 +310,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			if (this.isMouseOver(mouseX, mouseY)) {
 				if (elements.size() * entryHeight > height) {
 					int a = scrollAmount;
-					a += (int) (amountY * (entryHeight / 2f));
-					scrollAmount = MathHelper.clamp(a, 0, -elements.size() * entryHeight);
+					a -= (int) (amountY * (entryHeight / 2f));
+					scrollAmount = MathHelper.clamp(a, 0, elements.size() * entryHeight - height);
 					return true;
 				}
 			}

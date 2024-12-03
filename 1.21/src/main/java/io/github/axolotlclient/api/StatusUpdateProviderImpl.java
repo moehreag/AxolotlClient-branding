@@ -28,7 +28,7 @@ import java.util.Optional;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.requests.StatusUpdate;
 import io.github.axolotlclient.api.util.StatusUpdateProvider;
-import io.github.axolotlclient.api.worldhost.AxolotlClientWorldHostPlugin;
+import io.github.axolotlclient.api.worldhost.WorldHostStatusProvider;
 import io.github.axolotlclient.modules.hypixel.HypixelLocation;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
@@ -68,8 +68,8 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 			}
 			return StatusUpdate.inGameUnknown(entry.name);
 		} else if (MinecraftClient.getInstance().getServer() != null) {
-			if (AxolotlClientWorldHostPlugin.getWHStatusDescription() != null) {
-				return StatusUpdate.worldHostStatusUpdate(AxolotlClientWorldHostPlugin.getWHStatusDescription());
+			if (WorldHostStatusProvider.getWHStatusDescription() != null) {
+				return StatusUpdate.worldHostStatusUpdate(WorldHostStatusProvider.getWHStatusDescription());
 			}
 			return StatusUpdate.inGameUnknown(MinecraftClient.getInstance().getServer().getSaveProperties().getWorldName());
 		}

@@ -27,7 +27,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Constants {
 	public final boolean ENABLED = true; // Completely disable these features and hide their existence
-	private final boolean DEVELOPMENT = false;
+	private final boolean DEVELOPMENT = true;
 	public final String API_URL = DEVELOPMENT ? "http://localhost:8000" : "https://api.axolotlclient.com";
 	public final String SOCKET_URL = DEVELOPMENT ? "ws://localhost:8000/gateway" : "wss://api.axolotlclient.com/gateway";
 	public final String PRIVACY_POLICY = "https://axolotlclient.com/privacy";

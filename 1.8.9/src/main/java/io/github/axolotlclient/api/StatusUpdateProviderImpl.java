@@ -69,7 +69,7 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 				}
 			}
 			return StatusUpdate.inGameUnknown(entry.name);
-		} else if (Minecraft.getInstance().getServer() != null) {
+		} else if (Minecraft.getInstance().isInSingleplayer()) {
 			return StatusUpdate.inGameUnknown(Minecraft.getInstance().getServer().getWorldName());
 		}
 		Screen current = Minecraft.getInstance().screen;

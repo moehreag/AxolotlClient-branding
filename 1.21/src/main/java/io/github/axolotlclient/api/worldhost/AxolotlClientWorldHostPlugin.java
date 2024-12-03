@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class AxolotlClientWorldHostPlugin implements WorldHostPlugin {
 
-    private static AxolotlClientWorldHostPlugin Instance;
+    static AxolotlClientWorldHostPlugin Instance;
     private final FriendAdder friendAdder = new AxolotlClientFriendAdder();
 
     public AxolotlClientWorldHostPlugin() {
@@ -66,14 +66,7 @@ public class AxolotlClientWorldHostPlugin implements WorldHostPlugin {
         });
     }
 
-    public static String getWHStatusDescription() {
-        if (Instance != null) {
-            return Instance.getWhStatusDescription0();
-        }
-        return null;
-    }
-
-    private String getWhStatusDescription0() {
+    String getWhStatusDescription() {
         Map<String, Object> fields = new HashMap<>();
         fields.put("value", MinecraftClient.getInstance().getServer().getSaveProperties().getWorldName());
         if (MinecraftClient.getInstance().getServer().isRemote()) {
@@ -180,6 +173,7 @@ public class AxolotlClientWorldHostPlugin implements WorldHostPlugin {
         @Override
         public void addFriend(boolean notify, Runnable refresher) {
             FriendRequest.getInstance().addFriend(friend.getUuid());
+            refresher.run();
         }
 
         @Override

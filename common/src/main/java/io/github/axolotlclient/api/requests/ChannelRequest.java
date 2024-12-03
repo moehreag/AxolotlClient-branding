@@ -23,10 +23,7 @@
 package io.github.axolotlclient.api.requests;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
@@ -83,6 +80,9 @@ public class ChannelRequest {
 	}
 
 	public static CompletableFuture<?> createChannel(String name, Persistence persistence, String... users) {
+		if (name.isEmpty()) {
+			return CompletableFuture.failedFuture(new Throwable("name is empty"));
+		}
 		List<String> participants = new ArrayList<>();
 		for (String username : users) {
 			participants.add(UUIDHelper.getUuid(username));
@@ -113,7 +113,7 @@ public class ChannelRequest {
 			}
 			return c.getOwner().equals(user) && dm.getParticipants().getFirst().equals(API.getInstance().getSelf());
 		}).findFirst()).thenApply(opt -> opt.orElseGet(() -> API.getInstance().post(Request.Route.CHANNEL.builder()
-				.field("name", user.getName() + " - " + API.getInstance().getSelf().getName()).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
+				.field("name", user.getUuid() + "-" + API.getInstance().getSelf().getUuid() + "_"+ UUID.randomUUID()).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
 				.field("participants", List.of(user.getUuid())).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById).join()));
 	}
