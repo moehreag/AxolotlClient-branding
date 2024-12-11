@@ -581,5 +581,6 @@
 	"autoboop.filterlist.mode": "Filter Mode",
 	"autoboop.filterlist.mode.disabled": "Disabled",
 	"autoboop.filterlist.mode.whitelist": "Whitelist",
-	"autoboop.filterlist.mode.blacklist": "Blacklist"
+	"autoboop.filterlist.mode.blacklist": "Blacklist",
+	"text_alpha": "Text Transparency"
 }

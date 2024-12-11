@@ -32,6 +32,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
@@ -80,6 +81,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	private final IntegerOption topPadding = new IntegerOption("toppadding", 0, 0, 4);
 	private final BooleanOption scores = new BooleanOption("scores", true);
 	private final ColorOption scoreColor = new ColorOption("scorecolor", new Color(0xFFFF5555));
+	private final IntegerOption textAlpha = new IntegerOption("text_alpha", 255, 0, 255);
 	private final EnumOption<AnchorPoint> anchor = new EnumOption<>("anchorpoint", AnchorPoint.class,
 		AnchorPoint.MIDDLE_RIGHT);
 
@@ -144,7 +146,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		MutableText formattedText;
 		for (Iterator<ScoreboardPlayerScore> scoresIterator = scores.iterator(); scoresIterator
 			.hasNext(); maxWidth = Math.max(maxWidth, client.textRenderer.getWidth(formattedText) + spacerWidth
-													  + client.textRenderer.getWidth(Integer.toString(scoreboardPlayerScore.getScore())))) {
+			+ client.textRenderer.getWidth(Integer.toString(scoreboardPlayerScore.getScore())))) {
 			scoreboardPlayerScore = scoresIterator.next();
 			Team team = scoreboard.getPlayerTeam(scoreboardPlayerScore.getPlayerName());
 			formattedText = Team.decorateName(team, Text.literal(scoreboardPlayerScore.getPlayerName()));
@@ -199,7 +201,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 				}
 			}
 
-			graphics.drawText(client.textRenderer, scoreText, scoreX, relativeY, -1, shadow.get());
+			graphics.drawText(client.textRenderer, scoreText, scoreX, relativeY, Colors.WHITE.withAlpha(textAlpha.get()).toInt(), shadow.get());
 			if (this.scores.get()) {
 				drawString(graphics, score, (float) (scoreX + maxWidth - client.textRenderer.getWidth(score) - 6),
 					(float) relativeY, scoreColor.get().toInt(), shadow.get());
@@ -211,7 +213,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 						10 + topPadding.get() * 2, topColor.get());
 				}
 				float title = (float) (renderX + (maxWidth - displayNameWidth) / 2);
-				graphics.drawText(client.textRenderer, text, (int) title, (relativeY - 9) - topPadding.get(), -1, shadow.get());
+				graphics.drawText(client.textRenderer, text, (int) title, (relativeY - 9) - topPadding.get(), Colors.WHITE.withAlpha(textAlpha.get()).toInt(), shadow.get());
 			}
 		}
 
@@ -231,6 +233,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		options.add(anchor);
 		options.add(topPadding);
 		options.remove(textColor);
+		options.add(textAlpha);
 		return options;
 	}
 

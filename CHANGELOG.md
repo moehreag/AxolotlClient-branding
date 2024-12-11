@@ -2,7 +2,7 @@
 
 ### 3.1.0
 
-- Add a new Backend (made by Astralchroma)
+- Add a new Backend (made by `@Astralchroma`)
 - Features:
 	- Friends
 	- Chats
@@ -11,14 +11,16 @@
 - rewrite DiscordRPC
 - 1.8.9 + 1.16_combat-6 now require java 17
 - rewritten config library
-- removed custom skies on 1.21.3 (there are better implementations available already)
-- removed HotbarHUD on 1.21.3 (big maintenance burden with buggy feature)
-- add Integration with WorldHost (1.21.1, 1.21.3)
+- removed custom skies on 1.21.4 (there are better implementations available already)
+- removed HotbarHUD on 1.21.4 (big maintenance burden with buggy feature)
+- add Integration with WorldHost (1.21.1, 1.21.4)
 - fix bugs (#131)
-- update to 1.21
+- update to 1.21.x
 - drop 1.19 version range
-- add filter capabilities to AutoBoop
+- add filter capabilities to AutoBoop (suggested by `@Mocha`)
 - refine notification system
+- text transparency option for ScoreboardHuds (suggested by `@haovi`)
+- migrate 1.21.4 to mojmap
 
 ### 3.0.6
 

@@ -45,6 +45,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.numbers.NumberFormat;
 import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.scores.*;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
@@ -82,6 +83,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	private final IntegerOption topPadding = new IntegerOption("toppadding", 0, 0, 4);
 	private final BooleanOption scores = new BooleanOption("scores", true);
 	private final ColorOption scoreColor = new ColorOption("scorecolor", new Color(0xFFFF5555));
+	private final IntegerOption textAlpha = new IntegerOption("text_alpha", 255, 0, 255);
 	private final EnumOption<AnchorPoint> anchor =
 		new EnumOption<>("anchorpoint", AnchorPoint.class, AnchorPoint.MIDDLE_RIGHT);
 
@@ -186,12 +188,12 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 			guiGraphics.fill(textX - 2, titleEnd - 9 - 1 - topPadding.get()*2, xEnd, titleEnd - 1, topColor.get().toInt());
 			guiGraphics.fill(textX - 2, titleEnd - 1, xEnd, yEnd, backgroundColor.get().toInt());
 		}
-		guiGraphics.drawString(font, title, textX + maxWidth / 2 - titleWidth / 2, titleEnd - 9 - topPadding.get(), -1, shadow.get());
+		guiGraphics.drawString(font, title, textX + maxWidth / 2 - titleWidth / 2, titleEnd - 9 - topPadding.get(), ARGB.color(textAlpha.get(), -1), shadow.get());
 
 		for (int v = 0; v < m; v++) {
 			DisplayEntry lv2 = entries[v];
 			int w = yEnd - (m - v) * 9;
-			guiGraphics.drawString(font, lv2.name, textX, w, -1, shadow.get());
+			guiGraphics.drawString(font, lv2.name, textX, w, ARGB.color(textAlpha.get(), -1), shadow.get());
 			if (scores.get()) {
 				guiGraphics.drawString(font, lv2.score, xEnd - lv2.scoreWidth, w, scoreColor.get().toInt(), shadow.get());
 			}
@@ -212,6 +214,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		options.add(anchor);
 		options.add(topPadding);
 		options.remove(textColor);
+		options.add(textAlpha);
 		return options;
 	}
 

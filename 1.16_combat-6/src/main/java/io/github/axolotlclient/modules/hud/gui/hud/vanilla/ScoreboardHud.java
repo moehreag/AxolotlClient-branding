@@ -32,6 +32,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
@@ -81,6 +82,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	private final IntegerOption topPadding = new IntegerOption("toppadding", 0, 0, 4);
 	private final BooleanOption scores = new BooleanOption("scores", true);
 	private final ColorOption scoreColor = new ColorOption("scorecolor", new Color(0xFFFF5555));
+	private final IntegerOption textAlpha = new IntegerOption("text_alpha", 255, 0, 255);
 	private final EnumOption<AnchorPoint> anchor = new EnumOption<>("anchorpoint", AnchorPoint.class,
 		AnchorPoint.MIDDLE_RIGHT);
 
@@ -118,11 +120,6 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 	@Override
 	public void renderPlaceholderComponent(MatrixStack matrices, float delta) {
 		renderScoreboardSidebar(matrices, placeholder);
-	}
-
-	@Override
-	public boolean movable() {
-		return true;
 	}
 
 	// Abusing this could break some stuff/could allow for unfair advantages. The goal is not to do this, so it won't
@@ -206,9 +203,9 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 			}
 
 			if (shadow.get()) {
-				client.textRenderer.drawWithShadow(matrices, scoreText, (float) scoreX, (float) relativeY, -1);
+				client.textRenderer.drawWithShadow(matrices, scoreText, (float) scoreX, (float) relativeY, Colors.WHITE.withAlpha(textAlpha.get()).toInt());
 			} else {
-				client.textRenderer.draw(matrices, scoreText, (float) scoreX, (float) relativeY, -1);
+				client.textRenderer.draw(matrices, scoreText, (float) scoreX, (float) relativeY, Colors.WHITE.withAlpha(textAlpha.get()).toInt());
 			}
 			if (this.scores.get()) {
 				drawString(matrices, score, (float) (scoreX + maxWidth - client.textRenderer.getWidth(score) - 6),
@@ -223,9 +220,9 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 				float title = (float) (renderX + (maxWidth - displayNameWidth) / 2);
 				if (shadow.get()) {
 					client.textRenderer.drawWithShadow(matrices, text, title,
-						(float) (relativeY - 9) - topPadding.get(), -1);
+						(float) (relativeY - 9) - topPadding.get(), Colors.WHITE.withAlpha(textAlpha.get()).toInt());
 				} else {
-					client.textRenderer.draw(matrices, text, title, (float) (relativeY - 9), -1);
+					client.textRenderer.draw(matrices, text, title, (float) (relativeY - 9), Colors.WHITE.withAlpha(textAlpha.get()).toInt());
 				}
 			}
 		}
@@ -246,6 +243,7 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		options.add(anchor);
 		options.add(topPadding);
 		options.remove(textColor);
+		options.add(textAlpha);
 		return options;
 	}
 
