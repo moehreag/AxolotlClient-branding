@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Screenshot.class)
 public abstract class ScreenshotRecorderMixin {
 
-	@WrapOperation(method = "method_1661", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;", ordinal = 0))
+	@WrapOperation(method = "lambda$_grab$2", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;", ordinal = 0))
 	private static MutableComponent axolotlclient$onScreenshotSaveSuccess(String translationKey, Object[] args, Operation<MutableComponent> original, @Local(argsOnly = true) File f) {
 		return ScreenshotUtils.getInstance().onScreenshotTaken(original.call(translationKey, args), f);
 	}
