@@ -37,6 +37,6 @@ public class Notifications implements NotificationProvider {
 	}
 
 	public void addStatus(Text title, Text description) {
-		MinecraftClient.getInstance().getToastManager().add(new SystemToast(SystemToast.Id.PERIODIC_NOTIFICATION, title, description));
+		MinecraftClient.getInstance().getToastManager().add(SystemToast.create(MinecraftClient.getInstance(), SystemToast.Id.PERIODIC_NOTIFICATION, title, description));
 	}
 }

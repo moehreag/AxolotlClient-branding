@@ -87,8 +87,8 @@
 	"auth.refresh": "Refresh Account",
 	"auth.showButton": "Modify Title screen",
 	"auth.showButton.tooltip": "Whether to show the current user on the Title Screen. <br>Also doubles as a shortcut to view saved accounts.",
-	"autoBoop": "AutoBoop",
-	"autoBoop.enabled.tooltip": "Whether to run /boop <player> when a friend of yours joins hypixel.",
+	"autoboop": "AutoBoop",
+	"autoboop.enabled.tooltip": "Whether to run /boop <player> when a friend of yours joins hypixel.",
 	"autoExec": "Automatic Execution",
 	"autoExec.tooltip": "Automatically execute this action when taking a screenshot.",
 	"autoHide": "Auto-hide",
@@ -575,5 +575,11 @@
 	"api.channels.leave.confirm.desc_add": "You will not be able to access %s unless you are added back.",
 	"api.channels.leave.confirm.desc_invite": "You will not be able to access %s unless you are invited again.",
 	"api.status.title.world_host": "Playing with WorldHost",
-	"api.worldhost.joinability.not_published": "World isn't published!"
+	"api.worldhost.joinability.not_published": "World isn't published!",
+	"autoboop.filterlist": "Filter List",
+	"autoboop.filterlist.tooltip": "Comma-separated list of player names to be filtered for.",
+	"autoboop.filterlist.mode": "Filter Mode",
+	"autoboop.filterlist.mode.disabled": "Disabled",
+	"autoboop.filterlist.mode.whitelist": "Whitelist",
+	"autoboop.filterlist.mode.blacklist": "Blacklist"
 }

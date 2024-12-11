@@ -231,10 +231,12 @@ public abstract class GameRendererMixin {
 	}
 
 	@Inject(method = "render(FJ)V", at = @At("TAIL"))
+	private void renderNotifications(float f, long l, CallbackInfo ci) {
+		Notifications.getInstance().getToastManager().render();
+	}
+
+	@Inject(method = "render(FJ)V", at = @At("TAIL"))
 	public void axolotlclient$postRender(float tickDelta, long nanoTime, CallbackInfo ci) {
-
-		Notifications.getInstance().renderStatus();
-
 		if ((ci == null) == MotionBlur.getInstance().inGuis.get()) {
 			return;
 		}

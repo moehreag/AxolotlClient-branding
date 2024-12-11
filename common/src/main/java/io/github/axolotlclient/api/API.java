@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import com.github.mizosoft.methanol.Methanol;
 import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
+import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.api.types.*;
 import io.github.axolotlclient.api.util.MojangAuth;
 import io.github.axolotlclient.api.util.SocketMessageHandler;
@@ -111,6 +112,12 @@ public class API {
 		// However, we are currently compiling against java 17.
 		//client.close();
 		//}
+
+		if (!GlobalDataRequest.get().success()) {
+			logger.warn("Not trying to start API as it couldn't be reached!");
+			return;
+		}
+
 		logDetailed("Authenticating with Mojang...");
 
 		MojangAuth.Result result = MojangAuth.authenticate(account);

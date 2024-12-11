@@ -28,6 +28,7 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.NewsScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
+import io.github.axolotlclient.api.types.GlobalData;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
@@ -68,9 +69,10 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			addButton(new AuthWidget());
 		}
+		GlobalData data = GlobalDataRequest.get();
 		if (APIOptions.getInstance().updateNotifications.get() &&
-			GlobalDataRequest.get().success() &&
-			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+			data.success() &&
+			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 			addButton(new ButtonWidget(width - 125, 10, 120, 20,
 				new TranslatableText("api.new_version_available"), widget ->
 				MinecraftClient.getInstance().openScreen(new ConfirmChatLinkScreen(r -> {
@@ -81,7 +83,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
-			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
+			data.success() && !data.notes().isEmpty()) {
 			addButton(new ButtonWidget(width - 125, 25, 120, 20,
 				new TranslatableText("api.notes"), buttonWidget ->
 				MinecraftClient.getInstance().openScreen(new NewsScreen(this))));

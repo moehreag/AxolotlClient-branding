@@ -20,17 +20,16 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.util.translation;
+package io.github.axolotlclient.config.modmenu;
 
-import lombok.Getter;
-import net.minecraft.client.resources.language.I18n;
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
+import io.github.axolotlclient.modules.hud.HudEditScreen;
 
-public class Translations implements TranslationProvider {
-
-	@Getter private static final TranslationProvider Instance = new Translations();
+public class ModMenuCompat implements ModMenuApi {
 
 	@Override
-	public String translate(String key, Object... args) {
-		return I18n.get(key, args);
+	public ConfigScreenFactory<?> getModConfigScreenFactory() {
+		return (HudEditScreen::new);
 	}
 }

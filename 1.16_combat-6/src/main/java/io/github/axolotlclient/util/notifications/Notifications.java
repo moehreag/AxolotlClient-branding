@@ -24,7 +24,6 @@ package io.github.axolotlclient.util.notifications;
 
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.toast.SystemToast;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -38,6 +37,6 @@ public class Notifications implements NotificationProvider {
 	}
 
 	public void addStatus(Text title, Text description) {
-		MinecraftClient.getInstance().getToastManager().add(SystemToast.create(MinecraftClient.getInstance(), SystemToast.Type.TUTORIAL_HINT, title, description));
+		MinecraftClient.getInstance().getToastManager().add(AxolotlClientToast.multiline(MinecraftClient.getInstance(), title, description));
 	}
 }

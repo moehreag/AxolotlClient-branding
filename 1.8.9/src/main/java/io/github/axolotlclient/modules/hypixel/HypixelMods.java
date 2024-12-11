@@ -77,6 +77,7 @@ public class HypixelMods extends AbstractModule {
 		ResourceLoaderEvents.END_RESOURCE_RELOAD.register(HypixelMessages.getInstance());
 
 		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(event -> {
+			AutoBoop.getInstance().handleMessage(event.getOriginalMessage());
 			HypixelMessages.getInstance().process(removeLobbyJoinMessages, "lobby_join", event);
 			HypixelMessages.getInstance().process(removeMysteryBoxFindings, "mysterybox_find", event);
 		});

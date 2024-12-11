@@ -22,12 +22,12 @@
 
 package io.github.axolotlclient.mixin;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.NewsScreen;
@@ -50,9 +50,9 @@ import net.minecraft.resource.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(TitleScreen.class)
@@ -83,6 +83,7 @@ public abstract class TitleScreenMixin extends Screen {
 		}
 	}
 
+	@Unique
 	private boolean axolotlclient$alternateLayout() {
 		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
@@ -132,8 +133,8 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@Inject(method = "<init>",
 		at = @At(value = "INVOKE",
-			target = "Ljava/util/List;isEmpty()Z", remap = false), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-	private void axolotlclient$customSplashTexts(CallbackInfo ci, BufferedReader bufferedReader, List<String> list) throws IOException {
+			target = "Ljava/util/List;isEmpty()Z", remap = false))
+	private void axolotlclient$customSplashTexts(CallbackInfo ci, @Local List<String> list) throws IOException {
 		try (InputStream input = Minecraft.getInstance().getResourceManager()
 			.getResource(new Identifier("axolotlclient", "texts/splashes.txt")).asStream()) {
 			list.addAll(IOUtils.readLines(input));

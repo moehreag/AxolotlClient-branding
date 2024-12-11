@@ -53,10 +53,10 @@ import io.github.axolotlclient.util.FeatureDisabler;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.LoggerImpl;
 import io.github.axolotlclient.util.notifications.Notifications;
-import io.github.axolotlclient.util.translation.Translations;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 
@@ -114,7 +114,7 @@ public class AxolotlClient implements ClientModInitializer {
 		CONFIG.init();
 
 		new AxolotlClientCommon(LOGGER);
-		new API(LOGGER, Notifications.getInstance(), Translations.getInstance(), new StatusUpdateProviderImpl(),
+		new API(LOGGER, Notifications.getInstance(), I18n::get, new StatusUpdateProviderImpl(),
 			APIOptions.getInstance()
 		);
 

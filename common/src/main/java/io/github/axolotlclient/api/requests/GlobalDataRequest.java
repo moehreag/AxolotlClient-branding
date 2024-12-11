@@ -45,7 +45,7 @@ public class GlobalDataRequest {
 					return new GlobalData(true, res.getBody("total_players"),
 						res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", ""));
 				})
-				.getNow(GlobalData.EMPTY))).get();
+				.join())).get();
 		}
 		return GlobalData.EMPTY;
 	}

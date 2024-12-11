@@ -89,6 +89,9 @@ public class HypixelAbstractionLayer {
 
 	@SuppressWarnings("unchecked")
 	private <T> T cache(String uuid, RequestDataType type, Function<Response, T> func, T absent) {
+		if (!API.getInstance().isAuthenticated()) {
+			return absent;
+		}
 		Map<RequestDataType, Object> map = cachedPlayerData.computeIfAbsent(uuid, s -> new HashMap<>());
 		Map<RequestDataType, CompletableFuture<Optional<Object>>> requests = cachedRequests.computeIfAbsent(uuid, s -> new HashMap<>());
 		if (map.containsKey(type)) {
@@ -98,7 +101,7 @@ public class HypixelAbstractionLayer {
 				var request = requests.get(type);
 				if (request.isDone()) {
 					requests.remove(type);
-					Optional<T> option = (Optional<T>) request.resultNow();
+					Optional<T> option = (Optional<T>) request.getNow(Optional.empty());
 					if (option.isPresent()) {
 						T value = option.get();
 						map.put(type, value);
@@ -125,7 +128,7 @@ public class HypixelAbstractionLayer {
 					});
 				}
 				if (request.isDone()) {
-					Optional<T> option = (Optional<T>) request.resultNow();
+					Optional<T> option = (Optional<T>) request.getNow(Optional.empty());
 					if (option.isPresent()) {
 						T value = option.get();
 						map.put(type, value);

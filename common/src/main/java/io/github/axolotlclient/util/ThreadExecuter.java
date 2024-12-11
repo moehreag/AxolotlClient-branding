@@ -28,11 +28,7 @@ import java.util.concurrent.ForkJoinPool;
 public class ThreadExecuter {
 	private static final Executor POOL = new ForkJoinPool(5, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
 
-	/*private static final ScheduledThreadPoolExecutor EXECUTER_SERVICE = new ScheduledThreadPoolExecutor(5,
-		new ThreadFactoryBuilder().setNameFormat("ExecutionService Thread #%d").setDaemon(true).build());*/
-
 	public static void scheduleTask(Runnable runnable) {
-		//EXECUTER_SERVICE.execute(runnable);
 		POOL.execute(runnable);
 	}
 

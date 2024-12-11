@@ -23,12 +23,10 @@
 package io.github.axolotlclient.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
@@ -57,25 +55,24 @@ public class FeatureDisabler {
 	});
 	private static String currentAddress = "";
 
+	@SuppressWarnings("unchecked")
 	public static void init() {
 		setServers(AxolotlClient.CONFIG.lowFire, NONE, "gommehd");
 		setServers(AxolotlClient.CONFIG.timeChangerEnabled, NONE, "gommehd");
 		setServers(Freelook.getInstance().enabled, () -> Freelook.getInstance().needsDisabling(), "hypixel", "mineplex", "gommehd", "nucleoid");
 		setServers(((ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID)).toggleSneak, NONE, "hypixel");
 
-		//ClientPlayNetworking.INIT.register((handler0, client0) ->
 		ClientPlayNetworking.registerListener(channelName.toString().substring(0, 20), (client, handler, buf) -> {
-			JsonArray array = new JsonParser().parse(buf.readString(32767)).getAsJsonArray();
-			for (JsonElement element : array) {
+			List<String> array = (List<String>) GsonHelper.read(buf.readString(32767));
+			for (String element : array) {
 				try {
-					features.get(element.getAsString()).setForceOff(true, "ban_reason");
+					features.get(element).setForceOff(true, "ban_reason");
 				} catch (Exception e) {
-					AxolotlClient.LOGGER.error("Failed to disable " + element.getAsString() + "!");
+					AxolotlClient.LOGGER.error("Failed to disable " + element + "!");
 				}
 			}
 			return true;
 		});
-		//);
 	}
 
 	private static void setServers(ForceableBooleanOption option, Supplier<Boolean> condition, String... servers) {

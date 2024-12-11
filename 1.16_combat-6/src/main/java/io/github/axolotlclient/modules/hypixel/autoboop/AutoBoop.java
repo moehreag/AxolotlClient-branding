@@ -22,49 +22,18 @@
 
 package io.github.axolotlclient.modules.hypixel.autoboop;
 
-import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
-import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.Util;
-import io.github.axolotlclient.util.events.Events;
-import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import lombok.Getter;
 
 // Based on https://github.com/VeryHolyCheeeese/AutoBoop/blob/main/src/main/java/autoboop/AutoBoop.java
-public class AutoBoop implements AbstractHypixelMod {
+public class AutoBoop extends AutoBoopCommon implements AbstractHypixelMod {
 
 	@Getter
 	private final static AutoBoop Instance = new AutoBoop();
 
-	protected final OptionCategory cat = OptionCategory.create("autoBoop");
-	protected final BooleanOption enabled = new BooleanOption("enabled", "autoBoop.enabled.tooltip", false);
-
 	@Override
-	public void init() {
-		cat.add(enabled);
-		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(this::onMessage);
-	}
-
-	@Override
-	public OptionCategory getCategory() {
-		return cat;
-	}
-
-	public void onMessage(ReceiveChatMessageEvent event) {
-		String message = event.getOriginalMessage();
-		if (enabled.get() && message.contains("Friend >") && message.contains("joined.")) {
-			String player = message.substring(message.indexOf(">"),
-				message.lastIndexOf(" "));
-			ThreadExecuter.scheduleTask(() -> {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException ignored) {
-				}
-				Util.sendChatMessage("/boop " + player);
-				AxolotlClient.LOGGER.info("Booped " + player);
-			});
-		}
+	protected void sendChatMessage(String message) {
+		Util.sendChatMessage(message);
 	}
 }

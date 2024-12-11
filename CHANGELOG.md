@@ -17,13 +17,14 @@
 - fix bugs (#131)
 - update to 1.21
 - drop 1.19 version range
--
+- add filter capabilities to AutoBoop
+- refine notification system
 
 ### 3.0.6
 
 - add more Zoom keybinds
 - add option(s) to remove certain messages on hypixel (join, mystery box)
-- Removed freelook on MCC island (#118 )
+- Removed freelook on MCC island (#118)
 
 ### 3.0.5
 
