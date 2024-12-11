@@ -71,18 +71,20 @@ public abstract class TitleScreenMixin extends Screen {
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(new AuthWidget());
 		}
-		int buttonY = 10;
-		if (APIOptions.getInstance().updateNotifications.get() &&
-			GlobalDataRequest.get().success() &&
-			GlobalDataRequest.get().latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			buttons.add(new ButtonWidget(182, width - 90, buttonY, 80, 20, I18n.translate("api.new_version_available")));
-			buttonY += 22;
-		}
-		if (APIOptions.getInstance().displayNotes.get() &&
-			GlobalDataRequest.get().success() && !GlobalDataRequest.get().notes().isEmpty()) {
-			buttons.add(new ButtonWidget(253, width - 90, buttonY, 80, 20,
-				I18n.translate("api.notes")));
-		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(new ButtonWidget(182, width - 90, buttonY, 80, 20, I18n.translate("api.new_version_available")));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(new ButtonWidget(253, width - 90, buttonY, 80, 20,
+					I18n.translate("api.notes")));
+			}
+		});
 	}
 
 	@Unique

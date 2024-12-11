@@ -54,7 +54,7 @@ public class NewsScreen extends io.github.axolotlclient.AxolotlClientConfig.impl
 
 	@Override
 	public void init() {
-		addDrawableChild(new NewsWidget(25, 35, width - 50, height - 100, GlobalDataRequest.get().notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2")));
+		GlobalDataRequest.get().thenAccept(data -> addDrawableChild(new NewsWidget(25, 35, width - 50, height - 100, data.notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
 
 		addDrawableChild(new VanillaButtonWidget(width / 2 - 100, height - 45, 200, 20, I18n.translate("gui.back"), buttonWidget -> minecraft.openScreen(parent)));
 	}

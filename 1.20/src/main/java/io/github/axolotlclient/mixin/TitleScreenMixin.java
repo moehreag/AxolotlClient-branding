@@ -27,6 +27,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.InputUtil;
@@ -34,7 +35,6 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.NewsScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
-import io.github.axolotlclient.api.types.GlobalData;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
@@ -78,30 +78,31 @@ public abstract class TitleScreenMixin extends Screen {
 			MinecraftClient.getInstance().options.saveToolbarActivatorKey.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
-		List<PressableWidget> buttons = new ArrayList<>();
+		List<PressableWidget> buttons = Collections.synchronizedList(new ArrayList<>());
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(addDrawableChild(new AuthWidget()));
 		}
-		GlobalData data = GlobalDataRequest.get();
-		int buttonY = 10;
-		if (APIOptions.getInstance().updateNotifications.get() &&
-			data.success() &&
-			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
-					MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
-						if (r) {
-							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
-						}
-					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
-				.positionAndSize(width - 90, buttonY, 80, 20).build()));
-			buttonY+=22;
-		}
-		if (APIOptions.getInstance().displayNotes.get() &&
-			data.success() && !data.notes().isEmpty()) {
-			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
-					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
-				.positionAndSize(width - 90, buttonY, 80, 20).build()));
-		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
+						MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
+							if (r) {
+								OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
+							}
+						}, "https://modrinth.com/mod/axolotlclient/versions", true)))
+					.positionAndSize(width - 90, buttonY, 80, 20).build()));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
+						MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
+					.positionAndSize(width - 90, buttonY, 80, 20).build()));
+			}
+		});
 
 		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
 			try {
@@ -145,7 +146,7 @@ public abstract class TitleScreenMixin extends Screen {
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawShadowedText(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)I"), index = 1)
 	private String axolotlclient$setVersionText(String s) {
 		return "Minecraft " + SharedConstants.getGameVersion().getName() + "/AxolotlClient "
-			   + AxolotlClient.VERSION;
+			+ AxolotlClient.VERSION;
 	}
 
 	@Inject(method = "areRealmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)

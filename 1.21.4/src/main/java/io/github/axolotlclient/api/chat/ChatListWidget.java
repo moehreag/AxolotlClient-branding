@@ -54,7 +54,7 @@ public class ChatListWidget extends ContainerObjectSelectionList<ChatListWidget.
 	}
 
 	public void addChannels(List<Channel> channels) {
-		channels.stream().filter(predicate).forEach(c -> addEntryToTop(new ChatListEntry(c)));
+		channels.stream().filter(predicate).sorted().forEach(c -> addEntryToTop(new ChatListEntry(c)));
 		setScrollAmount(0);
 	}
 

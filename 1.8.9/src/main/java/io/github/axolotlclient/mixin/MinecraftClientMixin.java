@@ -40,7 +40,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.main.RunArgs;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.client.options.KeyBinding;
-import net.minecraft.client.render.Window;
 import net.minecraft.client.render.texture.TextureManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.WorldSettings;
@@ -171,7 +170,7 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "updateWindow", at = @At("TAIL"))
 	public void axolotlclient$onResize(CallbackInfo ci) {
-		Util.window = new Window(Minecraft.getInstance());
+		Util.window = null;
 		HudManager.getInstance().refreshAllBounds();
 	}
 

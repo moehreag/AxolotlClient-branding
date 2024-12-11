@@ -64,7 +64,14 @@ public class ChannelRequest {
 				}
 			}).join();
 		if (participants.size() == 1) {
-			return new Channel.DM(id, name, persistence, participants, owner, deserialized);
+			try {
+				User other = owner.equals(API.getInstance().getSelf()) ? participants.getFirst() : owner;
+				if (createDmChannelName(other.getUuid()).equals(name)) {
+					return new Channel.DM(id, name, persistence, participants, owner, deserialized);
+				}
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
 		}
 		return new Channel.Group(id, name, persistence, participants, owner, deserialized);
 	}
@@ -113,9 +120,20 @@ public class ChannelRequest {
 			}
 			return c.getOwner().equals(user) && dm.getParticipants().getFirst().equals(API.getInstance().getSelf());
 		}).findFirst()).thenApply(opt -> opt.orElseGet(() -> API.getInstance().post(Request.Route.CHANNEL.builder()
-				.field("name", user.getUuid() + "-" + API.getInstance().getSelf().getUuid() + "_"+ UUID.randomUUID()).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
+				.field("name", createDmChannelName(user.getUuid())).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
 				.field("participants", List.of(user.getUuid())).build())
 			.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById).join()));
+	}
+
+	private static String createDmChannelName(String otherUuid) {
+		UUID self = UUIDHelper.fromUndashed(API.getInstance().getSelf().getUuid());
+		UUID other = UUIDHelper.fromUndashed(otherUuid);
+		int prime = 53;
+
+		long leastSig = (self.getLeastSignificantBits() ^ other.getLeastSignificantBits()) * prime;
+		long mostSig = (self.getMostSignificantBits() ^ other.getMostSignificantBits()) * prime;
+		UUID name = new UUID(mostSig, leastSig);
+		return UUIDHelper.toUndashed(name);
 	}
 
 	public static void removeUserFromChannel(Channel channel, User user) {

@@ -27,6 +27,9 @@ import java.net.URI;
 import java.net.http.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import com.github.mizosoft.methanol.Methanol;
@@ -63,8 +66,6 @@ public class API {
 	private final Options apiOptions;
 	private final Collection<SocketMessageHandler> handlers;
 	private WebSocket socket;
-	@Getter
-	private String uuid;
 	@Getter
 	private User self;
 	private Account account;
@@ -113,8 +114,13 @@ public class API {
 		//client.close();
 		//}
 
-		if (!GlobalDataRequest.get().success()) {
-			logger.warn("Not trying to start API as it couldn't be reached!");
+		try {
+			if (!GlobalDataRequest.get().get(1, TimeUnit.MINUTES).success()) {
+				logger.warn("Not trying to start API as it couldn't be reached!");
+				return;
+			}
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			logger.warn("Not trying to start API as it couldn't be reached within the timeout of 1 minute!");
 			return;
 		}
 
@@ -358,7 +364,6 @@ public class API {
 	}
 
 	public void startup(Account account) {
-		this.uuid = account.getUuid();
 		this.account = account;
 		if (!Constants.ENABLED) {
 			return;

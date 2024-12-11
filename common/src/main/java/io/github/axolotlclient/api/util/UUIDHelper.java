@@ -79,13 +79,18 @@ public class UUIDHelper {
 	public static Optional<String> ensureUuidOpt(String uuidOrUsername) {
 		Optional<String> uuid;
 		try {
-			uuid = Optional.of(API.getInstance().sanitizeUUID(UUID.fromString(uuidOrUsername
-					.trim()
-					.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"))
-				.toString()));
+			uuid = Optional.of(API.getInstance().sanitizeUUID(fromUndashed(uuidOrUsername).toString()));
 		} catch (IllegalArgumentException e) {
 			uuid = getUuid0(uuidOrUsername.trim());
 		}
 		return uuid;
+	}
+
+	public static UUID fromUndashed(String uuid) {
+		return UUID.fromString(uuid.trim().replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+	}
+
+	public static String toUndashed(UUID uuid) {
+		return API.getInstance().sanitizeUUID(uuid.toString());
 	}
 }

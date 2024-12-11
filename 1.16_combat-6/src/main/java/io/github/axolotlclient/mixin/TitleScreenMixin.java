@@ -24,13 +24,13 @@ package io.github.axolotlclient.mixin;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.NewsScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
-import io.github.axolotlclient.api.types.GlobalData;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
@@ -69,30 +69,31 @@ public abstract class TitleScreenMixin extends Screen {
 			MinecraftClient.getInstance().options.keySaveToolbarActivator.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
-		List<AbstractButtonWidget> buttons = new ArrayList<>();
+		List<AbstractButtonWidget> buttons = Collections.synchronizedList(new ArrayList<>());
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(addButton(new AuthWidget()));
 		}
-		GlobalData data = GlobalDataRequest.get();
-		int buttonY = 10;
-		if (APIOptions.getInstance().updateNotifications.get() &&
-			data.success() &&
-			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			buttons.add(addButton(new ButtonWidget(width - 90, buttonY, 80, 20,
-				new TranslatableText("api.new_version_available"), widget ->
-				MinecraftClient.getInstance().openScreen(new ConfirmChatLinkScreen(r -> {
-					if (r) {
-						OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
-					}
-				}, "https://modrinth.com/mod/axolotlclient/versions", true)))));
-			buttonY += 22;
-		}
-		if (APIOptions.getInstance().displayNotes.get() &&
-			data.success() && !data.notes().isEmpty()) {
-			buttons.add(addButton(new ButtonWidget(width - 90, buttonY, 80, 20,
-				new TranslatableText("api.notes"), buttonWidget ->
-				MinecraftClient.getInstance().openScreen(new NewsScreen(this)))));
-		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(addButton(new ButtonWidget(width - 90, buttonY, 80, 20,
+					new TranslatableText("api.new_version_available"), widget ->
+					MinecraftClient.getInstance().openScreen(new ConfirmChatLinkScreen(r -> {
+						if (r) {
+							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
+						}
+					}, "https://modrinth.com/mod/axolotlclient/versions", true)))));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(addButton(new ButtonWidget(width - 90, buttonY, 80, 20,
+					new TranslatableText("api.notes"), buttonWidget ->
+					MinecraftClient.getInstance().openScreen(new NewsScreen(this)))));
+			}
+		});
 
 		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
 			buttons.forEach(r -> r.y += 24 / 2);

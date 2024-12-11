@@ -26,6 +26,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -34,7 +35,6 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.APIOptions;
 import io.github.axolotlclient.api.NewsScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
-import io.github.axolotlclient.api.types.GlobalData;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
@@ -74,26 +74,27 @@ public abstract class TitleScreenMixin extends Screen {
 			minecraft.options.keySaveHotbarActivator.setKey(InputConstants.UNKNOWN);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
-		List<AbstractWidget> buttons = new ArrayList<>();
+		List<AbstractWidget> buttons = Collections.synchronizedList(new ArrayList<>());
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(addRenderableWidget(new AuthWidget()));
 		}
-		GlobalData data = GlobalDataRequest.get();
-		int buttonY = 10;
-		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().updateNotifications.get() &&
-			data.success() &&
-			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"),
-					ConfirmLinkScreen.confirmLink(minecraft.screen, "https://modrinth.com/mod/axolotlclient/versions"))
-				.bounds(width - 90, y, 80, 20).build()));
-			buttonY+=22;
-		}
-		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().displayNotes.get() &&
-			data.success() && !data.notes().isEmpty()) {
-			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
-					minecraft.setScreen(new NewsScreen(this)))
-				.bounds(width - 90, buttonY, 80, 20).build()));
-		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"),
+						ConfirmLinkScreen.confirmLink(minecraft.screen, "https://modrinth.com/mod/axolotlclient/versions"))
+					.bounds(width - 90, y, 80, 20).build()));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
+						minecraft.setScreen(new NewsScreen(this)))
+					.bounds(width - 90, buttonY, 80, 20).build()));
+			}
+		});
 
 		// Thanks modmenu.. >:3
 		if (FabricLoader.getInstance().isModLoaded("modmenu")) {

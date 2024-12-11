@@ -59,7 +59,7 @@ public class AxolotlClientToast extends DrawUtil implements Toast {
 	public static AxolotlClientToast multiline(Minecraft minecraft, String title, String message) {
 		TextRenderer font = minecraft.textRenderer;
 		List<String> list = font.split(message, MAX_LINE_SIZE);
-		int i = Math.min(MAX_LINE_SIZE, list.stream().mapToInt(font::getWidth).max().orElse(MAX_LINE_SIZE));
+		int i = Math.min(MAX_LINE_SIZE, Math.max(font.getWidth(title), list.stream().mapToInt(font::getWidth).max().orElse(MAX_LINE_SIZE)));
 		return new AxolotlClientToast(title, list, i + (2 * MARGIN) + 15);
 	}
 

@@ -58,7 +58,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableChild(new NewsWidget(25, 35, width - 50, height - 100, Text.literal(GlobalDataRequest.get().notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
+		GlobalDataRequest.get().thenAccept(data -> addDrawableChild(new NewsWidget(25, 35, width - 50, height - 100, Text.translatable(data.notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2")))));
 
 		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> client.setScreen(parent))
 			.positionAndSize(width / 2 - 100, height - 45, 200, 20)

@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.api.types;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,10 +31,11 @@ import io.github.axolotlclient.api.API;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public abstract class Channel {
+public abstract class Channel implements Comparable<Channel> {
 
 	private final String id;
 	protected String name;
@@ -94,5 +96,20 @@ public abstract class Channel {
 		public String getName() {
 			return receiver.getName();
 		}
+	}
+
+	@Override
+	public int compareTo(@NotNull Channel o) {
+		if (getId().equals(o.getId())) {
+			return 0;
+		}
+		var o1LatestMessage = messages.stream().map(ChatMessage::timestamp).max(Instant::compareTo);
+		var o2LatestMessage = o.messages.stream().map(ChatMessage::timestamp).max(Instant::compareTo);
+		var o1Present = o1LatestMessage.isPresent();
+		var o2Present = o2LatestMessage.isPresent();
+		if (o1Present && o2Present) {
+			return o1LatestMessage.get().compareTo(o2LatestMessage.get());
+		}
+		return o1Present ? 1 : (o2Present ? -1 : 0);
 	}
 }

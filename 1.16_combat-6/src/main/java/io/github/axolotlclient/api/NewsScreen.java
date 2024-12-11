@@ -59,7 +59,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addButton(new NewsWidget(25, 35, width - 50, height - 100, new TranslatableText(GlobalDataRequest.get().notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
+		GlobalDataRequest.get().thenAccept(data -> addButton(new NewsWidget(25, 35, width - 50, height - 100, new TranslatableText(data.notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2")))));
 
 		addButton(new ButtonWidget(width / 2 - 100, height - 45, 200, 20, ScreenTexts.BACK, buttonWidget -> client.openScreen(parent)));
 	}

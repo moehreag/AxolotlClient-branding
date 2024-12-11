@@ -32,6 +32,7 @@ import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.Relation;
+import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -53,7 +54,7 @@ public class ChatListWidget extends EntryListWidget {
 	}
 
 	public void addChannels(List<Channel> channels) {
-		channels.stream().filter(predicate).forEach(c -> entries.add(0, new ChatListEntry(c)));
+		channels.stream().filter(predicate).sorted().forEach(c -> entries.add(0, new ChatListEntry(c)));
 		scrollAmount = 0;
 	}
 
@@ -73,7 +74,14 @@ public class ChatListWidget extends EntryListWidget {
 
 	@Override
 	protected int getScrollbarPosition() {
-		return this.minX + this.width / 2 - this.getRowWidth() / 2 + 2 + width - 8 - 6;
+		return this.minX + this.width / 2 - this.getRowWidth() / 2 + 2 + width - 8;
+	}
+
+	@Override
+	protected void renderList(int i, int j, int k, int l) {
+		DrawUtil.enableScissor(minX, minY, maxX, maxY);
+		super.renderList(i, j, k, l);
+		DrawUtil.disableScissor();
 	}
 
 	@Override

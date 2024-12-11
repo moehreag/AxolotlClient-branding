@@ -23,6 +23,7 @@
 package io.github.axolotlclient.api.requests;
 
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
@@ -33,14 +34,14 @@ public class GlobalDataRequest {
 	private static GlobalData cachedData = null;
 	private static Instant nextRequest = null;
 
-	public static GlobalData get() {
+	public static CompletableFuture<GlobalData> get() {
 		if (API.getInstance().getApiOptions().enabled.get()) {
 			if (cachedData != null) {
 				if (nextRequest.isAfter(Instant.now())) {
-					return cachedData;
+					return CompletableFuture.completedFuture(cachedData);
 				}
 			}
-			cachedData = API.getInstance().get(Request.Route.GLOBAL_DATA.create())
+			return API.getInstance().get(Request.Route.GLOBAL_DATA.create())
 				.thenApply(res -> {
 					if (res.isError()) {
 						return GlobalData.EMPTY;
@@ -48,10 +49,11 @@ public class GlobalDataRequest {
 					return new GlobalData(true, res.getBody("total_players"),
 						res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", ""));
 				})
-				.join();
-			nextRequest = Instant.now().plusSeconds(300);
-			return cachedData;
+				.thenApply(d -> {
+					nextRequest = Instant.now().plusSeconds(300);
+					return cachedData = d;
+				});
 		}
-		return GlobalData.EMPTY;
+		return CompletableFuture.completedFuture(GlobalData.EMPTY);
 	}
 }

@@ -27,11 +27,11 @@ import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.ContextMenu;
-import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.User;
+import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import io.github.axolotlclient.modules.auth.Auth;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
@@ -52,7 +52,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 	}
 
 	public void setUsers(List<User> users, Channel channel) {
-		users.forEach(user -> addEntry(new UserListEntry(user, channel)));
+		users.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName())).forEach(user -> addEntry(new UserListEntry(user, channel)));
 	}
 
 	@Override
@@ -158,7 +158,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 						menu.entry(Text.translatable("api.users.unblock"), buttonWidget -> FriendRequest.getInstance().unblockUser(user.getUuid()));
 					}
 					if (channel.getOwner().equals(API.getInstance().getSelf())) {
-						menu.entry(Text.translatable("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));
+						menu.spacer().entry(Text.translatable("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));
 					}
 					screen.setContextMenu(menu.build());
 					return true;

@@ -104,7 +104,7 @@ public class Util {
 	public static Window getWindow() {
 		if (window == null) {
 			try {
-				return window = new Window(Minecraft.getInstance());
+				window = new Window(Minecraft.getInstance());
 			} catch (Exception e) {
 				return null;
 			}
@@ -156,7 +156,7 @@ public class Util {
 			game = "Playing " + sidebar.get(0);
 		}
 
-		if (!Objects.equals(lastgame, game) && game.equals(""))
+		if (!Objects.equals(lastgame, game) && game.isEmpty())
 			game = lastgame;
 		else
 			lastgame = game;

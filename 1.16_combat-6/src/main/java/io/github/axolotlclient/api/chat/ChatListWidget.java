@@ -53,7 +53,7 @@ public class ChatListWidget extends ElementListWidget<ChatListWidget.ChatListEnt
 	}
 
 	public void addChannels(List<Channel> channels) {
-		channels.stream().filter(predicate).forEach(c -> children().add(0, new ChatListEntry(c)));
+		channels.stream().filter(predicate).sorted().forEach(c -> children().add(0, new ChatListEntry(c)));
 		setScrollAmount(0);
 	}
 

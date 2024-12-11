@@ -62,7 +62,7 @@ public class AxolotlClientToast implements Toast {
 	public static AxolotlClientToast multiline(Minecraft minecraft, Component title, Component message) {
 		Font font = minecraft.font;
 		List<FormattedCharSequence> list = font.split(message, MAX_LINE_SIZE);
-		int i = Math.min(MAX_LINE_SIZE, list.stream().mapToInt(font::width).max().orElse(MAX_LINE_SIZE));
+		int i = Math.min(MAX_LINE_SIZE, Math.max(font.width(title), list.stream().mapToInt(font::width).max().orElse(MAX_LINE_SIZE)));
 		return new AxolotlClientToast(title, list, i + 2*MARGIN+15);
 	}
 
