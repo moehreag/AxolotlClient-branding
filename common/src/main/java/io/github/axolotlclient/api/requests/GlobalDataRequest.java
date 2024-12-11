@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.lang.ref.WeakReference;
+import java.time.Instant;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
@@ -30,14 +30,17 @@ import io.github.axolotlclient.api.types.GlobalData;
 import io.github.axolotlclient.api.types.SemVer;
 
 public class GlobalDataRequest {
-	private static WeakReference<GlobalData> cachedData = new WeakReference<>(null);
+	private static GlobalData cachedData = null;
+	private static Instant nextRequest = null;
 
 	public static GlobalData get() {
 		if (API.getInstance().getApiOptions().enabled.get()) {
-			if (cachedData.get() != null) {
-				return cachedData.get();
+			if (cachedData != null) {
+				if (nextRequest.isAfter(Instant.now())) {
+					return cachedData;
+				}
 			}
-			return (cachedData = new WeakReference<>(API.getInstance().get(Request.Route.GLOBAL_DATA.create())
+			cachedData = API.getInstance().get(Request.Route.GLOBAL_DATA.create())
 				.thenApply(res -> {
 					if (res.isError()) {
 						return GlobalData.EMPTY;
@@ -45,7 +48,9 @@ public class GlobalDataRequest {
 					return new GlobalData(true, res.getBody("total_players"),
 						res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", ""));
 				})
-				.join())).get();
+				.join();
+			nextRequest = Instant.now().plusSeconds(300);
+			return cachedData;
 		}
 		return GlobalData.EMPTY;
 	}

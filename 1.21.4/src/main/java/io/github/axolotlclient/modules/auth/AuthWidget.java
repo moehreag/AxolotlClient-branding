@@ -46,13 +46,6 @@ public class AuthWidget extends Button {
 		ResourceLocation texture = Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent());
 		RenderSystem.enableBlend();
 		PlayerFaceRenderer.draw(graphics, texture, getX()+1, getY()+1, getHeight()-2, true, false, -1);
-		/*graphics.blit(RenderType::guiTextured, texture, getX() + 1, getY() + 1, getHeight() -2, getHeight() -2, 8, 8, 8, 8, 64, 64);
-		graphics.blit(RenderType::guiTextured, texture, getX() + 1, getY() + 1, getHeight() - 2, getHeight() - 2, 8, 8,
-					  8, 8, 64, 64
-					 );
-		graphics.blit(RenderType::guiTextured, texture, getX() + 1, getY() + 1, getHeight() - 2, getHeight() - 2, 40, 8,
-					  8, 8, 64, 64
-					 );*/
 		RenderSystem.disableBlend();
 	}
 }

@@ -22,7 +22,12 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
@@ -42,6 +47,7 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.realms.gui.screen.RealmsNotificationsScreen;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -66,32 +72,56 @@ public abstract class TitleScreenMixin extends Screen {
 		super(Text.of(""));
 	}
 
-	@Inject(method = "initWidgetsNormal", at = @At("HEAD"))
+	@Inject(method = "initWidgetsNormal", at = @At("TAIL"))
 	private void axolotlclient$inMenu(int y, int spacingY, CallbackInfo ci) {
 		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key)) {
 			MinecraftClient.getInstance().options.saveToolbarActivatorKey.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
+		List<PressableWidget> buttons = new ArrayList<>();
 		if (Auth.getInstance().showButton.get()) {
-			addDrawableChild(new AuthWidget());
+			buttons.add(addDrawableChild(new AuthWidget()));
 		}
 		GlobalData data = GlobalDataRequest.get();
+		int buttonY = 10;
 		if (APIOptions.getInstance().updateNotifications.get() &&
 			data.success() &&
 			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
+			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
 					MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
 						if (r) {
 							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 						}
 					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
-				.positionAndSize(width - 125, 10, 120, 20).build());
+				.positionAndSize(width - 90, buttonY, 80, 20).build()));
+			buttonY+=22;
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			data.success() && !data.notes().isEmpty()) {
-			addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
+			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
 					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
-				.positionAndSize(width - 125, 25, 120, 20).build());
+				.positionAndSize(width - 90, buttonY, 80, 20).build()));
+		}
+
+		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+			try {
+				Class<?> booleanConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.BooleanConfigOption");
+				Class<?> enumConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.EnumConfigOption");
+				Class<?> titleMenuButtonStyle = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig$TitleMenuButtonStyle");
+				Class<?> modmenuConfig = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig");
+				MethodHandle modifyTitleScreenHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODIFY_TITLE_SCREEN", booleanConfigOpt);
+				MethodHandle getValueB = MethodHandles.lookup().findVirtual(booleanConfigOpt, "getValue", MethodType.methodType(boolean.class));
+				MethodHandle getValueE = MethodHandles.lookup().findVirtual(enumConfigOpt, "getValue", MethodType.methodType(Enum.class));
+				var modifyTitleScreen = modifyTitleScreenHandle.invoke();
+				boolean isModifyTitleScreen = (boolean) getValueB.invoke(modifyTitleScreen);
+				MethodHandle modsButtonStyleHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODS_BUTTON_STYLE", enumConfigOpt);
+				var modsButtonStyle = getValueE.invoke(modsButtonStyleHandle.invoke());
+				var classic = titleMenuButtonStyle.getEnumConstants()[0];
+				if (isModifyTitleScreen && modsButtonStyle == classic) {
+					buttons.forEach(r -> r.setY(r.getY() - 24 / 2));
+				}
+			} catch (Throwable ignored) {
+			}
 		}
 	}
 

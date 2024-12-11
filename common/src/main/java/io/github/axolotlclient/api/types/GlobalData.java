@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.api.types;
 
-public record GlobalData(boolean success, int totalPlayers, int onlinePlayers, SemVer latestVersion,
+public record GlobalData(boolean success, long totalPlayers, long onlinePlayers, SemVer latestVersion,
 						 String notes) {
 	public static final GlobalData EMPTY = new GlobalData(false, 0, 0, SemVer.EMPTY, "");
 

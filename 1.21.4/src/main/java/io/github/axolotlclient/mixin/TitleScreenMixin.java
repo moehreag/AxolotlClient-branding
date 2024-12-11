@@ -25,7 +25,6 @@ package io.github.axolotlclient.mixin;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,6 @@ import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
-import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -70,7 +68,7 @@ public abstract class TitleScreenMixin extends Screen {
 		super(Component.empty());
 	}
 
-	@Inject(method = "createNormalMenuOptions", at = @At("HEAD"))
+	@Inject(method = "createNormalMenuOptions", at = @At("TAIL"))
 	private void axolotlclient$inMenu(int y, int spacingY, CallbackInfoReturnable<Integer> cir) {
 		if (minecraft.options.keySaveHotbarActivator.same(Zoom.key)) {
 			minecraft.options.keySaveHotbarActivator.setKey(InputConstants.UNKNOWN);
@@ -81,22 +79,20 @@ public abstract class TitleScreenMixin extends Screen {
 			buttons.add(addRenderableWidget(new AuthWidget()));
 		}
 		GlobalData data = GlobalDataRequest.get();
+		int buttonY = 10;
 		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().updateNotifications.get() &&
 			data.success() &&
 			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"), widget ->
-					minecraft.setScreen(new ConfirmLinkScreen(r -> {
-						if (r) {
-							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
-						}
-					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
-				.bounds(width - 125, 10, 120, 20).build()));
+			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"),
+					ConfirmLinkScreen.confirmLink(minecraft.screen, "https://modrinth.com/mod/axolotlclient/versions"))
+				.bounds(width - 90, y, 80, 20).build()));
+			buttonY+=22;
 		}
 		if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().displayNotes.get() &&
 			data.success() && !data.notes().isEmpty()) {
 			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
 					minecraft.setScreen(new NewsScreen(this)))
-				.bounds(width - 125, 25, 120, 20).build()));
+				.bounds(width - 90, buttonY, 80, 20).build()));
 		}
 
 		// Thanks modmenu.. >:3
@@ -115,7 +111,7 @@ public abstract class TitleScreenMixin extends Screen {
 				var modsButtonStyle = getValueE.invoke(modsButtonStyleHandle.invoke());
 				var classic = titleMenuButtonStyle.getEnumConstants()[0];
 				if (isModifyTitleScreen && modsButtonStyle == classic) {
-					buttons.forEach(r -> r.setY(r.getY() + 24 / 2));
+					buttons.forEach(r -> r.setY(r.getY() - 24 / 2));
 				}
 			} catch (Throwable ignored) {
 			}

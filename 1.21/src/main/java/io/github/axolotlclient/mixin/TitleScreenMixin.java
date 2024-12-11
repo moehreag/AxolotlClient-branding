@@ -72,7 +72,7 @@ public abstract class TitleScreenMixin extends Screen {
 		super(Text.of(""));
 	}
 
-	@Inject(method = "initWidgetsNormal", at = @At("HEAD"))
+	@Inject(method = "initWidgetsNormal", at = @At("TAIL"))
 	private void axolotlclient$inMenu(int y, int spacingY, CallbackInfo ci) {
 		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key)) {
 			MinecraftClient.getInstance().options.saveToolbarActivatorKey.setBoundKey(InputUtil.UNKNOWN_KEY);
@@ -83,6 +83,7 @@ public abstract class TitleScreenMixin extends Screen {
 			buttons.add(addDrawableSelectableElement(new AuthWidget()));
 		}
 		GlobalData data = GlobalDataRequest.get();
+		int buttonY = 10;
 		if (APIOptions.getInstance().updateNotifications.get() &&
 			data.success() &&
 			data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
@@ -92,13 +93,14 @@ public abstract class TitleScreenMixin extends Screen {
 							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 						}
 					}, "https://modrinth.com/mod/axolotlclient/versions", true)))
-				.positionAndSize(width - 125, 10, 120, 20).build()));
+				.positionAndSize(width - 90, buttonY, 80, 20).build()));
+			buttonY+=22;
 		}
 		if (APIOptions.getInstance().displayNotes.get() &&
 			data.success() && !data.notes().isEmpty()) {
 			buttons.add(addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
 					MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
-				.positionAndSize(width - 125, 25, 120, 20).build()));
+				.positionAndSize(width - 90, buttonY, 80, 20).build()));
 		}
 
 		// Thanks modmenu.. >:3
@@ -117,7 +119,7 @@ public abstract class TitleScreenMixin extends Screen {
 				var modsButtonStyle = getValueE.invoke(modsButtonStyleHandle.invoke());
 				var classic = titleMenuButtonStyle.getEnumConstants()[0];
 				if (isModifyTitleScreen && modsButtonStyle == classic) {
-					buttons.forEach(r -> r.setY(r.getY() + 24 / 2));
+					buttons.forEach(r -> r.setY(r.getY() - 24 / 2));
 				}
 			} catch (Throwable ignored) {
 			}
