@@ -59,7 +59,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addButton(new NewsWidget(25, 35, width - 50, height - 100, new TranslatableText(GlobalDataRequest.get().notes().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
+		addButton(new NewsWidget(25, 35, width - 50, height - 100, new TranslatableText(GlobalDataRequest.get().notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
 
 		addButton(new ButtonWidget(width / 2 - 100, height - 45, 200, 20, ScreenTexts.BACK, buttonWidget -> client.openScreen(parent)));
 	}
@@ -98,13 +98,17 @@ public class NewsScreen extends Screen {
 		protected MutableText getNarrationMessage() {
 			return getMessage().copy();
 		}
+
+		@Override
+		protected void renderBackground(MatrixStack stack) {
+		}
 	}
 
 	public abstract static class AbstractTextAreaWidget extends AbstractScrollArea {
 		private static final int INNER_PADDING = 4;
 
-		public AbstractTextAreaWidget(int i, int j, int k, int l, Text component) {
-			super(i, j, k, l, component);
+		public AbstractTextAreaWidget(int x, int y, int width, int height, Text component) {
+			super(x, y, width, height, component);
 		}
 
 		@Override
@@ -210,8 +214,8 @@ public class NewsScreen extends Screen {
 		private double scrollAmount;
 		private boolean scrolling;
 
-		public AbstractScrollArea(int i, int j, int k, int l, Text component) {
-			super(i, j, k, l, component);
+		public AbstractScrollArea(int x, int y, int width, int height, Text component) {
+			super(x, y, width, height, component);
 		}
 
 		@Override

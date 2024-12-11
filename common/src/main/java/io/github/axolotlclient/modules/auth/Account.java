@@ -103,7 +103,7 @@ public class Account {
 	}
 
 	public boolean needsRefresh() {
-		return expiration.isBefore(Instant.now().minus(6, ChronoUnit.HOURS));
+		return Instant.now().isAfter(expiration.minus(6, ChronoUnit.HOURS));
 	}
 
 	@Override

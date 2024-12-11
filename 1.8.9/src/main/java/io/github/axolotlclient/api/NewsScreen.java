@@ -54,7 +54,7 @@ public class NewsScreen extends io.github.axolotlclient.AxolotlClientConfig.impl
 
 	@Override
 	public void init() {
-		addDrawableChild(new NewsWidget(25, 35, width - 50, height - 100, GlobalDataRequest.get().notes().replaceAll("([^\n])\n([^\n])", "$1 $2")));
+		addDrawableChild(new NewsWidget(25, 35, width - 50, height - 100, GlobalDataRequest.get().notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2")));
 
 		addDrawableChild(new VanillaButtonWidget(width / 2 - 100, height - 45, 200, 20, I18n.translate("gui.back"), buttonWidget -> minecraft.openScreen(parent)));
 	}
@@ -88,13 +88,17 @@ public class NewsScreen extends io.github.axolotlclient.AxolotlClientConfig.impl
 		protected double scrollRate() {
 			return textRenderer.fontHeight;
 		}
+
+		@Override
+		protected void renderBackground() {
+		}
 	}
 
 	public abstract static class AbstractTextAreaWidget extends AbstractScrollArea {
 		private static final int INNER_PADDING = 4;
 
-		public AbstractTextAreaWidget(int i, int j, int k, int l, String component) {
-			super(i, j, k, l, component);
+		public AbstractTextAreaWidget(int x, int y, int width, int height, String component) {
+			super(x, y, width, height, component);
 		}
 
 		@Override
@@ -200,8 +204,8 @@ public class NewsScreen extends io.github.axolotlclient.AxolotlClientConfig.impl
 		private double scrollAmount;
 		private boolean scrolling;
 
-		public AbstractScrollArea(int i, int j, int k, int l, String component) {
-			super(i, j, k, l, component);
+		public AbstractScrollArea(int x, int y, int width, int height, String component) {
+			super(x, y, width, height, component);
 		}
 
 		@Override

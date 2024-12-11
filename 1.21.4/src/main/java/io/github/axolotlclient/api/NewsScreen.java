@@ -28,6 +28,7 @@ import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractTextAreaWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -52,7 +53,7 @@ public class NewsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addRenderableWidget(new NewsWidget(25, 35, width - 50, height - 100, Component.literal(GlobalDataRequest.get().notes().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
+		addRenderableWidget(new NewsWidget(25, 35, width - 50, height - 100, Component.literal(GlobalDataRequest.get().notes().trim().replaceAll("([^\n])\n([^\n])", "$1 $2"))));
 		addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, buttonWidget -> minecraft.setScreen(parent)).bounds(width / 2 - 100, height - 45, 200, 20).build());
 	}
 
@@ -88,7 +89,11 @@ public class NewsScreen extends Screen {
 
 		@Override
 		protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+			narrationElementOutput.add(NarratedElementType.TITLE, getMessage());
+		}
 
+		@Override
+		protected void renderBackground(GuiGraphics guiGraphics) {
 		}
 	}
 }

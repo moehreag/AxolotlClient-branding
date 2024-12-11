@@ -26,6 +26,8 @@ import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletionStage;
 
+import io.github.axolotlclient.util.ThreadExecuter;
+
 
 public class ClientEndpoint implements WebSocket.Listener {
 
@@ -38,7 +40,8 @@ public class ClientEndpoint implements WebSocket.Listener {
 		}
 		buf.append(data);
 		if (last) {
-			API.getInstance().onMessage(buf.toString());
+			String s = buf.toString();
+			ThreadExecuter.scheduleTask(() -> API.getInstance().onMessage(s));
 			buf = null;
 		}
 		webSocket.request(1);
