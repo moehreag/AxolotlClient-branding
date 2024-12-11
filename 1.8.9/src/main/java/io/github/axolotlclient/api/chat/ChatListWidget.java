@@ -37,6 +37,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
 
 public class ChatListWidget extends EntryListWidget {
@@ -101,7 +102,12 @@ public class ChatListWidget extends EntryListWidget {
 
 		public ChatListEntry(Channel channel) {
 			this.channel = channel;
-			widget = new ButtonWidget(-1, 0, 0, getRowWidth(), 20, channel.getName());
+			widget = new ButtonWidget(-1, 0, 0, getRowWidth(), 20, channel.getName()){
+				@Override
+				public void drawCenteredString(TextRenderer textRenderer, String string, int i, int j, int k) {
+					DrawUtil.drawScrollableText(textRenderer, string, x+2, y, x+width-2, y+height, k);
+				}
+			};
 		}
 
 		@Override

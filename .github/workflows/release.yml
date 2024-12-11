@@ -31,11 +31,11 @@ jobs:
           cache-read-only: true
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build collectBuilds
 
       - name: Release
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           github-token: "${{ secrets.GH_TOKEN }}"
           changelog-file: "CHANGELOG.md"
-          files: 1.*/build/libs/*
+          files: builds/*.jar

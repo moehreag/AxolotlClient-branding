@@ -28,9 +28,11 @@ import io.github.axolotlclient.api.ContextMenuScreen;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
+import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
 import org.lwjgl.input.Keyboard;
 
@@ -106,7 +108,12 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		input.setMaxLength(1024);
 
 		if (channel.getOwner().equals(API.getInstance().getSelf())) {
-			buttons.add(new ButtonWidget(2, width - 60, 5, 50, 20, I18n.translate("api.channel.configure")));
+			buttons.add(new ButtonWidget(2, width - 60, 5, 50, 20, I18n.translate("api.channel.configure")){
+				@Override
+				public void drawCenteredString(TextRenderer textRenderer, String string, int i, int j, int k) {
+					DrawUtil.drawScrollableText(textRenderer, string, x+2, y, x+width-2, y+height, k);
+				}
+			});
 		}
 
 		this.buttons.add(new ButtonWidget(1, this.width / 2 - 75, this.height - 28, 150, 20,

@@ -152,7 +152,7 @@ public class ChatUserListWidget extends EntryListWidget {
 						.entry("api.friends.chat", buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user)
 								.whenCompleteAsync((channel, throwable) -> client.submit(() -> client.openScreen(new ChatScreen(screen.getParent(), channel))));
-						});
+						}).spacer();
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry("api.users.block", buttonWidget ->
 							FriendRequest.getInstance().blockUser(user.getUuid()));

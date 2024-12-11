@@ -1,7 +1,6 @@
 import org.gradle.jvm.tasks.Jar
-import java.nio.file.Files
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.listDirectoryEntries
+import java.nio.file.FileSystems
+import kotlin.io.path.*
 
 plugins {
 	id("io.freefair.lombok") version "8.11" apply false
@@ -70,13 +69,34 @@ subprojects {
 		if (project.name == "common") {
 			enabled = false
 		}
-		val outDir = rootProject.layout.buildDirectory.dir("collected").get().asFile.toPath()
-		outDir.listDirectoryEntries().forEach { it.deleteExisting() }
-		Files.createDirectories(outDir)
 		actions.addLast {
-			project.layout.buildDirectory.dir("libs").get().asFileTree.files.forEach {file ->
-				if (file.name.endsWith(project.version.toString()+".jar")) {
-					Files.copy(file.toPath(), outDir.resolve(file.name.toString()))
+			val outDir = rootProject.projectDir.resolve("builds").toPath()
+			outDir.createDirectories()
+			val archiveDir = outDir.resolve("archive")
+			outDir.listDirectoryEntries().forEach { old ->
+				if (!old.isRegularFile()) {
+					return@forEach
+				}
+				val oldName = old.fileName.toString()
+				val oldVer = oldName.substring(0, oldName.indexOf("+"))
+				if (project.version.toString().contains(oldVer.substring(oldVer.indexOf("-")+1))) {
+					return@forEach
+				}
+				archiveDir.createDirectories()
+				val versionArchive = archiveDir.resolve("$oldVer.zip")
+				synchronized(rootProject) {
+					(if (versionArchive.notExists()) {
+						FileSystems.newFileSystem(versionArchive, mapOf("create" to "true"))
+					} else {
+						FileSystems.newFileSystem(versionArchive)
+					}).use {
+						old.moveTo(it.getPath(old.fileName.toString()))
+					}
+				}
+			}
+			project.layout.buildDirectory.dir("libs").get().asFileTree.files.forEach { file ->
+				if (file.name.contains(project.version.toString())) {
+					file.toPath().copyTo(outDir.resolve(file.name.toString()), overwrite = true)
 				}
 			}
 		}

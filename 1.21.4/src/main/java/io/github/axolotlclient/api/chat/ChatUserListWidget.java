@@ -96,6 +96,11 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 			this.channel = channel;
 		}
 
+		public UserListEntry init(ChatScreen screen) {
+			this.screen = screen;
+			return this;
+		}
+
 		protected static void drawScrollableText(GuiGraphics graphics, Font textRenderer, Component text, int left, int top, int right, int bottom, int color) {
 			int i = textRenderer.width(text);
 			int j = (top + bottom - 9) / 2 + 1;
@@ -114,10 +119,6 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 			}
 		}
 
-		public UserListEntry init(ChatScreen screen) {
-			this.screen = screen;
-			return this;
-		}
 
 		@Override
 		public Component getNarration() {
@@ -157,7 +158,7 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 						}).spacer().entry(Component.translatable("api.friends.chat"), buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user).whenCompleteAsync((channel, throwable) -> client.execute(
 								() -> client.setScreen(new ChatScreen(screen.getParent(), channel))));
-						});
+						}).spacer();
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(Component.translatable("api.users.block"),
 							buttonWidget -> FriendRequest.getInstance().blockUser(user.getUuid())
