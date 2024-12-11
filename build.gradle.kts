@@ -4,13 +4,13 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.listDirectoryEntries
 
 plugins {
-	id("io.freefair.lombok") version "8.10" apply false
+	id("io.freefair.lombok") version "8.11" apply false
 	id("com.modrinth.minotaur") version "2.+" apply false
 	id("com.gradleup.shadow") version "8.+" apply false
 	id("dev.yumi.gradle.licenser") version "2.0.+"
 	id("io.github.p03w.machete") version "2.+" apply false
-	id("fabric-loom") version "1.8.+" apply false
-	id("ploceus") version "1.8.+" apply false
+	id("fabric-loom") version "1.9.+" apply false
+	id("ploceus") version "1.9.+" apply false
 }
 
 version = "${project.version}"
@@ -24,11 +24,7 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-}
-
 allprojects {
-
 	repositories {
 		maven {
 			name = "TerraformersMC Maven"
