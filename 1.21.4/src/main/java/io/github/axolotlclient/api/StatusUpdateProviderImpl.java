@@ -29,7 +29,9 @@ import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.requests.StatusUpdate;
 import io.github.axolotlclient.api.util.StatusUpdateProvider;
 import io.github.axolotlclient.api.worldhost.WorldHostStatusProvider;
+import io.github.axolotlclient.modules.hypixel.HypixelGameType;
 import io.github.axolotlclient.modules.hypixel.HypixelLocation;
+import io.github.axolotlclient.modules.mcci.MccIslandMods;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.Minecraft;
@@ -54,19 +56,18 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 
 			if (!entry.isLan()) {
 				Optional<StatusUpdate.SupportedServer> optional = Arrays.stream(StatusUpdate.SupportedServer.values())
-					.filter(s -> s.getAdress().matcher(entry.ip).matches()).findFirst();
+					.filter(s -> s.getAddress().matcher(entry.ip).matches()).findFirst();
 				if (optional.isPresent()) {
 					StatusUpdate.SupportedServer server = optional.get();
 					if (server.equals(StatusUpdate.SupportedServer.HYPIXEL)) {
 						JsonObject object = HypixelLocation.get().thenApply(GsonHelper::fromJson).join();
-						StatusUpdate.GameType gameType =
-							StatusUpdate.GameType.valueOf(object.get("gametype").getAsString());
+						HypixelGameType gameType =
+							HypixelGameType.valueOf(object.get("gametype").getAsString());
 						String gameMode = getOrEmpty(object, "mode");
 						String map = getOrEmpty(object, "map");
-						int maxPlayers = mc.level.players().size();
-						int players = mc.level.players().stream()
-							.filter(e -> !(e.isCreative() || e.isSpectator())).toList().size();
-						return StatusUpdate.inGame(server, gameType.toString(), gameMode, map, players, maxPlayers);
+						return StatusUpdate.inGame(server, gameType.getName(), gameMode, map);
+					} else if (server.equals(StatusUpdate.SupportedServer.MCC_ISLAND)) {
+						return MccIslandMods.getInstance().getMccIStatus();
 					}
 				}
 			}

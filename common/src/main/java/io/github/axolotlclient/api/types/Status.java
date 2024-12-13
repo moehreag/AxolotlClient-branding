@@ -25,7 +25,6 @@ package io.github.axolotlclient.api.types;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 import io.github.axolotlclient.api.API;
 import lombok.*;
@@ -59,7 +58,7 @@ public class Status {
 		}
 		return activity == null || activity.title.isEmpty() ? API.getInstance().getTranslationProvider().translate("api.status.title.online") :
 			API.getInstance().getTranslationProvider()
-				.translate(activity.title.toLowerCase(Locale.ROOT));
+				.translate(activity.title);
 	}
 
 	public String getLastOnline() {

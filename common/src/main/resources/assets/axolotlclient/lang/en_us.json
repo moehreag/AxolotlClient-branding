@@ -582,5 +582,9 @@
 	"autoboop.filterlist.mode.disabled": "Disabled",
 	"autoboop.filterlist.mode.whitelist": "Whitelist",
 	"autoboop.filterlist.mode.blacklist": "Blacklist",
-	"text_alpha": "Text Transparency"
+	"text_alpha": "Text Transparency",
+	"api.status.description.in_game": "%s",
+	"api.status.description.in_game.game_mode": "%s: %s",
+	"api.status.description.in_game.map": "%s on %s",
+	"api.status.description.in_game.game_mode_map": "%s: %s on %s"
 }

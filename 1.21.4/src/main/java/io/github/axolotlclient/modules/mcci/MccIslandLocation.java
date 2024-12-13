@@ -20,26 +20,26 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.modules.hypixel;
+package io.github.axolotlclient.modules.mcci;
 
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.util.Util;
 
-public class HypixelLocation {
+public class MccIslandLocation {
+	private static CompletableFuture<MccIslandLocationData> consumer;
 
-	private static CompletableFuture<String> consumer;
-
-	public static CompletableFuture<String> get() {
-		Util.sendChatMessage("/locraw");
+	public static CompletableFuture<MccIslandLocationData> get() {
+		Util.sendChatMessage("/whereami");
 		consumer = new CompletableFuture<>();
 		return consumer;
 	}
 
-	public static boolean waitingForResponse(String message) {
-		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("gametype");
+	static boolean waitingForResponse(String message) {
+		MccIslandLocationData data = null;
+		boolean consume = consumer != null && (data = MccIslandLocationData.parse(message)) != null;
 		if (consume) {
-			consumer.complete(message);
+			consumer.complete(data);
 			consumer = null;
 		}
 		return consume;

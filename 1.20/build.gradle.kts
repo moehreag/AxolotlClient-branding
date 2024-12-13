@@ -19,6 +19,25 @@ loom {
 	}
 }
 
+repositories {
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = uri("https://api.modrinth.com/maven")
+			}
+		}
+		filter {
+			includeGroup("maven.modrinth")
+		}
+	}
+	maven {
+		name = "Noxcrew/Public"
+		url = uri("https://maven.noxcrew.com/public")
+	}
+	maven("https://maven.enginehub.org/repo/")
+}
+
 dependencies {
 	minecraft("com.mojang:minecraft:${project.property("minecraft_120")}")
 	mappings("org.quiltmc:quilt-mappings:${project.property("mappings_120")}:intermediary-v2")
@@ -47,6 +66,11 @@ dependencies {
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows-arm64")
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos")
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos-arm64")
+
+	val noxesiumVersion = "1.0.3"
+	modCompileOnly("maven.modrinth:noxesium:$noxesiumVersion")
+	//modImplementation("com.noxcrew.noxesium:api:$noxesiumVersion")
+	//localRuntime("org.khelekore:prtree:1.5")
 }
 
 tasks.processResources {

@@ -115,7 +115,7 @@ public class API {
 		//}
 
 		try {
-			if (!GlobalDataRequest.get().get(1, TimeUnit.MINUTES).success()) {
+			if (!GlobalDataRequest.get(true).get(1, TimeUnit.MINUTES).success()) {
 				logger.warn("Not trying to start API as it couldn't be reached!");
 				return;
 			}
@@ -331,7 +331,7 @@ public class API {
 		logDetailed("Session closed! code: " + statusCode + " reason: " + reason);
 		if (apiOptions.enabled.get()) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(10000);
 			} catch (InterruptedException ignored) {
 			}
 			logDetailed("Restarting API session...");
@@ -343,8 +343,10 @@ public class API {
 		if (!Constants.TESTING) {
 			try {
 				logDetailed("Connecting to websocket..");
+				URI gateway = Request.Route.GATEWAY.create().resolve();
+				String uri = (gateway.getScheme().endsWith("s") ? "wss" : "ws") + gateway.toString().substring(gateway.getScheme().length());
 				socket = ((Methanol) client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
-					.buildAsync(URI.create(Constants.SOCKET_URL), new ClientEndpoint()).get();
+					.buildAsync(URI.create(uri), new ClientEndpoint()).get();
 				logDetailed("Socket connected");
 			} catch (Exception e) {
 				logger.error("Failed to start Socket! ", e);

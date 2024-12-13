@@ -21,6 +21,8 @@
 - refine notification system
 - text transparency option for ScoreboardHuds (suggested by `@haovi`)
 - migrate 1.21.4 to mojmap
+- add Status support for MCCIsland
+- block more disallowed features on MCCIsland
 
 ### 3.0.6
 

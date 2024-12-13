@@ -37,7 +37,7 @@ public class HypixelLocation {
 	}
 
 	public static boolean waitingForResponse(String message) {
-		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("gameType");
+		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("gametype");
 		if (consume) {
 			consumer.complete(message);
 			consumer = null;

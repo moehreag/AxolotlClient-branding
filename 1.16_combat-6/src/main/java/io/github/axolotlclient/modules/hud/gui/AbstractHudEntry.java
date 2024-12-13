@@ -27,7 +27,6 @@ import java.util.List;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
@@ -35,6 +34,7 @@ import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.ClientColors;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
@@ -50,7 +50,8 @@ import net.minecraft.util.math.MathHelper;
 
 public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
-	protected final BooleanOption enabled = DefaultOptions.getEnabled();
+	@Getter
+	protected final ForceableBooleanOption enabled = DefaultOptions.getEnabled();
 	protected final DoubleOption scale = DefaultOptions.getScale(this);
 	protected final MinecraftClient client = MinecraftClient.getInstance();
 	private final DoubleOption x = DefaultOptions.getX(getDefaultX(), this);

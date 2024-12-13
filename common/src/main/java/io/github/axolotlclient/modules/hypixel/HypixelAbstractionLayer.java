@@ -111,7 +111,7 @@ public class HypixelAbstractionLayer {
 			} else {
 				CompletableFuture<Optional<Object>> request;
 				synchronized (tempValues) {
-					if (ratelimitReset.isAfter(Instant.now())) {
+					if (Instant.now().isBefore(ratelimitReset)) {
 						return absent;
 					}
 

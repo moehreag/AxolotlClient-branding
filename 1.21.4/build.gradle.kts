@@ -26,6 +26,12 @@ repositories {
 		name = "ParchmentMC"
 		url = uri("https://maven.parchmentmc.org")
 	}
+	maven {
+		name = "Noxcrew/Public"
+		url = uri("https://maven.noxcrew.com/public")
+	}
+	maven("https://maven.enginehub.org/repo/")
+
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -59,7 +65,7 @@ dependencies {
 	include("io.github.axolotlclient:AxolotlClient-config:${project.property("config")}+${project.property("minecraft_1214")}")
 	modImplementation("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:${project.property("config")}")
 
-	modCompileOnly("com.terraformersmc:modmenu:12.0.0-beta.1")
+	modImplementation("com.terraformersmc:modmenu:13.0.0-beta.1")
 
 	implementation(include(project(path = ":common", configuration = "shadow"))!!)
 
@@ -74,6 +80,11 @@ dependencies {
 	modCompileOnly("maven.modrinth:world-host:0.5.0+1.21.3-fabric")
 	//implementation("org.quiltmc.parsers:json:0.3.0")
 	//implementation("org.semver4j:semver4j:5.3.0")
+
+	val noxesiumVersion = "2.5.0"
+	modCompileOnly("maven.modrinth:noxesium:$noxesiumVersion")
+	//modImplementation("com.noxcrew.noxesium:api:$noxesiumVersion")
+	//localRuntime("org.khelekore:prtree:1.5")
 }
 
 tasks.processResources {

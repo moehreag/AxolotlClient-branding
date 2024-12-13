@@ -82,7 +82,6 @@ public class AxolotlClientConfig {
 	public final OptionCategory rendering = OptionCategory.create("rendering");
 	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
 	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
-	public final OptionCategory searchFilters = OptionCategory.create("searchFilters");
 	@Getter
 	private final OptionCategory config = OptionCategory.create("config");
 
@@ -115,9 +114,6 @@ public class AxolotlClientConfig {
 
 		general.add(loadingScreenColor);
 		general.add(nightMode);
-		//general.add(AxolotlClientConfigConfig.showQuickToggles);
-		//general.add(AxolotlClientConfigConfig.showOptionTooltips);
-		//general.add(AxolotlClientConfigConfig.showCategoryTooltips);
 		general.add(customWindowTitle);
 		general.add(rawMouseInput);
 		general.add(openCredits);
@@ -134,10 +130,6 @@ public class AxolotlClientConfig {
 			AxolotlClient.configManager.load();
 			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
 		});
-
-		/*searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase, AxolotlClientConfigConfig.searchForOptions,
-			AxolotlClientConfigConfig.searchSort, AxolotlClientConfigConfig.searchSortOrder);
-		general.add(searchFilters);*/
 
 		rendering.add(customSky,
 			cloudHeight,

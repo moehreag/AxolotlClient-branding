@@ -27,6 +27,11 @@ repositories {
 				url = uri("https://api.modrinth.com/maven")
 			}
 		}
+		maven {
+			name = "Noxcrew/Public"
+			url = uri("https://maven.noxcrew.com/public")
+		}
+		maven("https://maven.enginehub.org/repo/")
 		filter {
 			includeGroup("maven.modrinth")
 		}
@@ -62,9 +67,14 @@ dependencies {
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.3:natives-macos")
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.3:natives-macos-arm64")
 
-	modImplementation("maven.modrinth:world-host:0.5.0+1.21.1-fabric")
-	implementation("org.quiltmc.parsers:json:0.3.0")
-	implementation("org.semver4j:semver4j:5.3.0")
+	modCompileOnly("maven.modrinth:world-host:0.5.0+1.21.1-fabric")
+	//implementation("org.quiltmc.parsers:json:0.3.0")
+	//implementation("org.semver4j:semver4j:5.3.0")
+
+	val noxesiumVersion = "2.3.3"
+	modCompileOnly("maven.modrinth:noxesium:$noxesiumVersion")
+	//modImplementation("com.noxcrew.noxesium:api:$noxesiumVersion")
+	//localRuntime("org.khelekore:prtree:1.5")
 }
 
 tasks.processResources {

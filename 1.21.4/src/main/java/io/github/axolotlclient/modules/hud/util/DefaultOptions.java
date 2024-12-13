@@ -22,12 +22,12 @@
 
 package io.github.axolotlclient.modules.hud.util;
 
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.gui.layout.CardinalOrder;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -52,8 +52,8 @@ public class DefaultOptions {
 		return new DoubleOption("scale", 1d, value -> entry.onBoundsUpdate(), 0d, 2d);
 	}
 
-	public static BooleanOption getEnabled() {
-		return new BooleanOption("enabled", false);
+	public static ForceableBooleanOption getEnabled() {
+		return new ForceableBooleanOption("enabled", false);
 	}
 
 	public static EnumOption<AnchorPoint> getAnchorPoint() {

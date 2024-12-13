@@ -32,7 +32,9 @@ import com.mojang.serialization.Codec;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
+import io.github.axolotlclient.modules.hud.gui.hud.simple.ReachHud;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
+import io.github.axolotlclient.modules.tnttime.TntTime;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -71,6 +73,8 @@ public class FeatureDisabler {
 				   "gommehd", "nucleoid", "mccisland"
 				  );
 		setServers(((ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID)).toggleSneak, NONE, "hypixel");
+		setServers(((ReachHud) HudManager.getInstance().get(ReachHud.ID)).getEnabled(), NONE, "mccisland");
+		setServers(TntTime.getInstance().enabled, NONE, "mccisland");
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			if (handler.getServerData() != null) {

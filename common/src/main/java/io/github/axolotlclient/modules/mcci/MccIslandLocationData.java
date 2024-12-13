@@ -20,28 +20,19 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.modules.hypixel;
+package io.github.axolotlclient.modules.mcci;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import io.github.axolotlclient.util.Util;
+public record MccIslandLocationData(String server, String proxy) {
 
-public class HypixelLocation {
-
-	private static CompletableFuture<String> consumer;
-
-	public static CompletableFuture<String> get() {
-		Util.sendChatMessage("/locraw");
-		consumer = new CompletableFuture<>();
-		return consumer;
-	}
-
-	public static boolean waitingForResponse(String message) {
-		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("gametype");
-		if (consume) {
-			consumer.complete(message);
-			consumer = null;
+	private static final Pattern PATTERN = Pattern.compile("^Server: ([^\n]+)\nProxy: ([^\n]+)\n.*$");
+	public static MccIslandLocationData parse(String location) {
+		Matcher matcher = PATTERN.matcher(location);
+		if (!matcher.find()) {
+			return null;
 		}
-		return consume;
+		return new MccIslandLocationData(matcher.group(1), matcher.group(2));
 	}
 }

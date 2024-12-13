@@ -35,8 +35,11 @@ public class GlobalDataRequest {
 	private static Instant nextRequest = null;
 
 	public static CompletableFuture<GlobalData> get() {
+		return get(false);
+	}
+	public static CompletableFuture<GlobalData> get(boolean forceRequest) {
 		if (API.getInstance().getApiOptions().enabled.get()) {
-			if (cachedData != null) {
+			if (!forceRequest && cachedData != null) {
 				if (nextRequest.isAfter(Instant.now())) {
 					return CompletableFuture.completedFuture(cachedData);
 				}

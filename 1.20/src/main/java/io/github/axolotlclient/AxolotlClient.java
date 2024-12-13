@@ -42,6 +42,7 @@ import io.github.axolotlclient.modules.blur.MotionBlur;
 import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
+import io.github.axolotlclient.modules.mcci.MccIslandMods;
 import io.github.axolotlclient.modules.particles.Particles;
 import io.github.axolotlclient.modules.renderOptions.BeaconBeam;
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
@@ -94,6 +95,7 @@ public class AxolotlClient implements ClientModInitializer {
 		modules.add(Tablist.getInstance());
 		modules.add(Auth.getInstance());
 		modules.add(APIOptions.getInstance());
+		modules.add(MccIslandMods.getInstance());
 	}
 
 	private static void addExternalModules() {

@@ -27,7 +27,6 @@ import java.util.List;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
@@ -35,11 +34,11 @@ import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.ClientColors;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
@@ -51,16 +50,20 @@ import net.minecraft.util.Mth;
 
 public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 
-	protected static ResourceLocation ICONS_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/icons.png");
-
-	protected final BooleanOption enabled = DefaultOptions.getEnabled();
+	@Getter
+	protected final ForceableBooleanOption enabled = DefaultOptions.getEnabled();
 	protected final DoubleOption scale = DefaultOptions.getScale(this);
 	protected final Minecraft client = Minecraft.getInstance();
 	private final DoubleOption x = DefaultOptions.getX(getDefaultX(), this);
 	private final DoubleOption y = DefaultOptions.getY(getDefaultY(), this);
-	@Setter @Getter protected int width;
-	@Setter @Getter protected int height;
-	@Setter protected boolean hovered = false;
+	@Setter
+	@Getter
+	protected int width;
+	@Setter
+	@Getter
+	protected int height;
+	@Setter
+	protected boolean hovered = false;
 	private Rectangle trueBounds = null;
 	private Rectangle renderBounds = null;
 	private DrawPosition truePosition = null;

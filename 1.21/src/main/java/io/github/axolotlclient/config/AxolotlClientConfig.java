@@ -111,7 +111,6 @@ public class AxolotlClientConfig {
 	public final OptionCategory rendering = OptionCategory.create("rendering");
 	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
 	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
-	public final OptionCategory searchFilters = OptionCategory.create("searchFilters");
 
 	private final List<Option<?>> options = new ArrayList<>();
 
@@ -149,30 +148,23 @@ public class AxolotlClientConfig {
 
 		general.add(loadingScreenColor);
 		general.add(nightMode);
-		//general.add(AxolotlClientConfigConfig.showQuickToggles);
-		//general.add(AxolotlClientConfigConfig.showOptionTooltips);
-		//general.add(AxolotlClientConfigConfig.showCategoryTooltips);
 		general.add(customWindowTitle);
 		general.add(openCredits);
 		general.add(debugLogOutput);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
-			StringArrayOption configStyle;
-			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
-					.toArray(String[]::new),
-				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
-				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
-				MinecraftClient.getInstance().setScreen(null);
-			}));
-			AxolotlClient.configManager.load();
-			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
+			if (general.getOptions().stream().noneMatch(o -> o.getName().equals("configStyle"))) {
+				StringArrayOption configStyle;
+				general.add(configStyle = new StringArrayOption("configStyle",
+					ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+						.toArray(String[]::new),
+					"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+					ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
+					MinecraftClient.getInstance().setScreen(null);
+				}));
+				AxolotlClient.configManager.load();
+				ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
+			}
 		});
-
-		/*searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase,
-			AxolotlClientConfigConfig.searchForOptions,
-			AxolotlClientConfigConfig.searchSort,
-			AxolotlClientConfigConfig.searchSortOrder);
-		general.add(searchFilters);*/
 
 		rendering.add(customSky,
 			showSunMoon,

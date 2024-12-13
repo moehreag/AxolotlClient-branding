@@ -88,7 +88,7 @@ public class AxolotlClientToast extends DrawUtil implements Toast {
 
 	@Override
 	public Visibility draw(GuiGraphics graphics, ToastManager manager, long startTime) {
-		graphics.drawNineSlicedTexture(BACKGROUND_SPRITE, 0, 0, getWidth(), getHeight(), 17, 4, 30, 4, 113, 56, 0, 0);
+		blitSprite(graphics, BACKGROUND_SPRITE, 0, 0, getWidth(), getHeight(), new NineSlice(160, 64, new Border(17, 30, 4, 4), false));
 		graphics.drawTexture(AxolotlClient.badgeIcon, 4, 4, 0, 0, 15, 15, 15, 15);
 		int textOffset = 22;
 		if (this.messageLines.isEmpty()) {

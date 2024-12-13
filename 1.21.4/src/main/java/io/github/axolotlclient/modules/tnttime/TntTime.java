@@ -26,9 +26,9 @@ import java.text.DecimalFormat;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -36,7 +36,7 @@ import net.minecraft.network.chat.Style;
 public class TntTime extends AbstractModule {
 
 	private static final TntTime Instance = new TntTime();
-	public final BooleanOption enabled = new BooleanOption("enabled", false);
+	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
 	private final OptionCategory category = OptionCategory.create("tnttime");
 	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", 2, 0, 6);
 	private DecimalFormat format;
