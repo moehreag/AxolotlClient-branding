@@ -85,13 +85,13 @@ public class ChannelInvitesScreen extends Screen {
 			minecraft.openScreen(parent);
 		} else if (buttonWidget.id == 1) {
 			if (invites.getSelected() != null) {
-				ChannelRequest.acceptChannelInvite(invites.getSelected().invite);
-				init(minecraft, width, height);
+				buttonWidget.active = false;
+				ChannelRequest.acceptChannelInvite(invites.getSelected().invite).thenRun(() -> minecraft.submit(() -> init(minecraft, width, height)));
 			}
 		} else if (buttonWidget.id == 2) {
 			if (invites.getSelected() != null) {
-				ChannelRequest.ignoreChannelInvite(invites.getSelected().invite);
-				init(minecraft, width, height);
+				buttonWidget.active = false;
+				ChannelRequest.ignoreChannelInvite(invites.getSelected().invite).thenRun(() -> minecraft.submit(() -> init(minecraft, width, height)));
 			}
 		}
 	}

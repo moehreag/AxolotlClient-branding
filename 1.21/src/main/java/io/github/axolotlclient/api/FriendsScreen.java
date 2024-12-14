@@ -128,8 +128,8 @@ public class FriendsScreen extends Screen {
 		this.removeButton = this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends.remove"), button -> {
 			UserListWidget.UserListEntry entry = this.widget.getSelectedOrNull();
 			if (entry != null) {
-				FriendRequest.getInstance().removeFriend(entry.getUser());
-				refresh();
+				removeButton.active = false;
+				FriendRequest.getInstance().removeFriend(entry.getUser()).thenRun(() -> client.submit(this::refresh));
 			}
 		}).positionAndSize(this.width / 2 - 50, this.height - 28, 100, 20).build());
 
@@ -159,25 +159,26 @@ public class FriendsScreen extends Screen {
 	private void denyRequest() {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
 		if (entry != null) {
-			FriendRequest.getInstance().denyFriendRequest(entry.getUser());
+			denyButton.active = false;
+			FriendRequest.getInstance().denyFriendRequest(entry.getUser()).thenRun(() -> client.submit(this::refresh));
 		}
-		refresh();
 	}
 
 	private void acceptRequest() {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
 		if (entry != null) {
-			FriendRequest.getInstance().acceptFriendRequest(entry.getUser());
+			acceptButton.active = false;
+			FriendRequest.getInstance().acceptFriendRequest(entry.getUser()).thenRun(() -> client.submit(this::refresh));
 		}
-		refresh();
 	}
 
 	private void updateButtonActivationStates() {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
-		if (entry != null) {
+		if (entry != null && (current == Tab.ALL || current == Tab.ONLINE)) {
 			chatButton.active = removeButton.active = true;
 		} else {
-			chatButton.active = removeButton.active = false;
+			chatButton.active = false;
+			removeButton.active = current == Tab.BLOCKED;
 		}
 
 		removeButton.visible = true;
@@ -205,8 +206,9 @@ public class FriendsScreen extends Screen {
 	public void openChat() {
 		UserListWidget.UserListEntry entry = widget.getSelectedOrNull();
 		if (entry != null) {
+			chatButton.active = false;
 			ChannelRequest.getOrCreateDM(entry.getUser())
-				.whenCompleteAsync((c, t) -> client.execute(() -> client.setScreen(new ChatScreen(this, c))));
+				.thenAccept(c -> client.execute(() -> client.setScreen(new ChatScreen(this, c))));
 		}
 	}
 

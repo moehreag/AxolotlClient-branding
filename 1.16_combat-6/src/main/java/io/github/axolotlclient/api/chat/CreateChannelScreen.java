@@ -149,7 +149,7 @@ public class CreateChannelScreen extends Screen {
 			ChannelRequest.createChannel(nameField.getText(),
 				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
 				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new))
-				.thenRun(() -> client.submit(() -> client.openScreen(parent)));;
+				.thenRun(() -> client.execute(() -> client.openScreen(parent)));;
 		}));
 	}
 

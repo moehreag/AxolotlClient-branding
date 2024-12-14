@@ -86,8 +86,10 @@ public class SimpleTextInputScreen extends Screen {
 				minecraft.openScreen(parent);
 				break;
 			case 1:
-				consumer.accept(input.getText());
-				minecraft.openScreen(parent);
+				if (!input.getText().isEmpty()) {
+					consumer.accept(input.getText());
+					minecraft.openScreen(parent);
+				}
 				break;
 		}
 	}

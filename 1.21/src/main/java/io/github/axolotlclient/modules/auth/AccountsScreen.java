@@ -99,6 +99,7 @@ public class AccountsScreen extends Screen {
 		this.deleteButton = this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("selectServer.delete"), button -> {
 			AccountsListWidget.Entry entry = this.accountsListWidget.getSelectedOrNull();
 			if (entry != null) {
+				button.active = false;
 				Auth.getInstance().removeAccount(entry.getAccount());
 				refresh();
 			}
@@ -123,6 +124,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void refreshAccount() {
+		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (entry != null) {
 			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> client.execute(() -> {
@@ -135,7 +137,8 @@ public class AccountsScreen extends Screen {
 	private void updateButtonActivationStates() {
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (client.world == null && entry != null) {
-			loginButton.active = deleteButton.active = refreshButton.active = true;
+			loginButton.active = !entry.getAccount().equals(Auth.getInstance().getCurrent());
+			deleteButton.active = refreshButton.active = true;
 		} else {
 			loginButton.active = deleteButton.active = refreshButton.active = false;
 		}
@@ -146,6 +149,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void login() {
+		loginButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (entry != null) {
 			Auth.getInstance().login(entry.getAccount());

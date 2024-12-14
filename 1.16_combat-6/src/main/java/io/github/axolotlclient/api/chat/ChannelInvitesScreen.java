@@ -57,14 +57,14 @@ public class ChannelInvitesScreen extends Screen {
 
         acceptButton = addButton(new ButtonWidget(width / 2 - 75, height - 55 / 2 - 2 - 20, 73, 20, new TranslatableText("api.channels.invite.accept"), w -> {
             if (invites.getSelected() != null) {
-                ChannelRequest.acceptChannelInvite(invites.getSelected().invite);
-                init(client, width, height);
+				w.active = false;
+                ChannelRequest.acceptChannelInvite(invites.getSelected().invite).thenRun(() -> client.execute(() -> init(client, width, height)));
             }
         }));
         denyButton = addButton(new ButtonWidget(width / 2 + 2, height - 55 / 2 - 2 - 20, 73, 20, new TranslatableText("api.channels.invite.ignore"), w -> {
             if (invites.getSelected() != null) {
-                ChannelRequest.ignoreChannelInvite(invites.getSelected().invite);
-                init(client, width, height);
+				w.active = false;
+                ChannelRequest.ignoreChannelInvite(invites.getSelected().invite).thenRun(() -> client.execute(() -> init(client, width, height)));
             }
         }));
         addButton(new ButtonWidget(width / 2 - 75, height - 55 / 2 + 2, 150, 20, ScreenTexts.BACK, w -> onClose()));

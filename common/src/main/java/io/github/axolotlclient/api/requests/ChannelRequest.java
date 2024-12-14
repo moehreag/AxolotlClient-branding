@@ -148,11 +148,11 @@ public class ChannelRequest {
 		});
 	}
 
-	public static void acceptChannelInvite(ChannelInvite invite) {
-		API.getInstance().post(Request.Route.CHANNELS_INVITES.builder().query("id", invite.channelId()).query("accept", true).build());
+	public static CompletableFuture<?> acceptChannelInvite(ChannelInvite invite) {
+		return API.getInstance().post(Request.Route.CHANNELS_INVITES.builder().query("id", invite.channelId()).query("accept", true).build());
 	}
 
-	public static void ignoreChannelInvite(ChannelInvite invite) {
-		API.getInstance().post(Request.Route.CHANNELS_INVITES.builder().query("id", invite.channelId()).query("accept", false).build());
+	public static CompletableFuture<?> ignoreChannelInvite(ChannelInvite invite) {
+		return API.getInstance().post(Request.Route.CHANNELS_INVITES.builder().query("id", invite.channelId()).query("accept", false).build());
 	}
 }

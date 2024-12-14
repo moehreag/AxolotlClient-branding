@@ -62,14 +62,14 @@ public class ChannelInvitesScreen extends Screen {
 		var footerTop = footer.addChild(LinearLayout.horizontal().spacing(4));
 		acceptButton = footerTop.addChild(Button.builder(Component.translatable("api.channels.invite.accept"), w -> {
 			if (invites.getSelected() != null) {
-				ChannelRequest.acceptChannelInvite(invites.getSelected().invite);
-				rebuildWidgets();
+				w.active = false;
+				ChannelRequest.acceptChannelInvite(invites.getSelected().invite).thenRun(() -> minecraft.submit(this::rebuildWidgets));
 			}
 		}).width(73).build());
 		denyButton = footerTop.addChild(Button.builder(Component.translatable("api.channels.invite.ignore"), w -> {
 			if (invites.getSelected() != null) {
-				ChannelRequest.ignoreChannelInvite(invites.getSelected().invite);
-				rebuildWidgets();
+				w.active = false;
+				ChannelRequest.ignoreChannelInvite(invites.getSelected().invite).thenRun(() -> minecraft.submit(this::rebuildWidgets));
 			}
 		}).width(73).build());
 		footer.addChild(Button.builder(CommonComponents.GUI_BACK, w -> onClose()).build());

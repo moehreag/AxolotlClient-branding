@@ -107,7 +107,10 @@ public class AccountsListWidget extends ObjectSelectionList<AccountsListWidget.E
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			this.screen.select(this);
 			if (Util.getMillis() - this.time < 250L && client.level == null) {
-				Auth.getInstance().login(account);
+				if (!getAccount().equals(Auth.getInstance().getCurrent())) {
+					screen.select(null);
+					Auth.getInstance().login(account);
+				}
 			}
 
 			this.time = Util.getMillis();

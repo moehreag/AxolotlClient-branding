@@ -49,35 +49,37 @@ public class FriendRequest {
 		return api.post(Request.Route.USER.builder().path(uuid).query("relation", relation.getId()).build());
 	}
 
-	public void addFriend(String uuid) {
-		setRelation(uuid, Relation.REQUEST).whenCompleteAsync((response, t) -> {
+	public CompletableFuture<?> addFriend(String uuid) {
+		return setRelation(uuid, Relation.REQUEST).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider()
 					.addStatus("api.success.request_sent", "api.success.request_sent.desc", UUIDHelper.getUsername(uuid));
 			} else if (response.getError().httpCode() == 404) {
 				api.getNotificationProvider().addStatus("api.failure.request_sent", "api.failure.request_sent.not_found", UUIDHelper.getUsername(uuid));
+			} else if (response.getError().httpCode() == 403) {
+				api.getNotificationProvider().addStatus("api.failure.request_sent", "api.failure.request_sent.forbidden", UUIDHelper.getUsername(uuid));
 			}
 		});
 	}
 
-	public void removeFriend(User user) {
-		setRelation(api.sanitizeUUID(user.getUuid()), Relation.NONE).whenCompleteAsync((response, t) -> {
+	public CompletableFuture<?> removeFriend(User user) {
+		return setRelation(api.sanitizeUUID(user.getUuid()), Relation.NONE).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider().addStatus("api.success.removeFriend", "api.success.removeFriend.desc", user.getName());
 			}
 		});
 	}
 
-	public void blockUser(String uuid) {
-		setRelation(uuid, Relation.BLOCKED).whenCompleteAsync((response, t) -> {
+	public CompletableFuture<?> blockUser(String uuid) {
+		return setRelation(uuid, Relation.BLOCKED).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", UUIDHelper.getUsername(uuid));
 			}
 		});
 	}
 
-	public void unblockUser(String uuid) {
-		setRelation(uuid, Relation.NONE).whenCompleteAsync((response, t) -> {
+	public CompletableFuture<?> unblockUser(String uuid) {
+		return setRelation(uuid, Relation.NONE).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", UUIDHelper.getUsername(uuid));
 			}
@@ -117,8 +119,8 @@ public class FriendRequest {
 		return getBlocked().join().stream().map(User::getUuid).anyMatch(uuid::equals);
 	}
 
-	public void acceptFriendRequest(User from) {
-		setRelation(from.getUuid(), Relation.FRIEND)
+	public CompletableFuture<?> acceptFriendRequest(User from) {
+		return setRelation(from.getUuid(), Relation.FRIEND)
 			.thenAccept(res -> {
 				if (!res.isError()) {
 					api.getNotificationProvider().addStatus("api.success.acceptFriend", "api.success.acceptFriend.desc", from.getName());
@@ -126,8 +128,8 @@ public class FriendRequest {
 			});
 	}
 
-	public void denyFriendRequest(User from) {
-		setRelation(from.getUuid(), Relation.NONE).thenAccept(res -> {
+	public CompletableFuture<?> denyFriendRequest(User from) {
+		return setRelation(from.getUuid(), Relation.NONE).thenAccept(res -> {
 			if (!res.isError()) {
 				api.getNotificationProvider().addStatus("api.success.denyFriend", "api.success.denyFriend.desc", from.getName());
 			}

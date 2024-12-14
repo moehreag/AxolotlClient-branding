@@ -62,14 +62,14 @@ public class ChannelInvitesScreen extends Screen {
 		var footerTop = footer.add(LinearLayoutWidget.createHorizontal().setSpacing(4));
 		acceptButton = footerTop.add(ButtonWidget.builder(Text.translatable("api.channels.invite.accept"), w -> {
 			if (invites.getSelectedOrNull() != null) {
-				ChannelRequest.acceptChannelInvite(invites.getSelectedOrNull().invite);
-				clearAndInit();
+				w.active = false;
+				ChannelRequest.acceptChannelInvite(invites.getSelectedOrNull().invite).thenRun(() -> client.submit(this::clearAndInit));
 			}
 		}).width(73).build());
 		denyButton = footerTop.add(ButtonWidget.builder(Text.translatable("api.channels.invite.ignore"), w -> {
 			if (invites.getSelectedOrNull() != null) {
-				ChannelRequest.ignoreChannelInvite(invites.getSelectedOrNull().invite);
-				clearAndInit();
+				w.active = false;
+				ChannelRequest.ignoreChannelInvite(invites.getSelectedOrNull().invite).thenRun(() -> client.submit(this::clearAndInit));
 			}
 		}).width(73).build());
 		footer.add(ButtonWidget.builder(CommonTexts.BACK, w -> closeScreen()).build());

@@ -99,6 +99,7 @@ public class AccountsScreen extends Screen {
 			this.addRenderableWidget(Button.builder(Component.translatable("selectServer.delete"), button -> {
 				AccountsListWidget.Entry entry = this.accountsListWidget.getSelected();
 				if (entry != null) {
+					button.active = false;
 					Auth.getInstance().removeAccount(entry.getAccount());
 					refresh();
 				}
@@ -119,6 +120,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void refreshAccount() {
+		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (entry != null) {
 			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> minecraft.execute(() -> {
@@ -131,7 +133,8 @@ public class AccountsScreen extends Screen {
 	private void updateButtonActivationStates() {
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (minecraft.level == null && entry != null) {
-			loginButton.active = deleteButton.active = refreshButton.active = true;
+			loginButton.active = !entry.getAccount().equals(Auth.getInstance().getCurrent());
+			deleteButton.active = refreshButton.active = true;
 		} else {
 			loginButton.active = deleteButton.active = refreshButton.active = false;
 		}
@@ -142,6 +145,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void login() {
+		loginButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (entry != null) {
 			Auth.getInstance().login(entry.getAccount());

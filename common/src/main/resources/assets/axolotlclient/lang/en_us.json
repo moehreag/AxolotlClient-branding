@@ -449,6 +449,7 @@
 	"api.success.request_sent.desc": "Sent a friend request to %s!",
 	"api.failure.request_sent": "Failed to send friend request",
 	"api.failure.request_sent.not_found": "User %s couldn't be found!",
+	"api.failure.request_sent.forbidden": "You aren't allowed to send a friend request to %s!",
 	"api.success.removeFriend": "Friend removed",
 	"api.success.removeFriend.desc": "Removed %s from friends list!",
 	"api.success.blockUser": "User Blocked",

@@ -52,8 +52,10 @@ public class SimpleTextInputScreen extends Screen {
 		addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.CANCEL, button -> client.setScreen(parent))
 			.positionAndSize(width / 2 - 155, height - 50, 150, 20).build());
 		addDrawableSelectableElement(new ButtonWidget.Builder(CommonTexts.DONE, button -> {
-			consumer.accept(input.getText());
-			client.setScreen(parent);
+			if (!input.getText().isEmpty()) {
+				consumer.accept(input.getText());
+				client.setScreen(parent);
+			}
 		}).positionAndSize(width / 2 + 5, height - 50, 150, 20).build());
 	}
 

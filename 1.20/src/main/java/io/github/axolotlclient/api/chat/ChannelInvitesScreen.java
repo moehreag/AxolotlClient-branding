@@ -30,7 +30,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.HeaderAndFooterWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Style;
@@ -58,14 +57,14 @@ public class ChannelInvitesScreen extends Screen {
 
 		acceptButton = addDrawableChild(ButtonWidget.builder(Text.translatable("api.channels.invite.accept"), w -> {
 			if (invites.getSelectedOrNull() != null) {
-				ChannelRequest.acceptChannelInvite(invites.getSelectedOrNull().invite);
-				clearAndInit();
+				w.active = false;
+				ChannelRequest.acceptChannelInvite(invites.getSelectedOrNull().invite).thenRun(() -> client.submit(this::clearAndInit));
 			}
 		}).positionAndSize(width/2-75, height-55/2 - 2 - 20, 73, 20).build());
 		denyButton = addDrawableChild(ButtonWidget.builder(Text.translatable("api.channels.invite.ignore"), w -> {
 			if (invites.getSelectedOrNull() != null) {
-				ChannelRequest.ignoreChannelInvite(invites.getSelectedOrNull().invite);
-				clearAndInit();
+				w.active = false;
+				ChannelRequest.ignoreChannelInvite(invites.getSelectedOrNull().invite).thenRun(() -> client.submit(this::clearAndInit));
 			}
 		}).positionAndSize(width/2 + 2, height-55/2 - 2 - 20, 73, 20).build());
 		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, w -> closeScreen()).positionAndSize(width/2-75, height-55/2 + 2, 150, 20).build());

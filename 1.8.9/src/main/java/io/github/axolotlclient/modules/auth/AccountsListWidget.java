@@ -135,7 +135,10 @@ public class AccountsListWidget extends EntryListWidget {
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
 			this.screen.select(index);
 			if (Minecraft.getTime() - this.time < 250L && client.world == null) {
-				Auth.getInstance().login(account);
+				if (!getAccount().equals(Auth.getInstance().getCurrent())) {
+					screen.select(-1);
+					Auth.getInstance().login(account);
+				}
 			}
 
 			this.time = Minecraft.getTime();
