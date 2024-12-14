@@ -148,7 +148,7 @@ public class Response {
 	}
 
 	public Optional<String> firstHeader(String name) {
-		return Optional.ofNullable(headers.getOrDefault(name, null)).map(List::getFirst);
+		return Optional.ofNullable(headers.getOrDefault(name, null)).map(index -> index.get(0));
 	}
 
 	public record Error(int httpCode, String description) {

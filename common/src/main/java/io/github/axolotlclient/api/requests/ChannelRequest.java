@@ -64,13 +64,9 @@ public class ChannelRequest {
 				}
 			}).join();
 		if (participants.size() == 1) {
-			try {
-				User other = owner.equals(API.getInstance().getSelf()) ? participants.getFirst() : owner;
-				if (createDmChannelName(other.getUuid()).equals(name)) {
-					return new Channel.DM(id, name, persistence, participants, owner, deserialized);
-				}
-			} catch (Throwable t) {
-				t.printStackTrace();
+			User other = owner.equals(API.getInstance().getSelf()) ? participants.get(0) : owner;
+			if (createDmChannelName(other.getUuid()).equals(name)) {
+				return new Channel.DM(id, name, persistence, participants, owner, deserialized);
 			}
 		}
 		return new Channel.Group(id, name, persistence, participants, owner, deserialized);
@@ -95,9 +91,9 @@ public class ChannelRequest {
 			participants.add(UUIDHelper.getUuid(username));
 		}
 		return API.getInstance().post(Request.Route.CHANNEL.builder()
-				.field("name", name).field("persistence", persistence.toJson())
-				.field("participants", participants).build());
-			//.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
+			.field("name", name).field("persistence", persistence.toJson())
+			.field("participants", participants).build());
+		//.thenApply(Response::getPlainBody).thenCompose(ChannelRequest::getById);
 	}
 
 	public static void updateChannel(String id, String name, Persistence persistence, String... additionalUsers) {
@@ -118,7 +114,7 @@ public class ChannelRequest {
 			if (dm.getOwner().equals(API.getInstance().getSelf()) && dm.getReceiver().equals(user)) {
 				return true;
 			}
-			return c.getOwner().equals(user) && dm.getParticipants().getFirst().equals(API.getInstance().getSelf());
+			return c.getOwner().equals(user) && dm.getParticipants().get(0).equals(API.getInstance().getSelf());
 		}).findFirst()).thenApply(opt -> opt.orElseGet(() -> API.getInstance().post(Request.Route.CHANNEL.builder()
 				.field("name", createDmChannelName(user.getUuid())).field("persistence", Persistence.of(Persistence.Type.CHANNEL, 0, 0).toJson())
 				.field("participants", List.of(user.getUuid())).build())

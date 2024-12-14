@@ -101,7 +101,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
 		if (!messages.isEmpty()) {
-			ChatMessage prev = messages.getLast();
+			ChatMessage prev = messages.get(messages.size()-1);
 			if (!(prev.sender().equals(message.sender()) && prev.senderDisplayName().equals(message.senderDisplayName()))) {
 				addEntry(new NameChatLine(message));
 			} else {
@@ -127,7 +127,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 	private void loadMessages() {
 		long before;
 		if (!messages.isEmpty()) {
-			before = messages.getFirst().timestamp().getEpochSecond();
+			before = messages.get(0).timestamp().getEpochSecond();
 		} else {
 			before = Instant.now().getEpochSecond();
 		}

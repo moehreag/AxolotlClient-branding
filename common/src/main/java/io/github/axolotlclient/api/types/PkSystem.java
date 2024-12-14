@@ -96,7 +96,7 @@ public class PkSystem {
 					list.add(Member.fromObject(e.getAsJsonObject()))
 				);
 				builder.fronters(list);
-				builder.firstFronter(list.getFirst());
+				builder.firstFronter(list.get(0));
 				log("Fetched fronters list");
 			}).thenCompose(v -> queryPkAPI("systems/@me/members").thenAccept(object -> {
 				JsonArray array = object.getAsJsonArray();

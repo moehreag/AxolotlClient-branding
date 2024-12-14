@@ -101,7 +101,7 @@ public class ChatWidget extends EntryListWidget {
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
 		if (!messages.isEmpty()) {
-			ChatMessage prev = messages.getLast();
+			ChatMessage prev = messages.get(messages.size()-1);
 			if (!(prev.sender().equals(message.sender()) && prev.senderDisplayName().equals(message.senderDisplayName()))) {
 				entries.add(new NameChatLine(message));
 			} else {
@@ -127,7 +127,7 @@ public class ChatWidget extends EntryListWidget {
 	private void loadMessages() {
 		long before;
 		if (!messages.isEmpty()) {
-			before = messages.getFirst().timestamp().getEpochSecond();
+			before = messages.get(0).timestamp().getEpochSecond();
 		} else {
 			before = Instant.now().getEpochSecond();
 		}

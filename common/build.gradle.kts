@@ -62,6 +62,14 @@ tasks.processResources {
 	}
 }
 
+tasks.withType(JavaCompile::class).configureEach {
+	options.encoding = "UTF-8"
+
+	if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_18)) {
+		options.release = 17
+	}
+}
+
 tasks.withType(AbstractArchiveTask::class).configureEach {
 	isPreserveFileTimestamps = false
 	isReproducibleFileOrder = true

@@ -81,6 +81,14 @@ tasks.processResources {
 	}
 }
 
+tasks.withType(JavaCompile::class).configureEach {
+	options.encoding = "UTF-8"
+
+	if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_18)) {
+		options.release = 17
+	}
+}
+
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17

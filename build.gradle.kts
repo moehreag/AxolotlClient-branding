@@ -78,7 +78,7 @@ subprojects {
 				}
 				val oldName = old.fileName.toString()
 				val oldVer = oldName.substring(0, oldName.indexOf("+"))
-				val mcVer = oldName.substring(oldName.indexOf("+")+1, oldName.length-4)
+				val mcVer = oldName.substring(oldName.indexOf("+")+1, oldName.length-4).removeSuffix("-sources")
 				if (!project.version.toString().contains(mcVer)) {
 					return@forEach
 				}
