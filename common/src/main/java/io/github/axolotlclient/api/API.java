@@ -117,10 +117,12 @@ public class API {
 		try {
 			if (!GlobalDataRequest.get(true).get(1, TimeUnit.MINUTES).success()) {
 				logger.warn("Not trying to start API as it couldn't be reached!");
+				scheduleRestart(false);
 				return;
 			}
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			logger.warn("Not trying to start API as it couldn't be reached within the timeout of 1 minute!");
+			scheduleRestart(false);
 			return;
 		}
 
@@ -338,13 +340,16 @@ public class API {
 	public void onClose(int statusCode, String reason) {
 		logDetailed("Session closed! code: " + statusCode + " reason: " + reason);
 		if (apiOptions.enabled.get()) {
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException ignored) {
-			}
+			scheduleRestart(true);
+		}
+	}
+
+	private void scheduleRestart(boolean immediate) {
+		CompletableFuture.runAsync(() -> {
 			logDetailed("Restarting API session...");
 			startup(account);
-		}
+		}, immediate ? CompletableFuture.delayedExecutor(10, TimeUnit.SECONDS, ThreadExecuter.service()) :
+			CompletableFuture.delayedExecutor(5, TimeUnit.MINUTES, ThreadExecuter.service()));
 	}
 
 	private void createSession() {

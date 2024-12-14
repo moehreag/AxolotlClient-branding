@@ -53,7 +53,7 @@ public class FriendRequest {
 		setRelation(uuid, Relation.REQUEST).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider()
-					.addStatus("api.success.requestSent", "api.success.requestSent.desc", UUIDHelper.getUsername(uuid));
+					.addStatus("api.success.request_sent", "api.success.request_sent.desc", UUIDHelper.getUsername(uuid));
 			} else if (response.getError().httpCode() == 404) {
 				api.getNotificationProvider().addStatus("api.failure.request_sent", "api.failure.request_sent.not_found", UUIDHelper.getUsername(uuid));
 			}
