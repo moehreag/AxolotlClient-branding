@@ -123,14 +123,14 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 			} else if (button == 1) { // right click
 
 				if (!user.equals(API.getInstance().getSelf())) {
-					ContextMenu.Builder menu = ContextMenu.builder()
-						.entry(Text.of(user.getName()), buttonWidget -> {
-						})
-						.spacer()
-						.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
+					ContextMenu.Builder menu = ContextMenu.builder().entry(Text.of(user.getName()), buttonWidget -> {
+					}).spacer();
+					if (!channel.isDM()) {
+						menu.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user).whenCompleteAsync(((channel, throwable) ->
 								client.execute(() -> client.openScreen(new ChatScreen(screen.getParent(), channel)))));
 						}).spacer();
+					}
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(new TranslatableText("api.users.block"), buttonWidget ->
 							FriendRequest.getInstance().blockUser(user.getUuid()));

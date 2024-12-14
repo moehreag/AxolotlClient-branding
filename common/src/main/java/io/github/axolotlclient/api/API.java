@@ -300,6 +300,14 @@ public class API {
 		return token != null;
 	}
 
+	public int getIndicatorColor() {
+		int color = isAuthenticated() ? 0xFFFFCC00 : 0xFFFF0000;
+		if (isSocketConnected()) {
+			color = 0xFF009000;
+		}
+		return color;
+	}
+
 	public void logDetailed(String message, Object... args) {
 		if (apiOptions.detailedLogging.get()) {
 			logger.debug("[DETAIL] " + message, args);
@@ -346,7 +354,7 @@ public class API {
 				URI gateway = Request.Route.GATEWAY.create().resolve();
 				String uri = (gateway.getScheme().endsWith("s") ? "wss" : "ws") + gateway.toString().substring(gateway.getScheme().length());
 				socket = ((Methanol) client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
-					.buildAsync(URI.create(uri), new ClientEndpoint()).get();
+					.buildAsync(URI.create(uri), new ClientEndpoint()).join();
 				logDetailed("Socket connected");
 			} catch (Exception e) {
 				logger.error("Failed to start Socket! ", e);

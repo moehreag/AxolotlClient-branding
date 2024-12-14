@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.modules.auth;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.api.API;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -34,18 +34,27 @@ public class AuthWidget extends Button {
 
 	public AuthWidget() {
 		super(10, 10, Minecraft.getInstance().font.width(Auth.getInstance().getCurrent().getName()) + 28, 20,
-			  Component.literal("    " + Auth.getInstance().getCurrent().getName()),
-			  buttonWidget -> Minecraft.getInstance().setScreen(new AccountsScreen(Minecraft.getInstance().screen)),
-			  DEFAULT_NARRATION
-			 );
+			Component.literal("    " + Auth.getInstance().getCurrent().getName()),
+			buttonWidget -> Minecraft.getInstance().setScreen(new AccountsScreen(Minecraft.getInstance().screen)),
+			DEFAULT_NARRATION
+		);
 	}
 
 	@Override
 	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		super.renderWidget(graphics, mouseX, mouseY, delta);
 		ResourceLocation texture = Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent());
-		RenderSystem.enableBlend();
-		PlayerFaceRenderer.draw(graphics, texture, getX()+1, getY()+1, getHeight()-2, true, false, -1);
-		RenderSystem.disableBlend();
+		PlayerFaceRenderer.draw(graphics, texture, getX() + 1, getY() + 1, getHeight() - 2, true, false, -1);
+		if (API.getInstance().getApiOptions().enabled.get()) {
+			graphics.pose().pushPose();
+			graphics.pose().translate(getX() + getHeight() - 1, getY() + getHeight() - 1, 0);
+			graphics.pose().scale(0.25f, 0.25f, 1);
+			graphics.pose().translate(-8, -8, 0);
+			int color = API.getInstance().getIndicatorColor();
+			graphics.fill(0, 4, 16, 12, color);
+			graphics.fill(4, 0, 12, 16, color);
+			graphics.fill(2, 2, 14, 14, color);
+			graphics.pose().popPose();
+		}
 	}
 }

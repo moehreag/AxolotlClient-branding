@@ -483,7 +483,7 @@
 	"api.chats": "Chats",
 	"api.chat.dms": "Direct Messages",
 	"api.chat.groups": "Groups",
-	"api.chat.groups.create": "Create Group/DM",
+	"api.chat.groups.create": "Create Group",
 	"api.chat.groups.create.label": "Enter group member name(s) (Comma-separated list):",
 	"api.chat.report.message": "Report Message",
 	"api.chat.report.user": "Report User",

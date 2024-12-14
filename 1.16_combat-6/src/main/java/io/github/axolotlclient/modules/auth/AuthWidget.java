@@ -23,6 +23,7 @@
 package io.github.axolotlclient.modules.auth;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.axolotlclient.api.API;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -44,5 +45,16 @@ public class AuthWidget extends ButtonWidget {
 		drawTexture(matrices, x + 1, y + 1, getHeight() - 2, getHeight() - 2, 8, 8, 8, 8, 64, 64);
 		drawTexture(matrices, x + 1, y + 1, getHeight() - 2, getHeight() - 2, 40, 8, 8, 8, 64, 64);
 		RenderSystem.disableBlend();
+		if (API.getInstance().getApiOptions().enabled.get()) {
+			matrices.push();
+			matrices.translate(x + getHeight() - 1, y + getHeight() - 1, 0);
+			matrices.scale(0.25f, 0.25f, 1);
+			matrices.translate(-8, -8, 0);
+			int color = API.getInstance().getIndicatorColor();
+			fill(matrices, 0, 4, 16, 12, color);
+			fill(matrices, 4, 0, 12, 16, color);
+			fill(matrices, 2, 2, 14, 14, color);
+			matrices.pop();
+		}
 	}
 }

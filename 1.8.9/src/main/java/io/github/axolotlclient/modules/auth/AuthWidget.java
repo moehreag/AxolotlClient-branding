@@ -23,6 +23,7 @@
 package io.github.axolotlclient.modules.auth;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import io.github.axolotlclient.api.API;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ButtonWidget;
 
@@ -43,5 +44,16 @@ public class AuthWidget extends ButtonWidget {
 		drawTexture(x + 1, y + 1, 8, 8, 8, 8, height - 2, height - 2, 64, 64);
 		drawTexture(x + 1, y + 1, 40, 8, 8, 8, height - 2, height - 2, 64, 64);
 		GlStateManager.disableBlend();
+		if (API.getInstance().getApiOptions().enabled.get()) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translatef(x + height - 1, y + height - 1, 0);
+			GlStateManager.scalef(0.25f, 0.25f, 1);
+			GlStateManager.translatef(-8, -8, 0);
+			int color = API.getInstance().getIndicatorColor();
+			fill(0, 4, 16, 12, color);
+			fill(4, 0, 12, 16, color);
+			fill(2, 2, 14, 14, color);
+			GlStateManager.popMatrix();
+		}
 	}
 }

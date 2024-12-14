@@ -153,12 +153,13 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 			} else if (button == 1) { // right click
 
 				if (!user.equals(API.getInstance().getSelf())) {
-					ContextMenu.Builder menu =
-						ContextMenu.builder().entry(Component.literal(user.getName()), buttonWidget -> {
-						}).spacer().entry(Component.translatable("api.friends.chat"), buttonWidget -> {
+					ContextMenu.Builder menu = ContextMenu.builder().entry(Component.literal(user.getName()), buttonWidget -> {}).spacer();
+					if (!channel.isDM()) {
+						menu.entry(Component.translatable("api.friends.chat"), buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user).whenCompleteAsync((channel, throwable) -> client.execute(
 								() -> client.setScreen(new ChatScreen(screen.getParent(), channel))));
 						}).spacer();
+					}
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(Component.translatable("api.users.block"),
 							buttonWidget -> FriendRequest.getInstance().blockUser(user.getUuid())

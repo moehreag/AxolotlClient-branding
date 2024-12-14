@@ -93,6 +93,10 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	}
 
 	@Override
+	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	}
+
+	@Override
 	protected void init() {
 		removeChat();
 		sidebarWidth = 70;

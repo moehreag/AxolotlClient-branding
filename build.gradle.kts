@@ -16,7 +16,6 @@ version = "${project.version}"
 group = "io.github.axolotlclient"
 
 repositories {
-	mavenLocal()
 	maven {
 		url = uri("https://moehreag.duckdns.org/maven/releases")
 	}
