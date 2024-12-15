@@ -50,9 +50,9 @@ public class APIOptions extends Options {
 
 		openPrivacyNoteScreen = n -> client.execute(() -> client.setScreen(new PrivacyNoticeScreen(client.screen, n)));
 		KeyBinds.getInstance().registerWithSimpleAction(
-			new KeyMapping("api.friends.sidebar.open", InputConstants.KEY_O, "category.axolotlclient"), () -> {
+			new KeyMapping("api.chats.sidebar.open", InputConstants.KEY_O, "category.axolotlclient"), () -> {
 				if (API.getInstance().isAuthenticated()) {
-					client.setScreen(new FriendsSidebar(client.screen));
+					client.setScreen(new ChatsSidebar(client.screen));
 				}
 			});
 		category.add(

@@ -26,25 +26,26 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import com.mojang.blaze3d.platform.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.axolotlclient.api.chat.ChatWidget;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.CommonTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
-public class FriendsSidebar extends Screen implements ContextMenuScreen {
+public class ChatsSidebar extends Screen implements ContextMenuScreen {
 
 	private static final int ANIM_STEP = 8;
 	private final Screen parent;
@@ -53,42 +54,47 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private boolean remove;
 	private boolean hasChat;
 	private ListWidget list;
-	private TextFieldWidget input;
+	private EditBox input;
 	private Channel channel;
 
 	private ChatWidget chatWidget;
 
 	private ContextMenuContainer contextMenu;
 
-	public FriendsSidebar(Screen parent) {
-		super(Text.translatable("api.chats.sidebar"));
+	public ChatsSidebar(Screen parent) {
+		super(Component.translatable("api.chats.sidebar"));
 		this.parent = parent;
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		if (parent != null) {
-			parent.render(graphics, mouseX, mouseY, delta);
+			parent.render(graphics, -1, -1, delta);
 		}
-		graphics.getMatrices().push();
-		graphics.getMatrices().translate(0, 0, 1000);
+		graphics.pose().pushPose();
+		graphics.pose().translate(0, 0, 1000);
 		graphics.fill(sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
-		graphics.drawShadowedText(client.textRenderer, Text.translatable("api.chats"), 10 + sidebarAnimX, 10, -1);
+		graphics.drawString(font, Component.translatable("api.chats"), 10 + sidebarAnimX, 10, -1);
 
 		if (hasChat) {
 			graphics.fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
-			graphics.drawShadowedText(client.textRenderer, channel.getName(), sidebarAnimX + 75, 20, -1);
+			graphics.drawString(font, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
-				graphics.drawShadowedText(client.textRenderer, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
-					sidebarAnimX + 80, 30, 8421504);
+				graphics.drawString(font, ChatFormatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
+					sidebarAnimX + 80, 30, 0x808080);
 			}
 		}
 
 		super.render(graphics, mouseX, mouseY, delta);
 
 		animate();
-		graphics.getMatrices().pop();
+		graphics.pose().popPose();
+	}
+
+	@Override
+	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+
 	}
 
 	@Override
@@ -98,16 +104,16 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		sidebarAnimX = -sidebarWidth;
 
 		if (parent != null) {
-			parent.children().stream().filter(element -> element instanceof ClickableWidget)
-				.map(e -> (ClickableWidget) e).filter(e -> e.getMessage().equals(Text.translatable("api.chats"))).forEach(e -> e.visible = false);
+			parent.children().stream().filter(element -> element instanceof AbstractButton)
+				.map(e -> (AbstractButton) e).filter(e -> e.getMessage().equals(Component.translatable("api.chats"))).forEach(e -> e.visible = false);
 		}
 
 		ChannelRequest.getChannelList().whenCompleteAsync((list, t) ->
-			addDrawableChild(this.list = new ListWidget(list, 10, 30, 50, height - 70))
+			addRenderableWidget(this.list = new ListWidget(list, 10, 30, 50, height - 70))
 		);
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, buttonWidget -> remove()).positionAndSize(10 - sidebarWidth, height - 30, 50, 20).build());
-		addDrawableChild(contextMenu = new ContextMenuContainer());
+		addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, buttonWidget -> remove()).bounds(10 - sidebarWidth, height - 30, 50, 20).build());
+		addRenderableWidget(contextMenu = new ContextMenuContainer());
 	}
 
 	public void remove() {
@@ -147,7 +153,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			}
 			getButtons().forEach(button -> button.setX(button.getX() - ANIM_STEP));
 			if (chatWidget != null) {
-				chatWidget.setLeftPos(chatWidget.getRowLeft() - ANIM_STEP);
+				chatWidget.setX(chatWidget.getX() - ANIM_STEP);
 			}
 		} else {
 			if (list != null && !list.visible) {
@@ -156,12 +162,12 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 	}
 
-	public List<ClickableWidget> getButtons() {
-		return children().stream().filter(element -> element instanceof ClickableWidget).map(element -> (ClickableWidget) element).collect(Collectors.toList());
+	public List<AbstractWidget> getButtons() {
+		return children().stream().filter(element -> element instanceof AbstractWidget).map(element -> (AbstractWidget) element).toList();
 	}
 
 	private void close() {
-		client.setScreen(parent);
+		minecraft.setScreen(parent);
 		if (chatWidget != null) {
 			chatWidget.remove();
 		}
@@ -184,8 +190,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 	private void removeChat() {
 		hasChat = false;
-		remove(chatWidget);
-		remove(input);
+		removeWidget(chatWidget);
+		removeWidget(input);
 	}
 
 	private void addChat(Channel channel) {
@@ -198,27 +204,27 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		int w;
 		if (channel.isDM()) {
 			User chatUser = ((Channel.DM) channel).getReceiver();
-			w = Math.max(client.textRenderer.getWidth(chatUser.getStatus().getTitle() + ": " + chatUser.getStatus().getDescription()) + 5,
-				client.textRenderer.getWidth(channel.getName()));
+			w = Math.max(font.width(chatUser.getStatus().getTitle() + ": " + chatUser.getStatus().getDescription()) + 5,
+				font.width(channel.getName()));
 		} else {
-			w = client.textRenderer.getWidth(channel.getName());
+			w = font.width(channel.getName());
 		}
 		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width/2);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
-		addDrawableChild(chatWidget);
-		addDrawableChild(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, Text.translatable("api.friends.chat.input")) {
+		addRenderableWidget(chatWidget);
+		addRenderableWidget(input = new EditBox(font, 75, height - 30, sidebarWidth - 80, 20, Component.translatable("api.friends.chat.input")) {
 			@Override
 			public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-				if (keyCode == InputUtil.KEY_ENTER_CODE) {
-					ChatHandler.getInstance().sendMessage(channel, input.getText());
-					input.setText("");
+				if (keyCode == InputConstants.KEY_RETURN) {
+					ChatHandler.getInstance().sendMessage(channel, input.getValue());
+					input.setValue("");
 					return true;
 				}
 				return super.keyPressed(keyCode, scanCode, modifiers);
 			}
 		});
 		input.setSuggestion(input.getMessage().getString());
-		input.setChangedListener(s -> {
+		input.setResponder(s -> {
 			if (s.isEmpty()) {
 				input.setSuggestion(input.getMessage().getString());
 			} else {
@@ -243,8 +249,8 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		return parent;
 	}
 
-	private class ListWidget extends AbstractParentElement implements Drawable, Element, Selectable {
-		private final List<ClickableWidget> elements;
+	private class ListWidget extends AbstractContainerEventHandler implements Renderable, GuiEventListener, NarratableEntry {
+		private final List<AbstractButton> elements;
 		private final int y;
 		private final int width;
 		private final int height;
@@ -261,17 +267,17 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			this.height = height;
 			AtomicInteger buttonY = new AtomicInteger(y);
 			elements = list.stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-				.map(channel -> ButtonWidget.builder(Text.of(channel.getName()), buttonWidget -> {
+				.map(channel -> Button.builder(Component.literal(channel.getName()), buttonWidget -> {
 						addChat(channel);
 						buttonWidget.active = false;
 					})
-					.positionAndSize(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5).build()).collect(Collectors.toList());
+					.bounds(x, buttonY.getAndAdd(entryHeight), width, entryHeight - 5).build()).collect(Collectors.toList());
 		}
 
 		@Override
 		public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 			if (visible) {
-				graphics.getMatrices().push();
+				graphics.pose().pushPose();
 				graphics.enableScissor(x, y, x + width, y + height);
 
 				AtomicInteger buttonY = new AtomicInteger(y);
@@ -282,26 +288,26 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 				});
 
 				graphics.disableScissor();
-				graphics.getMatrices().pop();
+				graphics.pose().popPose();
 			}
 		}
 
 		@Override
-		public List<? extends Element> children() {
+		public List<? extends GuiEventListener> children() {
 			return elements;
 		}
 
 		@Override
-		public boolean mouseScrolled(double mouseX, double mouseY, double amountY) {
+		public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
 			if (this.isMouseOver(mouseX, mouseY)) {
 				if (elements.size() * entryHeight > height) {
 					int a = scrollAmount;
 					a -= (int) (amountY * (entryHeight / 2f));
-					scrollAmount = MathHelper.clamp(a, 0, elements.size() * entryHeight - height);
+					scrollAmount = Mth.clamp(a, 0, elements.size() * entryHeight - height);
 					return true;
 				}
 			}
-			return super.mouseScrolled(mouseX, mouseY, amountY);
+			return super.mouseScrolled(mouseX, mouseY, amountX, amountY);
 		}
 
 		@Override
@@ -319,13 +325,13 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		}
 
 		@Override
-		public void appendNarrations(NarrationMessageBuilder builder) {
-
+		public NarratableEntry.NarrationPriority narrationPriority() {
+			return this.hovered ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
 		}
 
 		@Override
-		public SelectionType getType() {
-			return this.hovered ? SelectionType.HOVERED : SelectionType.NONE;
+		public void updateNarration(NarrationElementOutput builder) {
+
 		}
 	}
 }

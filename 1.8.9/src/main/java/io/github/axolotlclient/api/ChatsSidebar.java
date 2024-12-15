@@ -44,7 +44,7 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Formatting;
 import org.lwjgl.input.Keyboard;
 
-public class FriendsSidebar extends Screen implements ContextMenuScreen {
+public class ChatsSidebar extends Screen implements ContextMenuScreen {
 
 	private static final int ANIM_STEP = 8;
 	private final Screen parent;
@@ -61,7 +61,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 	private ContextMenuContainer contextMenu;
 	private final String title;
 
-	public FriendsSidebar(Screen parent) {
+	public ChatsSidebar(Screen parent) {
 		super();
 		this.title = I18n.translate("api.chats.sidebar");
 		this.parent = parent;
@@ -239,7 +239,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 			@Override
 			public boolean keyPressed(char c, int i) {
 				if (i == Keyboard.KEY_RETURN) {
-					ChatHandler.getInstance().sendMessage(FriendsSidebar.this.channel, input.getText());
+					ChatHandler.getInstance().sendMessage(ChatsSidebar.this.channel, input.getText());
 					input.setText("");
 					return true;
 				}
@@ -302,7 +302,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 		private boolean visible = true;
 
 		public ListWidget(List<Channel> list, int x, int y, int width, int height) {
-			super(Minecraft.getInstance(), width, height, y, FriendsSidebar.this.height - y, 25);
+			super(Minecraft.getInstance(), width, height, y, ChatsSidebar.this.height - y, 25);
 			minX = x;
 			maxX = x + width;
 			minY = y;

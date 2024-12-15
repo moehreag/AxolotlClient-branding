@@ -26,12 +26,12 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.FriendsSidebar;
+import io.github.axolotlclient.api.ChatsSidebar;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -56,10 +56,14 @@ public abstract class GameMenuScreenMixin extends Screen {
 	}
 
 	@Inject(method = "initWidgets", at = @At("TAIL"))
-	private void axolotlclient$addFriendsSidebarButton(CallbackInfo ci) {
+	private void axolotlclient$addSidebarButton(CallbackInfo ci) {
 		if (API.getInstance().isSocketConnected()) {
+			addDrawableChild(ButtonWidget.builder(Text.translatable("api.chats"),
+					button -> client.setScreen(new ChatsSidebar(this)))
+				.positionAndSize(10, height - 55, 75, 20).build());
 			addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends"),
-				button -> MinecraftClient.getInstance().setScreen(new FriendsSidebar(this))).positionAndSize(10, height - 30, 75, 20).build());
+					button -> client.setScreen(new FriendsScreen(this)))
+				.positionAndSize(10, height - 30, 75, 20).build());
 		}
 	}
 

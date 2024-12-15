@@ -29,8 +29,8 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 
 public class AuthWidget extends ButtonWidget {
 
-	public AuthWidget() {
-		super(242, 10, 10,
+	public AuthWidget(int x, int y) {
+		super(242, x, y,
 			Minecraft.getInstance().textRenderer.getWidth(Auth.getInstance().getCurrent().getName()) + 28,
 			20, "    " + Auth.getInstance().getCurrent().getName());
 	}

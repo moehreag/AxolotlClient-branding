@@ -32,8 +32,11 @@ import java.util.List;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.chat.ChatListScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
@@ -43,13 +46,16 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -64,6 +70,9 @@ public abstract class TitleScreenMixin extends Screen {
 	@Nullable
 	private RealmsNotificationsScreen realmsNotificationsScreen;
 
+	@Unique
+	private static final WidgetSprites MUTE_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.withDefaultNamespace("social_interactions/mute_button"), ResourceLocation.withDefaultNamespace("social_interactions/mute_button_highlighted"));
+
 	protected TitleScreenMixin() {
 		super(Component.empty());
 	}
@@ -75,8 +84,18 @@ public abstract class TitleScreenMixin extends Screen {
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
 		List<AbstractWidget> buttons = Collections.synchronizedList(new ArrayList<>());
+		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
-			buttons.add(addRenderableWidget(new AuthWidget()));
+			var button = addRenderableWidget(new AuthWidget(10, leftButtonY));
+			buttons.add(button);
+			leftButtonY += button.getHeight() + 5;
+		}
+		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
+			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.friends"),
+				w -> minecraft.setScreen(new FriendsScreen(this))).bounds(10, leftButtonY, 50, 20).build()));
+			leftButtonY += 25;
+			buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.chats"),
+				w -> minecraft.setScreen(new ChatListScreen(this))).bounds(10, leftButtonY, 50, 20).build()));
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;

@@ -25,7 +25,9 @@ package io.github.axolotlclient.mixin;
 import java.util.Objects;
 
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.FriendsSidebar;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.ChatsSidebar;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
@@ -56,10 +58,16 @@ public abstract class GameMenuScreenMixin extends Screen {
 	}
 
 	@Inject(method = "initWidgets", at = @At("TAIL"))
-	private void axolotlclient$friendsSidebarButton(CallbackInfo ci) {
-		if (API.getInstance().isSocketConnected()) {
-			addButton(new ButtonWidget(10, height - (axolotlclient$hasModMenu() ? 50 : 30), 75, 20, new TranslatableText("api.friends"),
-				buttonWidget -> client.openScreen(new FriendsSidebar(this))));
+	private void axolotlclient$sidebarButton(CallbackInfo ci) {
+		if (API.getInstance().isAuthenticated()) {
+			int buttonY = height - (axolotlclient$hasModMenu() ? 50 : 30);
+			if (APIOptions.getInstance().addShortcutButtons.get()) {
+				addButton(new ButtonWidget(10, buttonY, 75, 20, new TranslatableText("api.friends"),
+					buttonWidget -> client.openScreen(new FriendsScreen(this))));
+				buttonY -= 25;
+			}
+			addButton(new ButtonWidget(10, buttonY, 75, 20, new TranslatableText("api.chats"),
+				buttonWidget -> client.openScreen(new ChatsSidebar(this))));
 		}
 	}
 

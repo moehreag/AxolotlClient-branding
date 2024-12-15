@@ -48,7 +48,7 @@ public class FriendsScreen extends Screen {
 		current = tab;
 	}
 
-	protected FriendsScreen(Screen parent) {
+	public FriendsScreen(Screen parent) {
 		super(Component.translatable("api.screen.friends"));
 		this.parent = parent;
 	}

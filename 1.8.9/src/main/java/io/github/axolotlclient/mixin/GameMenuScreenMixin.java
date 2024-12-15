@@ -25,13 +25,14 @@ package io.github.axolotlclient.mixin;
 import java.util.Objects;
 
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.FriendsSidebar;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.ChatsSidebar;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
 import io.github.axolotlclient.util.FeatureDisabler;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -52,14 +53,19 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "init", at = @At("RETURN"))
 	public void axolotlclient$addConfigButton(CallbackInfo ci) {
-		if (API.getInstance().isSocketConnected()) {
-			buttons.add(new ButtonWidget(234, 10, height - 30, 75, 20, I18n.translate("api.friends")));
+		if (API.getInstance().isAuthenticated()) {
+			int buttonY = height-30;
+			if (APIOptions.getInstance().addShortcutButtons.get()) {
+				buttons.add(new ButtonWidget(134, 10, buttonY, 75, 20, I18n.translate("api.friends")));
+				buttonY -= 25;
+			}
+			buttons.add(new ButtonWidget(234, 10, buttonY, 75, 20, I18n.translate("api.chats")));
 		}
 
 		if (axolotlclient$hasModMenu())
 			return;
 
-		if (Minecraft.getInstance().isInSingleplayer() && !this.minecraft.getServer().isPublished()) {
+		if (minecraft.isInSingleplayer() && !this.minecraft.getServer().isPublished()) {
 			buttons.add(new ButtonWidget(20, width / 2 - 100,
 				height / 4 + 82,
 				I18n.translate("config")));
@@ -83,9 +89,9 @@ public abstract class GameMenuScreenMixin extends Screen {
 		if (axolotlclient$hasModMenu())
 			return;
 
-		if (!Minecraft.getInstance().isInSingleplayer() && ((Minecraft.getInstance().getServer() != null
-															 && Minecraft.getInstance().getServer().isPublished())
-															|| Minecraft.getInstance().getCurrentServerEntry() != null)) {
+		if (!minecraft.isInSingleplayer() && ((minecraft.getServer() != null
+															 && minecraft.getServer().isPublished())
+															|| minecraft.getCurrentServerEntry() != null)) {
 			args.set(0, 20);
 			args.set(5, I18n.translate("title_short"));
 		}
@@ -94,7 +100,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 	@Inject(method = "buttonClicked", at = @At("HEAD"))
 	public void axolotlclient$customButtons(ButtonWidget button, CallbackInfo ci) {
 		if (button.id == 20 && !axolotlclient$hasModMenu()) {
-			Minecraft.getInstance().openScreen(new HudEditScreen(this));
+			minecraft.openScreen(new HudEditScreen(this));
 		} else if (button.id == 1) {
 			FeatureDisabler.clear();
 			if (HypixelMods.getInstance().cacheMode.get() != null
@@ -103,7 +109,9 @@ public abstract class GameMenuScreenMixin extends Screen {
 				HypixelAbstractionLayer.clearPlayerData();
 			}
 		} else if (button.id == 234) {
-			Minecraft.getInstance().openScreen(new FriendsSidebar(this));
+			minecraft.openScreen(new ChatsSidebar(this));
+		} else if (button.id == 134) {
+			minecraft.openScreen(new FriendsScreen(this));
 		}
 	}
 }

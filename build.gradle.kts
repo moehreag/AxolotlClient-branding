@@ -65,6 +65,7 @@ subprojects {
 	}
 
 	tasks.register("collectBuilds") {
+		dependsOn(tasks.getByName("build"))
 		if (project.name == "common") {
 			enabled = false
 		}

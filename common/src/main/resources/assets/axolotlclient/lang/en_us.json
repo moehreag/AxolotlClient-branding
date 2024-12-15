@@ -589,5 +589,7 @@
 	"api.status.description.in_game": "%s",
 	"api.status.description.in_game.game_mode": "%s: %s",
 	"api.status.description.in_game.map": "%s on %s",
-	"api.status.description.in_game.game_mode_map": "%s: %s on %s"
+	"api.status.description.in_game.game_mode_map": "%s: %s on %s",
+	"api.add_shortcut_buttons": "Add shortcut buttons",
+	"api.add_shortcut_buttons.tooltip": "Adds buttons to the title screen and the game menu<br> to access social features more quickly."
 }

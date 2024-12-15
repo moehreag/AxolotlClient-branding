@@ -31,9 +31,9 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.ChatsSidebar;
 import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.ContextMenuScreen;
-import io.github.axolotlclient.api.FriendsSidebar;
 import io.github.axolotlclient.api.handlers.ChatHandler;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.types.Channel;
@@ -159,7 +159,7 @@ public class ChatWidget extends EntryListWidget {
 
 	@Override
 	public void render(int mouseX, int mouseY, float delta) {
-		if (screen.getSelf() instanceof FriendsSidebar) {
+		if (screen.getSelf() instanceof ChatsSidebar) {
 			if (this.visible) {
 				this.mouseX = mouseX;
 				this.mouseY = mouseY;

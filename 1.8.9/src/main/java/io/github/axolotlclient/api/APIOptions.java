@@ -52,11 +52,11 @@ public class APIOptions extends Options {
 
 		openPrivacyNoteScreen = n ->
 			client.openScreen(new PrivacyNoticeScreen(client.screen, n));
-		KeyBinding openSidebar = new KeyBinding("api.friends.sidebar.open", Keyboard.KEY_O, "category.axolotlclient");
+		KeyBinding openSidebar = new KeyBinding("api.chats.sidebar.open", Keyboard.KEY_O, "category.axolotlclient");
 		KeyBindingEvents.REGISTER_KEYBINDS.register(registry -> registry.register(openSidebar));
 		MinecraftClientEvents.TICK_END.register(minecraft -> {
 			if (openSidebar.consumeClick() && API.getInstance().isAuthenticated()) {
-				minecraft.openScreen(new FriendsSidebar(client.screen));
+				minecraft.openScreen(new ChatsSidebar(client.screen));
 			}
 		});
 		category.add(new GenericOption("viewFriends", "clickToOpen",

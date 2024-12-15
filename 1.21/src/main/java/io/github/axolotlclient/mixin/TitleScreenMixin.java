@@ -32,8 +32,11 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.chat.ChatListScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
@@ -79,8 +82,17 @@ public abstract class TitleScreenMixin extends Screen {
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
 		List<PressableWidget> buttons = Collections.synchronizedList(new ArrayList<>());
+		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
-			buttons.add(addDrawableSelectableElement(new AuthWidget()));
+			buttons.add(addDrawableSelectableElement(new AuthWidget(10, leftButtonY)));
+			leftButtonY += 25;
+		}
+		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
+			buttons.add(addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends"),
+				w -> client.setScreen(new FriendsScreen(this))).positionAndSize(10, leftButtonY, 50, 20).build()));
+			leftButtonY += 25;
+			buttons.add(addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.chats"),
+				w -> client.setScreen(new ChatListScreen(this))).positionAndSize(10, leftButtonY, 50, 20).build()));
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;

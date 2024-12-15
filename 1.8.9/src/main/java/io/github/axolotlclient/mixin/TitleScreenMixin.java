@@ -29,8 +29,11 @@ import java.util.List;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.chat.ChatListScreen;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.AccountsScreen;
 import io.github.axolotlclient.modules.auth.Auth;
@@ -68,8 +71,15 @@ public abstract class TitleScreenMixin extends Screen {
 			args.set(0, 192);
 			args.set(3, I18n.translate("config") + "...");
 		}
+		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
-			buttons.add(new AuthWidget());
+			buttons.add(new AuthWidget(10, leftButtonY));
+			leftButtonY += 25;
+		}
+		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
+			buttons.add(new ButtonWidget(142, 10, leftButtonY, 50, 20, I18n.translate("api.friends")));
+			leftButtonY += 25;
+			buttons.add(new ButtonWidget(42, 10, leftButtonY, 50, 20, I18n.translate("api.chats")));
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;
@@ -122,6 +132,8 @@ public abstract class TitleScreenMixin extends Screen {
 			}, "https://modrinth.com/mod/axolotlclient/versions", 353, true));
 		else if (button.id == 253)
 			Minecraft.getInstance().openScreen(new NewsScreen(this));
+		else if (button.id == 142) minecraft.openScreen(new FriendsScreen(this));
+		else if (button.id == 42) minecraft.openScreen(new ChatListScreen(this));
 	}
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))

@@ -28,7 +28,9 @@ import java.util.function.Supplier;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.FriendsSidebar;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.ChatsSidebar;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
@@ -61,9 +63,17 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "createPauseMenu", at = @At("TAIL"))
 	private void axolotlclient$addButtons(CallbackInfo ci, @Local GridLayout widget) {
-		if (API.getInstance().isSocketConnected()) {
+		if (API.getInstance().isAuthenticated()) {
+			int buttonY = height-30;
+			if (APIOptions.getInstance().addShortcutButtons.get()) {
+				addRenderableWidget(Button.builder(Component.translatable("api.friends"),
+						button -> minecraft.setScreen(new FriendsScreen(this)))
+					.bounds(10, buttonY, 75, 20).build());
+				buttonY -= 25;
+			}
 			addRenderableWidget(Button.builder(Component.translatable("api.chats"),
-				button -> minecraft.setScreen(new FriendsSidebar(this))).bounds(10, height - 30, 75, 20).build());
+				button -> minecraft.setScreen(new ChatsSidebar(this)))
+				.bounds(10, buttonY, 75, 20).build());
 		}
 		if (!axolotlclient$hasModMenu()) {
 			addRenderableWidget(new Button(widget.getX() + widget.getWidth(),

@@ -45,7 +45,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 
-public class FriendsSidebar extends Screen implements ContextMenuScreen {
+public class ChatsSidebar extends Screen implements ContextMenuScreen {
 
 	private static final int ANIM_STEP = 8;
 	private final Screen parent;
@@ -61,7 +61,7 @@ public class FriendsSidebar extends Screen implements ContextMenuScreen {
 
 	private ContextMenuContainer contextMenu;
 
-	public FriendsSidebar(Screen parent) {
+	public ChatsSidebar(Screen parent) {
 		super(Text.translatable("api.chats.sidebar"));
 		this.parent = parent;
 	}

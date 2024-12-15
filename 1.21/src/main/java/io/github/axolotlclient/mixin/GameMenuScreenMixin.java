@@ -28,12 +28,13 @@ import java.util.function.Supplier;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.api.FriendsSidebar;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.ChatsSidebar;
+import io.github.axolotlclient.api.FriendsScreen;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -62,8 +63,16 @@ public abstract class GameMenuScreenMixin extends Screen {
 	@Inject(method = "initWidgets", at = @At("TAIL"))
 	private void axolotlclient$addButtons(CallbackInfo ci, @Local GridWidget widget) {
 		if (API.getInstance().isSocketConnected()) {
+			int buttonY = height-30;
+			if (APIOptions.getInstance().addShortcutButtons.get()) {
+				addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.friends"),
+						button -> client.setScreen(new FriendsScreen(this)))
+					.positionAndSize(10, buttonY, 75, 20).build());
+				buttonY -= 25;
+			}
 			addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.chats"),
-				button -> MinecraftClient.getInstance().setScreen(new FriendsSidebar(this))).positionAndSize(10, height - 30, 75, 20).build());
+					button -> client.setScreen(new ChatsSidebar(this)))
+				.positionAndSize(10, buttonY, 75, 20).build());
 		}
 		if (!axolotlclient$hasModMenu()) {
 			addDrawableSelectableElement(new ButtonWidget(widget.getX() + widget.getWidth(),

@@ -32,8 +32,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class AuthWidget extends Button {
 
-	public AuthWidget() {
-		super(10, 10, Minecraft.getInstance().font.width(Auth.getInstance().getCurrent().getName()) + 28, 20,
+	public AuthWidget(int x, int y) {
+		super(x, y, Minecraft.getInstance().font.width(Auth.getInstance().getCurrent().getName()) + 28, 20,
 			Component.literal("    " + Auth.getInstance().getCurrent().getName()),
 			buttonWidget -> Minecraft.getInstance().setScreen(new AccountsScreen(Minecraft.getInstance().screen)),
 			DEFAULT_NARRATION

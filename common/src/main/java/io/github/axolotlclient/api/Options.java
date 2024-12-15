@@ -59,6 +59,7 @@ public abstract class Options implements Module {
 	});
 	public final BooleanOption updateNotifications = new BooleanOption("api.update_notifications", false);
 	public final BooleanOption displayNotes = new BooleanOption("api.display_notes", true);
+	public final BooleanOption addShortcutButtons = new BooleanOption("api.add_shortcut_buttons", true);
 	public final StringOption pkToken = new StringOption("api.pk_token", "", s ->
 		PkSystem.fromToken(s).thenAccept(sys -> {
 			if (sys != null) {
@@ -95,6 +96,6 @@ public abstract class Options implements Module {
 		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
 		account.add(showRegistered, retainUsernames, showLastOnline, showActivity);
 		category.add(pluralkit, account);
-		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, channelInvitesEnabled, detailedLogging, updateNotifications, displayNotes);
+		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, channelInvitesEnabled, detailedLogging, updateNotifications, displayNotes, addShortcutButtons);
 	}
 }
