@@ -49,7 +49,6 @@ public class HypixelMods extends AbstractModule {
 	private final OptionCategory category = OptionCategory.create("hypixel-mods");
 	private final List<AbstractHypixelMod> subModules = new ArrayList<>();
 	private final BooleanOption removeLobbyJoinMessages = new BooleanOption("removeLobbyJoinMessages", false);
-	private final BooleanOption removeMysteryBoxFindings = new BooleanOption("removeMysteryBoxFindings", false);
 
 
 	public static HypixelMods getInstance() {
@@ -60,7 +59,6 @@ public class HypixelMods extends AbstractModule {
 	public void init() {
 		category.add(cacheMode);
 		category.add(removeLobbyJoinMessages);
-		category.add(removeMysteryBoxFindings);
 
 		addSubModule(LevelHead.getInstance());
 		addSubModule(AutoGG.getInstance());
@@ -79,7 +77,6 @@ public class HypixelMods extends AbstractModule {
 		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(event -> {
 			AutoBoop.getInstance().handleMessage(event.getOriginalMessage());
 			HypixelMessages.getInstance().process(removeLobbyJoinMessages, "lobby_join", event);
-			HypixelMessages.getInstance().process(removeMysteryBoxFindings, "mysterybox_find", event);
 		});
 	}
 

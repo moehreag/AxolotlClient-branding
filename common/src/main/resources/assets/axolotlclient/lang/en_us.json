@@ -416,7 +416,6 @@
 	"zoomScrolling": "Zoom Scrolling",
 	"zoomScrolling.tooltip": "Whether to allow scrolling to modify the zoom factor.",
 	"removeLobbyJoinMessages": "Remove Lobby Join Messages",
-	"removeMysteryBoxFindings": "Remove Mystery Box Findings Messages",
 	"zoomSpeed": "Animation Speed",
 	"api.error.userNotFound": "The specified User could not be found.",
 	"api.error.friendRequestNotFound": "You do not have a friend request from this user.",

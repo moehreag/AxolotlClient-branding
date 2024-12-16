@@ -34,7 +34,6 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
-import io.github.moehreag.searchInResources.SearchableResourceManager;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resource.manager.ResourceManager;
@@ -54,7 +53,7 @@ public class HypixelMessages implements Runnable {
 
 		AxolotlClient.LOGGER.debug("Loading Hypixel Messages");
 		ResourceManager manager = Minecraft.getInstance().getResourceManager();
-		((SearchableResourceManager) manager).findResources("", "lang",
+		manager.findResources("", "lang",
 			identifier -> identifier.getPath().endsWith(".hypixel.json")).values().forEach(resource -> {
 			int i = resource.getLocation().getPath().lastIndexOf("/") + 1;
 			String lang = resource.getLocation().getPath().substring(i, i + 5);
