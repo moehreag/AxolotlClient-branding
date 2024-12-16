@@ -41,7 +41,7 @@ public class FriendsScreen extends Screen {
 	private UserListWidget widget;
 
 	private ButtonWidget chatButton, removeButton, onlineTab, allTab, pendingTab, blockedTab;
-	private ButtonWidget denyButton, acceptButton;
+	private ButtonWidget denyButton, acceptButton, unblockButton, cancelButton;
 
 	private Tab current = Tab.ONLINE;
 
@@ -130,6 +130,9 @@ public class FriendsScreen extends Screen {
 	}
 
 	public void openChat() {
+		if (!chatButton.active) {
+			return;
+		}
 		UserListWidget.UserListEntry entry = widget.getSelectedEntry();
 		if (entry != null) {
 			chatButton.active = false;
@@ -150,7 +153,7 @@ public class FriendsScreen extends Screen {
 		UserListWidget.UserListEntry entry = widget.getSelectedEntry();
 		if (entry != null) {
 			denyButton.active = false;
-			FriendRequest.getInstance().denyFriendRequest(entry.getUser()).thenRun(() -> minecraft.submit(this::refresh));;
+			FriendRequest.getInstance().denyFriendRequest(entry.getUser()).thenRun(() -> minecraft.submit(this::refresh));
 		}
 	}
 
@@ -185,7 +188,7 @@ public class FriendsScreen extends Screen {
 				UserListWidget.UserListEntry entry = this.widget.getSelectedEntry();
 				if (entry != null) {
 					removeButton.active = false;
-					FriendRequest.getInstance().removeFriend(entry.getUser()).thenRun(() -> minecraft.submit(this::refresh));;
+					FriendRequest.getInstance().removeFriend(entry.getUser()).thenRun(() -> minecraft.submit(this::refresh));
 				}
 				break;
 			case 5:
@@ -202,6 +205,14 @@ public class FriendsScreen extends Screen {
 				break;
 			case 9:
 				minecraft.openScreen(new FriendsScreen(parent, Tab.BLOCKED));
+				break;
+			case 10:
+				buttonWidget.active = false;
+				FriendRequest.getInstance().unblockUser(widget.getSelectedEntry().getUser()).thenRun(() -> minecraft.submit(this::refresh));
+				break;
+			case 11:
+				buttonWidget.active = false;
+				FriendRequest.getInstance().cancelFriendRequest(widget.getSelectedEntry().getUser()).thenRun(() -> minecraft.submit(this::refresh));
 				break;
 		}
 	}
@@ -223,7 +234,7 @@ public class FriendsScreen extends Screen {
 				con.getLeft().stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
 					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, I18n.translate("api.friends.pending.incoming"))));
 				con.getRight().stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, I18n.translate("api.friends.pending.outgoing"))));
+					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, I18n.translate("api.friends.pending.outgoing")).outgoing()));
 			});
 		} else if (current == Tab.BLOCKED) {
 			FriendRequest.getInstance().getBlocked().whenCompleteAsync((list, th) -> widget.setUsers(list.stream().sorted((u1, u2) ->
@@ -254,6 +265,9 @@ public class FriendsScreen extends Screen {
 		buttons.add(acceptButton = new ButtonWidget(2, this.width / 2 + 2, this.height - 28, 48, 20,
 			I18n.translate("api.friends.request.accept")));
 
+		buttons.add(unblockButton = new ButtonWidget(10, this.width / 2 - 50, this.height - 28, 100, 20, I18n.translate("api.users.unblock")));
+		buttons.add(cancelButton = new ButtonWidget(11, this.width / 2 - 50, this.height - 28, 100, 20, I18n.translate("gui.cancel")));
+
 		this.buttons.add(chatButton = new ButtonWidget(1, this.width / 2 - 154, this.height - 28, 100, 20,
 			I18n.translate("api.friends.chat")));
 
@@ -265,16 +279,12 @@ public class FriendsScreen extends Screen {
 
 	private void updateButtonActivationStates() {
 		UserListWidget.UserListEntry entry = widget.getSelectedEntry();
-		if (entry != null && (current == Tab.ALL || current == Tab.ONLINE)) {
-			chatButton.active = removeButton.active = true;
-		} else {
-			chatButton.active = false;
-			removeButton.active = current == Tab.BLOCKED;
-		}
+		chatButton.active = entry != null && (current == Tab.ALL || current == Tab.ONLINE);
 
 		removeButton.visible = true;
+		unblockButton.active = removeButton.active = entry != null;
 		denyButton.visible = false;
-		acceptButton.visible = false;
+		acceptButton.visible = unblockButton.visible = cancelButton.visible = false;
 		if (current == Tab.ONLINE) {
 			onlineTab.active = false;
 			allTab.active = pendingTab.active = blockedTab.active = true;
@@ -285,13 +295,19 @@ public class FriendsScreen extends Screen {
 			pendingTab.active = false;
 			onlineTab.active = allTab.active = blockedTab.active = true;
 			removeButton.visible = false;
-			denyButton.visible = true;
-			acceptButton.visible = true;
+
+			if (entry != null && entry.isOutgoingRequest()) {
+				cancelButton.visible = true;
+			} else {
+				denyButton.visible = true;
+				acceptButton.visible = true;
+			}
 			denyButton.active = acceptButton.active = entry != null;
 		} else if (current == Tab.BLOCKED) {
 			blockedTab.active = false;
 			onlineTab.active = allTab.active = pendingTab.active = true;
-			removeButton.active = true;
+			removeButton.visible = false;
+			unblockButton.visible = true;
 		}
 	}
 

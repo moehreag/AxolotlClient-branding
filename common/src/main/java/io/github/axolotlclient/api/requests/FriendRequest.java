@@ -70,18 +70,18 @@ public class FriendRequest {
 		});
 	}
 
-	public CompletableFuture<?> blockUser(String uuid) {
-		return setRelation(uuid, Relation.BLOCKED).whenCompleteAsync((response, t) -> {
+	public CompletableFuture<?> blockUser(User user) {
+		return setRelation(user.getUuid(), Relation.BLOCKED).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
-				api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", UUIDHelper.getUsername(uuid));
+				api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", user.getName());
 			}
 		});
 	}
 
-	public CompletableFuture<?> unblockUser(String uuid) {
-		return setRelation(uuid, Relation.NONE).whenCompleteAsync((response, t) -> {
+	public CompletableFuture<?> unblockUser(User user) {
+		return setRelation(user.getUuid(), Relation.NONE).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
-				api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", UUIDHelper.getUsername(uuid));
+				api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", user.getName());
 			}
 		});
 	}
@@ -132,6 +132,14 @@ public class FriendRequest {
 		return setRelation(from.getUuid(), Relation.NONE).thenAccept(res -> {
 			if (!res.isError()) {
 				api.getNotificationProvider().addStatus("api.success.denyFriend", "api.success.denyFriend.desc", from.getName());
+			}
+		});
+	}
+
+	public CompletableFuture<?> cancelFriendRequest(User to) {
+		return setRelation(to.getUuid(), Relation.NONE).thenAccept(res -> {
+			if (!res.isError()) {
+				api.getNotificationProvider().addStatus("api.friends", "api.friends.request.cancelled", to.getName());
 			}
 		});
 	}

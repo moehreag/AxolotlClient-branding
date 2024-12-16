@@ -86,6 +86,9 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 		private Text note;
 		private FriendsScreen screen;
 
+		@Getter
+		private boolean outgoingRequest;
+
 		public UserListEntry(User user, MutableText note) {
 			this(user);
 			this.note = note.formatted(Formatting.ITALIC);
@@ -101,6 +104,10 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 			return this;
 		}
 
+		public UserListEntry outgoing() {
+			outgoingRequest = true;
+			return this;
+		}
 
 		@Override
 		public Text getNarration() {
@@ -127,7 +134,7 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 			}
 
 			if (note != null) {
-				graphics.drawText(client.textRenderer, note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504, false);
+				graphics.drawText(client.textRenderer, note, x + entryWidth - client.textRenderer.getWidth(note) - 4, y + entryHeight - 10, 8421504, false);
 			}
 
 			Identifier texture = Auth.getInstance().getSkinTexture(user.getUuid(), user.getName());

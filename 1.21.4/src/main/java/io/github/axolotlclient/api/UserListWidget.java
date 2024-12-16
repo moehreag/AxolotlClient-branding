@@ -87,6 +87,9 @@ public class UserListWidget extends ObjectSelectionList<UserListWidget.UserListE
 		private MutableComponent note;
 		private FriendsScreen screen;
 
+		@Getter
+		private boolean outgoingRequest;
+
 		public UserListEntry(User user, MutableComponent note) {
 			this(user);
 			this.note = note.withStyle(ChatFormatting.ITALIC);
@@ -102,6 +105,10 @@ public class UserListWidget extends ObjectSelectionList<UserListWidget.UserListE
 			return this;
 		}
 
+		public UserListEntry outgoing() {
+			outgoingRequest = true;
+			return this;
+		}
 
 		@Override
 		public Component getNarration() {
@@ -129,7 +136,7 @@ public class UserListWidget extends ObjectSelectionList<UserListWidget.UserListE
 			}
 
 			if (note != null) {
-				graphics.drawString(client.font, note, x + entryWidth - client.font.width(note) - 2,
+				graphics.drawString(client.font, note, x + entryWidth - client.font.width(note) - 4,
 					y + entryHeight - 10, 8421504, false
 				);
 			}

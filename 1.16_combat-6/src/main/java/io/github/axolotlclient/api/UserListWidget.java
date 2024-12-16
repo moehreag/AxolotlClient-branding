@@ -79,6 +79,9 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 		private Text note;
 		private FriendsScreen screen;
 
+		@Getter
+		private boolean outgoingRequest;
+
 		public UserListEntry(User user, MutableText note) {
 			this(user);
 			this.note = note.formatted(Formatting.ITALIC);
@@ -91,6 +94,11 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 
 		public UserListEntry init(FriendsScreen screen) {
 			this.screen = screen;
+			return this;
+		}
+
+		public UserListEntry outgoing() {
+			outgoingRequest = true;
 			return this;
 		}
 
@@ -113,7 +121,7 @@ public class UserListWidget extends AlwaysSelectedEntryListWidget<UserListWidget
 			}
 
 			if (note != null) {
-				client.textRenderer.draw(matrices, note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
+				client.textRenderer.draw(matrices, note, x + entryWidth - client.textRenderer.getWidth(note) - 4, y + entryHeight - 10, 8421504);
 			}
 
 			client.getTextureManager().bindTexture(Auth.getInstance().getSkinTexture(user.getUuid(), user.getName()));

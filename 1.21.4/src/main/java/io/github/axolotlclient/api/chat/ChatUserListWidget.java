@@ -162,11 +162,11 @@ public class ChatUserListWidget extends ObjectSelectionList<ChatUserListWidget.U
 					}
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
 						menu.entry(Component.translatable("api.users.block"),
-							buttonWidget -> FriendRequest.getInstance().blockUser(user.getUuid())
+							buttonWidget -> FriendRequest.getInstance().blockUser(user)
 						);
 					} else {
 						menu.entry(Component.translatable("api.users.unblock"),
-							buttonWidget -> FriendRequest.getInstance().unblockUser(user.getUuid())
+							buttonWidget -> FriendRequest.getInstance().unblockUser(user)
 						);
 					}
 					if (channel.getOwner().equals(API.getInstance().getSelf())) {

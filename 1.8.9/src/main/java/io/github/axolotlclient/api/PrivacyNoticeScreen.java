@@ -34,7 +34,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class PrivacyNoticeScreen extends Screen {
 
-	private static final URI PRIVACY_POLICY_URL = URI.create(Constants.PRIVACY_POLICY);
+	private static final URI TERMS_URI = URI.create(Constants.TERMS);
 
 	private final Screen parent;
 	private final Consumer<Boolean> accepted;
@@ -89,7 +89,7 @@ public class PrivacyNoticeScreen extends Screen {
 			APIOptions.getInstance().privacyAccepted.set("accepted");
 			accepted.accept(true);
 		} else if (buttonWidget.id == 2) {
-			OSUtil.getOS().open(PRIVACY_POLICY_URL);
+			OSUtil.getOS().open(TERMS_URI);
 		}
 	}
 

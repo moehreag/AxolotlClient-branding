@@ -156,9 +156,9 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 						}).spacer();
 					}
 					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
-						menu.entry(Text.translatable("api.users.block"), buttonWidget -> FriendRequest.getInstance().blockUser(user.getUuid()));
+						menu.entry(Text.translatable("api.users.block"), buttonWidget -> FriendRequest.getInstance().blockUser(user));
 					} else {
-						menu.entry(Text.translatable("api.users.unblock"), buttonWidget -> FriendRequest.getInstance().unblockUser(user.getUuid()));
+						menu.entry(Text.translatable("api.users.unblock"), buttonWidget -> FriendRequest.getInstance().unblockUser(user));
 					}
 					if (channel.getOwner().equals(API.getInstance().getSelf())) {
 						menu.spacer().entry(Text.translatable("api.channel.remove_user"), b -> ChannelRequest.removeUserFromChannel(channel, user));

@@ -39,7 +39,7 @@ public class FriendsScreen extends Screen {
 	private UserListWidget widget;
 
 	private Button chatButton, removeButton, onlineTab, allTab, pendingTab, blockedTab;
-	private Button denyButton, acceptButton;
+	private Button denyButton, acceptButton, unblockButton, cancelButton;
 
 	private Tab current = Tab.ONLINE;
 
@@ -103,7 +103,7 @@ public class FriendsScreen extends Screen {
 				con.getRight().stream()
 					.sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName())).forEach(
 						user -> widget.addEntry(new UserListWidget.UserListEntry(user, Component.translatable(
-							"api.friends.pending.outgoing"))));
+							"api.friends.pending.outgoing")).outgoing()));
 			});
 		} else if (current == Tab.BLOCKED) {
 			FriendRequest.getInstance().getBlocked().whenCompleteAsync((list, th) -> widget.setUsers(
@@ -112,32 +112,32 @@ public class FriendsScreen extends Screen {
 		}
 
 		this.addRenderableWidget(blockedTab = Button.builder(Component.translatable("api.friends.tab.blocked"),
-															 button -> minecraft.setScreen(
-																 new FriendsScreen(parent, Tab.BLOCKED))
-															).bounds(this.width / 2 + 24, this.height - 52, 57, 20)
+				button -> minecraft.setScreen(
+					new FriendsScreen(parent, Tab.BLOCKED))
+			).bounds(this.width / 2 + 24, this.height - 52, 57, 20)
 			.build());
 
 		this.addRenderableWidget(pendingTab = Button.builder(Component.translatable("api.friends.tab.pending"),
-															 button -> minecraft.setScreen(
-																 new FriendsScreen(parent, Tab.PENDING))
-															).bounds(this.width / 2 - 34, this.height - 52, 57, 20)
+				button -> minecraft.setScreen(
+					new FriendsScreen(parent, Tab.PENDING))
+			).bounds(this.width / 2 - 34, this.height - 52, 57, 20)
 			.build());
 
 		this.addRenderableWidget(allTab = Button.builder(Component.translatable("api.friends.tab.all"),
-														 button -> minecraft.setScreen(
-															 new FriendsScreen(parent, Tab.ALL))
-														).bounds(this.width / 2 - 94, this.height - 52, 57, 20)
+				button -> minecraft.setScreen(
+					new FriendsScreen(parent, Tab.ALL))
+			).bounds(this.width / 2 - 94, this.height - 52, 57, 20)
 			.build());
 
 		this.addRenderableWidget(onlineTab = Button.builder(Component.translatable("api.friends.tab.online"),
-															button -> minecraft.setScreen(
-																new FriendsScreen(parent, Tab.ONLINE))
-														   ).bounds(this.width / 2 - 154, this.height - 52, 57, 20)
+				button -> minecraft.setScreen(
+					new FriendsScreen(parent, Tab.ONLINE))
+			).bounds(this.width / 2 - 154, this.height - 52, 57, 20)
 			.build());
 
 		this.addRenderableWidget(Button.builder(Component.translatable("api.friends.add"),
-												button -> minecraft.setScreen(new AddFriendScreen(this))
-											   ).bounds(this.width / 2 + 88, this.height - 52, 66, 20).build());
+			button -> minecraft.setScreen(new AddFriendScreen(this))
+		).bounds(this.width / 2 + 88, this.height - 52, 66, 20).build());
 
 		this.removeButton =
 			this.addRenderableWidget(Button.builder(Component.translatable("api.friends.remove"), button -> {
@@ -149,20 +149,30 @@ public class FriendsScreen extends Screen {
 			}).bounds(this.width / 2 - 50, this.height - 28, 100, 20).build());
 
 		addRenderableWidget(denyButton = Button.builder(Component.translatable("api.friends.request.deny"),
-														button -> denyRequest()
-													   ).bounds(this.width / 2 - 50, this.height - 28, 48, 20).build());
+			button -> denyRequest()
+		).bounds(this.width / 2 - 50, this.height - 28, 48, 20).build());
 
 		addRenderableWidget(acceptButton = Button.builder(Component.translatable("api.friends.request.accept"),
-														  button -> acceptRequest()
-														 ).bounds(this.width / 2 + 2, this.height - 28, 48, 20)
+				button -> acceptRequest()
+			).bounds(this.width / 2 + 2, this.height - 28, 48, 20)
 			.build());
 
+		unblockButton = addRenderableWidget(Button.builder(Component.translatable("api.users.unblock"),
+			b -> {
+				b.active = false;
+				FriendRequest.getInstance().unblockUser(widget.getSelected().getUser()).thenRun(() -> minecraft.submit(this::refresh));
+			}).bounds(this.width / 2 - 50, this.height - 28, 100, 20).build());
+		cancelButton = addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, b -> {
+			b.active = false;
+			FriendRequest.getInstance().cancelFriendRequest(widget.getSelected().getUser()).thenRun(() -> minecraft.submit(this::refresh));
+		}).bounds(this.width / 2 - 50, this.height - 28, 100, 20).build());
+
 		this.addRenderableWidget(chatButton =
-									 Button.builder(Component.translatable("api.friends.chat"), button -> openChat())
-										 .bounds(this.width / 2 - 154, this.height - 28, 100, 20).build());
+			Button.builder(Component.translatable("api.friends.chat"), button -> openChat())
+				.bounds(this.width / 2 - 154, this.height - 28, 100, 20).build());
 
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, button -> this.minecraft.setScreen(this.parent))
-									 .bounds(this.width / 2 + 4 + 50, this.height - 28, 100, 20).build());
+			.bounds(this.width / 2 + 4 + 50, this.height - 28, 100, 20).build());
 		updateButtonActivationStates();
 	}
 
@@ -188,16 +198,12 @@ public class FriendsScreen extends Screen {
 
 	private void updateButtonActivationStates() {
 		UserListWidget.UserListEntry entry = widget.getSelected();
-		if (entry != null && (current == Tab.ALL || current == Tab.ONLINE)) {
-			chatButton.active = removeButton.active = true;
-		} else {
-			chatButton.active = false;
-			removeButton.active = current == Tab.BLOCKED;
-		}
+		chatButton.active = entry != null && (current == Tab.ALL || current == Tab.ONLINE);
 
 		removeButton.visible = true;
+		unblockButton.active = removeButton.active = entry != null;
 		denyButton.visible = false;
-		acceptButton.visible = false;
+		acceptButton.visible = unblockButton.visible = cancelButton.visible = false;
 		if (current == Tab.ONLINE) {
 			onlineTab.active = false;
 			allTab.active = pendingTab.active = blockedTab.active = true;
@@ -208,16 +214,26 @@ public class FriendsScreen extends Screen {
 			pendingTab.active = false;
 			onlineTab.active = allTab.active = blockedTab.active = true;
 			removeButton.visible = false;
-			denyButton.visible = true;
-			acceptButton.visible = true;
+
+			if (entry != null && entry.isOutgoingRequest()) {
+				cancelButton.visible = true;
+			} else {
+				denyButton.visible = true;
+				acceptButton.visible = true;
+			}
 			denyButton.active = acceptButton.active = entry != null;
 		} else if (current == Tab.BLOCKED) {
 			blockedTab.active = false;
 			onlineTab.active = allTab.active = pendingTab.active = true;
+			removeButton.visible = false;
+			unblockButton.visible = true;
 		}
 	}
 
 	public void openChat() {
+		if (!chatButton.active) {
+			return;
+		}
 		UserListWidget.UserListEntry entry = widget.getSelected();
 		if (entry != null) {
 			chatButton.active = false;

@@ -41,7 +41,7 @@ public class FriendsScreen extends Screen {
 	private UserListWidget widget;
 
 	private ButtonWidget chatButton, removeButton, onlineTab, allTab, pendingTab, blockedTab;
-	private ButtonWidget denyButton, acceptButton;
+	private ButtonWidget denyButton, acceptButton, unblockButton, cancelButton;
 
 	private Tab current = Tab.ONLINE;
 
@@ -102,7 +102,7 @@ public class FriendsScreen extends Screen {
 				con.getLeft().stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
 					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, new TranslatableText("api.friends.pending.incoming"))));
 				con.getRight().stream().sorted((u1, u2) -> new AlphabeticalComparator().compare(u1.getName(), u2.getName()))
-					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, new TranslatableText("api.friends.pending.outgoing"))));
+					.forEach(user -> widget.addEntry(new UserListWidget.UserListEntry(user, new TranslatableText("api.friends.pending.outgoing")).outgoing()));
 			});
 		} else if (current == Tab.BLOCKED) {
 			FriendRequest.getInstance().getBlocked().whenCompleteAsync((list, th) -> widget.setUsers(list.stream().sorted((u1, u2) ->
@@ -146,6 +146,16 @@ public class FriendsScreen extends Screen {
 			new TranslatableText("api.friends.request.accept"),
 			button -> acceptRequest()));
 
+		unblockButton = addButton(new ButtonWidget(this.width / 2 - 50, this.height - 28, 100, 20, new TranslatableText("api.users.unblock"),
+			b -> {
+				b.active = false;
+				FriendRequest.getInstance().unblockUser(widget.getSelected().getUser()).thenRun(() -> client.execute(this::refresh));
+			}));
+		cancelButton = addButton(new ButtonWidget(this.width / 2 - 50, this.height - 28, 100, 20, ScreenTexts.CANCEL, b -> {
+			b.active = false;
+			FriendRequest.getInstance().cancelFriendRequest(widget.getSelected().getUser()).thenRun(() -> client.execute(this::refresh));
+		}));
+
 		this.addButton(chatButton = new ButtonWidget(this.width / 2 - 154, this.height - 28, 100, 20,
 			new TranslatableText("api.friends.chat"), button -> openChat()));
 
@@ -177,16 +187,12 @@ public class FriendsScreen extends Screen {
 
 	private void updateButtonActivationStates() {
 		UserListWidget.UserListEntry entry = widget.getSelected();
-		if (entry != null && (current == Tab.ALL || current == Tab.ONLINE)) {
-			chatButton.active = removeButton.active = true;
-		} else {
-			chatButton.active = false;
-			removeButton.active = current == Tab.BLOCKED;
-		}
+		chatButton.active = entry != null && (current == Tab.ALL || current == Tab.ONLINE);
 
 		removeButton.visible = true;
+		unblockButton.active = removeButton.active = entry != null;
 		denyButton.visible = false;
-		acceptButton.visible = false;
+		acceptButton.visible = unblockButton.visible = cancelButton.visible = false;
 		if (current == Tab.ONLINE) {
 			onlineTab.active = false;
 			allTab.active = pendingTab.active = blockedTab.active = true;
@@ -197,16 +203,26 @@ public class FriendsScreen extends Screen {
 			pendingTab.active = false;
 			onlineTab.active = allTab.active = blockedTab.active = true;
 			removeButton.visible = false;
-			denyButton.visible = true;
-			acceptButton.visible = true;
+
+			if (entry != null && entry.isOutgoingRequest()) {
+				cancelButton.visible = true;
+			} else {
+				denyButton.visible = true;
+				acceptButton.visible = true;
+			}
 			denyButton.active = acceptButton.active = entry != null;
 		} else if (current == Tab.BLOCKED) {
 			blockedTab.active = false;
 			onlineTab.active = allTab.active = pendingTab.active = true;
+			removeButton.visible = false;
+			unblockButton.visible = true;
 		}
 	}
 
 	public void openChat() {
+		if (!chatButton.active) {
+			return;
+		}
 		UserListWidget.UserListEntry entry = widget.getSelected();
 		if (entry != null) {
 			chatButton.active = false;

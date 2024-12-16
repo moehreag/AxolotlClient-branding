@@ -104,6 +104,9 @@ public class UserListWidget extends EntryListWidget {
 		private String note;
 		private FriendsScreen screen;
 
+		@Getter
+		private boolean outgoingRequest;
+
 		public UserListEntry(User user, String note) {
 			this(user);
 			this.note = Formatting.ITALIC + note;
@@ -116,6 +119,11 @@ public class UserListWidget extends EntryListWidget {
 
 		public UserListEntry init(FriendsScreen screen) {
 			this.screen = screen;
+			return this;
+		}
+
+		public UserListEntry outgoing() {
+			outgoingRequest = true;
 			return this;
 		}
 
@@ -143,7 +151,7 @@ public class UserListWidget extends EntryListWidget {
 			}
 
 			if (note != null) {
-				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getWidth(note) - 2, y + entryHeight - 10, 8421504);
+				client.textRenderer.draw(note, x + entryWidth - client.textRenderer.getWidth(note) - 4, y + entryHeight - 10, 8421504);
 			}
 
 			GlStateManager.color4f(1, 1, 1, 1);
