@@ -66,6 +66,7 @@ public class FriendRequest {
 		return setRelation(api.sanitizeUUID(user.getUuid()), Relation.NONE).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider().addStatus("api.success.removeFriend", "api.success.removeFriend.desc", user.getName());
+				user.setRelation(Relation.NONE);
 			}
 		});
 	}
@@ -74,6 +75,7 @@ public class FriendRequest {
 		return setRelation(user.getUuid(), Relation.BLOCKED).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider().addStatus("api.success.blockUser", "api.success.blockUser.desc", user.getName());
+				user.setRelation(Relation.BLOCKED);
 			}
 		});
 	}
@@ -82,6 +84,7 @@ public class FriendRequest {
 		return setRelation(user.getUuid(), Relation.NONE).whenCompleteAsync((response, t) -> {
 			if (!response.isError()) {
 				api.getNotificationProvider().addStatus("api.success.unblockUser", "api.success.unblockUser.desc", user.getName());
+				user.setRelation(Relation.NONE);
 			}
 		});
 	}
@@ -115,15 +118,12 @@ public class FriendRequest {
 			});
 	}
 
-	public boolean isBlocked(String uuid) {
-		return getBlocked().join().stream().map(User::getUuid).anyMatch(uuid::equals);
-	}
-
 	public CompletableFuture<?> acceptFriendRequest(User from) {
 		return setRelation(from.getUuid(), Relation.FRIEND)
 			.thenAccept(res -> {
 				if (!res.isError()) {
 					api.getNotificationProvider().addStatus("api.success.acceptFriend", "api.success.acceptFriend.desc", from.getName());
+					from.setRelation(Relation.FRIEND);
 				}
 			});
 	}
@@ -132,6 +132,7 @@ public class FriendRequest {
 		return setRelation(from.getUuid(), Relation.NONE).thenAccept(res -> {
 			if (!res.isError()) {
 				api.getNotificationProvider().addStatus("api.success.denyFriend", "api.success.denyFriend.desc", from.getName());
+				from.setRelation(Relation.NONE);
 			}
 		});
 	}
@@ -140,6 +141,7 @@ public class FriendRequest {
 		return setRelation(to.getUuid(), Relation.NONE).thenAccept(res -> {
 			if (!res.isError()) {
 				api.getNotificationProvider().addStatus("api.friends", "api.friends.request.cancelled", to.getName());
+				to.setRelation(Relation.NONE);
 			}
 		});
 	}

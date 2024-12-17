@@ -27,10 +27,12 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.RateLimiter;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.Relation;
@@ -45,7 +47,9 @@ public class UserRequest {
 
 	private static final Cache<String, Optional<User>> userCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
 		.maximumSize(400).build();
+	private static final RateLimiter limiter = RateLimiter.create(2);
 	private static final WeakHashMap<String, Boolean> onlineCache = new WeakHashMap<>();
+	private static ReentrantLock onlineCacheLock = new ReentrantLock();
 
 	public static boolean getOnline(String uuid) {
 
@@ -59,63 +63,58 @@ public class UserRequest {
 			return true;
 		}
 
-		synchronized (onlineCache) {
-			if (!onlineCache.containsKey(sanitized)) {
-				ThreadExecuter.scheduleTask(() -> get(sanitized).thenApply(u -> u.isPresent() && u.get().getStatus().isOnline()).thenAccept(b -> onlineCache.put(sanitized, b)));
-				return false;
-			}
-			return onlineCache.get(sanitized);
+		onlineCacheLock.lock();
+		if (!onlineCache.containsKey(sanitized)) {
+			ThreadExecuter.scheduleTask(() -> get(sanitized).thenApply(u -> u.isPresent() && u.get().getStatus().isOnline()).thenAccept(b -> onlineCache.put(sanitized, b)));
+			return false;
 		}
+		return onlineCache.get(sanitized);
 	}
 
 	public static CompletableFuture<Optional<User>> get(String dUuid) {
 		final String uuid = API.getInstance().sanitizeUUID(dUuid);
-		Optional<User> cached = userCache.getIfPresent(uuid);
-		if (cached != null && cached.isPresent()) {
-			return CompletableFuture.completedFuture(cached);
+		if (userCache.asMap().containsKey(uuid)) {
+			return CompletableFuture.completedFuture(userCache.asMap().get(uuid));
 		}
 
-		synchronized (userCache) {
-			return API.getInstance().get(Request.Route.USER.builder().path(uuid).build()).thenApply(response -> {
-				if (response.isError()) {
-					return null;
-				}
-				return new User(
-					response.getBody("uuid"),
-					response.getBody("username"),
-					Relation.get(response.getBodyOrElse("relation", "none")),
-					response.getBody("registered", TimestampParser::parse),
-					new Status(response.getBody("status.type").equals("online"),
-						response.getBody("status.last_online", TimestampParser::parse),
-						response.ifBodyHas("status.activity", () -> {
-							String desc = response.getBody("status.activity.description");
-							String description;
-							if (desc.contains("{")) {
-								try {
-									var json = GsonHelper.fromJson(desc);
-									description = json.has("value") ? json.get("value").getAsString() : "";
-								} catch (Throwable t) {
-									description = desc;
-								}
-							} else {
+		limiter.acquire();
+		return API.getInstance().get(Request.Route.USER.builder().path(uuid).build()).thenApply(response -> {
+			if (response.isError()) {
+				return null;
+			}
+			return new User(
+				response.getBody("uuid"),
+				response.getBody("username"),
+				Relation.get(response.getBodyOrElse("relation", "none")),
+				response.getBody("registered", TimestampParser::parse),
+				new Status(response.getBody("status.type").equals("online"),
+					response.getBody("status.last_online", TimestampParser::parse),
+					response.ifBodyHas("status.activity", () -> {
+						String desc = response.getBody("status.activity.description");
+						String description;
+						if (desc.contains("{")) {
+							try {
+								var json = GsonHelper.fromJson(desc);
+								description = json.has("value") ? json.get("value").getAsString() : "";
+							} catch (Throwable t) {
 								description = desc;
 							}
-							return new Status.Activity(response.getBody("status.activity.title"),
-								description, desc,
-								response.getBody("status.activity.started", TimestampParser::parse));
-						})
-					),
-					response.getBody("previous_usernames", (List<String> list) ->
-						list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));
-			}).thenApply(u -> {
-				Optional<User> opt = Optional.ofNullable(u);
-				userCache.put(uuid, opt);
-				return opt;
-			});
-		}
+						} else {
+							description = desc;
+						}
+						return new Status.Activity(response.getBody("status.activity.title"),
+							description, desc,
+							response.getBody("status.activity.started", TimestampParser::parse));
+					})
+				),
+				response.getBody("previous_usernames", (List<String> list) ->
+					list.stream().map(s -> new User.OldUsername(s, true)).collect(Collectors.toList())));
+		}).thenApply(u -> {
+			Optional<User> opt = Optional.ofNullable(u);
+			userCache.put(uuid, opt);
+			return opt;
+		});
+
 	}
 
-	public static CompletableFuture<Boolean> delete() {
-		return API.getInstance().delete(Request.Route.ACCOUNT.create()).thenApply(res -> !res.isError());
-	}
 }

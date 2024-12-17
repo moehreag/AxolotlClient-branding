@@ -51,4 +51,8 @@ public class AccountSettingsRequest {
 
 			});
 	}
+
+	public static CompletableFuture<Boolean> deleteAccount() {
+		return API.getInstance().delete(Request.Route.ACCOUNT.create()).thenApply(res -> !res.isError());
+	}
 }

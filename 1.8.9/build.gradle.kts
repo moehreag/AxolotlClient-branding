@@ -42,7 +42,7 @@ dependencies {
 
 	modImplementation(include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")!!)
 
-	val lwjglVersion = "3.3.4"
+	val lwjglVersion = "3.3.5"
 	api("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux")
 	runtimeOnly("org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux-arm64")

@@ -290,8 +290,9 @@ public class API {
 			// We have to rely on the gc to collect previous client objects as close() was only implemented in java 21.
 			// However, we are currently compiling against java 17.
 			//client.close();
-			client = null;
+			token = null;
 		}
+		client = null;
 	}
 
 	public boolean isSocketConnected() {

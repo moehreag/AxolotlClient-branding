@@ -58,10 +58,15 @@ public class StatusUpdateProviderImpl implements StatusUpdateProvider {
 					StatusUpdate.SupportedServer server = optional.get();
 					if (server.equals(StatusUpdate.SupportedServer.HYPIXEL)) {
 						JsonObject object = HypixelLocation.get().thenApply(GsonHelper::fromJson).join();
-						HypixelGameType gameType = HypixelGameType.valueOf(object.get("gametype").getAsString());
+						String gameType;
+						if (object.has("gametype")) {
+							gameType = HypixelGameType.valueOf(object.get("gametype").getAsString()).getName();
+						} else {
+							gameType = object.get("server").getAsString();
+						}
 						String gameMode = getOrEmpty(object, "mode");
 						String map = getOrEmpty(object, "map");
-						return StatusUpdate.inGame(server, gameType.getName(), gameMode, map);
+						return StatusUpdate.inGame(server, gameType, gameMode, map);
 					} else if (server.equals(StatusUpdate.SupportedServer.MCC_ISLAND)) {
 						return MccIslandMods.getInstance().getMccIStatus();
 					}

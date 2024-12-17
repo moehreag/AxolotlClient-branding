@@ -31,6 +31,7 @@ import io.github.axolotlclient.api.ContextMenu;
 import io.github.axolotlclient.api.requests.ChannelRequest;
 import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.types.Channel;
+import io.github.axolotlclient.api.types.Relation;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.AlphabeticalComparator;
 import io.github.axolotlclient.modules.auth.Auth;
@@ -153,7 +154,10 @@ public class ChatUserListWidget extends EntryListWidget {
 								.whenCompleteAsync((channel, throwable) -> client.submit(() -> client.openScreen(new ChatScreen(screen.getParent(), channel))));
 						}).spacer();
 					}
-					if (!FriendRequest.getInstance().isBlocked(user.getUuid())) {
+					if (user.getRelation() != Relation.BLOCKED) {
+						if (user.getRelation() != Relation.FRIEND) {
+							menu.entry("api.friends.add", b -> FriendRequest.getInstance().addFriend(user.getUuid())).spacer();
+						}
 						menu.entry("api.users.block", buttonWidget ->
 							FriendRequest.getInstance().blockUser(user));
 					} else {

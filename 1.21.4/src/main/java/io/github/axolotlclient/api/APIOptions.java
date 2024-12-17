@@ -29,7 +29,7 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
 import io.github.axolotlclient.api.chat.ChannelInvitesScreen;
 import io.github.axolotlclient.api.chat.ChatListScreen;
-import io.github.axolotlclient.api.requests.UserRequest;
+import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.util.keybinds.KeyBinds;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
@@ -67,7 +67,7 @@ public class APIOptions extends Options {
 			Screen previous = client.screen;
 			client.setScreen(new ConfirmScreen(b -> {
 				if (b) {
-					UserRequest.delete().thenAccept(r -> {
+					AccountSettingsRequest.deleteAccount().thenAccept(r -> {
 						if (r) {
 							API.getInstance().getNotificationProvider()
 								.addStatus("api.account.deletion.success", "api.account.deletion.success.desc");
