@@ -41,6 +41,7 @@
 		"osl-resource-loader": "*",
 		"osl-lifecycle-events": "*",
 		"osl-keybinds": "*",
-		"osl-entrypoints": "*"
+		"osl-entrypoints": "*",
+		"axolotlclientconfig": "*"
 	}
 }
