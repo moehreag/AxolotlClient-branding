@@ -22,12 +22,9 @@
 
 package io.github.axolotlclient.api.requests;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import com.google.common.cache.Cache;
@@ -40,7 +37,6 @@ import io.github.axolotlclient.api.types.Status;
 import io.github.axolotlclient.api.types.User;
 import io.github.axolotlclient.api.util.TimestampParser;
 import io.github.axolotlclient.util.GsonHelper;
-import io.github.axolotlclient.util.ThreadExecuter;
 
 @SuppressWarnings("UnstableApiUsage")
 public class UserRequest {
@@ -48,8 +44,9 @@ public class UserRequest {
 	private static final Cache<String, Optional<User>> userCache = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
 		.maximumSize(400).build();
 	private static final RateLimiter limiter = RateLimiter.create(2);
-	private static final WeakHashMap<String, Boolean> onlineCache = new WeakHashMap<>();
-	private static ReentrantLock onlineCacheLock = new ReentrantLock();
+	private static final Cache<String, Boolean> onlineCache = CacheBuilder.newBuilder().maximumSize(100).expireAfterAccess(10, TimeUnit.SECONDS)
+		.expireAfterWrite(2, TimeUnit.MINUTES).build();
+	private static final Set<String> onlineRequests = Collections.synchronizedSet(new TreeSet<>());
 
 	public static boolean getOnline(String uuid) {
 
@@ -63,12 +60,18 @@ public class UserRequest {
 			return true;
 		}
 
-		onlineCacheLock.lock();
-		if (!onlineCache.containsKey(sanitized)) {
-			ThreadExecuter.scheduleTask(() -> get(sanitized).thenApply(u -> u.isPresent() && u.get().getStatus().isOnline()).thenAccept(b -> onlineCache.put(sanitized, b)));
+		if (!onlineCache.asMap().containsKey(sanitized)) {
+			if (!onlineRequests.contains(sanitized)) {
+				onlineRequests.add(sanitized);
+				CompletableFuture.runAsync(() -> {
+					limiter.acquire();
+					get(sanitized).thenApply(u -> u.isPresent() && u.get().getStatus().isOnline()).thenAccept(b -> onlineCache.put(sanitized, b))
+						.thenRun(() -> onlineRequests.remove(sanitized));
+				});
+			}
 			return false;
 		}
-		return onlineCache.get(sanitized);
+		return onlineCache.asMap().get(sanitized);
 	}
 
 	public static CompletableFuture<Optional<User>> get(String dUuid) {
@@ -76,8 +79,6 @@ public class UserRequest {
 		if (userCache.asMap().containsKey(uuid)) {
 			return CompletableFuture.completedFuture(userCache.asMap().get(uuid));
 		}
-
-		limiter.acquire();
 		return API.getInstance().get(Request.Route.USER.builder().path(uuid).build()).thenApply(response -> {
 			if (response.isError()) {
 				return null;

@@ -133,7 +133,7 @@ public class AccountsScreen extends Screen {
 	private void updateButtonActivationStates() {
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (minecraft.level == null && entry != null) {
-			loginButton.active = !entry.getAccount().equals(Auth.getInstance().getCurrent());
+			loginButton.active = entry.getAccount().isExpired() || !entry.getAccount().equals(Auth.getInstance().getCurrent());
 			deleteButton.active = refreshButton.active = true;
 		} else {
 			loginButton.active = deleteButton.active = refreshButton.active = false;

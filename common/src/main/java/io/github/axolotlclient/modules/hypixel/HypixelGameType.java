@@ -27,6 +27,7 @@ import lombok.Getter;
 @Getter
 public enum HypixelGameType {
 	MAIN("Main Lobby"),
+	PROTOTYPE("Prototype Lobby"),
 	BLOCKING_DEAD("The Blocking Dead"),
 	BOUNTY_HUNTERS("Bounty Hunters"),
 	CREEPER_ATTACK("Creeper Attack"),

@@ -45,7 +45,7 @@ public class ChatListScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	public void render(int mouseX, int mouseY, float delta) {
-		renderBackground();
+		drawBackgroundTexture(0);
 		dms.render(mouseX, mouseY, delta);
 		groups.render(mouseX, mouseY, delta);
 		super.render(mouseX, mouseY, delta);
