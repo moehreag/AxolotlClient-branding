@@ -47,24 +47,16 @@ public class DiscordRPC extends RPCCommon {
 	@Override
 	protected void createRichPresence() {
 
-		String state;
-		switch (showServerNameMode.get()) {
-			case "showIp":
-				state = MinecraftClient.getInstance().world == null ? "In the menu"
-					: (MinecraftClient.getInstance().getCurrentServerEntry() == null ? "Singleplayer" : MinecraftClient.getInstance().getCurrentServerEntry().address);
-				break;
-			case "showName":
-				state = MinecraftClient.getInstance().world == null ? "In the menu"
-					: (MinecraftClient.getInstance().getCurrentServerEntry() == null
-					? (MinecraftClient.getInstance().getCurrentServerEntry() == null ? "Singleplayer"
-					: MinecraftClient.getInstance().getCurrentServerEntry().address)
-					: MinecraftClient.getInstance().getCurrentServerEntry().name);
-				break;
-			case "off":
-			default:
-				state = "";
-				break;
-		}
+		String state = switch (showServerNameMode.get()) {
+			case "showIp" -> MinecraftClient.getInstance().world == null ? "In the menu"
+				: (MinecraftClient.getInstance().getCurrentServerEntry() == null ? "Singleplayer" : MinecraftClient.getInstance().getCurrentServerEntry().address);
+			case "showName" -> MinecraftClient.getInstance().world == null ? "In the menu"
+				: (MinecraftClient.getInstance().getCurrentServerEntry() == null
+				? (MinecraftClient.getInstance().getCurrentServerEntry() == null ? "Singleplayer"
+				: MinecraftClient.getInstance().getCurrentServerEntry().address)
+				: MinecraftClient.getInstance().getCurrentServerEntry().name);
+			default -> "";
+		};
 
 		String details;
 		if (showActivity.get() && MinecraftClient.getInstance().getCurrentServerEntry() != null) {

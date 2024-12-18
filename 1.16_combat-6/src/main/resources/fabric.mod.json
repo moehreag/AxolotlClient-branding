@@ -41,6 +41,7 @@
 			"1.16.3-combat.8.a"
 		],
 		"fabric-resource-loader-v0": "*",
-		"axolotlclientconfig": "*"
+		"axolotlclientconfig": "*",
+		"axolotlclient-common": "*"
 	}
 }

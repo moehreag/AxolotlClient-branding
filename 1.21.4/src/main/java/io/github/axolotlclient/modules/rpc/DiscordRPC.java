@@ -48,12 +48,12 @@ public class DiscordRPC extends RPCCommon {
 
 		String state = switch (showServerNameMode.get()) {
 			case "showIp" -> Minecraft.getInstance().level == null ? "In the menu"
-																   : (Minecraft.getInstance().getCurrentServer() == null
-																	  ? "Singleplayer"
-																	  : Minecraft.getInstance().getCurrentServer().ip);
+				: (Minecraft.getInstance().getCurrentServer() == null
+				? "Singleplayer"
+				: Minecraft.getInstance().getCurrentServer().ip);
 			case "showName" -> Minecraft.getInstance().level == null ? "In the menu" : (
 				Minecraft.getInstance().getCurrentServer() == null ? "Singleplayer"
-																   : Minecraft.getInstance().getCurrentServer().name);
+					: Minecraft.getInstance().getCurrentServer().name);
 			default -> "";
 		};
 

@@ -42,6 +42,7 @@
 		"osl-lifecycle-events": "*",
 		"osl-keybinds": "*",
 		"osl-entrypoints": "*",
-		"axolotlclientconfig": "*"
+		"axolotlclientconfig": "*",
+		"axolotlclient-common": "*"
 	}
 }

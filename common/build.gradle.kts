@@ -39,8 +39,11 @@ dependencies {
 	testRuntimeOnly(compileOnly("org.apache.commons:commons-lang3:3.3.2")!!)
 	testRuntimeOnly(compileOnly("org.lwjgl:lwjgl-glfw:3.3.2")!!)
 
-	shadow(implementation("io.github.CDAGaming:DiscordIPC:0.6.5")!!)
-	shadow(implementation("com.kohlschutter.junixsocket:junixsocket-core:2.8.3")!!)
+	shadow(implementation("io.github.CDAGaming:DiscordIPC:0.10.2"){
+		isTransitive = false
+	})
+	shadow(implementation("com.kohlschutter.junixsocket:junixsocket-common:2.10.1")!!)
+	shadow(implementation("com.kohlschutter.junixsocket:junixsocket-native-common:2.10.1")!!)
 
 	shadow(implementation("com.github.mizosoft.methanol:methanol:1.7.0")!!)
 	shadow(implementation("io.nayuki:qrcodegen:1.8.0")!!)

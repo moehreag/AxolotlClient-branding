@@ -48,24 +48,16 @@ public class DiscordRPC extends RPCCommon {
 	@Override
 	protected void createRichPresence() {
 
-		String state;
-		switch (showServerNameMode.get()) {
-			case "showIp":
-				state = Minecraft.getInstance().world == null ? "In the menu"
-					: (Util.getCurrentServerAddress() == null ? "Singleplayer" : Util.getCurrentServerAddress());
-				break;
-			case "showName":
-				state = Minecraft.getInstance().world == null ? "In the menu"
-					: (Minecraft.getInstance().getCurrentServerEntry() == null
-					? (Util.getCurrentServerAddress() == null ? "Singleplayer"
-					: Util.getCurrentServerAddress())
-					: Minecraft.getInstance().getCurrentServerEntry().name);
-				break;
-			case "off":
-			default:
-				state = "";
-				break;
-		}
+		String state = switch (showServerNameMode.get()) {
+			case "showIp" -> Minecraft.getInstance().world == null ? "In the menu"
+				: (Util.getCurrentServerAddress() == null ? "Singleplayer" : Util.getCurrentServerAddress());
+			case "showName" -> Minecraft.getInstance().world == null ? "In the menu"
+				: (Minecraft.getInstance().getCurrentServerEntry() == null
+				? (Util.getCurrentServerAddress() == null ? "Singleplayer"
+				: Util.getCurrentServerAddress())
+				: Minecraft.getInstance().getCurrentServerEntry().name);
+			default -> "";
+		};
 
 		String details;
 		if (showActivity.get() && Minecraft.getInstance().getCurrentServerEntry() != null) {
