@@ -1,17 +1,25 @@
 {
 	"styles": {
-		"axolotlclient-vanilla": {
+		"vanilla": {
 			"widgets": {
 				"forceableboolean": "io.github.axolotlclient.util.options.vanilla.ForceableBooleanWidget",
-				"generic": "io.github.axolotlclient.util.options.vanilla.GenericWidget",
+				"generic": "io.github.axolotlclient.util.options.vanilla.GenericWidget"
+			}
+		},
+		"vanilla-quicktoggles": {
+			"widgets": {
 				"category": "io.github.axolotlclient.util.options.vanilla.QuickToggleCategoryWidget"
 			},
 			"extends": "vanilla"
 		},
-		"axolotlclient-rounded": {
+		"rounded": {
 			"widgets": {
 				"forceableboolean": "io.github.axolotlclient.util.options.rounded.ForceableBooleanWidget",
-				"generic": "io.github.axolotlclient.util.options.rounded.GenericWidget",
+				"generic": "io.github.axolotlclient.util.options.rounded.GenericWidget"
+			}
+		},
+		"rounded-quicktoggles": {
+			"widgets": {
 				"category": "io.github.axolotlclient.util.options.rounded.QuickToggleCategoryWidget"
 			},
 			"extends": "rounded"

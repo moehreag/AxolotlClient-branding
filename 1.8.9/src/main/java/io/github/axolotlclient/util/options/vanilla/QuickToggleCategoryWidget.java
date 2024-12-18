@@ -23,7 +23,6 @@
 package io.github.axolotlclient.util.options.vanilla;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionCategoryImpl;
@@ -40,13 +39,11 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 
 	public QuickToggleCategoryWidget(int x, int y, int width, int height, OptionCategoryImpl category) {
 		super(x, y, width, height, category);
-		if (AxolotlClient.CONFIG.showQuickToggles.get()) {
-			category.getOptions().stream()
-				.filter(o -> o instanceof BooleanOption)
-				.map(o -> (BooleanOption) o)
-				.filter(o -> "enabled".equals(o.getName())).findFirst()
-				.ifPresent(booleanOption -> enabledButton = new BooleanWidget(x + (width - 33), y + 3, 30, height - 5, booleanOption));
-		}
+		category.getOptions().stream()
+			.filter(o -> o instanceof BooleanOption)
+			.map(o -> (BooleanOption) o)
+			.filter(o -> "enabled".equals(o.getName())).findFirst()
+			.ifPresent(booleanOption -> enabledButton = new BooleanWidget(x + (width - 33), y + 3, 30, height - 5, booleanOption));
 	}
 
 	@Override
@@ -90,10 +87,12 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 	protected void drawScrollingText(TextRenderer textRenderer, int i, Color j) {
 		int k = this.getX() + i;
 		int l = this.getX() + this.getWidth() - i;
+		int center = getX() + (getWidth() / 2);
 		if (enabledButton != null) {
 			l -= enabledButton.getWidth() + 4;
+			center -= enabledButton.getWidth()/2 + 2;
 		}
-		drawScrollingText(textRenderer, this.getMessage(), k + (l / 2), k, this.getY(), l, this.getY() + this.getHeight(), j);
+		drawScrollingText(textRenderer, this.getMessage(), center, k, this.getY(), l, this.getY() + this.getHeight(), j);
 	}
 
 	@Override

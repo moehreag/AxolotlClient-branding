@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.util.options.rounded;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionCategoryImpl;
@@ -36,13 +35,11 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 
 	public QuickToggleCategoryWidget(int x, int y, int width, int height, OptionCategoryImpl category) {
 		super(x, y, width, height, category);
-		if (AxolotlClient.CONFIG.showQuickToggles.get()) {
-			category.getOptions().stream()
-				.filter(o -> o instanceof BooleanOption)
-				.map(o -> (BooleanOption) o)
-				.filter(o -> "enabled".equals(o.getName())).findFirst()
-				.ifPresent(booleanOption -> enabledButton = new PillBooleanWidget(x + (width - 43), y + 3, 40, height - 5, booleanOption));
-		}
+		category.getOptions().stream()
+			.filter(o -> o instanceof BooleanOption)
+			.map(o -> (BooleanOption) o)
+			.filter(o -> "enabled".equals(o.getName())).findFirst()
+			.ifPresent(booleanOption -> enabledButton = new PillBooleanWidget(x + (width - 43), y + 3, 40, height - 5, booleanOption));
 	}
 
 	@Override

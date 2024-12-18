@@ -103,7 +103,6 @@ public class AxolotlClientConfig {
 	);
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final BooleanOption creditsBGM = new BooleanOption("creditsBGM", true);
-	public final BooleanOption showQuickToggles = new BooleanOption("quick_toggles", true);
 
 	public final OptionCategory general = OptionCategory.create("general");
 	public final OptionCategory nametagOptions = OptionCategory.create("nametagOptions");
@@ -150,7 +149,7 @@ public class AxolotlClientConfig {
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
 			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().filter(s -> !"vanilla".equals(s) && !"rounded".equals(s)).map(s -> "configStyle." + s)
+				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
 					.toArray(String[]::new),
 				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
 				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
