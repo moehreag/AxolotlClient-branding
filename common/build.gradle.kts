@@ -83,14 +83,14 @@ tasks.shadowJar {
 	mergeServiceFiles()
 	minimize {
 		exclude(dependency("com.github.mizosoft.methanol:.*:.*"))
+		exclude(dependency("io.github.CDAGaming:DiscordIPC:.*"))
+		exclude(dependency("com.kohlschutter.junixsocket:junixsocket-common:.*"))
+		exclude(dependency("com.kohlschutter.junixsocket:junixsocket-native-common:.*"))
 	}
 
 	relocate("com.jagrosh", "io.github.axolotlclient.shadow.jagrosh")
 	relocate("com.github.mizosoft", "io.github.axolotlclient.shadow.mizosoft")
 	relocate("io.nayuki", "io.github.axolotlclient.shadow.nayuki")
-
-	exclude("META-INF/versions/**")
-	exclude("META-INF/maven/**")
 
 	append("../LICENSE")
 }
