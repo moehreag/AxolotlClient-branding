@@ -2,12 +2,12 @@
 
 ### 3.1.0
 
-- Add a new Backend (made by `@Astralchroma`)
+- Add a new Backend (made with help from `@Astralchroma`)
 - Features:
 	- Friends
 	- Chats
-	- Status update notifications
-	- Hypixel
+	- Activity update notifications
+	- Hypixel API
 - rewrite DiscordRPC
 - 1.8.9 + 1.16_combat-6 now require java 17
 - rewritten config library
@@ -21,7 +21,7 @@
 - refine notification system
 - text transparency option for ScoreboardHuds (suggested by `@haovi`)
 - migrate 1.21.4 to mojmap
-- add Status support for MCCIsland
+- add Activity support for MCCIsland
 - block more disallowed features on MCCIsland
 
 ### 3.0.6

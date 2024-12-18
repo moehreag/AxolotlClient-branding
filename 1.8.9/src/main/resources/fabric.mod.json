@@ -3,7 +3,7 @@
 	"id": "axolotlclient",
 	"version": "${version}",
 	"name": "AxolotlClient",
-	"description": "Mod for AxolotlClient",
+	"description": "Free & Open-Source Minecraft Mod for use in PvP and other Scenarios",
 	"authors": [
 		"moehreag"
 	],
@@ -36,7 +36,7 @@
 		"modmenu:clientsideOnly": true
 	},
 	"depends": {
-		"fabricloader": ">=0.14.7",
+		"fabricloader": ">=0.15.0",
 		"minecraft": "1.8.9",
 		"osl-resource-loader": "*",
 		"osl-lifecycle-events": "*",

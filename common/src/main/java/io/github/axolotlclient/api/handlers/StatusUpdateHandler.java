@@ -70,6 +70,7 @@ public class StatusUpdateHandler implements SocketMessageHandler {
 		notification("api.friends.activity.update", translate(title) + ": " + translate(description), UUIDHelper.getUsername(uuid));
 		UserRequest.get(uuid).thenAccept(u -> {
 			User user = u.orElseThrow();
+			user.getStatus().setOnline(true);
 			user.getStatus().setActivity(activity);
 			updateListeners.forEach(c -> c.accept(user));
 		});

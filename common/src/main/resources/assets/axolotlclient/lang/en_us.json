@@ -417,7 +417,7 @@
 	"zoomScrolling.tooltip": "Whether to allow scrolling to modify the zoom factor.",
 	"removeLobbyJoinMessages": "Remove Lobby Join Messages",
 	"zoomSpeed": "Animation Speed",
-	"api.error.userNotFound": "The specified User could not be found.",
+	"api.error.userNotFound": "The specified user could not be found.",
 	"api.error.friendRequestNotFound": "You do not have a friend request from this user.",
 	"api.error.userBlocked": "You blocked this user.",
 	"api.error.userAlreadyBlocked": "You already blocked this user.",

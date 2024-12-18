@@ -54,7 +54,6 @@ public class AxolotlClientConfig {
 	public final ForceableBooleanOption timeChangerEnabled = new ForceableBooleanOption("enabled", false);
 	public final IntegerOption customTime = new IntegerOption("time", 0, 0, 24000);
 	public final BooleanOption customSky = new BooleanOption("customSky", true);
-	public final BooleanOption showSunMoon = new BooleanOption("showSunMoon", true);
 	public final BooleanOption dynamicFOV = new BooleanOption("dynamicFov", true);
 	public final ForceableBooleanOption fullBright = new ForceableBooleanOption("fullBright", false);
 	public final BooleanOption removeVignette = new BooleanOption("removeVignette", false);
@@ -96,7 +95,6 @@ public class AxolotlClientConfig {
 
 	public final BooleanOption enableCustomOutlines = new BooleanOption("enabled", false);
 	public final ColorOption outlineColor = new ColorOption("color", Color.parse("#DD000000"));
-	public final FloatOption outlineWidth = new FloatOption("outlineWidth", 1F, RenderSystem::lineWidth, 1F, 10F);
 
 	public final BooleanOption noRain = new BooleanOption("noRain", false);
 
@@ -112,6 +110,7 @@ public class AxolotlClientConfig {
 	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
 	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
 
+	@Getter
 	private final List<Option<?>> options = new ArrayList<>();
 
 	@Getter
@@ -123,10 +122,6 @@ public class AxolotlClientConfig {
 
 	public void addCategory(OptionCategory cat) {
 		config.add(cat);
-	}
-
-	public List<Option<?>> getOptions() {
-		return options;
 	}
 
 
@@ -167,7 +162,6 @@ public class AxolotlClientConfig {
 		});
 
 		rendering.add(customSky,
-			showSunMoon,
 			dynamicFOV,
 			fullBright,
 			removeVignette,
@@ -184,7 +178,6 @@ public class AxolotlClientConfig {
 
 		outlines.add(enableCustomOutlines);
 		outlines.add(outlineColor);
-		//outlines.add(outlineWidth); // I could not get this to have an effect.
 
 		rendering.add(noRain);
 

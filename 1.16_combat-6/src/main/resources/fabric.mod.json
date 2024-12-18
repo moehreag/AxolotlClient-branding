@@ -3,7 +3,7 @@
 	"id": "axolotlclient",
 	"version": "${version}",
 	"name": "AxolotlClient",
-	"description": "Mod for AxolotlClient",
+	"description": "Free & Open-Source Minecraft Mod for use in PvP and other Scenarios",
 	"authors": [
 		"moehreag"
 	],
@@ -35,7 +35,7 @@
 		"modmenu:clientsideOnly": true
 	},
 	"depends": {
-		"fabricloader": ">=0.12.0",
+		"fabricloader": ">=0.15.0",
 		"minecraft": [
 			"1.16.3-combat.8.c",
 			"1.16.3-combat.8.a"

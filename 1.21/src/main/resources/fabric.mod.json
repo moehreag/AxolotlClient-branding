@@ -3,7 +3,7 @@
 	"id": "axolotlclient",
 	"version": "${version}",
 	"name": "AxolotlClient",
-	"description": "Mod for AxolotlClient",
+	"description": "Free & Open-Source Minecraft Mod for use in PvP and other Scenarios",
 	"authors": [
 		"moehreag"
 	],
@@ -38,9 +38,9 @@
 		"modmenu:clientsideOnly": true
 	},
 	"depends": {
-		"fabricloader": ">=0.12.0",
-		"minecraft": "1.21.x",
-		"fabric-resource-loader-v0": "*",
+		"fabricloader": ">=0.15.0",
+		"minecraft": "1.21.1",
+		"fabric-api": "*",
 		"axolotlclientconfig": "*"
 	}
 }
