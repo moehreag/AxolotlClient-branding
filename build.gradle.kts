@@ -24,24 +24,11 @@ repositories {
 
 allprojects {
 	repositories {
-		maven {
-			name = "TerraformersMC Maven"
-			url = uri("https://maven.terraformersmc.com/releases/")
-		}
-		maven {
-			name = "Quilt"
-			url = uri("https://maven.quiltmc.org/repository/release")
-		}
-		maven {
-			url = uri("https://moehreag.duckdns.org/maven/releases")
-		}
-		maven {
-			url = uri("https://moehreag.duckdns.org/maven/snapshots")
-		}
-		maven {
-			name = "ParchmentMC"
-			url = uri("https://maven.parchmentmc.org")
-		}
+		maven("https://maven.terraformersmc.com/releases/")
+		maven("https://maven.quiltmc.org/repository/release")
+		maven("https://moehreag.duckdns.org/maven/releases")
+		maven("https://moehreag.duckdns.org/maven/snapshots")
+		maven("https://maven.parchmentmc.org")
 		mavenLocal()
 		mavenCentral()
 	}

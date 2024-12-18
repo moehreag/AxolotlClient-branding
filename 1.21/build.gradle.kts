@@ -20,19 +20,8 @@ loom {
 }
 
 repositories {
-	exclusiveContent {
-		forRepository {
-			maven {
-				name = "Modrinth"
-				url = uri("https://api.modrinth.com/maven")
-			}
-		}
-		maven {
-			name = "Noxcrew/Public"
-			url = uri("https://maven.noxcrew.com/public")
-		}
-		maven("https://maven.enginehub.org/repo/")
-		filter {
+	maven("https://api.modrinth.com/maven") {
+		content {
 			includeGroup("maven.modrinth")
 		}
 	}

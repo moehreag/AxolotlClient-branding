@@ -8,10 +8,7 @@ version = "${project.property("version")}+${project.property("minecraft_cts8")}"
 base.archivesName = "AxolotlClient"
 
 repositories {
-	maven {
-		name = "CombatReforged"
-		url = uri("https://maven.fabric.rizecookey.net/")
-	}
+	maven("https://maven.fabric.rizecookey.net/")
 }
 
 loom {
