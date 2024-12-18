@@ -23,10 +23,6 @@ loom {
 
 repositories {
 	maven {
-		name = "ParchmentMC"
-		url = uri("https://maven.parchmentmc.org")
-	}
-	maven {
 		name = "Noxcrew/Public"
 		url = uri("https://maven.noxcrew.com/public")
 	}

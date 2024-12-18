@@ -6,23 +6,6 @@ plugins {
 group = project.property("maven_group")!!
 base.archivesName.set(project.property("archives_base_name").toString())
 
-repositories {
-	maven {
-		url = uri("https://moehreag.duckdns.org/maven/snapshots")
-	}
-	maven {
-		url = uri ("https://moehreag.duckdns.org/maven/releases")
-	}
-
-	maven {
-		name = "TerraformersMC Maven"
-		url = uri("https://maven.terraformersmc.com/releases/")
-	}
-
-	mavenLocal()
-	mavenCentral()
-}
-
 dependencies {
 	compileOnly("org.jetbrains:annotations:24.0.0")
 

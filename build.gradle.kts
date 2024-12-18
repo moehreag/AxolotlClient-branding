@@ -38,8 +38,11 @@ allprojects {
 		maven {
 			url = uri("https://moehreag.duckdns.org/maven/snapshots")
 		}
+		maven {
+			name = "ParchmentMC"
+			url = uri("https://maven.parchmentmc.org")
+		}
 		mavenLocal()
-		maven { url = uri("https://jitpack.io") }
 		mavenCentral()
 	}
 }
