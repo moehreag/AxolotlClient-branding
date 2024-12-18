@@ -82,11 +82,11 @@ public class PrivacyNoticeScreen extends Screen {
 		if (buttonWidget.id == 0) {
 			minecraft.openScreen(parent);
 			APIOptions.getInstance().enabled.set(false);
-			APIOptions.getInstance().privacyAccepted.set("denied");
+			APIOptions.getInstance().privacyAccepted.set(Options.PrivacyPolicyState.DENIED);
 			accepted.accept(false);
 		} else if (buttonWidget.id == 1) {
 			minecraft.openScreen(parent);
-			APIOptions.getInstance().privacyAccepted.set("accepted");
+			APIOptions.getInstance().privacyAccepted.set(Options.PrivacyPolicyState.ACCEPTED);
 			accepted.accept(true);
 		} else if (buttonWidget.id == 2) {
 			OSUtil.getOS().open(TERMS_URI);

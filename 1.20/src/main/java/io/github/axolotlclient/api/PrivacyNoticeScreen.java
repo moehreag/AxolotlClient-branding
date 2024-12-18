@@ -74,13 +74,13 @@ public class PrivacyNoticeScreen extends Screen {
 	private void addButtons(int y) {
 		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.accept"), buttonWidget -> {
 			client.setScreen(parent);
-			APIOptions.getInstance().privacyAccepted.set("accepted");
+			APIOptions.getInstance().privacyAccepted.set(Options.PrivacyPolicyState.ACCEPTED);
 			accepted.accept(true);
 		}).positionAndSize(width / 2 - 50, y, 100, 20).build());
 		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.deny"), buttonWidget -> {
 			client.setScreen(parent);
 			APIOptions.getInstance().enabled.set(false);
-			APIOptions.getInstance().privacyAccepted.set("denied");
+			APIOptions.getInstance().privacyAccepted.set(Options.PrivacyPolicyState.DENIED);
 			accepted.accept(false);
 		}).positionAndSize(width / 2 - 50 + 105, y, 100, 20).build());
 		addDrawableChild(ButtonWidget.builder(Text.translatable("api.privacyNotice.openPolicy"), buttonWidget -> {

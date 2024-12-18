@@ -195,8 +195,11 @@ public class API {
 	}
 
 	private CompletableFuture<Response> request(Request request, String method) {
+		if (!getApiOptions().privacyAccepted.get().isAccepted()) {
+			return CompletableFuture.completedFuture(Response.CLIENT_ERROR);
+		}
 		if (request.requiresAuthentication() && !isAuthenticated()) {
-			logger.warn("Tried to request {} {} without authentication, but this request requires it!", method, request);
+			logger.debug("Tried to request {} {} without authentication, but this request requires it!", method, request);
 			return CompletableFuture.completedFuture(Response.CLIENT_ERROR);
 		}
 		URI route = getUrl(request);
@@ -392,12 +395,12 @@ public class API {
 		ThreadExecuter.scheduleTask(() -> {
 			if (apiOptions.enabled.get()) {
 				switch (apiOptions.privacyAccepted.get()) {
-					case "unset":
+					case UNSET:
 						apiOptions.openPrivacyNoteScreen.accept(v -> {
 							if (v) startupAPI();
 						});
 						break;
-					case "accepted":
+					case ACCEPTED:
 						startupAPI();
 						break;
 					default:

@@ -60,28 +60,25 @@ public class AxolotlClientConfig {
 	public final BooleanOption lowShield = new BooleanOption("lowShield", false);
 	public final ColorOption hitColor = new ColorOption("hitColor", new Color(255, 0, 0, 77),
 		value -> {
-			//try { // needed because apparently someone created a bug that makes this be called when the config is loaded. Will be fixed with the next release.
-				DynamicTexture texture = ((OverlayTextureAccessor) Minecraft.getInstance().gameRenderer.overlayTexture()).axolotlclient$getTexture();
-				NativeImage nativeImage = texture.getPixels();
-				if (nativeImage != null) {
-					int color = 255 - value.getAlpha();
-					color = (color << 8) + value.getBlue();
-					color = (color << 8) + value.getGreen();
-					color = (color << 8) + value.getRed();
+			DynamicTexture texture = ((OverlayTextureAccessor) Minecraft.getInstance().gameRenderer.overlayTexture()).axolotlclient$getTexture();
+			NativeImage nativeImage = texture.getPixels();
+			if (nativeImage != null) {
+				int color = 255 - value.getAlpha();
+				color = (color << 8) + value.getBlue();
+				color = (color << 8) + value.getGreen();
+				color = (color << 8) + value.getRed();
 
-					for (int i = 0; i < 8; ++i) {
-						for (int j = 0; j < 8; ++j) {
-							nativeImage.setPixel(j, i, color);
-						}
+				for (int i = 0; i < 8; ++i) {
+					for (int j = 0; j < 8; ++j) {
+						nativeImage.setPixel(j, i, color);
 					}
-
-					RenderSystem.activeTexture(33985);
-					texture.bind();
-					nativeImage.upload(0, 0, 0, false);
-					RenderSystem.activeTexture(33984);
 				}
-			/*} catch (Exception ignored) {
-			}*/
+
+				RenderSystem.activeTexture(33985);
+				texture.bind();
+				nativeImage.upload(0, 0, 0, false);
+				RenderSystem.activeTexture(33984);
+			}
 		});
 	public final BooleanOption minimalViewBob = new BooleanOption("minimalViewBob", false);
 	public final BooleanOption noHurtCam = new BooleanOption("noHurtCam", false);
@@ -100,6 +97,7 @@ public class AxolotlClientConfig {
 	);
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final BooleanOption creditsBGM = new BooleanOption("creditsBGM", true);
+	public final BooleanOption showQuickToggles = new BooleanOption("quick_toggles", true);
 
 	public final OptionCategory general = OptionCategory.create("general");
 	public final OptionCategory nametagOptions = OptionCategory.create("nametagOptions");
@@ -143,12 +141,13 @@ public class AxolotlClientConfig {
 		general.add(customWindowTitle);
 		general.add(openCredits);
 		general.add(debugLogOutput);
+		general.add(showQuickToggles);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
 			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+				ConfigUI.getInstance().getStyleNames().stream().filter(s -> !"vanilla".equals(s) && !"rounded".equals(s)).map(s -> "configStyle." + s)
 					.toArray(String[]::new),
-				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				"configStyle.axolotlclient-vanilla", s -> {
 				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
 				Minecraft.getInstance().setScreen(null);
 			}));

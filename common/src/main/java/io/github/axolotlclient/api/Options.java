@@ -24,10 +24,10 @@ package io.github.axolotlclient.api;
 
 import java.util.function.Consumer;
 
+import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.types.AccountSettings;
@@ -39,14 +39,14 @@ public abstract class Options implements Module {
 
 	protected Consumer<Consumer<Boolean>> openPrivacyNoteScreen = v -> {
 	};
-	public StringArrayOption privacyAccepted = new StringArrayOption("privacyPolicyAccepted", new String[]{"unset", "accepted", "denied"}, "unset");
+	public EnumOption<PrivacyPolicyState> privacyAccepted = new EnumOption<>("privacyPolicyAccepted", PrivacyPolicyState.class, PrivacyPolicyState.UNSET, val -> AxolotlClientCommon.getInstance().saveConfig());
 	public final BooleanOption statusUpdateNotifs = new BooleanOption("statusUpdateNotifs", true);
 	public final BooleanOption friendRequestsEnabled = new BooleanOption("friendRequestsEnabled", true);
 	public final BooleanOption channelInvitesEnabled = new BooleanOption("api.channels.invites.enabled", false);
 	public final BooleanOption detailedLogging = new BooleanOption("detailedLogging", false);
 	public final BooleanOption enabled = new BooleanOption("enabled", true, value -> {
 		if (value) {
-			if (!privacyAccepted.get().equals("accepted")) {
+			if (!privacyAccepted.get().isAccepted()) {
 				openPrivacyNoteScreen.accept(v -> {
 					if (v) ThreadExecuter.scheduleTask(() -> API.getInstance().restart());
 				});
@@ -97,5 +97,20 @@ public abstract class Options implements Module {
 		account.add(showRegistered, retainUsernames, showLastOnline, showActivity);
 		category.add(pluralkit, account);
 		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, channelInvitesEnabled, detailedLogging, updateNotifications, displayNotes, addShortcutButtons);
+	}
+
+	public enum PrivacyPolicyState {
+		UNSET,
+		ACCEPTED(){
+			@Override
+			public boolean isAccepted() {
+				return true;
+			}
+		},
+		DENIED
+		;
+		public boolean isAccepted() {
+			return false;
+		}
 	}
 }

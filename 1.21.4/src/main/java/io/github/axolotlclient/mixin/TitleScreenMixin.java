@@ -99,7 +99,7 @@ public abstract class TitleScreenMixin extends Screen {
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;
-			if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().updateNotifications.get() &&
+			if (APIOptions.getInstance().updateNotifications.get() &&
 				data.success() &&
 				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 				buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"),
@@ -107,7 +107,7 @@ public abstract class TitleScreenMixin extends Screen {
 					.bounds(width - 90, y, 80, 20).build()));
 				buttonY += 22;
 			}
-			if (APIOptions.getInstance().privacyAccepted.get().equals("accepted") && APIOptions.getInstance().displayNotes.get() &&
+			if (APIOptions.getInstance().displayNotes.get() &&
 				data.success() && !data.notes().isEmpty()) {
 				buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.notes"), buttonWidget ->
 						minecraft.setScreen(new NewsScreen(this)))

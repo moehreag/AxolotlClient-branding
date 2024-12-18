@@ -76,6 +76,7 @@ public class AxolotlClientConfig {
 			.openScreen(new CreditsScreen(Minecraft.getInstance().screen)));
 	public final BooleanOption creditsBGM = new BooleanOption("creditsBGM", true);
 	public final BooleanOption customWindowTitle = new BooleanOption("customWindowTitle", true);
+	public final BooleanOption showQuickToggles = new BooleanOption("quick_toggles", true);
 
 	public final OptionCategory general = OptionCategory.create("general");
 	public final OptionCategory nametagOptions = OptionCategory.create("nametagOptions");
@@ -85,6 +86,7 @@ public class AxolotlClientConfig {
 	@Getter
 	private final OptionCategory config = OptionCategory.create("config");
 
+	@Getter
 	private final List<Option<?>> options = new ArrayList<>();
 
 	public void add(Option<?> option) {
@@ -93,10 +95,6 @@ public class AxolotlClientConfig {
 
 	public void addCategory(OptionCategory cat) {
 		config.add(cat);
-	}
-
-	public List<Option<?>> getOptions() {
-		return options;
 	}
 
 	public void init() {
@@ -121,7 +119,7 @@ public class AxolotlClientConfig {
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
 			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+				ConfigUI.getInstance().getStyleNames().stream().filter(s -> !"vanilla".equals(s) && !"rounded".equals(s)).map(s -> "configStyle." + s)
 					.toArray(String[]::new),
 				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
 				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);

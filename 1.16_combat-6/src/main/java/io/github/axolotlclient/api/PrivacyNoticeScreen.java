@@ -73,14 +73,14 @@ public class PrivacyNoticeScreen extends Screen {
 		addButton(new ButtonWidget(width / 2 - 50, y, 100, 20,
 			new TranslatableText("api.privacyNotice.accept"), buttonWidget -> {
 			client.openScreen(parent);
-			APIOptions.getInstance().privacyAccepted.set("accepted");
+			APIOptions.getInstance().privacyAccepted.set(Options.PrivacyPolicyState.ACCEPTED);
 			accepted.accept(true);
 		}));
 		addButton(new ButtonWidget(width / 2 + 55, y, 100, 20,
 			new TranslatableText("api.privacyNotice.deny"), buttonWidget -> {
 			client.openScreen(parent);
 			APIOptions.getInstance().enabled.set(false);
-			APIOptions.getInstance().privacyAccepted.set("denied");
+			APIOptions.getInstance().privacyAccepted.set(Options.PrivacyPolicyState.DENIED);
 			accepted.accept(false);
 		}));
 		addButton(new ButtonWidget(width / 2 - 155, y, 100, 20,

@@ -492,8 +492,8 @@
 	"api.notes": "News",
 	"api.notes.title": "News",
 	"configStyle": "Config UI Style",
-	"configStyle.rounded": "Rounded",
-	"configStyle.vanilla": "Vanilla",
+	"configStyle.axolotlclient-rounded": "Rounded",
+	"configStyle.axolotlclient-vanilla": "Vanilla",
 	"auth.copy_and_open": "Copy and Open",
 	"auth.time_left": "Time Left: %s",
 	"auth.working": "Working...",
@@ -588,5 +588,6 @@
 	"api.status.description.in_game.map": "%s on %s",
 	"api.status.description.in_game.game_mode_map": "%s: %s on %s",
 	"api.add_shortcut_buttons": "Add shortcut buttons",
-	"api.add_shortcut_buttons.tooltip": "Adds buttons to the title screen and the game menu<br> to access social features more quickly."
+	"api.add_shortcut_buttons.tooltip": "Adds buttons to the title screen and the game menu<br> to access social features more quickly.",
+	"quick_toggles": "Show Quick Toggles"
 }

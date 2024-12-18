@@ -36,6 +36,7 @@ import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.github.axolotlclient.util.options.GenericOption;
+import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -103,6 +104,7 @@ public class AxolotlClientConfig {
 	);
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final BooleanOption creditsBGM = new BooleanOption("creditsBGM", true);
+	public final BooleanOption showQuickToggles = new BooleanOption("quick_toggles", true);
 
 	public final OptionCategory general = OptionCategory.create("general");
 	public final OptionCategory nametagOptions = OptionCategory.create("nametagOptions");
@@ -110,6 +112,7 @@ public class AxolotlClientConfig {
 	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
 	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
 	public final OptionCategory config = OptionCategory.create("config");
+	@Getter
 	private final List<Option<?>> options = new ArrayList<>();
 
 	public void add(Option<?> option) {
@@ -118,10 +121,6 @@ public class AxolotlClientConfig {
 
 	public void addCategory(OptionCategory cat) {
 		config.add(cat);
-	}
-
-	public List<Option<?>> getOptions() {
-		return options;
 	}
 
 
@@ -149,7 +148,7 @@ public class AxolotlClientConfig {
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
 			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+				ConfigUI.getInstance().getStyleNames().stream().filter(s -> !"vanilla".equals(s) && !"rounded".equals(s)).map(s -> "configStyle." + s)
 					.toArray(String[]::new),
 				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
 				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);

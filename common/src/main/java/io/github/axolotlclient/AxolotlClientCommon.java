@@ -24,22 +24,27 @@ package io.github.axolotlclient;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import lombok.Getter;
 
-@Getter
 public class AxolotlClientCommon {
 	@Getter
 	private static AxolotlClientCommon instance;
+	@Getter
 	public static final String VERSION = readVersion();
+	@Getter
 	private final Logger logger;
+	private final Supplier<ConfigManager> manager;
 
-	public AxolotlClientCommon(Logger logger) {
+	public AxolotlClientCommon(Logger logger, Supplier<ConfigManager> manager) {
 		instance = this;
 		this.logger = logger;
+		this.manager = manager;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -49,5 +54,9 @@ public class AxolotlClientCommon {
 		} catch (IOException ignored) {
 			return "(unknown)";
 		}
+	}
+
+	public void saveConfig() {
+		manager.get().save();
 	}
 }
