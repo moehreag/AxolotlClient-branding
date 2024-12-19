@@ -175,8 +175,7 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder =
-					ContextMenu.builder().entry(Component.literal(origin.sender().getName()), buttonWidget -> {
-					}).spacer();
+					ContextMenu.builder().title(Component.literal(origin.sender().getName())).spacer();
 				if (!origin.sender().equals(API.getInstance().getSelf())) {
 					builder.entry(Component.translatable("api.friends.chat"), buttonWidget -> {
 						ChannelRequest.getOrCreateDM(origin.sender()).whenCompleteAsync(

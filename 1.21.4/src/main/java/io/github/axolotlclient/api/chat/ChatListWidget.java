@@ -114,8 +114,7 @@ public class ChatListWidget extends ContainerObjectSelectionList<ChatListWidget.
 					return widget.mouseClicked(mouseX, mouseY, button);
 				} else if (button == 1) {
 					ContextMenu.Builder builder = ContextMenu.builder()
-						.entry(Component.literal(channel.getName()), w -> {
-						})
+						.title(Component.literal(channel.getName()))
 						.spacer()
 						.entry(Component.translatable("api.channel.configure"), w -> minecraft.setScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
 						.spacer();

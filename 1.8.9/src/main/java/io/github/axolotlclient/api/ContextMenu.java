@@ -45,6 +45,15 @@ public class ContextMenu {
 
 	protected ContextMenu(List<ButtonWidget> items) {
 		children = items;
+		int width = 0;
+		int height = 0;
+		for (ButtonWidget d : children) {
+			d.y = height;
+			height += 11;
+			width = Math.max(width, d.getWidth());
+		}
+		this.width = width;
+		this.height = height;
 	}
 
 	public static Builder builder() {
@@ -61,8 +70,8 @@ public class ContextMenu {
 			x = mouseX;
 			rendering = true;
 		}
-		final int yStart = y + 2;
-		final int xStart = x + 2;
+		final int yStart = (int) Math.min(y + 2, Util.getWindow().getScaledHeight() - height - 2);
+		final int xStart = (int) Math.min(x + 2, Util.getWindow().getScaledWidth() - width - 2);
 		int y = yStart + 1;
 		width = 0;
 		for (ButtonWidget d : children) {
@@ -74,12 +83,6 @@ public class ContextMenu {
 		height = y;
 		GlStateManager.pushMatrix();
 		GlStateManager.translatef(0, 0, 200);
-		if (xStart + width + 1 > Util.getWindow().getScaledWidth()) {
-			GlStateManager.translated(Math.min(Util.getWindow().getScaledWidth() - (xStart + width + 1) - 2, 0), 0, 0);
-		}
-		if (y > Util.getWindow().getScaledHeight()) {
-			GlStateManager.translated(0, Math.min(Util.getWindow().getScaledHeight() - y - 2, 0), 0);
-		}
 		GuiElement.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ButtonWidget c : children) {
@@ -90,12 +93,14 @@ public class ContextMenu {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		List<ContextMenuEntryWidget> stream = children.stream().filter(b -> b instanceof ContextMenuEntryWidget)
-			.map(b -> (ContextMenuEntryWidget) b).filter(ButtonWidget::isHovered).toList();
+		List<Pressable> stream = children.stream().filter(b -> b instanceof Pressable)
+			.map(b -> (Pressable) b).toList();
 		boolean clicked = false;
-		for (ContextMenuEntryWidget c : stream) {
-			c.onPress(mouseX, mouseY, button);
-			clicked = true;
+		for (Pressable c : stream) {
+			clicked = c.onPress(mouseX, mouseY, button);
+			if (clicked) {
+				break;
+			}
 		}
 		return clicked;
 	}
@@ -117,7 +122,7 @@ public class ContextMenu {
 		}
 
 		public Builder entry(String name, PressAction action) {
-			elements.add(new ContextMenuEntryWidget(I18n.translate(name), action));
+			elements.add(new ContextMenuEntryWithAction(I18n.translate(name), action));
 			return this;
 		}
 
@@ -127,7 +132,12 @@ public class ContextMenu {
 		}
 
 		public Builder spacer() {
-			elements.add(new ContextMenuEntrySpacer());
+			elements.add(new ContextMenuEntry("-----"));
+			return this;
+		}
+
+		public Builder title(String title) {
+			elements.add(new ContextMenuEntry(title));
 			return this;
 		}
 
@@ -137,25 +147,30 @@ public class ContextMenu {
 
 	}
 
-	public static class ContextMenuEntrySpacer extends ButtonWidget {
+	public static class ContextMenuEntry extends ButtonWidget implements Pressable {
 
-		public ContextMenuEntrySpacer() {
-			super(0, 0, 0, 50, 11, "-----");
+		public ContextMenuEntry(String content) {
+			super(0, 0, 0, Minecraft.getInstance().textRenderer.getWidth(content), 11, content);
 		}
 
 		@Override
 		public void render(Minecraft client, int mouseX, int mouseY) {
 			drawCenteredString(client.textRenderer, message, x + getWidth() / 2, y, 0xDDDDDD);
 		}
+
+		@Override
+		public boolean onPress(double mouseX, double mouseY, int button) {
+			return false;
+		}
 	}
 
-	public static class ContextMenuEntryWidget extends ButtonWidget {
+	public static class ContextMenuEntryWithAction extends ButtonWidget implements Pressable {
 
 		final PressAction action;
 
 		private final Minecraft client = Minecraft.getInstance();
 
-		public ContextMenuEntryWidget(String message, PressAction onPress) {
+		public ContextMenuEntryWithAction(String message, PressAction onPress) {
 			super(0, 0, 0, Minecraft.getInstance().textRenderer.getWidth(message) + 4, 11, message);
 			this.action = onPress;
 		}
@@ -179,11 +194,17 @@ public class ContextMenu {
 			DrawUtil.drawScrollableText(textRenderer, message, x, this.y, xEnd, this.y + height, color);
 		}
 
-		public void onPress(double mouseX, double mouseY, int button) {
-			playClickSound(client.getSoundManager());
+		public boolean onPress(double mouseX, double mouseY, int button) {
 			if (isMouseOver(client, (int) mouseX, (int) mouseY) && button == 0) {
+				playClickSound(client.getSoundManager());
 				action.onPress(this);
+				return true;
 			}
+			return false;
 		}
+	}
+
+	private interface Pressable {
+		boolean onPress(double mouseX, double mouseY, int button);
 	}
 }

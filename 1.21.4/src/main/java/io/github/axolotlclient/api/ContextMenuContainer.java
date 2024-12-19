@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.api;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.ComponentPath;
@@ -86,9 +87,12 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			boolean bl = menu.mouseClicked(mouseX, mouseY, button);
-			removeMenu();
-			return bl;
+			if (!menu.isMouseOver(mouseX, mouseY)) {
+				removeMenu();
+				return true;
+			}
+			if (menu.mouseClicked(mouseX, mouseY, button)) removeMenu();
+			return true;
 		}
 		return false;
 	}
@@ -96,7 +100,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			menu.mouseReleased(mouseX, mouseY, button);
+			return menu.mouseReleased(mouseX, mouseY, button);
 		}
 		return false;
 	}
@@ -104,7 +108,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (menu != null) {
-			menu.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			return menu.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 		}
 		return false;
 	}
@@ -112,7 +116,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
 		if (menu != null) {
-			menu.mouseScrolled(mouseX, mouseY, amountX, amountY);
+			return menu.mouseScrolled(mouseX, mouseY, amountX, amountY);
 		}
 		return false;
 	}
@@ -120,7 +124,11 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (menu != null) {
-			menu.keyPressed(keyCode, scanCode, modifiers);
+			if (keyCode == InputConstants.KEY_ESCAPE) {
+				removeMenu();
+				return true;
+			}
+			return menu.keyPressed(keyCode, scanCode, modifiers);
 		}
 		return false;
 	}
@@ -128,7 +136,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 		if (menu != null) {
-			menu.keyReleased(keyCode, scanCode, modifiers);
+			return menu.keyReleased(keyCode, scanCode, modifiers);
 		}
 		return false;
 	}
@@ -136,7 +144,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean charTyped(char chr, int modifiers) {
 		if (menu != null) {
-			menu.charTyped(chr, modifiers);
+			return menu.charTyped(chr, modifiers);
 		}
 		return false;
 	}
@@ -145,7 +153,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public ComponentPath nextFocusPath(FocusNavigationEvent event) {
 		if (menu != null) {
-			menu.nextFocusPath(event);
+			return menu.nextFocusPath(event);
 		}
 		return GuiEventListener.super.nextFocusPath(event);
 	}
@@ -153,7 +161,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		if (menu != null) {
-			menu.isMouseOver(mouseX, mouseY);
+			return menu.isMouseOver(mouseX, mouseY);
 		}
 		return false;
 	}
@@ -162,7 +170,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public ComponentPath getCurrentFocusPath() {
 		if (menu != null) {
-			menu.getCurrentFocusPath();
+			return menu.getCurrentFocusPath();
 		}
 		return GuiEventListener.super.getCurrentFocusPath();
 	}
@@ -170,7 +178,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 	@Override
 	public @NotNull ScreenRectangle getRectangle() {
 		if (menu != null) {
-			menu.getRectangle();
+			return menu.getRectangle();
 		}
 		return GuiEventListener.super.getRectangle();
 	}
@@ -180,7 +188,7 @@ public class ContextMenuContainer implements Renderable, GuiEventListener, Narra
 		if (menu != null) {
 			return menu.narrationPriority();
 		}
-		return null;
+		return NarrationPriority.NONE;
 	}
 
 	@Override

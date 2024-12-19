@@ -24,6 +24,7 @@ package io.github.axolotlclient.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -47,18 +48,24 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 
 	private int x;
 	private int y;
+	private final int width, height;
 	private boolean rendering;
 
 	protected ContextMenu(List<AbstractButton> items) {
 		children = items;
+		int width = 0;
+		int height = 0;
+		for (AbstractButton d : children) {
+			d.setY(height);
+			height += d.getHeight();
+			width = Math.max(width, d.getWidth());
+		}
+		this.width = width;
+		this.height = height;
 	}
 
 	public static Builder builder() {
 		return new Builder();
-	}
-
-	public void addEntry(AbstractButton entry) {
-		children.add(entry);
 	}
 
 	@Override
@@ -104,24 +111,16 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 			x = mouseX;
 			rendering = true;
 		}
-		final int yStart = y + 2;
-		final int xStart = x + 2;
+		final int yStart = Math.min(y + 2, graphics.guiHeight() - height - 2);
+		final int xStart = Math.min(x + 2, graphics.guiWidth() - width - 2);
 		int y = yStart + 1;
-		int width = 0;
 		for (AbstractButton d : children) {
 			d.setX(xStart + 1);
 			d.setY(y);
 			y += d.getHeight();
-			width = Math.max(width, d.getWidth());
 		}
 		graphics.pose().pushPose();
 		graphics.pose().translate(0, 0, 200);
-		if (xStart + width + 1 > graphics.guiWidth()) {
-			graphics.pose().translate(Math.min(graphics.guiWidth() - (xStart + width + 1) - 2, 0), 0, 0);
-		}
-		if (y > graphics.guiHeight()) {
-			graphics.pose().translate(0, Math.min(graphics.guiHeight() - y - 2, 0), 0);
-		}
 		graphics.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		graphics.renderOutline(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (AbstractButton c : children) {
@@ -129,6 +128,11 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 			c.render(graphics, mouseX, mouseY, delta);
 		}
 		graphics.pose().popPose();
+	}
+
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return getChildAt(mouseX, mouseY).isPresent();
 	}
 
 	@Override
@@ -142,6 +146,22 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 		entries().forEach(b -> builder.add(NarratedElementType.USAGE, b.getMessage()));
 	}
 
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		Optional<GuiEventListener> optional = this.getChildAt(mouseX, mouseY);
+		if (optional.isPresent()) {
+			GuiEventListener guiEventListener = optional.get();
+			if (guiEventListener.mouseClicked(mouseX, mouseY, button)) {
+				this.setFocused(guiEventListener);
+				if (button == 0) {
+					this.setDragging(true);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static class Builder {
 
 		private final Minecraft client = Minecraft.getInstance();
@@ -153,7 +173,7 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 		}
 
 		public Builder entry(Component name, Button.OnPress action) {
-			elements.add(new ContextMenuEntryWidget(name, action));
+			elements.add(new ContextMenuEntryWithAction(name, action));
 			return this;
 		}
 
@@ -163,7 +183,17 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 		}
 
 		public Builder spacer() {
-			elements.add(new ContextMenuEntrySpacer());
+			elements.add(new ContextMenuEntry(Component.literal("-----")) {
+				@Override
+				protected void updateWidgetNarration(NarrationElementOutput builder) {
+
+				}
+			});
+			return this;
+		}
+
+		public Builder title(Component title) {
+			elements.add(new ContextMenuEntry(title));
 			return this;
 		}
 
@@ -173,12 +203,12 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 
 	}
 
-	public static class ContextMenuEntrySpacer extends AbstractButton {
+	public static class ContextMenuEntry extends AbstractButton {
 
 		private final Minecraft client = Minecraft.getInstance();
 
-		public ContextMenuEntrySpacer() {
-			super(0, 0, 50, 11, Component.literal("-----"));
+		public ContextMenuEntry(Component content) {
+			super(0, 0, Minecraft.getInstance().font.width(content), 11, content);
 		}
 
 		@Override
@@ -192,25 +222,21 @@ public class ContextMenu implements ContainerEventHandler, Renderable, Narratabl
 		}
 
 		@Override
-		public boolean isMouseOver(double mouseX, double mouseY) {
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			return false;
 		}
 
 		@Override
 		protected void updateWidgetNarration(NarrationElementOutput builder) {
-
+			builder.add(NarratedElementType.TITLE, getMessage());
 		}
 	}
 
-	public static class ContextMenuEntryWidget extends Button {
+	public static class ContextMenuEntryWithAction extends Button {
 
 		private final Minecraft client = Minecraft.getInstance();
 
-		protected ContextMenuEntryWidget(int x, int y, int width, int height, Component message, OnPress onPress, CreateNarration narrationFactory) {
-			super(x, y, width, height, message, onPress, narrationFactory);
-		}
-
-		public ContextMenuEntryWidget(Component message, OnPress onPress) {
+		public ContextMenuEntryWithAction(Component message, OnPress onPress) {
 			super(0, 0, Minecraft.getInstance().font.width(message) + 4, 11, message, onPress, DEFAULT_NARRATION);
 		}
 

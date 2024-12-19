@@ -106,8 +106,7 @@ public class ChatListWidget extends ElementListWidget<ChatListWidget.ChatListEnt
 					return widget.mouseClicked(mouseX, mouseY, button);
 				} else if (button == 1) {
 					ContextMenu.Builder builder = ContextMenu.builder()
-						.entry(Text.of(channel.getName()), w -> {
-						})
+						.title(Text.of(channel.getName()))
 						.spacer()
 						.entry(new TranslatableText("api.channel.configure"), w -> client.openScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
 						.spacer();

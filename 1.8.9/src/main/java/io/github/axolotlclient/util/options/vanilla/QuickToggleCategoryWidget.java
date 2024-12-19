@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.util.options.vanilla;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionCategoryImpl;
@@ -32,9 +31,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.TextRenderer;
 
 public class QuickToggleCategoryWidget extends CategoryWidget {
-	private static final Color DEFAULT = new Color(14737632);
-	private static final Color DISABLED = new Color(10526880);
-	private static final Color HOVERED = new Color(16777120);
 	private BooleanWidget enabledButton;
 
 	public QuickToggleCategoryWidget(int x, int y, int width, int height, OptionCategoryImpl category) {
@@ -58,23 +54,7 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 
 	@Override
 	public void drawWidget(int mouseX, int mouseY, float delta) {
-		TextRenderer textRenderer = this.client.textRenderer;
-		this.client.getTextureManager().bind(WIDGETS_LOCATION);
-		GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-		int k = this.active ? (this.hovered ? 2 : 1) : 0;
-		GlStateManager.enableBlend();
-		GlStateManager.blendFuncSeparate(770, 771, 1, 0);
-		GlStateManager.blendFunc(770, 771);
-		this.drawTexture(this.getX(), this.getY(), 0, 46 + k * 20, this.getWidth() / 2, this.getHeight());
-		this.drawTexture(this.getX() + this.getWidth() / 2, this.getY(), 200 - this.getWidth() / 2, 46 + k * 20, this.getWidth() / 2, this.getHeight());
-		Color l = DEFAULT;
-		if (!this.active) {
-			l = DISABLED;
-		} else if (this.hovered) {
-			l = HOVERED;
-		}
-
-		drawScrollingText(textRenderer, 2, l);
+		super.drawWidget(mouseX, mouseY, delta);
 
 		if (enabledButton != null) {
 			enabledButton.setY(getY() + 2);
@@ -83,14 +63,14 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 		}
 	}
 
-
+	@Override
 	protected void drawScrollingText(TextRenderer textRenderer, int i, Color j) {
 		int k = this.getX() + i;
 		int l = this.getX() + this.getWidth() - i;
 		int center = getX() + (getWidth() / 2);
 		if (enabledButton != null) {
 			l -= enabledButton.getWidth() + 4;
-			center -= enabledButton.getWidth()/2 + 2;
+			center -= enabledButton.getWidth() / 2 + 2;
 		}
 		drawScrollingText(textRenderer, this.getMessage(), center, k, this.getY(), l, this.getY() + this.getHeight(), j);
 	}

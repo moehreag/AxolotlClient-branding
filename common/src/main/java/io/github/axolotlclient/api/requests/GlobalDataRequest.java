@@ -24,8 +24,8 @@ package io.github.axolotlclient.api.requests;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
 
-import com.google.common.util.concurrent.RateLimiter;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Request;
 import io.github.axolotlclient.api.types.GlobalData;
@@ -34,16 +34,21 @@ import io.github.axolotlclient.api.types.SemVer;
 public class GlobalDataRequest {
 	private static GlobalData cachedData = null;
 	private static Instant nextRequest = null;
-	private static RateLimiter lock = RateLimiter.create(1);
+	private static Semaphore lock = new Semaphore(1);
 
 	public static CompletableFuture<GlobalData> get() {
 		return get(false);
 	}
+
 	public static CompletableFuture<GlobalData> get(boolean forceRequest) {
 		if (API.getInstance().getApiOptions().enabled.get()) {
+			try {
+				lock.acquire();
+			} catch (InterruptedException ignored) {}
 			if (cachedData != null) {
 				var now = Instant.now();
 				if (nextRequest.isAfter(now) || (forceRequest && nextRequest.minusSeconds(240).isAfter(now))) {
+					lock.release();
 					return CompletableFuture.completedFuture(cachedData);
 				}
 			}
@@ -58,6 +63,7 @@ public class GlobalDataRequest {
 				.thenApply(d -> {
 					nextRequest = Instant.now().plusSeconds(300);
 					cachedData = d;
+					lock.release();
 					return d;
 				});
 		}

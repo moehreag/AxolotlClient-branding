@@ -29,6 +29,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.text.Text;
@@ -43,10 +44,20 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 
 	private int x;
 	private int y;
+	private final int width, height;
 	private boolean rendering;
 
 	protected ContextMenu(List<ClickableWidget> items) {
 		children = items;
+		int width = 0;
+		int height = 0;
+		for (ClickableWidget d : children) {
+			d.setY(height);
+			height += d.getHeight();
+			width = Math.max(width, d.getWidth());
+		}
+		this.width = width;
+		this.height = height;
 	}
 
 	public static Builder builder() {
@@ -100,8 +111,8 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 			x = mouseX;
 			rendering = true;
 		}
-		final int yStart = y + 2;
-		final int xStart = x + 2;
+		final int yStart = Math.min(y + 2, graphics.getScaledWindowHeight() - height - 2);
+		final int xStart = Math.min(x + 2, graphics.getScaledWindowWidth() - width - 2);
 		int y = yStart + 1;
 		int width = 0;
 		for (ClickableWidget d : children) {
@@ -112,12 +123,6 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 		}
 		graphics.getMatrices().push();
 		graphics.getMatrices().translate(0, 0, 200);
-		if (xStart + width + 1 > graphics.getScaledWindowWidth()) {
-			graphics.getMatrices().translate(Math.min(graphics.getScaledWindowWidth() - (xStart + width + 1) - 2, 0), 0, 0);
-		}
-		if (y > graphics.getScaledWindowHeight()) {
-			graphics.getMatrices().translate(0, Math.min(graphics.getScaledWindowHeight() - y - 2, 0), 0);
-		}
 		graphics.fill(xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		graphics.drawBorder(xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (ClickableWidget c : children) {
@@ -125,6 +130,11 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 			c.render(graphics, mouseX, mouseY, delta);
 		}
 		graphics.getMatrices().pop();
+	}
+
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return hoveredElement(mouseX, mouseY).isPresent();
 	}
 
 	@Override
@@ -148,7 +158,7 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 		}
 
 		public Builder entry(Text name, ButtonWidget.PressAction action) {
-			elements.add(new ContextMenuEntryWidget(name, action));
+			elements.add(new ContextMenuEntryWithAction(name, action));
 			return this;
 		}
 
@@ -158,7 +168,16 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 		}
 
 		public Builder spacer() {
-			elements.add(new ContextMenuEntrySpacer());
+			elements.add(new ContextMenuEntry(Text.literal("-----")){
+				@Override
+				protected void updateNarration(NarrationMessageBuilder builder) {
+				}
+			});
+			return this;
+		}
+
+		public Builder title(Text title) {
+			elements.add(new ContextMenuEntry(title));
 			return this;
 		}
 
@@ -168,12 +187,12 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 
 	}
 
-	public static class ContextMenuEntrySpacer extends ClickableWidget {
+	public static class ContextMenuEntry extends ClickableWidget {
 
 		private final MinecraftClient client = MinecraftClient.getInstance();
 
-		public ContextMenuEntrySpacer() {
-			super(0, 0, 50, 11, Text.literal("-----"));
+		public ContextMenuEntry(Text content) {
+			super(0, 0, MinecraftClient.getInstance().textRenderer.getWidth(content), 11, content);
 		}
 
 		@Override
@@ -183,7 +202,7 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 
 		@Override
 		protected void updateNarration(NarrationMessageBuilder builder) {
-
+			builder.put(NarrationPart.TITLE, getMessage());
 		}
 
 		@Override
@@ -192,15 +211,9 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 		}
 	}
 
-	public static class ContextMenuEntryWidget extends ButtonWidget {
+	public static class ContextMenuEntryWithAction extends ButtonWidget {
 
-		private final MinecraftClient client = MinecraftClient.getInstance();
-
-		protected ContextMenuEntryWidget(int x, int y, int width, int height, Text message, PressAction onPress, NarrationFactory narrationFactory) {
-			super(x, y, width, height, message, onPress, narrationFactory);
-		}
-
-		public ContextMenuEntryWidget(Text message, PressAction onPress) {
+		public ContextMenuEntryWithAction(Text message, PressAction onPress) {
 			super(0, 0, MinecraftClient.getInstance().textRenderer.getWidth(message) + 4, 11, message, onPress, DEFAULT_NARRATION);
 		}
 

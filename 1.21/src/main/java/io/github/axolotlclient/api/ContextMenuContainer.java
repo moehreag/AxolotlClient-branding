@@ -96,9 +96,12 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			boolean bl = menu.mouseClicked(mouseX, mouseY, button);
-			removeMenu();
-			return bl;
+			if (!menu.isMouseOver(mouseX, mouseY)) {
+				removeMenu();
+				return true;
+			}
+			if (menu.mouseClicked(mouseX, mouseY, button)) removeMenu();
+			return true;
 		}
 		return false;
 	}
@@ -106,7 +109,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			menu.mouseReleased(mouseX, mouseY, button);
+			return menu.mouseReleased(mouseX, mouseY, button);
 		}
 		return false;
 	}
@@ -114,7 +117,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (menu != null) {
-			menu.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			return menu.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 		}
 		return false;
 	}
@@ -122,7 +125,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
 		if (menu != null) {
-			menu.mouseScrolled(mouseX, mouseY, amountX, amountY);
+			return menu.mouseScrolled(mouseX, mouseY, amountX, amountY);
 		}
 		return false;
 	}
@@ -130,7 +133,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (menu != null) {
-			menu.keyPressed(keyCode, scanCode, modifiers);
+			return menu.keyPressed(keyCode, scanCode, modifiers);
 		}
 		return false;
 	}
@@ -138,7 +141,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 		if (menu != null) {
-			menu.keyReleased(keyCode, scanCode, modifiers);
+			return menu.keyReleased(keyCode, scanCode, modifiers);
 		}
 		return false;
 	}
@@ -146,7 +149,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean charTyped(char chr, int modifiers) {
 		if (menu != null) {
-			menu.charTyped(chr, modifiers);
+			return menu.charTyped(chr, modifiers);
 		}
 		return false;
 	}
@@ -155,7 +158,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public ElementPath nextFocusPath(GuiNavigationEvent event) {
 		if (menu != null) {
-			menu.nextFocusPath(event);
+			return menu.nextFocusPath(event);
 		}
 		return Element.super.nextFocusPath(event);
 	}
@@ -163,7 +166,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		if (menu != null) {
-			menu.isMouseOver(mouseX, mouseY);
+			return menu.isMouseOver(mouseX, mouseY);
 		}
 		return false;
 	}
@@ -172,7 +175,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public ElementPath getCurrentFocusPath() {
 		if (menu != null) {
-			menu.getCurrentFocusPath();
+			return menu.getCurrentFocusPath();
 		}
 		return Element.super.getCurrentFocusPath();
 	}
@@ -180,7 +183,7 @@ public class ContextMenuContainer implements Drawable, Selectable, Element {
 	@Override
 	public ScreenArea getArea() {
 		if (menu != null) {
-			menu.getArea();
+			return menu.getArea();
 		}
 		return Element.super.getArea();
 	}

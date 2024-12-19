@@ -65,9 +65,12 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			boolean bl = menu.mouseClicked(mouseX, mouseY, button);
-			removeMenu();
-			return bl;
+			if (!menu.isMouseOver(mouseX, mouseY)) {
+				removeMenu();
+				return true;
+			}
+			if (menu.mouseClicked(mouseX, mouseY, button)) removeMenu();
+			return true;
 		}
 		return false;
 	}
@@ -75,7 +78,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		if (menu != null) {
-			menu.mouseReleased(mouseX, mouseY, button);
+			return menu.mouseReleased(mouseX, mouseY, button);
 		}
 		return false;
 	}
@@ -83,7 +86,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (menu != null) {
-			menu.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			return menu.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 		}
 		return false;
 	}
@@ -91,7 +94,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
 		if (menu != null) {
-			menu.mouseScrolled(mouseX, mouseY, amount);
+			return menu.mouseScrolled(mouseX, mouseY, amount);
 		}
 		return false;
 	}
@@ -99,7 +102,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (menu != null) {
-			menu.keyPressed(keyCode, scanCode, modifiers);
+			return menu.keyPressed(keyCode, scanCode, modifiers);
 		}
 		return false;
 	}
@@ -107,7 +110,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 		if (menu != null) {
-			menu.keyReleased(keyCode, scanCode, modifiers);
+			return menu.keyReleased(keyCode, scanCode, modifiers);
 		}
 		return false;
 	}
@@ -115,7 +118,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean charTyped(char chr, int modifiers) {
 		if (menu != null) {
-			menu.charTyped(chr, modifiers);
+			return menu.charTyped(chr, modifiers);
 		}
 		return false;
 	}
@@ -123,7 +126,7 @@ public class ContextMenuContainer implements Drawable, Element {
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		if (menu != null) {
-			menu.isMouseOver(mouseX, mouseY);
+			return menu.isMouseOver(mouseX, mouseY);
 		}
 		return false;
 	}

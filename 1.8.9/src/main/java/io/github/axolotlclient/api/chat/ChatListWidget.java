@@ -102,10 +102,10 @@ public class ChatListWidget extends EntryListWidget {
 
 		public ChatListEntry(Channel channel) {
 			this.channel = channel;
-			widget = new ButtonWidget(-1, 0, 0, getRowWidth(), 20, channel.getName()){
+			widget = new ButtonWidget(-1, 0, 0, getRowWidth(), 20, channel.getName()) {
 				@Override
 				public void drawCenteredString(TextRenderer textRenderer, String string, int i, int j, int k) {
-					DrawUtil.drawScrollableText(textRenderer, string, x+2, y, x+width-2, y+height, k);
+					DrawUtil.drawScrollableText(textRenderer, string, x + 2, y, x + width - 2, y + height, k);
 				}
 			};
 		}
@@ -130,8 +130,7 @@ public class ChatListWidget extends EntryListWidget {
 					return true;
 				} else if (button == 1) {
 					ContextMenu.Builder builder = ContextMenu.builder()
-						.entry(channel.getName(), w -> {
-						})
+						.title(channel.getName())
 						.spacer()
 						.entry(I18n.translate("api.channel.configure"), w -> minecraft.openScreen(new ChannelSettingsScreen(ChatListWidget.this.screen.getSelf(), channel)))
 						.spacer();

@@ -37,6 +37,7 @@ import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -49,10 +50,20 @@ public class ContextMenu implements ParentElement, Drawable {
 
 	private int x;
 	private int y;
+	private final int width, height;
 	private boolean rendering;
 
 	protected ContextMenu(List<AbstractButtonWidget> items) {
 		children = items;
+		int width = 0;
+		int height = 0;
+		for (AbstractButtonWidget d : children) {
+			d.y = height;
+			height += d.getHeight();
+			width = Math.max(width, d.getWidth());
+		}
+		this.width = width;
+		this.height = height;
 	}
 
 	public static Builder builder() {
@@ -100,8 +111,8 @@ public class ContextMenu implements ParentElement, Drawable {
 			x = mouseX;
 			rendering = true;
 		}
-		final int yStart = y + 2;
-		final int xStart = x + 2;
+		final int yStart = Math.min(y + 2, MinecraftClient.getInstance().getWindow().getScaledHeight() - height - 2);
+		final int xStart = Math.min(x + 2, MinecraftClient.getInstance().getWindow().getScaledWidth() - width - 2);
 		int y = yStart + 1;
 		int width = 0;
 		for (AbstractButtonWidget d : children) {
@@ -112,12 +123,6 @@ public class ContextMenu implements ParentElement, Drawable {
 		}
 		matrices.push();
 		matrices.translate(0, 0, 200);
-		if (xStart + width + 1 > MinecraftClient.getInstance().getWindow().getScaledWidth()) {
-			matrices.translate(Math.min(MinecraftClient.getInstance().getWindow().getScaledWidth() - (xStart + width + 1) - 2, 0), 0, 0);
-		}
-		if (y > MinecraftClient.getInstance().getWindow().getScaledHeight()) {
-			matrices.translate(0, Math.min(MinecraftClient.getInstance().getWindow().getScaledHeight() - y - 2, 0), 0);
-		}
 		DrawableHelper.fill(matrices, xStart, yStart, xStart + width + 1, y, 0xDD1E1F22);
 		DrawUtil.outlineRect(matrices, xStart, yStart, width + 1, y - yStart + 1, -1);
 		for (AbstractButtonWidget c : children) {
@@ -125,6 +130,11 @@ public class ContextMenu implements ParentElement, Drawable {
 			c.render(matrices, mouseX, mouseY, delta);
 		}
 		matrices.pop();
+	}
+
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return hoveredElement(mouseX, mouseY).isPresent();
 	}
 
 	public static class Builder {
@@ -138,7 +148,7 @@ public class ContextMenu implements ParentElement, Drawable {
 		}
 
 		public Builder entry(Text name, ButtonWidget.PressAction action) {
-			elements.add(new ContextMenuEntryWidget(name, action));
+			elements.add(new ContextMenuEntryWithAction(name, action));
 			return this;
 		}
 
@@ -148,7 +158,17 @@ public class ContextMenu implements ParentElement, Drawable {
 		}
 
 		public Builder spacer() {
-			elements.add(new ContextMenuEntrySpacer());
+			elements.add(new ContextMenuEntry(new LiteralText("-----")){
+				@Override
+				protected MutableText getNarrationMessage() {
+					return LiteralText.EMPTY.copy();
+				}
+			});
+			return this;
+		}
+
+		public Builder title(Text title) {
+			elements.add(new ContextMenuEntry(title));
 			return this;
 		}
 
@@ -158,12 +178,12 @@ public class ContextMenu implements ParentElement, Drawable {
 
 	}
 
-	public static class ContextMenuEntrySpacer extends AbstractButtonWidget {
+	public static class ContextMenuEntry extends AbstractButtonWidget {
 
 		private final MinecraftClient client = MinecraftClient.getInstance();
 
-		public ContextMenuEntrySpacer() {
-			super(0, 0, 50, 11, new LiteralText("-----"));
+		public ContextMenuEntry(Text content) {
+			super(0, 0, MinecraftClient.getInstance().textRenderer.getWidth(content), 11, content);
 		}
 
 		@Override
@@ -172,20 +192,19 @@ public class ContextMenu implements ParentElement, Drawable {
 		}
 
 		@Override
+		protected MutableText getNarrationMessage() {
+			return getMessage().copy();
+		}
+
+		@Override
 		protected boolean clicked(double mouseX, double mouseY) {
 			return false;
 		}
 	}
 
-	public static class ContextMenuEntryWidget extends ButtonWidget {
+	public static class ContextMenuEntryWithAction extends ButtonWidget {
 
-		private final MinecraftClient client = MinecraftClient.getInstance();
-
-		protected ContextMenuEntryWidget(int x, int y, int width, int height, Text message, PressAction onPress) {
-			super(x, y, width, height, message, onPress);
-		}
-
-		public ContextMenuEntryWidget(Text message, PressAction onPress) {
+		public ContextMenuEntryWithAction(Text message, PressAction onPress) {
 			super(0, 0, MinecraftClient.getInstance().textRenderer.getWidth(message) + 4, 11, message, onPress);
 		}
 

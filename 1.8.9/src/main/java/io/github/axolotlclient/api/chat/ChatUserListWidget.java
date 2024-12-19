@@ -146,7 +146,7 @@ public class ChatUserListWidget extends EntryListWidget {
 			} else if (button == 1) { // right click
 
 				if (!user.equals(API.getInstance().getSelf())) {
-					ContextMenu.Builder menu = ContextMenu.builder().entry(user.getName(), buttonWidget -> {})
+					ContextMenu.Builder menu = ContextMenu.builder().title(user.getName())
 						.spacer();
 					if (!channel.isDM()) {
 						menu.entry("api.friends.chat", buttonWidget -> {

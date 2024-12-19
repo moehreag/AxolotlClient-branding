@@ -124,8 +124,7 @@ public class ChatUserListWidget extends AlwaysSelectedEntryListWidget<ChatUserLi
 			} else if (button == 1) { // right click
 
 				if (!user.equals(API.getInstance().getSelf())) {
-					ContextMenu.Builder menu = ContextMenu.builder().entry(Text.of(user.getName()), buttonWidget -> {
-					}).spacer();
+					ContextMenu.Builder menu = ContextMenu.builder().title(Text.of(user.getName())).spacer();
 					if (!channel.isDM()) {
 						menu.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {
 							ChannelRequest.getOrCreateDM(user).whenCompleteAsync(((channel, throwable) ->

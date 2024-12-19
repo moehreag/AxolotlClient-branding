@@ -178,8 +178,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			}
 			if (button == 1) {
 				ContextMenu.Builder builder = ContextMenu.builder()
-					.entry(Text.of(origin.sender().getName()), buttonWidget -> {
-					})
+					.title(Text.of(origin.sender().getName()))
 					.spacer();
 				if (!origin.sender().equals(API.getInstance().getSelf())) {
 					builder.entry(new TranslatableText("api.friends.chat"), buttonWidget -> {

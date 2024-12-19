@@ -349,6 +349,7 @@ public class API {
 	}
 
 	private void scheduleRestart(boolean immediate) {
+		logger.info("Trying restart in "+(immediate ? "10 seconds" : "5 minutes."));
 		CompletableFuture.runAsync(() -> {
 			logDetailed("Restarting API session...");
 			startup(account);
