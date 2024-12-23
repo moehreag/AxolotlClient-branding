@@ -59,21 +59,29 @@ dependencies {
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
 
 	modCompileOnly("io.github.moehreag:legacy-lwjgl3:${project.property("legacy_lwgjl3")}") {
-		exclude(group = "org.lwjgl", module= "lwjgl-glfw")
-		exclude(group = "org.lwjgl", module= "lwjgl-openal")
-		exclude(group = "org.lwjgl", module= "lwjgl-opengl")
-		exclude(group = "org.lwjgl", module= "lwjgl")
+		exclude(group = "org.lwjgl", module = "lwjgl-glfw")
+		exclude(group = "org.lwjgl", module = "lwjgl-openal")
+		exclude(group = "org.lwjgl", module = "lwjgl-opengl")
+		exclude(group = "org.lwjgl", module = "lwjgl")
 		exclude(group = "net.fabricmc")
 		exclude(group = "org.javassist")
 	}
 	modLocalRuntime("io.github.moehreag:legacy-lwjgl3:${project.property("legacy_lwgjl3")}:all-remapped") {
-		exclude(group= "org.lwjgl", module= "lwjgl-glfw")
-		exclude(group= "org.lwjgl", module= "lwjgl-openal")
-		exclude(group= "org.lwjgl", module= "lwjgl-opengl")
-		exclude(group= "org.lwjgl", module= "lwjgl")
-		exclude(group= "net.fabricmc")
-		exclude(group= "org.javassist")
+		exclude(group = "org.lwjgl", module = "lwjgl-glfw")
+		exclude(group = "org.lwjgl", module = "lwjgl-openal")
+		exclude(group = "org.lwjgl", module = "lwjgl-opengl")
+		exclude(group = "org.lwjgl", module = "lwjgl")
+		exclude(group = "net.fabricmc")
+		exclude(group = "org.javassist")
 	}
+
+	implementation("org.lwjgl", "lwjgl-tinyfd", "3.3.5")
+	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-linux"))
+	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows"))
+	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos"))
+	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-linux-arm64"))
+	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows-arm64"))
+	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos-arm64"))
 }
 
 configurations.configureEach {
@@ -123,7 +131,9 @@ publishing {
 	repositories {
 		maven {
 			name = "owlMaven"
-			val repository = if (project.version.toString().contains("beta") || project.version.toString().contains("alpha")) "snapshots" else "releases"
+			val repository = if (project.version.toString().contains("beta") || project.version.toString()
+					.contains("alpha")
+			) "snapshots" else "releases"
 			url = uri("https://moehreag.duckdns.org/maven/$repository")
 			credentials(PasswordCredentials::class)
 			authentication {
@@ -150,7 +160,8 @@ modrinth {
 	// https://github.com/LambdAurora/LambDynamicLights/blob/1ef85f486084873b5d97b8a08df72f57859a3295/build.gradle#L145
 	// License: MIT
 	val changelogText = file("../CHANGELOG.md").readText()
-	val regexVersion = ((project.version) as String).split("\\+")[0].replace("\\.".toRegex(), "/\\./").replace("\\+".toRegex(), "\\+")
+	val regexVersion =
+		((project.version) as String).split("\\+")[0].replace("\\.".toRegex(), "/\\./").replace("\\+".toRegex(), "\\+")
 	val changelogRegex = "###? ${regexVersion}\\n\\n(( *- .+\\n)+)".toRegex()
 	val matcher = changelogRegex.find(changelogText)
 
@@ -159,7 +170,7 @@ modrinth {
 
 		val changelogLines = changelogText.split("\n")
 		val linkRefRegex = "^\\[([A-z0-9 _\\-/+.]+)]: ".toRegex()
-		for (i in (changelogLines.size -1)..0 step -1) {
+		for (i in (changelogLines.size - 1)..0 step -1) {
 			val line = changelogLines[i]
 			if ((linkRefRegex.matches(line)))
 				changelogContent += "\n" + line
@@ -168,7 +179,7 @@ modrinth {
 		changelog = changelogContent
 	} else {
 		afterEvaluate {
-			tasks.modrinth.configure {isEnabled = false }
+			tasks.modrinth.configure { isEnabled = false }
 		}
 	}
 }

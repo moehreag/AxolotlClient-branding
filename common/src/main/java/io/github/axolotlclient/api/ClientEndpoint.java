@@ -31,18 +31,15 @@ import io.github.axolotlclient.util.ThreadExecuter;
 
 public class ClientEndpoint implements WebSocket.Listener {
 
-	private StringBuilder buf;
+	private final StringBuilder buf = new StringBuilder();
 
 	@Override
 	public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-		if (buf == null) {
-			buf = new StringBuilder();
-		}
 		buf.append(data);
 		if (last) {
 			String s = buf.toString();
 			ThreadExecuter.scheduleTask(() -> API.getInstance().onMessage(s));
-			buf = null;
+			buf.setLength(0);
 		}
 		webSocket.request(1);
 		return WebSocket.Listener.super.onText(webSocket, data, last);
@@ -50,8 +47,8 @@ public class ClientEndpoint implements WebSocket.Listener {
 
 	@Override
 	public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-		API.getInstance().onClose(statusCode, reason);
 		webSocket.request(1);
+		API.getInstance().onClose(statusCode, reason);
 		return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
 	}
 

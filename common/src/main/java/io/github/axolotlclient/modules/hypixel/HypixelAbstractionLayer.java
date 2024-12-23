@@ -117,7 +117,7 @@ public class HypixelAbstractionLayer {
 
 					request = getHypixelApiData(uuid, type).thenApply(res -> {
 						if (res.getStatus() == 429) {
-							ratelimitReset = Instant.now().plus(res.firstHeader("RateLimit-Reset").map(Integer::parseInt).orElse(2), ChronoUnit.SECONDS);
+							ratelimitReset = Instant.now().plus(res.firstHeader("RateLimit-Reset").map(Long::parseLong).orElse(2L), ChronoUnit.SECONDS);
 						} else {
 							ratelimitReset = Instant.now().plus(100, ChronoUnit.MILLIS);
 						}

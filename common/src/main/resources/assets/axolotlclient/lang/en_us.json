@@ -590,5 +590,13 @@
 	"api.status.description.in_game.map": "%s on %s",
 	"api.status.description.in_game.game_mode_map": "%s: %s on %s",
 	"api.add_shortcut_buttons": "Add shortcut buttons",
-	"api.add_shortcut_buttons.tooltip": "Adds buttons to the title screen and the game menu<br> to access social features more quickly."
+	"api.add_shortcut_buttons.tooltip": "Adds buttons to the title screen and the game menu<br> to access social features more quickly.",
+	"api.account.export": "Export account data",
+	"api.account.export_data": "Choose destination file",
+	"api.account.export.dialog_title": "Choose export destination",
+	"api.account.export.success.title": "Export successful",
+	"api.account.export.success.description": "Exported account data to %s",
+	"api.account.export.failure.title": "Export failed",
+	"api.account.export.failure.description_write": "Failed to write file, you may find more information in the log file!",
+	"api.account.export.failure.description_server": "Failed to request data from the server, please contact AxolotlClient with a log file to get support!"
 }

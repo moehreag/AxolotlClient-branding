@@ -119,6 +119,7 @@ public class AxolotlClient implements ClientModInitializer {
 
 		new AxolotlClientCommon(LOGGER, () -> configManager);
 		new API(LOGGER, Notifications.getInstance(), I18n::translate, new StatusUpdateProviderImpl(), APIOptions.getInstance());
+		MinecraftClientEvents.STOP.register(c -> API.getInstance().shutdown());
 
 		modules.forEach(Module::init);
 

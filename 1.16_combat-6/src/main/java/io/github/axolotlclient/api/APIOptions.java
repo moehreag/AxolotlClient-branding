@@ -22,23 +22,30 @@
 
 package io.github.axolotlclient.api;
 
+import java.nio.file.Path;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
 import io.github.axolotlclient.api.chat.ChannelInvitesScreen;
 import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.api.requests.AccountDataRequest;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
+import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.text.TranslatableText;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 public class APIOptions extends Options {
 
@@ -67,6 +74,18 @@ public class APIOptions extends Options {
 			() -> client.openScreen(new ChannelInvitesScreen(client.currentScreen))));
 		account.add(new GenericOption("api.account.usernames", "clickToOpen",
 			() -> client.openScreen(new UsernameManagementScreen(client.currentScreen))));
+		account.add(new GenericOption("api.account.export", "api.account.export_data", () -> ThreadExecuter.scheduleTask(() -> {
+			Function<String, String> translate = API.getInstance().getTranslationProvider()::translate;
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				var pointers = stack.mallocPointer(1);
+				pointers.put(stack.UTF8("*.json"));
+				pointers.flip();
+				var result = TinyFileDialogs.tinyfd_saveFileDialog(translate.apply("api.account.export.dialog_title"), FabricLoader.getInstance().getGameDir().toString(), pointers, null);
+				if (result != null) {
+					AccountDataRequest.get(Path.of(result));
+				}
+			}
+		})));
 		account.add(new GenericOption("api.account.delete", "api.account.delete_account", () -> {
 			Screen previous = client.currentScreen;
 			client.openScreen(new ConfirmScreen(b -> {

@@ -22,15 +22,20 @@
 
 package io.github.axolotlclient.api;
 
+import java.nio.file.Path;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
 import io.github.axolotlclient.api.chat.ChannelInvitesScreen;
 import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.api.requests.AccountDataRequest;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
+import io.github.axolotlclient.util.ThreadExecuter;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -39,6 +44,8 @@ import net.minecraft.client.resource.language.I18n;
 import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 public class APIOptions extends Options {
 
@@ -67,6 +74,16 @@ public class APIOptions extends Options {
 			() -> client.openScreen(new ChannelInvitesScreen(client.screen))));
 		account.add(new GenericOption("api.account.usernames", "clickToOpen",
 			() -> client.openScreen(new UsernameManagementScreen(client.screen))));
+		account.add(new GenericOption("api.account.export", "api.account.export_data", () -> ThreadExecuter.scheduleTask(() -> {
+			Function<String, String> translate = API.getInstance().getTranslationProvider()::translate;
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				var pointers = stack.pointers(stack.UTF8("*.json"));
+				var result = TinyFileDialogs.tinyfd_saveFileDialog(translate.apply("api.account.export.dialog_title"), FabricLoader.getInstance().getGameDir().toString(), pointers, null);
+				if (result != null) {
+					AccountDataRequest.get(Path.of(result));
+				}
+			}
+		})));
 		account.add(new GenericOption("api.account.delete", "api.account.delete_account", () -> {
 			Screen previous = client.screen;
 			client.openScreen(new ConfirmScreen((b, i) -> {

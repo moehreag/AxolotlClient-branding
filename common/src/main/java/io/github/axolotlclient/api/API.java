@@ -299,7 +299,7 @@ public class API {
 	}
 
 	public boolean isSocketConnected() {
-		return socket != null && !socket.isInputClosed();
+		return socket != null;
 	}
 
 	public boolean isAuthenticated() {
@@ -343,7 +343,12 @@ public class API {
 
 	public void onClose(int statusCode, String reason) {
 		logDetailed("Session closed! code: " + statusCode + " reason: " + reason);
-		if (apiOptions.enabled.get()) {
+		int[] error_codes = new int[]{
+			1011,
+			1007,
+			1014
+		};
+		if (Arrays.stream(error_codes).anyMatch(i -> i == statusCode) && apiOptions.enabled.get()) {
 			scheduleRestart(true);
 		}
 	}
@@ -433,7 +438,7 @@ public class API {
 					Thread.sleep(50);
 				} catch (InterruptedException ignored) {
 				}
-				while (API.getInstance().isSocketConnected()) {
+				while (API.getInstance().isAuthenticated()) {
 					Request request = statusUpdateProvider.getStatus();
 					if (request != null) {
 						post(request);

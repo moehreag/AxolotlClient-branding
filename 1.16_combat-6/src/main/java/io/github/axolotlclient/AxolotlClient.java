@@ -56,6 +56,7 @@ import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.LoggerImpl;
 import io.github.axolotlclient.util.notifications.Notifications;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resource.language.I18n;
@@ -120,6 +121,7 @@ public class AxolotlClient implements ClientModInitializer {
 
 		new AxolotlClientCommon(LOGGER, () -> configManager);
 		new API(LOGGER, Notifications.getInstance(), I18n::translate, new StatusUpdateProviderImpl(), APIOptions.getInstance());
+		ClientLifecycleEvents.CLIENT_STOPPING.register(c -> API.getInstance().shutdown());
 
 		modules.forEach(Module::init);
 
