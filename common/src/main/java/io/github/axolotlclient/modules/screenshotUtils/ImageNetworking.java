@@ -29,6 +29,7 @@ import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.Constants;
 import io.github.axolotlclient.api.Request;
 
 public abstract class ImageNetworking {
@@ -51,6 +52,9 @@ public abstract class ImageNetworking {
 	}
 
 	protected ImageData download(String url) {
+		if (url.contains("/") && !url.startsWith(Constants.API_URL)) {
+			return ImageData.EMPTY;
+		}
 		if (url.endsWith("/raw")) {
 			url = url.substring(0, url.length() - 4);
 		}
@@ -68,6 +72,5 @@ public abstract class ImageNetworking {
 
 	public record ImageData(String name, byte[] data) {
 		public static final ImageData EMPTY = new ImageData("", new byte[0]);
-
 	}
 }

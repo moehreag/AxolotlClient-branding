@@ -50,7 +50,7 @@ public class UserRequest {
 
 	public static boolean getOnline(String uuid) {
 
-		if (uuid == null) {
+		if (uuid == null || !API.getInstance().isAuthenticated()) {
 			return false;
 		}
 
