@@ -37,7 +37,6 @@ import io.github.axolotlclient.config.AxolotlClientConfig;
 import io.github.axolotlclient.modules.Module;
 import io.github.axolotlclient.modules.ModuleLoader;
 import io.github.axolotlclient.modules.auth.Auth;
-import io.github.axolotlclient.modules.blur.MotionBlur;
 import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
@@ -80,7 +79,7 @@ public class AxolotlClient implements ClientModInitializer {
 		modules.add(Zoom.getInstance());
 		modules.add(HudManager.getInstance());
 		modules.add(HypixelMods.getInstance());
-		modules.add(MotionBlur.getInstance());
+		//modules.add(MotionBlur.getInstance()); // TODO fix motion blur, it's broken since 1.21.2's rendering changes
 		modules.add(ScrollableTooltips.getInstance());
 		modules.add(DiscordRPC.getInstance());
 		modules.add(Freelook.getInstance());

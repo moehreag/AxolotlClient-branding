@@ -598,5 +598,6 @@
 	"api.account.export.success.description": "Exported account data to %s",
 	"api.account.export.failure.title": "Export failed",
 	"api.account.export.failure.description_write": "Failed to write file, you may find more information in the log file!",
-	"api.account.export.failure.description_server": "Failed to request data from the server, please contact AxolotlClient with a log file to get support!"
+	"api.account.export.failure.description_server": "Failed to request data from the server, please contact AxolotlClient with a log file to get support!",
+	"feature.broken": "This feature is currently not working. If you know how to fix it please let us know!"
 }

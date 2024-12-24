@@ -23,6 +23,7 @@
 - migrate 1.21.4 to mojmap
 - add Activity support for MCCIsland
 - block more disallowed features on MCCIsland
+- 1.21.4: temporarily disable broken features: MotionBlur, ReachHud, ComboHud
 
 ### 3.0.6
 

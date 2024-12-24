@@ -98,16 +98,19 @@ public class HudManager extends AbstractModule {
 		add(new ItemUpdateHud());
 		add(new PackDisplayHud());
 		add(new IRLTimeHud());
-		add(new ReachHud());
+		add(new ReachHud()); // TODO
 		add(new MemoryHud());
 		add(new PlayerCountHud());
 		add(new CompassHud());
 		add(new TPSHud());
-		add(new ComboHud());
+		add(new ComboHud()); // TODO
 		add(new PlayerHud());
 		entries.put(BedwarsMod.getInstance().getUpgradesOverlay().getId(), BedwarsMod.getInstance().getUpgradesOverlay());
 
 		entries.values().forEach(HudEntry::init);
+
+		((ReachHud)get(ReachHud.ID)).getEnabled().setForceOff(true, "feature.broken");
+		((ComboHud)get(ComboHud.ID)).getEnabled().setForceOff(true, "feature.broken");
 
 		refreshAllBounds();
 	}

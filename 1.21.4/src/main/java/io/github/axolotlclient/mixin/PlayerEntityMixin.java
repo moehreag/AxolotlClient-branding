@@ -28,8 +28,6 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.ReachHud;
 import io.github.axolotlclient.modules.particles.Particles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,7 +37,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 public abstract class PlayerEntityMixin extends LivingEntity {
@@ -72,8 +69,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		}
 	}
 
-	// TODO check whether this actually still works now
-	@Inject(method = "hurtServer", at = @At("HEAD"))
+	// TODO this doesn't work currently
+	/*@Inject(method = "hurtServer", at = @At("HEAD"))
 	private void axolotlclient$damage(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
 		if (source.getEntity() != null && getUUID() == Minecraft.getInstance().player.getUUID()) {
 			ReachHud reachDisplayHud = (ReachHud) HudManager.getInstance().get(ReachHud.ID);
@@ -86,5 +83,5 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 			ComboHud comboHud = (ComboHud) HudManager.getInstance().get(ComboHud.ID);
 			comboHud.onEntityDamage(this);
 		}
-	}
+	}*/
 }

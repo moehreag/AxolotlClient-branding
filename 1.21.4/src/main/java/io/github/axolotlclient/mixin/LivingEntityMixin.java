@@ -22,19 +22,11 @@
 
 package io.github.axolotlclient.mixin;
 
-import io.github.axolotlclient.modules.hud.HudManager;
-import io.github.axolotlclient.modules.hud.gui.hud.simple.ComboHud;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
@@ -43,8 +35,8 @@ public abstract class LivingEntityMixin extends Entity {
 		super(type, world);
 	}
 
-	// TODO check whether this works while on servers
-	@Inject(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;lastDamageStamp:J"))
+	// TODO this doesn't work currently
+	/*@Inject(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;lastDamageStamp:J"))
 	private void axolotlclient$onDamage(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
 		// The client doesn't really get any sort of information about why a person is damaged
 		// Kinda sucks since that means combos can't be guarenteed (i.e. fall damage, or other person hits)
@@ -54,5 +46,5 @@ public abstract class LivingEntityMixin extends Entity {
 			ComboHud comboHud = (ComboHud) HudManager.getInstance().get(ComboHud.ID);
 			comboHud.onEntityDamage(this);
 		}
-	}
+	}*/
 }
