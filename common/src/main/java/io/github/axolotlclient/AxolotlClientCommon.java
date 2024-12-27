@@ -23,6 +23,7 @@
 package io.github.axolotlclient;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -40,6 +41,8 @@ public class AxolotlClientCommon {
 	@Getter
 	private final Logger logger;
 	private final Supplier<ConfigManager> manager;
+
+	public DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CommonOptions.datetimeFormat.get());
 
 	public AxolotlClientCommon(Logger logger, Supplier<ConfigManager> manager) {
 		instance = this;

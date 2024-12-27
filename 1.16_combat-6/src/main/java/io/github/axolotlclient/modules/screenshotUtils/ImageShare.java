@@ -23,8 +23,8 @@
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
@@ -40,7 +40,7 @@ public class ImageShare extends ImageNetworking {
 	private ImageShare() {
 	}
 
-	public void uploadImage(File file) {
+	public void uploadImage(Path file) {
 		Util.sendChatMessage(new TranslatableText("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {

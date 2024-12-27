@@ -33,6 +33,7 @@ import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.ConfigUI;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.CommonOptions;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
@@ -140,12 +141,13 @@ public class AxolotlClientConfig {
 		general.add(customWindowTitle);
 		general.add(openCredits);
 		general.add(debugLogOutput);
+		general.add(CommonOptions.datetimeFormat);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
 			general.add(configStyle = new StringArrayOption("configStyle",
 				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
 					.toArray(String[]::new),
-				"configStyle."+ConfigUI.getInstance().getDefaultStyle().getName(), s -> {
+				"configStyle." + ConfigUI.getInstance().getDefaultStyle().getName(), s -> {
 				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
 				Minecraft.getInstance().setScreen(null);
 			}));

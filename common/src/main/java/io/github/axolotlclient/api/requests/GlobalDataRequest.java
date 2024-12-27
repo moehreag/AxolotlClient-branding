@@ -47,7 +47,7 @@ public class GlobalDataRequest {
 			} catch (InterruptedException ignored) {}
 			if (cachedData != null) {
 				var now = Instant.now();
-				if (nextRequest.isAfter(now) || (forceRequest && nextRequest.minusSeconds(240).isAfter(now))) {
+				if (!forceRequest && nextRequest.isAfter(now)) {
 					lock.release();
 					return CompletableFuture.completedFuture(cachedData);
 				}

@@ -58,7 +58,7 @@ import org.jetbrains.annotations.NotNull;
 public class ImageViewerScreen extends Screen {
 
 	// Icon from https://lucide.dev, "arrow-right"
-	private static final Identifier downloadIcon = Identifier.of("axolotlclient", "textures/go.png");
+	private static final Identifier downloadIcon = Identifier.of("axolotlclient", "textures/gui/sprites/go.png");
 
 	private static final URI aboutPage = URI.create("https://github.com/AxolotlClient/AxolotlClient-mod/wiki/Features#screenshot-sharing");
 	private final Screen parent;

@@ -23,9 +23,12 @@
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
@@ -37,12 +40,13 @@ import net.minecraft.network.chat.Style;
 
 public class ImageShare extends ImageNetworking {
 
-	@Getter private static final ImageShare Instance = new ImageShare();
+	@Getter
+	private static final ImageShare Instance = new ImageShare();
 
 	private ImageShare() {
 	}
 
-	public void uploadImage(File file) {
+	public void uploadImage(Path file) {
 		Util.sendChatMessage(Component.translatable("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {
@@ -62,7 +66,16 @@ public class ImageShare extends ImageNetworking {
 		ImageData data = download(url);
 		if (data != ImageData.EMPTY) {
 			try {
-				return new ImageInstance(NativeImage.read(new ByteArrayInputStream(data.data())), data.name());
+				ImageInstance.Remote remote = new ImageInstance.RemoteImpl(NativeImage.read(new ByteArrayInputStream(data.data())), data.name(), data.uploader(), data.sharedAt(), url);
+				try {
+					Path local = GalleryScreen.SCREENSHOT_DIR.resolve(remote.filename());
+					HashFunction hash = Hashing.goodFastHash(32);
+					if (Files.exists(local) && hash.hashBytes(data.data()).equals(hash.hashBytes(Files.readAllBytes(local)))) {
+						return remote.toShared(local);
+					}
+				} catch (IOException ignored) {
+				}
+				return remote;
 			} catch (IOException ignored) {
 			}
 		}

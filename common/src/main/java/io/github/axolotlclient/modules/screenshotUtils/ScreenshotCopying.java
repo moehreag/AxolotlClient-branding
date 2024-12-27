@@ -22,16 +22,21 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import io.github.axolotlclient.AxolotlClientCommon;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 @UtilityClass
@@ -48,17 +53,17 @@ public class ScreenshotCopying {
 
 	private static final boolean IS_WAYLAND;
 
-	public void copy(File file) {
+	public void copy(Path file) {
 		if (IS_WAYLAND) {
 			copyWayland(file);
 		} else {
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new FileTransferable(file), null);
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new FileTransferable(file.toFile()), null);
 		}
 	}
 
-	private void copyWayland(File f) {
+	private void copyWayland(Path f) {
 		try {
-			ProcessBuilder builder = new ProcessBuilder("bash", "-c", "wl-copy -t image/png < " + f.getAbsolutePath());
+			ProcessBuilder builder = new ProcessBuilder("bash", "-c", "wl-copy -t image/png < " + f.toAbsolutePath());
 			Process p = builder.start();
 			p.waitFor();
 		} catch (IOException | InterruptedException ignored) {
@@ -66,9 +71,44 @@ public class ScreenshotCopying {
 		}
 	}
 
+	public void copy(byte[] image) {
+		if (IS_WAYLAND) {
+			try {
+				Path i = Files.createTempFile("axolotlclient_screenshot", ".png");
+				Files.write(i, image);
+				copyWayland(i);
+				Files.delete(i);
+			} catch (IOException e) {
+				AxolotlClientCommon.getInstance().getLogger().error("Failed to copy image using temporary file!");
+			}
+		} else {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageTransferable(image), null);
+		}
+	}
+
+	@AllArgsConstructor
+	protected static class ImageTransferable implements Transferable {
+		private final byte[] image;
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[]{DataFlavor.imageFlavor};
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+			return DataFlavor.imageFlavor.equals(flavor);
+		}
+
+		@NotNull
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws IOException {
+			return ImageIO.read(new ByteArrayInputStream(image));
+		}
+	}
+
 	@AllArgsConstructor
 	protected static class FileTransferable implements Transferable {
-
 		private final File file;
 
 		@Override

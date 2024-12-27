@@ -115,7 +115,18 @@ public class UserRequest {
 			userCache.put(uuid, opt);
 			return opt;
 		});
+	}
 
+	@SuppressWarnings("unchecked")
+	public static CompletableFuture<Optional<List<String>>> getUploadedImages(String userUuid) {
+		return API.getInstance().get(Request.Route.USER.builder().path(userUuid).path("images").build())
+			.thenApply(r -> {
+				if (!r.isError()) {
+					List<Long> list = (List<Long>) r.getBody();
+					return Optional.of(list.stream().map(Long::toUnsignedString).toList());
+				}
+				return Optional.empty();
+			});
 	}
 
 }

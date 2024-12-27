@@ -23,8 +23,8 @@
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.util.Util;
@@ -43,7 +43,7 @@ public class ImageShare extends ImageNetworking {
 	private ImageShare() {
 	}
 
-	public void uploadImage(File file) {
+	public void uploadImage(Path file) {
 		Util.sendChatMessage(Text.translatable("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {

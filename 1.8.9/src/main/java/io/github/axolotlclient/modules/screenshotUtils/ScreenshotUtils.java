@@ -24,9 +24,9 @@ package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
@@ -73,12 +73,12 @@ public class ScreenshotUtils extends AbstractModule {
 			"delete_image",
 			new CustomClickEvent((file) -> {
 				try {
-					Files.delete(file.toPath());
+					Files.delete(file);
 					Util.sendChatMessage(
 						new LiteralText(I18n.translate("screenshot_deleted")
-							.replace("<name>", file.getName())));
+							.replace("<name>", file.getFileName().toString())));
 				} catch (Exception e) {
-					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getName());
+					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getFileName().toString());
 				}
 			})
 		));
@@ -86,7 +86,7 @@ public class ScreenshotUtils extends AbstractModule {
 		actions.add(new Action("openAction",
 			Formatting.WHITE,
 			"open_image",
-			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toURI()))
+			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toUri()))
 		));
 
 		actions.add(new Action("uploadAction", Formatting.LIGHT_PURPLE,
@@ -117,7 +117,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 	public Text onScreenshotTaken(Text text, File shot) {
 		if (enabled.get()) {
-			Text t = getUtilsText(shot);
+			Text t = getUtilsText(shot.toPath());
 			if (t != null) {
 				return text.append("\n").append(t);
 			}
@@ -125,11 +125,11 @@ public class ScreenshotUtils extends AbstractModule {
 		return text;
 	}
 
-	private @Nullable Text getUtilsText(File file) {
+	private @Nullable Text getUtilsText(Path file) {
 
 		if (!autoExec.get().equals("off")) {
 
-			actions.parallelStream().filter(action -> autoExec.get().equals(action.getName())).collect(Collectors.toList()).get(0).clickEvent.setFile(file).doAction();
+			actions.parallelStream().filter(action -> autoExec.get().equals(action.getName())).toList().get(0).clickEvent.setFile(file).doAction();
 			return null;
 		}
 
@@ -143,7 +143,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 	public interface OnActionCall {
 
-		void doAction(File file);
+		void doAction(Path file);
 	}
 
 	@AllArgsConstructor
@@ -154,7 +154,7 @@ public class ScreenshotUtils extends AbstractModule {
 		private final String hoverTextKey;
 		private final CustomClickEvent clickEvent;
 
-		public Text getText(File file) {
+		public Text getText(Path file) {
 			return new LiteralText(I18n.translate(translationKey))
 				.setStyle(new Style()
 					.setColor(formatting)
@@ -170,7 +170,7 @@ public class ScreenshotUtils extends AbstractModule {
 	public static class CustomClickEvent extends ClickEvent {
 
 		private final OnActionCall action;
-		private File file;
+		private Path file;
 
 		public CustomClickEvent(OnActionCall action) {
 			super(Action.byKey(""), "");
@@ -182,11 +182,11 @@ public class ScreenshotUtils extends AbstractModule {
 				action.doAction(file);
 			} else {
 				AxolotlClient.LOGGER.warn("How'd you manage to do this? " +
-										  "Now there's a screenshot ClickEvent without a File attached to it!");
+					"Now there's a screenshot ClickEvent without a File attached to it!");
 			}
 		}
 
-		public CustomClickEvent setFile(File file) {
+		public CustomClickEvent setFile(Path file) {
 			this.file = file;
 			return this;
 		}

@@ -24,6 +24,7 @@ package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,17 +57,17 @@ public class ScreenshotUtils extends AbstractModule {
 			"delete_image",
 			new CustomClickEvent((file) -> {
 				try {
-					Files.delete(file.toPath());
+					Files.delete(file);
 					io.github.axolotlclient.util.Util.sendChatMessage(
-						Component.literal(I18n.get("screenshot_deleted").replace("<name>", file.getName())));
+						Component.literal(I18n.get("screenshot_deleted").replace("<name>", file.getFileName().toString())));
 				} catch (Exception e) {
-					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getName());
+					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getFileName().toString());
 				}
 			})));
 
 		actions.add(new Action("openAction", ChatFormatting.WHITE,
 			"open_image",
-			new CustomClickEvent((file) -> Util.getPlatform().openUri(file.toURI()))));
+			new CustomClickEvent((file) -> Util.getPlatform().openUri(file.toUri()))));
 
 		actions.add(new Action("uploadAction", ChatFormatting.LIGHT_PURPLE,
 			"upload_image",
@@ -98,7 +99,7 @@ public class ScreenshotUtils extends AbstractModule {
 	@Override
 	public void init() {
 		category.add(enabled, autoExec, new GenericOption("imageViewer", "openViewer", () -> {
-			Minecraft.getInstance().setScreen(new ImageViewerScreen(Minecraft.getInstance().screen));
+			Minecraft.getInstance().setScreen(new GalleryScreen(Minecraft.getInstance().screen));
 		}));
 
 		AxolotlClient.CONFIG.general.add(category);
@@ -106,7 +107,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 	public MutableComponent onScreenshotTaken(MutableComponent text, File shot) {
 		if (enabled.get()) {
-			Component t = getUtilsText(shot);
+			Component t = getUtilsText(shot.toPath());
 			if (t != null) {
 				return text.append("\n").append(t);
 			}
@@ -114,7 +115,7 @@ public class ScreenshotUtils extends AbstractModule {
 		return text;
 	}
 
-	private @Nullable Component getUtilsText(File file) {
+	private @Nullable Component getUtilsText(Path file) {
 		if (!autoExec.get().equals("off")) {
 			actions.stream().filter(action -> autoExec.get().equals(action.getName())).toList()
 				.getFirst().clickEvent.setFile(file).doAction();
@@ -131,7 +132,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 	public interface OnActionCall {
 
-		void doAction(File file);
+		void doAction(Path file);
 	}
 
 	@AllArgsConstructor
@@ -142,7 +143,7 @@ public class ScreenshotUtils extends AbstractModule {
 		private final String hoverTextKey;
 		private final CustomClickEvent clickEvent;
 
-		public Component getText(File file) {
+		public Component getText(Path file) {
 			return Component.translatable(translationKey).setStyle(Style.EMPTY.withColor(formatting)
 				.withClickEvent(clickEvent.setFile(file)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(hoverTextKey))));
 		}
@@ -155,7 +156,7 @@ public class ScreenshotUtils extends AbstractModule {
 	public static class CustomClickEvent extends ClickEvent {
 
 		private final OnActionCall action;
-		private File file;
+		private Path file;
 
 		public CustomClickEvent(OnActionCall action) {
 			super(Action.OPEN_FILE, "");
@@ -172,7 +173,7 @@ public class ScreenshotUtils extends AbstractModule {
 		}
 
 
-		public CustomClickEvent setFile(File file) {
+		public CustomClickEvent setFile(Path file) {
 			this.file = file;
 			return this;
 		}
