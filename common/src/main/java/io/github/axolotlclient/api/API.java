@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import com.github.mizosoft.methanol.Methanol;
 import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
@@ -362,7 +361,7 @@ public class API {
 		if (restartingFuture != null) {
 			restartingFuture.cancel(true);
 		}
-		logger.info("Trying restart in "+(immediate ? "10 seconds" : "5 minutes."));
+		logger.info("Trying restart in " + (immediate ? "10 seconds" : "5 minutes."));
 		restartingFuture = CompletableFuture.runAsync(() -> {
 			logDetailed("Restarting API session...");
 			startup(account);
@@ -376,7 +375,7 @@ public class API {
 				logDetailed("Connecting to websocket..");
 				URI gateway = Request.Route.GATEWAY.create().resolve();
 				String uri = (gateway.getScheme().endsWith("s") ? "wss" : "ws") + gateway.toString().substring(gateway.getScheme().length());
-				socket = ((Methanol) client).underlyingClient().newWebSocketBuilder().header("Authorization", token)
+				socket = client.newWebSocketBuilder().header("Authorization", token)
 					.buildAsync(URI.create(uri), new ClientEndpoint()).join();
 				logDetailed("Socket connected");
 			} catch (Exception e) {
