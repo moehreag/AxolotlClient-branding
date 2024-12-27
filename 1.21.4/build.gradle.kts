@@ -24,11 +24,6 @@ loom {
 repositories {
 	maven("https://maven.noxcrew.com/public")
 	maven("https://maven.enginehub.org/repo/")
-	maven("https://api.modrinth.com/maven") {
-		content {
-			includeGroup("maven.modrinth")
-		}
-	}
 }
 
 dependencies {
@@ -37,7 +32,7 @@ dependencies {
 		officialMojangMappings {
 			nameSyntheticMembers = true
 		}
-		parchment("org.parchmentmc.data:parchment-1.21.4:2024.12.07@zip")
+		parchment("org.parchmentmc.data:parchment-1.21.4:2024.12.22@zip")
 	})
 
 	modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader")}")
@@ -71,6 +66,9 @@ dependencies {
 	modCompileOnly("maven.modrinth:noxesium:$noxesiumVersion")
 	//modImplementation("com.noxcrew.noxesium:api:$noxesiumVersion")
 	//localRuntime("org.khelekore:prtree:1.5")
+
+	implementation("net.hypixel:mod-api:1.0.1")
+	include(modImplementation("maven.modrinth:hypixel-mod-api:1.0.1+build.1+mc1.21")!!)
 }
 
 tasks.processResources {

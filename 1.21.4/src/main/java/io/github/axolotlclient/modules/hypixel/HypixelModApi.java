@@ -22,26 +22,24 @@
 
 package io.github.axolotlclient.modules.hypixel;
 
-import java.util.concurrent.CompletableFuture;
+import io.github.axolotlclient.api.Request;
+import io.github.axolotlclient.api.requests.StatusUpdate;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.hypixel.data.type.ServerType;
+import net.hypixel.modapi.HypixelModAPI;
+import net.hypixel.modapi.packet.impl.clientbound.event.ClientboundLocationPacket;
 
-import io.github.axolotlclient.util.Util;
 
-public class HypixelLocation {
+public class HypixelModApi {
+	private ClientboundLocationPacket current;
 
-	private static CompletableFuture<String> consumer;
-
-	public static CompletableFuture<String> get() {
-		Util.sendChatMessage("/locraw");
-		consumer = new CompletableFuture<>();
-		return consumer;
+	public void init() {
+		HypixelModAPI.getInstance().createHandler(ClientboundLocationPacket.class, packet -> current = packet);
+		ClientPlayConnectionEvents.INIT.register((handler, client) -> HypixelModAPI.getInstance().subscribeToEventPacket(ClientboundLocationPacket.class));
 	}
 
-	public static boolean waitingForResponse(String message) {
-		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("server");
-		if (consume) {
-			consumer.complete(message);
-			consumer = null;
-		}
-		return consume;
+	public Request getStatus() {
+		if (current == null) return null;
+		return StatusUpdate.inGame(StatusUpdate.SupportedServer.HYPIXEL, current.getServerType().map(ServerType::getName).orElse(""), current.getMode().orElse(""), current.getMap().orElse(""));
 	}
 }

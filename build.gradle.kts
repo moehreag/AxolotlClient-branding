@@ -29,6 +29,16 @@ allprojects {
 		maven("https://moehreag.duckdns.org/maven/releases")
 		maven("https://moehreag.duckdns.org/maven/snapshots")
 		maven("https://maven.parchmentmc.org")
+		maven("https://repo.hypixel.net/repository/Hypixel/") {
+			content {
+				includeGroup("net.hypixel")
+			}
+		}
+		maven("https://api.modrinth.com/maven") {
+			content {
+				includeGroup("maven.modrinth")
+			}
+		}
 		mavenLocal()
 		mavenCentral()
 	}

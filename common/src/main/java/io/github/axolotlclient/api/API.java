@@ -74,6 +74,7 @@ public class API {
 	@Setter
 	private AccountSettings settings;
 	private HttpClient client;
+	private CompletableFuture<?> restartingFuture;
 	private static final List<Runnable> afterStartupListeners = new ArrayList<>();
 
 	public API(Logger logger, NotificationProvider notificationProvider, TranslationProvider translationProvider,
@@ -284,6 +285,10 @@ public class API {
 	}
 
 	public void shutdown() {
+		if (restartingFuture != null) {
+			restartingFuture.cancel(true);
+			restartingFuture = null;
+		}
 		if (isAuthenticated()) {
 			logger.debug("Shutting down API");
 			if (isSocketConnected()) {
@@ -354,8 +359,11 @@ public class API {
 	}
 
 	private void scheduleRestart(boolean immediate) {
+		if (restartingFuture != null) {
+			restartingFuture.cancel(true);
+		}
 		logger.info("Trying restart in "+(immediate ? "10 seconds" : "5 minutes."));
-		CompletableFuture.runAsync(() -> {
+		restartingFuture = CompletableFuture.runAsync(() -> {
 			logDetailed("Restarting API session...");
 			startup(account);
 		}, immediate ? CompletableFuture.delayedExecutor(10, TimeUnit.SECONDS, ThreadExecuter.service()) :

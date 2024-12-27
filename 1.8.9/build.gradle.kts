@@ -82,6 +82,9 @@ dependencies {
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-linux-arm64"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows-arm64"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos-arm64"))
+
+	implementation("net.hypixel:mod-api:1.0.1")
+	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.1+mc1.8.9")!!)
 }
 
 configurations.configureEach {

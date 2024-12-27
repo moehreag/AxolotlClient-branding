@@ -56,7 +56,7 @@ public class UserRequest {
 
 		String sanitized = API.getInstance().sanitizeUUID(uuid);
 
-		if (sanitized.equals(API.getInstance().getSelf().getUuid())) {
+		if (API.getInstance().getSelf() != null && sanitized.equals(API.getInstance().getSelf().getUuid())) {
 			return true;
 		}
 

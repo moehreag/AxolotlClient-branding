@@ -20,11 +20,6 @@ loom {
 }
 
 repositories {
-	maven("https://api.modrinth.com/maven") {
-		content {
-			includeGroup("maven.modrinth")
-		}
-	}
 	maven("https://maven.noxcrew.com/public")
 	maven("https://maven.enginehub.org/repo/")
 }
@@ -62,6 +57,9 @@ dependencies {
 	modCompileOnly("maven.modrinth:noxesium:$noxesiumVersion")
 	//modImplementation("com.noxcrew.noxesium:api:$noxesiumVersion")
 	//localRuntime("org.khelekore:prtree:1.5")
+
+	implementation("net.hypixel:mod-api:1.0.1")
+	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.1+mc1.20.1")!!)
 }
 
 tasks.processResources {
