@@ -1,3 +1,25 @@
+/*
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
+ *
+ * This file is part of AxolotlClient.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * For more information, see the LICENSE file.
+ */
+
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.IOException;
@@ -6,6 +28,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientCommon;
@@ -15,6 +38,7 @@ import io.github.axolotlclient.api.util.UUIDHelper;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.notifications.Notifications;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -31,11 +55,20 @@ public class ImageScreen extends Screen {
 
 	private final Screen parent;
 	private final ImageInstance image;
+	private final boolean freeOnClose;
 
-	public ImageScreen(Screen parent, ImageInstance instance) {
+	static Screen create(Screen parent, CompletableFuture<ImageInstance> future, boolean freeOnClose) {
+		if (future.isDone()) {
+			return new ImageScreen(parent, future.join(), freeOnClose);
+		}
+		return new LoadingImageScreen(parent, future.thenAccept(i -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new ImageScreen(parent, i, freeOnClose)))), freeOnClose);
+	}
+
+	private ImageScreen(Screen parent, ImageInstance instance, boolean freeOnClose) {
 		super(Component.literal(instance.filename()));
 		this.parent = parent;
 		this.image = instance;
+		this.freeOnClose = freeOnClose;
 	}
 
 	@Override
@@ -45,37 +78,16 @@ public class ImageScreen extends Screen {
 		header.defaultCellSetting().alignHorizontallyCenter();
 		header.addChild(new StringWidget(getTitle(), font));
 
+		int buttonWidth = 75;
 		double imgAspectRatio = image.image().getWidth() / (double) image.image().getHeight();
-		int imageWidth = Math.min((int) (layout.getContentHeight() * imgAspectRatio), layout.getWidth() - 20 - 60);
+		int imageWidth = Math.min((int) (layout.getContentHeight() * imgAspectRatio), layout.getWidth() - buttonWidth - 4 - 10);
 		int imageHeight = (int) (imageWidth / imgAspectRatio);
+		layout.setHeaderHeight(height - layout.getFooterHeight() - imageHeight);
 
 		var contents = layout.addToContents(LinearLayout.horizontal().spacing(4));
 		var footer = layout.addToFooter(LinearLayout.horizontal().spacing(4));
 		contents.addChild(new ImageElement(imageWidth, imageHeight));
 		var actions = contents.addChild(LinearLayout.vertical()).spacing(4);
-		if (image instanceof ImageInstance.Remote remote) {
-			header.addChild(new StringWidget(Component.translatable("gallery.image.upload_details", UUIDHelper.getUsername(remote.uploader()), remote.sharedAt().atZone(ZoneId.systemDefault()).format(AxolotlClientCommon.getInstance().formatter)), font));
-			if (!(image instanceof ImageInstance.Local)) {
-				actions.addChild(Button.builder(Component.translatable("gallery.image.save"), b -> {
-					b.active = false;
-					try {
-						Path out = saveSharedImage(remote);
-						minecraft.setScreen(new ImageScreen(parent, remote.toShared(out)));
-					} catch (IOException e) {
-						Notifications.getInstance().addStatus("gallery.image.save.failure", "gallery.image.save.failure.description", e.getMessage());
-						AxolotlClient.LOGGER.warn("Failed to save shared image!", e);
-					}
-				}).width(50).build());
-				actions.addChild(Button.builder(Component.translatable("gallery.image.copy"), b -> {
-					try {
-						ScreenshotCopying.copy(DrawUtil.writeToByteArray(image.image()));
-					} catch (IOException e) {
-						Notifications.getInstance().addStatus("gallery.image.copy.failure", "gallery.image.copy.failure.description", e.getMessage());
-						AxolotlClient.LOGGER.warn("Failed to copy shared image!", e);
-					}
-				}).width(50).build());
-			}
-		}
 		if (image instanceof ImageInstance.Local local) {
 			if (API.getInstance().isAuthenticated() && !(image instanceof ImageInstance.Remote)) {
 				actions.addChild(Button.builder(Component.translatable("gallery.image.upload"), b -> {
@@ -84,25 +96,54 @@ public class ImageScreen extends Screen {
 						if (s.isEmpty()) {
 							Notifications.getInstance().addStatus("gallery.image.upload.failure", "gallery.image.upload.description");
 						} else {
-							minecraft.execute(() -> minecraft.setScreen(new ImageScreen(parent, local.toShared(s, API.getInstance().getSelf().getUuid(), Instant.now()))));
+							minecraft.execute(() -> minecraft.setScreen(new ImageScreen(parent, local.toShared(s, API.getInstance().getSelf().getUuid(), Instant.now()), freeOnClose)));
 							minecraft.keyboardHandler.setClipboard(s);
 							Notifications.getInstance().addStatus("gallery.image.upload.success", "gallery.image.upload.success.description", s);
 						}
 					});
-				}).width(50).build());
+				}).width(buttonWidth).build());
 			}
-			actions.addChild(Button.builder(Component.translatable("gallery.image.copy"), b -> ScreenshotCopying.copy(local.location())).width(50).build());
-			actions.addChild(Button.builder(Component.translatable("gallery.image.open.external"), b -> Util.getPlatform().openPath(local.location())).width(50).build());
+			actions.addChild(Button.builder(Component.translatable("gallery.image.copy"), b -> ScreenshotCopying.copy(local.location())).width(buttonWidth).build());
+			actions.addChild(Button.builder(Component.translatable("gallery.image.open.external"), b -> Util.getPlatform().openPath(local.location())).width(buttonWidth).build());
 		}
 		if (image instanceof ImageInstance.Remote remote) {
-			actions.addChild(Button.builder(Component.translatable("gallery.image.open.external.browser"), b -> Util.getPlatform().openUri(remote.url())).width(50).build());
-			actions.addChild(Button.builder(Component.translatable("gallery.image.copy_url"), b -> minecraft.keyboardHandler.setClipboard(remote.url())).width(50).build());
+			header.addChild(new StringWidget(Component.translatable("gallery.image.upload_details", UUIDHelper.getUsername(remote.uploader()), remote.sharedAt().atZone(ZoneId.systemDefault()).format(AxolotlClientCommon.getInstance().formatter)), font));
+			if (!(image instanceof ImageInstance.Local)) {
+				actions.addChild(Button.builder(Component.translatable("gallery.image.save"), b -> {
+					b.active = false;
+					try {
+						Path out = saveSharedImage(remote);
+						minecraft.setScreen(new ImageScreen(parent, remote.toShared(out), freeOnClose));
+					} catch (IOException e) {
+						Notifications.getInstance().addStatus("gallery.image.save.failure", "gallery.image.save.failure.description", e.getMessage());
+						AxolotlClient.LOGGER.warn("Failed to save shared image!", e);
+					}
+				}).width(buttonWidth).build());
+				actions.addChild(Button.builder(Component.translatable("gallery.image.copy"), b -> {
+					try {
+						ScreenshotCopying.copy(DrawUtil.writeToByteArray(image.image()));
+					} catch (IOException e) {
+						Notifications.getInstance().addStatus("gallery.image.copy.failure", "gallery.image.copy.failure.description", e.getMessage());
+						AxolotlClient.LOGGER.warn("Failed to copy shared image!", e);
+					}
+				}).width(buttonWidth).build());
+			}
+			actions.addChild(Button.builder(Component.translatable("gallery.image.open.external.browser"), b -> Util.getPlatform().openUri(remote.url())).width(buttonWidth).build());
+			actions.addChild(Button.builder(Component.translatable("gallery.image.copy_url"), b -> minecraft.keyboardHandler.setClipboard(remote.url())).width(buttonWidth).build());
 		}
 
-		footer.addChild(Button.builder(CommonComponents.GUI_BACK, b -> minecraft.setScreen(parent)).build());
+		footer.addChild(Button.builder(CommonComponents.GUI_BACK, b -> onClose()).build());
 
 		layout.arrangeElements();
 		layout.visitWidgets(this::addRenderableWidget);
+	}
+
+	@Override
+	public void onClose() {
+		if (freeOnClose) {
+			minecraft.getTextureManager().release(image.id());
+		}
+		minecraft.setScreen(parent);
 	}
 
 	private Path saveSharedImage(ImageInstance.Remote remote) throws IOException {

@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.axolotlclient.api.API;
@@ -47,20 +48,30 @@ public abstract class ImageNetworking {
 
 	protected CompletableFuture<String> upload(String name, byte[] data) {
 		return API.getInstance().post(Request.Route.IMAGE.builder().path(name).rawBody(data).build())
-			.thenApply(response -> response.isError() ? "" : Request.Route.IMAGE.builder()
-				.path(response.getPlainBody())
-				.path("raw").build().resolve().toString());
+			.thenApply(response -> response.isError() ? "" : idToUrl(response.getPlainBody()));
 	}
 
-	protected ImageData download(String url) {
+	protected static String idToUrl(String id) {
+		return Request.Route.IMAGE.builder().path(id).path("raw").build().resolve().toString();
+	}
+
+	protected static Optional<String> urlToId(String url) {
 		if (url.contains("/") && !url.startsWith(Constants.API_URL)) {
-			return ImageData.EMPTY;
+			return Optional.empty();
 		}
 		if (url.endsWith("/raw")) {
 			url = url.substring(0, url.length() - 4);
 		}
-		String id = url.substring(url.lastIndexOf("/") + 1);
-		return API.getInstance().get(Request.Route.IMAGE.builder().path(id).build())
+		return Optional.of(url.substring(url.lastIndexOf("/") + 1));
+	}
+
+	protected static Optional<String> ensureUrl(String urlOrId) {
+		return urlToId(urlOrId).map(ImageNetworking::idToUrl);
+	}
+
+	protected CompletableFuture<ImageData> download(String url) {
+		Optional<String> id = urlToId(url);
+		return id.map(s -> API.getInstance().get(Request.Route.IMAGE.builder().path(s).build())
 			.thenApply(res -> {
 				if (res.isError()) {
 					return ImageData.EMPTY;
@@ -70,7 +81,7 @@ public abstract class ImageNetworking {
 				String uploader = res.getBody("uploader");
 				Instant sharedAt = res.getBody("shared_at", Instant::parse);
 				return new ImageData(name, Base64.getDecoder().decode(base64), uploader, sharedAt);
-			}).join();
+			})).orElseGet(() -> CompletableFuture.completedFuture(ImageData.EMPTY));
 	}
 
 	public record ImageData(String name, byte[] data, String uploader, Instant sharedAt) {

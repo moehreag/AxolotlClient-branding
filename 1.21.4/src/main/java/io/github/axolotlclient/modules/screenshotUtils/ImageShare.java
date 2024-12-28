@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -62,23 +63,24 @@ public class ImageShare extends ImageNetworking {
 		});
 	}
 
-	public ImageInstance downloadImage(String url) {
-		ImageData data = download(url);
-		if (data != ImageData.EMPTY) {
-			try {
-				ImageInstance.Remote remote = new ImageInstance.RemoteImpl(NativeImage.read(new ByteArrayInputStream(data.data())), data.name(), data.uploader(), data.sharedAt(), url);
+	public CompletableFuture<ImageInstance> downloadImage(String url) {
+		return download(url).thenApply(data -> {
+			if (data != ImageData.EMPTY) {
 				try {
-					Path local = GalleryScreen.SCREENSHOT_DIR.resolve(remote.filename());
-					HashFunction hash = Hashing.goodFastHash(32);
-					if (Files.exists(local) && hash.hashBytes(data.data()).equals(hash.hashBytes(Files.readAllBytes(local)))) {
-						return remote.toShared(local);
+					ImageInstance.Remote remote = new ImageInstance.RemoteImpl(NativeImage.read(new ByteArrayInputStream(data.data())), data.name(), data.uploader(), data.sharedAt(), ensureUrl(url).orElseThrow());
+					try {
+						Path local = GalleryScreen.SCREENSHOT_DIR.resolve(remote.filename());
+						HashFunction hash = Hashing.goodFastHash(32);
+						if (Files.exists(local) && hash.hashBytes(data.data()).equals(hash.hashBytes(Files.readAllBytes(local)))) {
+							return remote.toShared(local);
+						}
+					} catch (IOException ignored) {
 					}
+					return remote;
 				} catch (IOException ignored) {
 				}
-				return remote;
-			} catch (IOException ignored) {
 			}
-		}
-		return null;
+			return null;
+		});
 	}
 }

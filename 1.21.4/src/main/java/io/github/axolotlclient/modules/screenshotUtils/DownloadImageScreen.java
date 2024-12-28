@@ -1,8 +1,29 @@
+/*
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
+ *
+ * This file is part of AxolotlClient.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * For more information, see the LICENSE file.
+ */
+
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.util.function.Consumer;
 
-import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -50,16 +71,13 @@ public class DownloadImageScreen extends Screen {
 		var linear = hFL.addToContents(LinearLayout.horizontal().spacing(4));
 		linear.defaultCellSetting().alignVerticallyMiddle();
 		linear.addChild(urlBox);
-		linear.addChild(SpriteIconButton.builder(Component.translatable("download"), b -> ThreadExecuter.scheduleTask(() -> {
+		linear.addChild(SpriteIconButton.builder(Component.translatable("download"), b -> {
 				String url = urlBox.getValue().trim();
 				if (url.isEmpty()) {
 					return;
 				}
-				ImageInstance instance = ImageShare.getInstance().downloadImage(url);
-				if (instance != null) {
-					minecraft.execute(() -> minecraft.setScreen(new ImageScreen(this, instance)));
-				}
-			}), true)
+				minecraft.setScreen(ImageScreen.create(this, ImageShare.getInstance().downloadImage(url), true));
+			}, true)
 			.sprite(SPRITE, 20, 20)
 			.width(20).build()).setPosition(width / 2 + 100 + 4, height / 2 - 10);
 
@@ -69,6 +87,12 @@ public class DownloadImageScreen extends Screen {
 		hFL.visitWidgets(this::addRenderableWidget);
 		setInitialFocus(urlBox);
 	}
+
+	@Override
+	public void onClose() {
+		minecraft.setScreen(parent);
+	}
+
 
 	public static class ImprovedHeaderAndFooterLayout implements Layout {
 		public static final int DEFAULT_HEADER_AND_FOOTER_HEIGHT = 33;
