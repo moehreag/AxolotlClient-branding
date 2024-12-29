@@ -45,6 +45,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
@@ -61,7 +62,11 @@ public class ImageScreen extends Screen {
 		if (future.isDone()) {
 			return new ImageScreen(parent, future.join(), freeOnClose);
 		}
-		return new LoadingImageScreen(parent, future.thenAccept(i -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new ImageScreen(parent, i, freeOnClose)))), freeOnClose);
+		return new LoadingImageScreen(parent, future.thenAccept(i -> {
+			if (i != null) {
+				Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new ImageScreen(parent, i, freeOnClose)));
+			}
+		}), freeOnClose);
 	}
 
 	private ImageScreen(Screen parent, ImageInstance instance, boolean freeOnClose) {
@@ -78,13 +83,20 @@ public class ImageScreen extends Screen {
 		header.defaultCellSetting().alignHorizontallyCenter();
 		header.addChild(new StringWidget(getTitle(), font));
 
+		if (image instanceof ImageInstance.Remote remote) {
+			layout.setHeaderHeight(38);
+			header.addChild(new StringWidget(Component.translatable("gallery.image.upload_details", UUIDHelper.getUsername(remote.uploader()), remote.sharedAt().atZone(ZoneId.systemDefault()).format(AxolotlClientCommon.getInstance().formatter)), font));
+		}
+
 		int buttonWidth = 75;
 		double imgAspectRatio = image.image().getWidth() / (double) image.image().getHeight();
 		int imageWidth = Math.min((int) (layout.getContentHeight() * imgAspectRatio), layout.getWidth() - buttonWidth - 4 - 10);
 		int imageHeight = (int) (imageWidth / imgAspectRatio);
-		layout.setHeaderHeight(height - layout.getFooterHeight() - imageHeight);
 
 		var contents = layout.addToContents(LinearLayout.horizontal().spacing(4));
+		if (width/2 > (imageWidth / 2) + buttonWidth+4) {
+			contents.addChild(new SpacerElement(buttonWidth + 4, imageHeight));
+		}
 		var footer = layout.addToFooter(LinearLayout.horizontal().spacing(4));
 		contents.addChild(new ImageElement(imageWidth, imageHeight));
 		var actions = contents.addChild(LinearLayout.vertical()).spacing(4);
@@ -107,7 +119,6 @@ public class ImageScreen extends Screen {
 			actions.addChild(Button.builder(Component.translatable("gallery.image.open.external"), b -> Util.getPlatform().openPath(local.location())).width(buttonWidth).build());
 		}
 		if (image instanceof ImageInstance.Remote remote) {
-			header.addChild(new StringWidget(Component.translatable("gallery.image.upload_details", UUIDHelper.getUsername(remote.uploader()), remote.sharedAt().atZone(ZoneId.systemDefault()).format(AxolotlClientCommon.getInstance().formatter)), font));
 			if (!(image instanceof ImageInstance.Local)) {
 				actions.addChild(Button.builder(Component.translatable("gallery.image.save"), b -> {
 					b.active = false;
@@ -147,7 +158,7 @@ public class ImageScreen extends Screen {
 	}
 
 	private Path saveSharedImage(ImageInstance.Remote remote) throws IOException {
-		Path out = GalleryScreen.SCREENSHOT_DIR.resolve("shared")
+		Path out = GalleryScreen.SCREENSHOTS_DIR.resolve("shared")
 			.resolve(remote.uploader())
 			.resolve(remote.filename());
 		Path infoJson = out.resolveSibling(remote.filename() + ".json");

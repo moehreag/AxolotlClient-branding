@@ -32,8 +32,10 @@ import java.util.stream.Stream;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.requests.FriendRequest;
 import io.github.axolotlclient.api.requests.UserRequest;
+import io.github.axolotlclient.util.Watcher;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -59,7 +61,7 @@ import org.joml.Matrix4f;
 
 public class GalleryScreen extends Screen {
 
-	public static final Path SCREENSHOT_DIR = FabricLoader.getInstance().getGameDir().resolve(Screenshot.SCREENSHOT_DIR);
+	public static final Path SCREENSHOTS_DIR = FabricLoader.getInstance().getGameDir().resolve(Screenshot.SCREENSHOT_DIR);
 
 	private record Tab<T>(Component title, Callable<List<T>> list, Map<T, ImageInstance> loadingCache,
 						  GalleryScreen.Tab.Loader<T> loader) {
@@ -77,7 +79,7 @@ public class GalleryScreen extends Screen {
 		}
 
 		private static final Tab<Path> LOCAL = of(Component.translatable("gallery.title.local"), () -> {
-			try (Stream<Path> screenshots = Files.list(SCREENSHOT_DIR)) {
+			try (Stream<Path> screenshots = Files.list(SCREENSHOTS_DIR)) {
 				return screenshots.sorted(Comparator.<Path>comparingLong(p -> {
 					try {
 						return Files.getLastModifiedTime(p).toMillis();
@@ -100,37 +102,46 @@ public class GalleryScreen extends Screen {
 					})).join(), url -> ImageShare.getInstance().downloadImage(url).join());
 
 		interface Loader<T> {
-			 ImageInstance load(T obj) throws Exception;
+			ImageInstance load(T obj) throws Exception;
 		}
 	}
 
 	private Tab<?> current;
 
 	private final Screen parent;
+	private final Watcher watcher;
 
 	public GalleryScreen(Screen parent) {
 		super(Component.translatable("gallery.title"));
 		this.parent = parent;
 		this.current = Tab.LOCAL;
+		this.watcher = Watcher.createSelfTicking(SCREENSHOTS_DIR, () -> {
+			if (current == Tab.LOCAL) {
+				rebuildWidgets();
+			}
+		});
 	}
 
-	private static final int entrySpacing = 10,
+	private static final int entrySpacing = 4,
 		entryWidth = 100,
 		entryHeight = 75,
 		marginLeftRight = 10;
 
 	@Override
 	protected void init() {
+		boolean online = API.getInstance().isAuthenticated();
 		HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 		layout.setHeaderHeight(40);
 		LinearLayout header = layout.addToHeader(LinearLayout.vertical().spacing(4));
 		header.defaultCellSetting().alignHorizontallyCenter();
 		header.addChild(new StringWidget(title, font));
-		header.addChild(new StringWidget(current.title(), font));
+		if (online) {
+			header.addChild(new StringWidget(current.title(), font));
+		}
 
-		int columnCount = (width - (marginLeftRight * 2)) / (entryWidth + entrySpacing);
+		int columnCount = (width - (marginLeftRight * 2) + entrySpacing - 13) / (entryWidth + entrySpacing); // -13 to always have enough space for the scrollbar
 
-		final var area = new ImageList(minecraft, layout.getWidth(), layout.getContentHeight(), layout.getHeaderHeight(), entryHeight + entrySpacing, columnCount * (entryWidth + entrySpacing) + marginLeftRight);
+		final var area = new ImageList(minecraft, layout.getWidth(), layout.getContentHeight(), layout.getHeaderHeight(), entryHeight + entrySpacing, columnCount);
 
 		layout.addToContents(area, LayoutSettings::alignHorizontallyLeft);
 		setInitialFocus(area);
@@ -147,17 +158,21 @@ public class GalleryScreen extends Screen {
 		});
 
 		var footer = layout.addToFooter(LinearLayout.horizontal()).spacing(4);
-		Button.Builder switchTab;
-		if (current == Tab.SHARED) {
-			switchTab = Button.builder(Component.translatable("gallery.tab.local"), b -> setTab(Tab.LOCAL));
-		} else {
-			switchTab = Button.builder(Component.translatable("gallery.tab.shared"), b -> setTab(Tab.SHARED));
+		footer.defaultCellSetting().alignHorizontallyCenter();
+		int buttonWidth = columnCount <= 5 && online ? 100 : 150;
+		if (online) {
+			Button.Builder switchTab;
+			if (current == Tab.SHARED) {
+				switchTab = Button.builder(Component.translatable("gallery.tab.local"), b -> setTab(Tab.LOCAL));
+			} else {
+				switchTab = Button.builder(Component.translatable("gallery.tab.shared"), b -> setTab(Tab.SHARED));
+			}
+			footer.addChild(switchTab.width(buttonWidth).build());
 		}
-		footer.addChild(switchTab.width(100).build());
 		footer.addChild(Button.builder(Component.translatable("gallery.download_external"), b -> minecraft.setScreen(new DownloadImageScreen(this)))
-			.width(100).build());
+			.width(buttonWidth).build());
 		footer.addChild(Button.builder(CommonComponents.GUI_BACK, b -> onClose())
-			.width(100).build());
+			.width(buttonWidth).build());
 
 		layout.arrangeElements();
 		layout.visitWidgets(this::addRenderableWidget);
@@ -169,6 +184,7 @@ public class GalleryScreen extends Screen {
 		Tab.LOCAL.loadingCache().clear();
 		Tab.SHARED.loadingCache().forEach((s, instance) -> minecraft.getTextureManager().release(instance.id()));
 		Tab.SHARED.loadingCache().clear();
+		Watcher.close(watcher);
 		minecraft.setScreen(parent);
 	}
 
@@ -359,9 +375,9 @@ public class GalleryScreen extends Screen {
 
 		private final int rowWidth;
 
-		public ImageList(Minecraft minecraft, int i, int j, int k, int l, int rowWidth) {
+		public ImageList(Minecraft minecraft, int i, int j, int k, int l, int columns) {
 			super(minecraft, i, j, k, l);
-			this.rowWidth = rowWidth;
+			this.rowWidth = columns * (entryWidth + entrySpacing) - entrySpacing;
 		}
 
 		@Override
@@ -372,6 +388,11 @@ public class GalleryScreen extends Screen {
 		@Override
 		public int getRowWidth() {
 			return rowWidth;
+		}
+
+		@Override
+		public int getRowLeft() {
+			return this.getX() + this.width / 2 - this.getRowWidth() / 2;
 		}
 
 		@Override

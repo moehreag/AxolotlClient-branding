@@ -624,5 +624,7 @@
 	"gallery.tab.shared": "View shared images",
 	"gallery.download_external": "View image from url",
 	"gallery.image.view": "View image",
-	"gallery.image.loading.title": "Loading image..."
+	"gallery.image.loading.title": "Loading image...",
+	"viewInGalleryAction": "[Gallery]",
+	"view_in_gallery": "View in Gallery"
 }

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 
 import io.github.axolotlclient.AxolotlClient;
@@ -75,16 +76,19 @@ public class ScreenshotUtils extends AbstractModule {
 			"open_image",
 			new CustomClickEvent((file) -> Util.getPlatform().openUri(file.toUri()))));
 
-		actions.put(() -> API.getInstance().isAuthenticated(), new Action("uploadAction", ChatFormatting.LIGHT_PURPLE,
-			"upload_image",
+		actions.put(() -> true, new Action("viewInGalleryAction", ChatFormatting.LIGHT_PURPLE, "view_in_gallery",
 			new CustomClickEvent(file -> {
-				new Thread("Image Uploader") {
-					@Override
-					public void run() {
-						ImageShare.getInstance().uploadImage(file);
-					}
-				}.start();
+				try {
+					ImageInstance instance = new ImageInstance.LocalImpl(file);
+					Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(ImageScreen.create(null, CompletableFuture.completedFuture(instance), true)));
+				} catch (Exception ignored) {
+					io.github.axolotlclient.util.Util.sendChatMessage(Component.translatable("screenshot.gallery.view.error"));
+				}
 			})));
+
+		actions.put(() -> API.getInstance().isAuthenticated(), new Action("uploadAction", ChatFormatting.AQUA,
+			"upload_image",
+			new CustomClickEvent(ImageShare.getInstance()::uploadImage)));
 
 		// If you have further ideas to what actions could be added here, please let us know!
 
