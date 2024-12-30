@@ -24,30 +24,22 @@ package io.github.axolotlclient.mixin;
 
 import java.io.File;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.util.ScreenshotUtils;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ScreenshotUtils.class)
 public abstract class ScreenshotUtilsMixin {
 
-	private static File currentFile;
-
-	@Redirect(method = "saveScreenshot(Ljava/io/File;Ljava/lang/String;IILcom/mojang/blaze3d/pipeline/RenderTarget;)Lnet/minecraft/text/Text;", at = @At(value = "INVOKE", target = "Ljava/io/File;getName()Ljava/lang/String;"))
-	private static String axolotlclient$getImageFile(File instance) {
-		currentFile = instance;
-		return instance.getName();
-	}
-
 	@Inject(method = "saveScreenshot(Ljava/io/File;Ljava/lang/String;IILcom/mojang/blaze3d/pipeline/RenderTarget;)Lnet/minecraft/text/Text;", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
 	private static void axolotlclient$onScreenshotSaveSuccess(File parent, String name, int textureWidth, int textureHeight,
-															  RenderTarget buffer, CallbackInfoReturnable<Text> cir) {
+															  RenderTarget buffer, CallbackInfoReturnable<Text> cir, @Local(ordinal = 2) File target) {
 		cir.setReturnValue(io.github.axolotlclient.modules.screenshotUtils.ScreenshotUtils.getInstance()
-			.onScreenshotTaken(cir.getReturnValue(), currentFile));
+			.onScreenshotTaken(cir.getReturnValue(), target));
 	}
 }

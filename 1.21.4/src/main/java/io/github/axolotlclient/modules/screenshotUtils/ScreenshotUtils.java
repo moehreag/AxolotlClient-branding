@@ -90,8 +90,6 @@ public class ScreenshotUtils extends AbstractModule {
 			"upload_image",
 			new CustomClickEvent(ImageShare.getInstance()::uploadImage)));
 
-		// If you have further ideas to what actions could be added here, please let us know!
-
 		return actions;
 	});
 
@@ -105,7 +103,7 @@ public class ScreenshotUtils extends AbstractModule {
 	@Override
 	public void init() {
 		category.add(enabled, autoExec, new GenericOption("imageViewer", "openViewer", () ->
-			Minecraft.getInstance().setScreen(new GalleryScreen(Minecraft.getInstance().screen))));
+			client.setScreen(new GalleryScreen(client.screen))));
 
 		AxolotlClient.CONFIG.general.add(category);
 	}

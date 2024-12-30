@@ -66,8 +66,8 @@ public class ImageShare extends ImageNetworking {
 	public CompletableFuture<ImageInstance> downloadImage(String url) {
 		return download(url).thenApply(data -> {
 			if (data != ImageData.EMPTY) {
-				try {
-					ImageInstance.Remote remote = new ImageInstance.RemoteImpl(NativeImage.read(new ByteArrayInputStream(data.data())), data.name(), data.uploader(), data.sharedAt(), ensureUrl(url).orElseThrow());
+				try(var in = new ByteArrayInputStream(data.data())) {
+					ImageInstance.Remote remote = new ImageInstance.RemoteImpl(NativeImage.read(in), data.name(), data.uploader(), data.sharedAt(), ensureUrl(url).orElseThrow());
 					try {
 						Path local = GalleryScreen.SCREENSHOTS_DIR.resolve(remote.filename());
 						HashFunction hash = Hashing.goodFastHash(32);

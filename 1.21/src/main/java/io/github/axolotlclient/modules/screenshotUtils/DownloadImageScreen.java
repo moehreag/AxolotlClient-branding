@@ -26,28 +26,28 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.SpriteIconButton;
-import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.layouts.FrameLayout;
-import net.minecraft.client.gui.layouts.Layout;
-import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.gui.layouts.LinearLayout;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.button.SpriteButtonWidget;
+import net.minecraft.client.gui.widget.layout.FrameWidget;
+import net.minecraft.client.gui.widget.layout.LayoutWidget;
+import net.minecraft.client.gui.widget.layout.LinearLayoutWidget;
+import net.minecraft.client.gui.widget.text.TextWidget;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.text.CommonTexts;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class DownloadImageScreen extends Screen {
-	private static final ResourceLocation SPRITE = ResourceLocation.fromNamespaceAndPath("axolotlclient", "go");
+	private static final Identifier SPRITE = Identifier.of("axolotlclient", "go");
 
 	private final Screen parent;
 
 	public DownloadImageScreen(Screen parent) {
-		super(Component.translatable("viewScreenshot"));
+		super(Text.translatable("viewScreenshot"));
 		this.parent = parent;
 	}
 
@@ -55,49 +55,49 @@ public class DownloadImageScreen extends Screen {
 	protected void init() {
 		var hFL = new ImprovedHeaderAndFooterLayout(this);
 
-		hFL.addTitleHeader(getTitle(), font);
-		var urlBox = new EditBox(font, width / 2 - 100, height / 2 - 10, 200, 20, Component.translatable("urlBox"));
-		urlBox.setSuggestion(I18n.get("pasteURL"));
-		urlBox.setResponder(s -> {
+		hFL.addTitleHeader(getTitle(), textRenderer);
+		var urlBox = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 - 10, 200, 20, Text.translatable("urlBox"));
+		urlBox.setSuggestion(I18n.translate("pasteURL"));
+		urlBox.setChangedListener(s -> {
 			if (s.isEmpty()) {
-				urlBox.setSuggestion(I18n.get("pasteURL"));
+				urlBox.setSuggestion(I18n.translate("pasteURL"));
 			} else {
 				urlBox.setSuggestion("");
 			}
 		});
 		urlBox.setMaxLength(52);
-		var linear = hFL.addToContents(LinearLayout.horizontal().spacing(4));
-		linear.defaultCellSetting().alignVerticallyMiddle();
-		linear.addChild(urlBox);
-		linear.addChild(SpriteIconButton.builder(Component.translatable("download"), b -> {
-				String url = urlBox.getValue().trim();
+		var linear = hFL.addToContents(LinearLayoutWidget.createHorizontal().setSpacing(4));
+		linear.copyDefaultSettings().alignVerticallyCenter();
+		linear.add(urlBox);
+		linear.add(SpriteButtonWidget.builder(Text.translatable("download"), b -> {
+				String url = urlBox.getText().trim();
 				if (url.isEmpty()) {
 					return;
 				}
-				minecraft.setScreen(ImageScreen.create(this, ImageShare.getInstance().downloadImage(url), true));
+				client.setScreen(ImageScreen.create(this, ImageShare.getInstance().downloadImage(url), true));
 			}, true)
 			.sprite(SPRITE, 20, 20)
 			.width(20).build()).setPosition(width / 2 + 100 + 4, height / 2 - 10);
 
-		hFL.addToFooter(Button.builder(CommonComponents.GUI_BACK, b -> onClose()).build());
+		hFL.addToFooter(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).build());
 
 		hFL.arrangeElements();
-		hFL.visitWidgets(this::addRenderableWidget);
+		hFL.visitWidgets(this::addDrawableSelectableElement);
 		setInitialFocus(urlBox);
 	}
 
 	@Override
-	public void onClose() {
-		minecraft.setScreen(parent);
+	public void closeScreen() {
+		client.setScreen(parent);
 	}
 
 
-	public static class ImprovedHeaderAndFooterLayout implements Layout {
+	public static class ImprovedHeaderAndFooterLayout implements LayoutWidget {
 		public static final int DEFAULT_HEADER_AND_FOOTER_HEIGHT = 33;
 		private static final int CONTENT_MARGIN_TOP = 30;
-		private final FrameLayout headerFrame = new FrameLayout();
-		private final FrameLayout footerFrame = new FrameLayout();
-		private final FrameLayout contentsFrame = new FrameLayout();
+		private final FrameWidget headerFrame = new FrameWidget();
+		private final FrameWidget footerFrame = new FrameWidget();
+		private final FrameWidget contentsFrame = new FrameWidget();
 		private final Screen screen;
 		@Getter
 		@Setter
@@ -118,8 +118,8 @@ public class DownloadImageScreen extends Screen {
 			this.screen = screen;
 			this.headerHeight = headerHeight;
 			this.footerHeight = footerHeight;
-			this.headerFrame.defaultChildLayoutSetting().align(0.5F, 0.5F);
-			this.footerFrame.defaultChildLayoutSetting().align(0.5F, 0.5F);
+			this.headerFrame.copyDefaultSettings().setAlignment(0.5F, 0.5F);
+			this.footerFrame.copyDefaultSettings().setAlignment(0.5F, 0.5F);
 		}
 
 		@Override
@@ -155,7 +155,7 @@ public class DownloadImageScreen extends Screen {
 		}
 
 		@Override
-		public void visitChildren(Consumer<LayoutElement> visitor) {
+		public void visitChildren(Consumer<Widget> visitor) {
 			this.headerFrame.visitChildren(visitor);
 			this.contentsFrame.visitChildren(visitor);
 			this.footerFrame.visitChildren(visitor);
@@ -181,16 +181,16 @@ public class DownloadImageScreen extends Screen {
 			this.contentsFrame.setPosition(0, Math.min(k, l));
 		}
 
-		public void addTitleHeader(Component message, Font font) {
-			this.headerFrame.addChild(new StringWidget(message, font));
+		public void addTitleHeader(Text message, TextRenderer font) {
+			this.headerFrame.add(new TextWidget(message, font));
 		}
 
-		public <T extends LayoutElement> T addToFooter(T child) {
-			return this.footerFrame.addChild(child);
+		public <T extends Widget> T addToFooter(T child) {
+			return this.footerFrame.add(child);
 		}
 
-		public <T extends LayoutElement> T addToContents(T child) {
-			return this.contentsFrame.addChild(child);
+		public <T extends Widget> T addToContents(T child) {
+			return this.contentsFrame.add(child);
 		}
 	}
 }

@@ -60,6 +60,7 @@ public class Watcher implements AutoCloseable {
 	@Nullable
 	public static Watcher create(Path path) {
 		try {
+			Files.createDirectories(path);
 			return new Watcher(path);
 		} catch (IOException var2) {
 			AxolotlClientCommon.getInstance().getLogger().warn("Failed to initialize directory {} monitoring", path, var2);
