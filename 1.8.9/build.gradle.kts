@@ -157,6 +157,7 @@ modrinth {
 	additionalFiles.set(listOf(tasks.remapSourcesJar))
 	dependencies {
 		required.project("osl")
+		required.project("moehreag-legacy-lwjgl3")
 	}
 
 	// Changelog fetching: Credit LambdAurora.

@@ -120,6 +120,9 @@ modrinth {
 	gameVersions.set(listOf("${project.property("minecraft_121")}"))
 	loaders.set(listOf("quilt", "fabric"))
 	additionalFiles.set(listOf(tasks.remapSourcesJar))
+	dependencies {
+		required.project("fabric-api")
+	}
 
 	// Changelog fetching: Credit LambdAurora.
 	// https://github.com/LambdAurora/LambDynamicLights/blob/1ef85f486084873b5d97b8a08df72f57859a3295/build.gradle#L145

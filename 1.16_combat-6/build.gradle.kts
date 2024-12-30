@@ -118,6 +118,9 @@ modrinth {
 	gameVersions.set(listOf("1.16.3"))
 	loaders.set(listOf("fabric", "quilt"))
 	additionalFiles.set(listOf(tasks.remapSourcesJar))
+	dependencies {
+		required.project("fabric-api")
+	}
 
 	// Changelog fetching: Credit LambdAurora.
 	// https://github.com/LambdAurora/LambDynamicLights/blob/1ef85f486084873b5d97b8a08df72f57859a3295/build.gradle#L145
