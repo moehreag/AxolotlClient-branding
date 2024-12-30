@@ -59,6 +59,7 @@ public class AxolotlClientConfig {
 	public final BooleanOption minimalViewBob = new BooleanOption("minimalViewBob", false);
 	public final BooleanOption noHurtCam = new BooleanOption("noHurtCam", false);
 	public final BooleanOption flatItems = new BooleanOption("flatItems", false);
+	public final BooleanOption inventoryPotionEffectOffset = new BooleanOption("inventory.potion_effect_offset", true);
 
 	public final ColorOption loadingScreenColor = new ColorOption("loadingBgColor", new Color(-1));
 	public final BooleanOption nightMode = new BooleanOption("nightMode", false);
@@ -137,7 +138,8 @@ public class AxolotlClientConfig {
 			hitColor,
 			minimalViewBob,
 			flatItems,
-			noHurtCam);
+			noHurtCam,
+			inventoryPotionEffectOffset);
 
 		timeChanger.add(timeChangerEnabled);
 		timeChanger.add(customTime);

@@ -3,6 +3,7 @@
 	"package": "io.github.axolotlclient.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"client": [
+		"AbstractInventoryScreenMixin",
 		"AddServerScreenMixin",
 		"BackgroundRendererMixin",
 		"BeaconBlockEntityRendererMixin",

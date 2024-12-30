@@ -39,6 +39,7 @@
 		"PlayerEntityMixin",
 		"PlayerEntityModelMixin",
 		"PlayerEntityRendererMixin",
+		"PlayerInventoryScreenMixin",
 		"PlayerListEntryMixin",
 		"PlayerListHudMixin",
 		"ReloadableResourceManagerImplMixin",
