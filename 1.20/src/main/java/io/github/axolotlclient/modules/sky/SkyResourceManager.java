@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -32,11 +32,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceReloader;
 
 /**
  * This implementation of custom skies is based on the FabricSkyBoxes mod by AMereBagatelle
@@ -45,22 +46,47 @@ import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceRel
  * @license MIT
  **/
 
-public class SkyResourceManager extends AbstractModule implements SimpleSynchronousResourceReloader {
+public class SkyResourceManager extends AbstractModule implements SimpleSynchronousResourceReloadListener {
 
 	private final static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+	@Getter
 	private final static SkyResourceManager Instance = new SkyResourceManager();
 
-	public static SkyResourceManager getInstance() {
-		return Instance;
+	private static JsonObject loadMCPSky(String loader, Identifier id, Resource resource) {
+		JsonObject object = new JsonObject();
+		String line;
+
+		try (BufferedReader reader = resource.openBufferedReader()) {
+			while ((line = reader.readLine()) != null) {
+				if (!line.startsWith("#")) {
+					String[] option = line.split("=");
+
+					if (option[0].equals("source")) {
+						if (option[1].startsWith("assets")) {
+							option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
+						} else {
+							if (id.getPath().contains("world")) {
+								option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
+											+ option[1].replace("./", "");
+							}
+						}
+					}
+					if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")
+						|| option[0].equals("startFadeOut") || option[0].equals("endFadeOut")) {
+						option[1] = option[1].replace(":", "").replace("\\", "");
+					}
+
+					object.addProperty(option[0], option[1]);
+				}
+			}
+		} catch (Exception ignored) {
+		}
+		return object;
 	}
 
 	@Override
-	public void init() {
-	}
-
-	@Override
-	public @NotNull Identifier getQuiltId() {
+	public @NotNull Identifier getFabricId() {
 		return new Identifier("axolotlclient", "custom_skies");
 	}
 
@@ -100,39 +126,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 		AxolotlClient.LOGGER.debug("Finished Loading Custom Skies!");
 	}
 
-	private boolean isMCPSky(String path){
+	private boolean isMCPSky(String path) {
 		return path.endsWith(".properties") && path.startsWith("sky");
-	}
-
-	private static JsonObject loadMCPSky(String loader, Identifier id, Resource resource) {
-		JsonObject object = new JsonObject();
-		String line;
-
-		try (BufferedReader reader = resource.openBufferedReader()) {
-			while ((line = reader.readLine()) != null) {
-				if (!line.startsWith("#")) {
-					String[] option = line.split("=");
-
-					if (option[0].equals("source")) {
-						if (option[1].startsWith("assets")) {
-							option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
-						} else {
-							if (id.getPath().contains("world")) {
-								option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
-									+ option[1].replace("./", "");
-							}
-						}
-					}
-					if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")
-						|| option[0].equals("startFadeOut") || option[0].equals("endFadeOut")) {
-						option[1] = option[1].replace(":", "").replace("\\", "");
-					}
-
-					object.addProperty(option[0], option[1]);
-				}
-			}
-		} catch (Exception ignored) {
-		}
-		return object;
 	}
 }

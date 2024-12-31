@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,25 +22,31 @@
 
 package io.github.axolotlclient.modules.hypixel.skyblock;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import lombok.Getter;
+import net.minecraft.client.options.KeyBinding;
+import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 
 public class Skyblock implements AbstractHypixelMod {
 
 	@Getter
 	private final static Skyblock Instance = new Skyblock();
 	public final BooleanOption rotationLocked = new BooleanOption("rotationLocked", false);
-	private final OptionCategory category = new OptionCategory("skyblock");
-	private final KeyBindOption lock = new KeyBindOption("lockRotation",
-		0,
-		keyBinding -> rotationLocked.toggle());
+	private final OptionCategory category = OptionCategory.create("skyblock");
 
 	@Override
 	public void init() {
-		category.add(rotationLocked, lock);
+		KeyBinding lock = new KeyBinding("lockRotation", 0, "category.axolotlclient");
+		KeyBindingEvents.REGISTER_KEYBINDS.register(r -> r.register(lock));
+		MinecraftClientEvents.TICK_END.register(c -> {
+			if (lock.consumeClick()) {
+				rotationLocked.toggle();
+			}
+		});
+		category.add(rotationLocked);
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,10 +22,88 @@
 
 package io.github.axolotlclient.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 
 public class GsonHelper {
 
-	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	public static final Gson GSON = new GsonBuilder().create();
+
+	public static JsonObject fromJson(String s) {
+		return GSON.fromJson(s, JsonObject.class);
+	}
+
+	public static Object read(InputStream in) throws IOException {
+		try (JsonReader reader = new JsonReader(new InputStreamReader(in))) {
+			return read(reader);
+		}
+	}
+
+	public static Object read(String s) throws IOException {
+		try (JsonReader reader = new JsonReader(new StringReader(s))) {
+			return read(reader);
+		}
+	}
+
+	public static Object read(JsonReader reader) throws IOException {
+		switch (reader.peek()) {
+			case BEGIN_ARRAY:
+				List<Object> list = new ArrayList<>();
+
+				reader.beginArray();
+
+				while (reader.hasNext()) {
+					list.add(read(reader));
+				}
+
+				reader.endArray();
+
+				return list;
+			case BEGIN_OBJECT:
+				Map<String, Object> object = new LinkedHashMap<>();
+
+				reader.beginObject();
+
+				while (reader.hasNext()) {
+					String key = reader.nextName();
+					object.put(key, read(reader));
+				}
+
+				reader.endObject();
+
+				return object;
+			case STRING:
+				return reader.nextString();
+			case NUMBER:
+				// Ugh.
+				String num = reader.nextString();
+				try {
+					return Long.parseLong(num);
+				} catch (NumberFormatException e) {
+					return Double.parseDouble(num);
+				}
+			case BOOLEAN:
+				return reader.nextBoolean();
+			case NULL:
+				return null;
+			// Unused, probably a sign of malformed json
+			case NAME:
+			case END_DOCUMENT:
+			case END_ARRAY:
+			case END_OBJECT:
+			default:
+				throw new IllegalStateException();
+		}
+	}
 }

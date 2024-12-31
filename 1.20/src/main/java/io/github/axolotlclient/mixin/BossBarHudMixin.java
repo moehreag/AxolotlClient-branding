@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -30,11 +30,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(net.minecraft.client.gui.hud.boss_bar.BossBarHud.class)
+@Mixin(net.minecraft.client.gui.hud.BossBarHud.class)
 public abstract class BossBarHudMixin {
 
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$render(GuiGraphics graphics, CallbackInfo ci) {
+	private void axolotlclient$render(GuiGraphics graphics, CallbackInfo ci) {
 		BossBarHud hud = (BossBarHud) HudManager.getInstance().get(BossBarHud.ID);
 		if (hud != null && hud.isEnabled()) {
 			ci.cancel();

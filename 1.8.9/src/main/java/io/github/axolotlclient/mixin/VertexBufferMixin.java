@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,7 +24,7 @@ package io.github.axolotlclient.mixin;
 
 import java.nio.ByteBuffer;
 
-import net.minecraft.client.render.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,7 +36,7 @@ public class VertexBufferMixin {
 	@Shadow
 	private int id;
 
-	@Inject(method = "data", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/VertexBuffer;bind()V"), cancellable = true)
+	@Inject(method = "upload", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;bind()V"), cancellable = true)
 	private void axolotlclient$ignoreDeletedBuffers(ByteBuffer byteBuffer, CallbackInfo ci) {
 		if (id == -1) {
 			ci.cancel();

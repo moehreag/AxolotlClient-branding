@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,10 +25,10 @@ package io.github.axolotlclient.modules.tnttime;
 import java.text.DecimalFormat;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -36,8 +36,8 @@ import net.minecraft.util.Formatting;
 public class TntTime extends AbstractModule {
 
 	private static final TntTime Instance = new TntTime();
-	public final BooleanOption enabled = new BooleanOption("enabled", false);
-	private final OptionCategory category = new OptionCategory("tnttime");
+	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
+	private final OptionCategory category = OptionCategory.create("tnttime");
 	private final IntegerOption decimalPlaces = new IntegerOption("decimalplaces", 2, 0, 6);
 	private DecimalFormat format;
 	private int decimals;
@@ -49,7 +49,7 @@ public class TntTime extends AbstractModule {
 	@Override
 	public void init() {
 		category.add(enabled, decimalPlaces);
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 	}
 
 	@Override

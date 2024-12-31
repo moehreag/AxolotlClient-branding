@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -50,10 +50,6 @@ public enum BedwarsTeam {
 	@Getter
 	private final char prefix;
 
-	public String getColorSection() {
-		return "§" + code;
-	}
-
 	public static Optional<BedwarsTeam> fromPrefix(char prefix) {
 		for (BedwarsTeam t : values()) {
 			if (t.getPrefix() == prefix) {
@@ -70,6 +66,10 @@ public enum BedwarsTeam {
 			}
 		}
 		return Optional.empty();
+	}
+
+	public String getColorSection() {
+		return "§" + code;
 	}
 
 	public String getName() {

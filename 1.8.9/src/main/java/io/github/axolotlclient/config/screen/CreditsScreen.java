@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -27,31 +27,31 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tessellator;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.credits.Credits;
 import io.github.axolotlclient.mixin.SoundManagerAccessor;
 import io.github.axolotlclient.mixin.SoundSystemAccessor;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
-import io.github.axolotlclient.util.Util;
-import net.minecraft.client.MinecraftClient;
+import io.github.axolotlclient.util.ClientColors;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.Window;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.sound.instance.SimpleSoundInstance;
+import net.minecraft.client.sound.instance.SoundInstance;
+import net.minecraft.resource.Identifier;
 import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
 import paulscode.sound.SoundSystem;
 
 public class CreditsScreen extends Screen {
@@ -59,7 +59,7 @@ public class CreditsScreen extends Screen {
 	public static final HashMap<String, String[]> externalModuleCredits = new HashMap<>();
 	private final Screen parent;
 	private final List<Credit> credits = new ArrayList<>();
-	private final SoundInstance bgm = PositionedSoundInstance.method_7051(new Identifier("minecraft", "records.chirp"));
+	private final SoundInstance bgm = SimpleSoundInstance.of(new Identifier("minecraft", "records.chirp"));
 	private Overlay creditOverlay;
 	private EntryListWidget creditsList;
 
@@ -69,10 +69,10 @@ public class CreditsScreen extends Screen {
 
 	@Override
 	public void render(int mouseX, int mouseY, float tickDelta) {
-		if (AxolotlClient.CONFIG.creditsBGM.get() && !client.getSoundManager().isPlaying(bgm)) {
-			if (((SoundSystemAccessor) ((SoundManagerAccessor) MinecraftClient.getInstance().getSoundManager())
-				.getSoundSystem()).getField_8196().get(bgm) == null) {
-				MinecraftClient.getInstance().getSoundManager().play(bgm);
+		if (AxolotlClient.CONFIG.creditsBGM.get() && !minecraft.getSoundManager().isPlaying(bgm)) {
+			if (((SoundSystemAccessor) ((SoundManagerAccessor) Minecraft.getInstance().getSoundManager())
+				.getSoundSystem()).getChannelsByEvent().get(bgm) == null) {
+				Minecraft.getInstance().getSoundManager().play(bgm);
 			}
 		}
 
@@ -103,9 +103,9 @@ public class CreditsScreen extends Screen {
 	protected void keyPressed(char character, int code) {
 		if (code == 1) {
 			stopBGM();
-			this.client.setScreen(null);
-			if (this.client.currentScreen == null) {
-				this.client.closeScreen();
+			this.minecraft.openScreen(null);
+			if (this.minecraft.screen == null) {
+				this.minecraft.closeScreen();
 			}
 		}
 	}
@@ -136,7 +136,7 @@ public class CreditsScreen extends Screen {
 	protected void buttonClicked(ButtonWidget button) {
 		if (button.id == 0) {
 			if (creditOverlay == null) {
-				client.setScreen(parent);
+				minecraft.openScreen(parent);
 				stopBGM();
 			} else {
 				creditOverlay = null;
@@ -161,10 +161,10 @@ public class CreditsScreen extends Screen {
 		credits.clear();
 		initCredits();
 
-		creditsList = new EntryListWidget(client, width, height, 50, height - 50, 25) {
+		creditsList = new EntryListWidget(minecraft, width, height, 50, height - 50, 25) {
 
 			@Override
-			protected int getEntryCount() {
+			protected int size() {
 				return credits.size();
 			}
 
@@ -173,48 +173,48 @@ public class CreditsScreen extends Screen {
 				if (this.visible) {
 					GlStateManager.enableDepthTest();
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(0, 0, 1F);
-					this.lastMouseX = mouseX;
-					this.lastMouseY = mouseY;
+					GlStateManager.translatef(0, 0, 1F);
+					this.mouseX = mouseX;
+					this.mouseY = mouseY;
 					int i = this.getScrollbarPosition();
 					int j = i + 6;
-					this.capYPosition();
+					this.capScrolling();
 					GlStateManager.disableLighting();
 					GlStateManager.disableFog();
 					int k = this.width / 2;
-					int l = this.yStart + 4 - (int) this.scrollAmount;
+					int l = this.minY + 4 - (int) this.scrollAmount;
 
 					int n = this.getMaxScroll();
 					if (n > 0) {
-						int o = (this.yEnd - this.yStart) * (this.yEnd - this.yStart) / this.getMaxPosition();
-						o = MathHelper.clamp(o, 32, this.yEnd - this.yStart - 8);
-						int p = (int) this.scrollAmount * (this.yEnd - this.yStart - o) / n + this.yStart;
-						if (p < this.yStart) {
-							p = this.yStart;
+						int o = (this.maxY - this.minY) * (this.maxY - this.minY) / this.getHeight();
+						o = MathHelper.clamp(o, 32, this.maxY - this.minY - 8);
+						int p = (int) this.scrollAmount * (this.maxY - this.minY - o) / n + this.minY;
+						if (p < this.minY) {
+							p = this.minY;
 						}
 						GlStateManager.disableTexture();
 						Tessellator tessellator = Tessellator.getInstance();
-						BufferBuilder bufferBuilder = tessellator.getBuffer();
+						BufferBuilder bufferBuilder = tessellator.getBuilder();
 
-						bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-						bufferBuilder.vertex(i, this.yEnd, 0.0).texture(0.0, 1.0).color(0, 0, 0, 255).next();
-						bufferBuilder.vertex(j, this.yEnd, 0.0).texture(1.0, 1.0).color(0, 0, 0, 255).next();
-						bufferBuilder.vertex(j, this.yStart, 0.0).texture(1.0, 0.0).color(0, 0, 0, 255).next();
-						bufferBuilder.vertex(i, this.yStart, 0.0).texture(0.0, 0.0).color(0, 0, 0, 255).next();
-						tessellator.draw();
-						bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-						bufferBuilder.vertex(i, (p + o), 0.0).texture(0.0, 1.0).color(128, 128, 128, 255).next();
-						bufferBuilder.vertex(j, (p + o), 0.0).texture(1.0, 1.0).color(128, 128, 128, 255).next();
-						bufferBuilder.vertex(j, p, 0.0).texture(1.0, 0.0).color(128, 128, 128, 255).next();
-						bufferBuilder.vertex(i, p, 0.0).texture(0.0, 0.0).color(128, 128, 128, 255).next();
-						tessellator.draw();
-						bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-						bufferBuilder.vertex(i, (p + o - 1), 0.0).texture(0.0, 1.0).color(192, 192, 192, 255).next();
+						bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+						bufferBuilder.vertex(i, this.maxY, 0.0).texture(0.0, 1.0).color(0, 0, 0, 255).nextVertex();
+						bufferBuilder.vertex(j, this.maxY, 0.0).texture(1.0, 1.0).color(0, 0, 0, 255).nextVertex();
+						bufferBuilder.vertex(j, this.minY, 0.0).texture(1.0, 0.0).color(0, 0, 0, 255).nextVertex();
+						bufferBuilder.vertex(i, this.minY, 0.0).texture(0.0, 0.0).color(0, 0, 0, 255).nextVertex();
+						tessellator.end();
+						bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+						bufferBuilder.vertex(i, (p + o), 0.0).texture(0.0, 1.0).color(128, 128, 128, 255).nextVertex();
+						bufferBuilder.vertex(j, (p + o), 0.0).texture(1.0, 1.0).color(128, 128, 128, 255).nextVertex();
+						bufferBuilder.vertex(j, p, 0.0).texture(1.0, 0.0).color(128, 128, 128, 255).nextVertex();
+						bufferBuilder.vertex(i, p, 0.0).texture(0.0, 0.0).color(128, 128, 128, 255).nextVertex();
+						tessellator.end();
+						bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+						bufferBuilder.vertex(i, (p + o - 1), 0.0).texture(0.0, 1.0).color(192, 192, 192, 255).nextVertex();
 						bufferBuilder.vertex((j - 1), (p + o - 1), 0.0).texture(1.0, 1.0).color(192, 192, 192, 255)
-							.next();
-						bufferBuilder.vertex((j - 1), p, 0.0).texture(1.0, 0.0).color(192, 192, 192, 255).next();
-						bufferBuilder.vertex(i, p, 0.0).texture(0.0, 0.0).color(192, 192, 192, 255).next();
-						tessellator.draw();
+							.nextVertex();
+						bufferBuilder.vertex((j - 1), p, 0.0).texture(1.0, 0.0).color(192, 192, 192, 255).nextVertex();
+						bufferBuilder.vertex(i, p, 0.0).texture(0.0, 0.0).color(192, 192, 192, 255).nextVertex();
+						tessellator.end();
 					}
 					GlStateManager.enableTexture();
 
@@ -229,9 +229,9 @@ public class CreditsScreen extends Screen {
 
 			@Override
 			protected void renderList(int x, int y, int mouseX, int mouseY) {
-				Util.applyScissor(0, yStart, this.width, yEnd - yStart);
+				io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(0, minY, this.width, maxY - minY);
 				super.renderList(x, y, mouseX, mouseY);
-				GL11.glDisable(GL11.GL_SCISSOR_TEST);
+				io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.popScissor();
 			}
 
 			@Override
@@ -244,18 +244,11 @@ public class CreditsScreen extends Screen {
 	private void initCredits() {
 		credits.add(new SpacerTitle("- - - - - - " + I18n.translate("contributors") + " - - - - - -"));
 
-		credits.add(new Credit("moehreag", "Author, Programming", "https://github.com/moehreag"));
-		credits.add(new Credit("YakisikliBaran", "Turkish Translation"));
-		credits.add(new Credit("TheKodeToad", "Contributor", "Motion Blur", "Freelook", "Zoom"));
-		credits.add(new Credit("DragonEggBedrockBreaking", "Bugfixing", "Inspiration of new Features"));
-		credits.add(new Credit("CornetPanique86", "French Translation"));
-		credits.add(new Credit("kuchenag", "Logo/Icon Creator"));
-		credits.add(new Credit("DarkKronicle", "Bedwars Overlay", "Author of KronHUD, the best HUD mod!"));
+		Credits.getContributors().forEach(credit -> credits.add(new Credit(credit.getName(), credit.getThings())));
 
 		credits.add(new SpacerTitle("- - - - - - " + I18n.translate("other_people") + " - - - - - -"));
 
-		credits.add(new Credit("gart", "gartbin dev and host", "Image sharing help", "https://gart.sh"));
-		credits.add(new Credit("AMereBagatelle", "Author of the excellent FabricSkyBoxes Mod"));
+		Credits.getOtherPeople().forEach(credit -> credits.add(new Credit(credit.getName(), credit.getThings())));
 
 		if (!externalModuleCredits.isEmpty()) {
 			credits.add(new SpacerTitle(
@@ -273,23 +266,23 @@ public class CreditsScreen extends Screen {
 	}
 
 	@Override
-	public void resize(MinecraftClient client, int width, int height) {
+	public void resize(Minecraft client, int width, int height) {
 		if (creditOverlay != null)
 			creditOverlay.init();
 		super.resize(client, width, height);
 	}
 
 	private void stopBGM() {
-		if (((SoundSystemAccessor) ((SoundManagerAccessor) MinecraftClient.getInstance().getSoundManager())
-			.getSoundSystem()).getField_8196().get(bgm) != null) {
-			((SoundSystem) ((SoundManagerAccessor) MinecraftClient.getInstance().getSoundManager())
-				.getSoundSystem().field_8193)
-				.stop(((SoundSystemAccessor) ((SoundManagerAccessor) MinecraftClient.getInstance()
-					.getSoundManager()).getSoundSystem()).getField_8196().get(bgm));
-			((SoundSystem) ((SoundManagerAccessor) MinecraftClient.getInstance().getSoundManager())
-				.getSoundSystem().field_8193)
-				.removeSource(((SoundSystemAccessor) ((SoundManagerAccessor) MinecraftClient.getInstance()
-					.getSoundManager()).getSoundSystem()).getField_8196().get(bgm));
+		if (((SoundSystemAccessor) ((SoundManagerAccessor) Minecraft.getInstance().getSoundManager())
+			.getSoundSystem()).getChannelsByEvent().get(bgm) != null) {
+			((SoundSystem) ((SoundManagerAccessor) Minecraft.getInstance().getSoundManager())
+				.getSoundSystem().system)
+				.stop(((SoundSystemAccessor) ((SoundManagerAccessor) Minecraft.getInstance()
+					.getSoundManager()).getSoundSystem()).getChannelsByEvent().get(bgm));
+			((SoundSystem) ((SoundManagerAccessor) Minecraft.getInstance().getSoundManager())
+				.getSoundSystem().system)
+				.removeSource(((SoundSystemAccessor) ((SoundManagerAccessor) Minecraft.getInstance()
+					.getSoundManager()).getSoundSystem()).getChannelsByEvent().get(bgm));
 		}
 	}
 
@@ -306,7 +299,7 @@ public class CreditsScreen extends Screen {
 		}
 
 		@Override
-		public void updatePosition(int index, int x, int y) {
+		public void renderOutOfBounds(int index, int x, int y) {
 		}
 
 		@Override
@@ -314,17 +307,17 @@ public class CreditsScreen extends Screen {
 						   boolean hovered) {
 			if (hovered) {
 				drawVerticalLine(x - 100, y, y + 20,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 				drawVerticalLine(x + 100, y, y + 20,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 				drawHorizontalLine(x - 100, x + 100, y + 20,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 				drawHorizontalLine(x - 100, x + 100, y,
-					io.github.axolotlclient.AxolotlClientConfig.Color.ERROR.getAsInt());
+					ClientColors.ERROR.toInt());
 			}
 			this.hovered = hovered;
-			drawCenteredString(MinecraftClient.getInstance().textRenderer, name, x, y + 5,
-				hovered ? io.github.axolotlclient.AxolotlClientConfig.Color.SELECTOR_RED.getAsInt() : -1);
+			drawCenteredString(Minecraft.getInstance().textRenderer, name, x, y + 5,
+				hovered ? ClientColors.SELECTOR_RED.toInt() : -1);
 		}
 
 		@Override
@@ -343,12 +336,12 @@ public class CreditsScreen extends Screen {
 
 	private class Overlay extends DrawUtil {
 
+		protected final HashMap<String, ClickEvent> effects = new HashMap<>();
+		protected final HashMap<Integer, String> lines = new HashMap<>();
+		private final Credit credit;
 		private final int x;
 		private final int y;
-		private final Color DARK_GRAY = Color.DARK_GRAY.withAlpha(127);
-		protected HashMap<String, ClickEvent> effects = new HashMap<>();
-		protected HashMap<Integer, String> lines = new HashMap<>();
-		Credit credit;
+		private final Color DARK_GRAY = ClientColors.DARK_GRAY.withAlpha(127);
 		private Window window;
 		private int width;
 		private int height;
@@ -362,7 +355,7 @@ public class CreditsScreen extends Screen {
 		}
 
 		public void init() {
-			window = new Window(MinecraftClient.getInstance());
+			window = new Window(Minecraft.getInstance());
 			width = window.getWidth() - 200;
 			height = window.getHeight() - 100;
 
@@ -387,14 +380,14 @@ public class CreditsScreen extends Screen {
 			RenderUtil.drawRectangle(x, y, width, height,
 				DARK_GRAY);
 			DrawUtil.outlineRect(x, y, width, height,
-				io.github.axolotlclient.AxolotlClientConfig.Color.BLACK.getAsInt());
+				ClientColors.BLACK.toInt());
 
-			drawCenteredString(MinecraftClient.getInstance().textRenderer, credit.name, window.getWidth() / 2, y + 7,
+			drawCenteredString(Minecraft.getInstance().textRenderer, credit.name, window.getWidth() / 2, y + 7,
 				-16784327);
 
 			lines.forEach(
-				(integer, s) -> drawCenteredString(MinecraftClient.getInstance().textRenderer, s, x + width / 2,
-					integer, io.github.axolotlclient.AxolotlClientConfig.Color.SELECTOR_GREEN.getAsInt()));
+				(integer, s) -> drawCenteredString(Minecraft.getInstance().textRenderer, s, x + width / 2,
+					integer, ClientColors.SELECTOR_GREEN.toInt()));
 		}
 
 		public boolean isMouseOver(int mouseX, int mouseY) {
@@ -404,9 +397,9 @@ public class CreditsScreen extends Screen {
 		public void mouseClicked(int mouseX, int mouseY) {
 			lines.forEach((integer, s) -> {
 				if ((mouseY >= integer && mouseY < integer + 11)
-					&& mouseX >= x + width / 2 - MinecraftClient.getInstance().textRenderer.getStringWidth(s) / 2
-					&& mouseX <= x + width / 2 + MinecraftClient.getInstance().textRenderer.getStringWidth(s) / 2) {
-					handleTextClick(
+					&& mouseX >= x + width / 2 - Minecraft.getInstance().textRenderer.getWidth(s) / 2
+					&& mouseX <= x + width / 2 + Minecraft.getInstance().textRenderer.getWidth(s) / 2) {
+					handleClickEvent(
 						new LiteralText(s).setStyle(new Style().setClickEvent(effects.get(Formatting.strip(s)))));
 				}
 			});
@@ -422,7 +415,7 @@ public class CreditsScreen extends Screen {
 		@Override
 		public void render(int index, int x, int y, int rowWidth, int rowHeight, int mouseX, int mouseY,
 						   boolean hovered) {
-			drawCenteredString(MinecraftClient.getInstance().textRenderer, super.name, x, y, -128374);
+			drawCenteredString(Minecraft.getInstance().textRenderer, super.name, x, y, -128374);
 		}
 
 		@Override

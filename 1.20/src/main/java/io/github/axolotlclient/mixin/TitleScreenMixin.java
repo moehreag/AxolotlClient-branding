@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,25 +22,38 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.FriendsScreen;
+import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
-import io.github.axolotlclient.util.UnsupportedMod;
+import io.github.axolotlclient.util.OSUtil;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.realms.RealmsNotificationsScreen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
+import net.minecraft.client.realms.gui.screen.RealmsNotificationsScreen;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -62,14 +75,66 @@ public abstract class TitleScreenMixin extends Screen {
 		super(Text.of(""));
 	}
 
-	@Inject(method = "initWidgetsNormal", at = @At("HEAD"))
-	public void axolotlclient$inMenu(int y, int spacingY, CallbackInfo ci) {
-		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key.get())) {
+	@Inject(method = "initWidgetsNormal", at = @At("TAIL"))
+	private void axolotlclient$inMenu(int y, int spacingY, CallbackInfo ci) {
+		if (MinecraftClient.getInstance().options.saveToolbarActivatorKey.keyEquals(Zoom.key)) {
 			MinecraftClient.getInstance().options.saveToolbarActivatorKey.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
+		List<PressableWidget> buttons = Collections.synchronizedList(new ArrayList<>());
+		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
-			addDrawableSelectableElement(new AuthWidget());
+			buttons.add(addDrawableChild(new AuthWidget(10, leftButtonY)));
+			leftButtonY += 25;
+		}
+		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
+			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends"),
+				w -> client.setScreen(new FriendsScreen(this))).positionAndSize(10, leftButtonY, 50, 20).build()));
+			leftButtonY += 25;
+			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.chats"),
+				w -> client.setScreen(new ChatListScreen(this))).positionAndSize(10, leftButtonY, 50, 20).build()));
+		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
+						MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
+							if (r) {
+								OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
+							}
+						}, "https://modrinth.com/mod/axolotlclient/versions", true)))
+					.positionAndSize(width - 90, buttonY, 80, 20).build()));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
+						MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
+					.positionAndSize(width - 90, buttonY, 80, 20).build()));
+			}
+		});
+
+		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+			try {
+				Class<?> booleanConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.BooleanConfigOption");
+				Class<?> enumConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.EnumConfigOption");
+				Class<?> titleMenuButtonStyle = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig$TitleMenuButtonStyle");
+				Class<?> modmenuConfig = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig");
+				MethodHandle modifyTitleScreenHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODIFY_TITLE_SCREEN", booleanConfigOpt);
+				MethodHandle getValueB = MethodHandles.lookup().findVirtual(booleanConfigOpt, "getValue", MethodType.methodType(boolean.class));
+				MethodHandle getValueE = MethodHandles.lookup().findVirtual(enumConfigOpt, "getValue", MethodType.methodType(Enum.class));
+				var modifyTitleScreen = modifyTitleScreenHandle.invoke();
+				boolean isModifyTitleScreen = (boolean) getValueB.invoke(modifyTitleScreen);
+				MethodHandle modsButtonStyleHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODS_BUTTON_STYLE", enumConfigOpt);
+				var modsButtonStyle = getValueE.invoke(modsButtonStyleHandle.invoke());
+				var classic = titleMenuButtonStyle.getEnumConstants()[0];
+				if (isModifyTitleScreen && modsButtonStyle == classic) {
+					buttons.forEach(r -> r.setY(r.getY() - 24 / 2));
+				}
+			} catch (Throwable ignored) {
+			}
 		}
 	}
 
@@ -81,9 +146,9 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@ModifyArgs(method = "initWidgetsNormal",
 		at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/widget/button/ButtonWidget;builder(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/button/ButtonWidget$PressAction;)Lnet/minecraft/client/gui/widget/button/ButtonWidget$Builder;", ordinal = 2))
-	public void axolotlclient$noRealmsbutOptionsButton(Args args) {
-		if (!QuiltLoader.isModLoaded("modmenu")) {
+			target = "Lnet/minecraft/client/gui/widget/ButtonWidget;builder(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;", ordinal = 2))
+	private void axolotlclient$noRealmsbutOptionsButton(Args args) {
+		if (!FabricLoader.getInstance().isModLoaded("modmenu")) {
 			args.set(0, Text.translatable("config"));
 			args.set(1, (ButtonWidget.PressAction) buttonWidget -> MinecraftClient.getInstance()
 				.setScreen(new HudEditScreen(this)));
@@ -91,57 +156,13 @@ public abstract class TitleScreenMixin extends Screen {
 	}
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawShadowedText(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)I"), index = 1)
-	public String axolotlclient$setVersionText(String s) {
+	private String axolotlclient$setVersionText(String s) {
 		return "Minecraft " + SharedConstants.getGameVersion().getName() + "/AxolotlClient "
-			+ (QuiltLoader.getModContainer("axolotlclient").isPresent()
-			? QuiltLoader.getModContainer("axolotlclient").get().metadata().version().raw()
-			: "");
+			+ AxolotlClient.VERSION;
 	}
 
 	@Inject(method = "areRealmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$noRealmsIcons(CallbackInfoReturnable<Boolean> cir) {
+	private void axolotlclient$noRealmsIcons(CallbackInfoReturnable<Boolean> cir) {
 		cir.setReturnValue(false);
-	}
-
-	@Inject(method = "init", at = @At("HEAD"))
-	public void axolotlclient$showBadModsScreen(CallbackInfo ci) {
-		if (AxolotlClient.showWarning) {
-			StringBuilder description = new StringBuilder();
-			for (int i = 0; i < AxolotlClient.badmod.reason().length; i++) {
-				UnsupportedMod.UnsupportedReason reason = AxolotlClient.badmod.reason()[i];
-				if (i > 0 && i < AxolotlClient.badmod.reason().length - 1) {
-					description.append(", to ");
-				} else if (i > 0) {
-					description.append(" and to ");
-				}
-				description.append(reason);
-			}
-			description.append(". ");
-
-			MinecraftClient.getInstance().setScreen(new ConfirmScreen((boolean confirmed) -> {
-				if (confirmed) {
-					AxolotlClient.showWarning = false;
-					AxolotlClient.titleDisclaimer = true;
-					System.out.println("Proceed with Caution!");
-					MinecraftClient.getInstance().setScreen(new TitleScreen());
-				} else {
-					MinecraftClient.getInstance().stop();
-				}
-			}, Text.literal("Axolotlclient warning").formatted(Formatting.RED), Text.literal("The mod ")
-				.append(Text.literal(AxolotlClient.badmod.name()).formatted(Formatting.BOLD, Formatting.DARK_RED))
-				.append(" is known to ").append(description.toString())
-				.append("AxolotlClient will not be responsible for any punishment or crashes you will encounter while using it.\n Proceed with Caution!"),
-				Text.translatable("gui.proceed"), Text.translatable("menu.quit")));
-		}
-	}
-
-	@Inject(method = "render", at = @At("TAIL"))
-	public void axolotlclient$addDisclaimer(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		if (AxolotlClient.titleDisclaimer) {
-			graphics.drawCenteredShadowedText(this.textRenderer,
-				"You are playing at your own risk with unsupported Mods", this.width / 2, 5, 0xFFCC8888);
-			graphics.drawCenteredShadowedText(this.textRenderer, "Things could break!", this.width / 2, 15,
-				0xFFCC8888);
-		}
 	}
 }

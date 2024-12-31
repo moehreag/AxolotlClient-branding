@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,20 +25,21 @@ package io.github.axolotlclient.modules.hud.gui.hud.vanilla;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
+import io.github.axolotlclient.util.ClientColors;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.entity.boss.BossBar;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.entity.living.mob.hostile.boss.BossBar;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -51,12 +52,12 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 
 	public static final Identifier ID = new Identifier("kronhud", "bossbarhud");
 	private static final Identifier BARS_TEXTURE = new Identifier("textures/gui/icons.png");
-	private final CustomBossBar placeholder = new CustomBossBar("Boss bar", Color.WHITE);
+	private final CustomBossBar placeholder = new CustomBossBar("Boss bar", ClientColors.WHITE);
 
 	private final BooleanOption text = new BooleanOption("text", true);
 	private final BooleanOption bar = new BooleanOption("bar", true);
 	// TODO custom color
-	private final EnumOption anchor = DefaultOptions.getAnchorPoint(AnchorPoint.TOP_MIDDLE);
+	private final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint(AnchorPoint.TOP_MIDDLE);
 
 	public BossBarHud() {
 		super(184, 24, false);
@@ -66,25 +67,25 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 	public void renderComponent(float delta) {
 		GlStateManager.enableAlphaTest();
 		DrawPosition pos = getPos();
-		if (BossBar.name != null && BossBar.framesToLive > 0) {
-			client.getTextureManager().bindTexture(BARS_TEXTURE);
-			--BossBar.framesToLive;
+		if (BossBar.name != null && BossBar.timer > 0) {
+			client.getTextureManager().bind(BARS_TEXTURE);
+			--BossBar.timer;
 			if (bar.get()) {
 				//GlStateManager.color4f(barColor.get().getRed(), barColor.get().getGreen(), barColor.get().getBlue(), barColor.get().getAlpha());
 				drawTexture(pos.x, pos.y + 12, 0, 74, 182, 5);
 				drawTexture(pos.x, pos.y + 12, 0, 74, 182, 5);
-				if (BossBar.percent * 183F > 0) {
+				if (BossBar.health * 183F > 0) {
 					//GlStateManager.color4f(barColor.get().getRed(), barColor.get().getGreen(), barColor.get().getBlue(), barColor.get().getAlpha());
-					drawTexture(pos.x, pos.y + 12, 0, 79, (int) (BossBar.percent * 183F), 5);
+					drawTexture(pos.x, pos.y + 12, 0, 79, (int) (BossBar.health * 183F), 5);
 				}
 			}
 
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			if (text.get()) {
 				String string = BossBar.name;
 				client.textRenderer.draw(string,
-					(float) ((pos.x + width / 2) - client.textRenderer.getStringWidth(BossBar.name) / 2),
-					(float) (pos.y + 2), textColor.get().getAsInt(), shadow.get());
+					(float) ((pos.x + width / 2) - client.textRenderer.getWidth(BossBar.name) / 2),
+					(float) (pos.y + 2), textColor.get().toInt(), shadow.get());
 			}
 		}
 	}
@@ -116,11 +117,11 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 
 	@Override
 	public AnchorPoint getAnchor() {
-		return AnchorPoint.valueOf(anchor.get());
+		return anchor.get();
 	}
 
 	@RequiredArgsConstructor
-	public class CustomBossBar extends DrawableHelper {
+	public class CustomBossBar extends GuiElement {
 
 		private final String name;
 		private final Color barColor;
@@ -128,15 +129,15 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 		public void render(int x, int y) {
 			GlStateManager.enableTexture();
 			if (bar.get()) {
-				MinecraftClient.getInstance().getTextureManager().bindTexture(BARS_TEXTURE);
-				GlStateManager.color(barColor.getRed(), barColor.getGreen(), barColor.getBlue(), barColor.getAlpha());
+				Minecraft.getInstance().getTextureManager().bind(BARS_TEXTURE);
+				GlStateManager.color4f(barColor.getRed(), barColor.getGreen(), barColor.getBlue(), barColor.getAlpha());
 				this.drawTexture(x + 1, y, 0, 79, width, 5);
 			}
 
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			if (text.get()) {
-				client.textRenderer.draw(name, (float) ((x + width / 2) - client.textRenderer.getStringWidth(name) / 2),
-					(float) (y - 10), textColor.get().getAsInt(), shadow.get());
+				client.textRenderer.draw(name, (float) ((x + width / 2) - client.textRenderer.getWidth(name) / 2),
+					(float) (y - 10), textColor.get().toInt(), shadow.get());
 			}
 		}
 	}

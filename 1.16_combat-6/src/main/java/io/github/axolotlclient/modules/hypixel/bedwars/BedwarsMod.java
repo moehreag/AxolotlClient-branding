@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -28,9 +28,9 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
@@ -57,38 +57,24 @@ public class BedwarsMod implements AbstractHypixelMod {
 
 	@Getter
 	private static BedwarsMod instance = new BedwarsMod();
-
-	@Getter
-	private final OptionCategory category = new OptionCategory("bedwars");
-
-	private final BooleanOption enabled = new BooleanOption("enabled", false);
-
 	public final BooleanOption hardcoreHearts = new BooleanOption(getTranslationKey("hardcoreHearts"), true);
-
 	public final BooleanOption showHunger = new BooleanOption(getTranslationKey("showHunger"), false);
-
 	public final BooleanOption displayArmor = new BooleanOption(getTranslationKey("displayArmor"), true);
-
 	public final BooleanOption bedwarsLevelHead = new BooleanOption(getTranslationKey("bedwarsLevelHead"), true);
-	public final EnumOption bedwarsLevelHeadMode = new EnumOption(getTranslationKey("bedwarsLevelHeadMode"),
-		BedwarsLevelHeadMode.values(),
-		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS.toString());
-
-
-	protected BedwarsGame currentGame = null;
-
+	public final EnumOption<BedwarsLevelHeadMode> bedwarsLevelHeadMode = new EnumOption<>(getTranslationKey("bedwarsLevelHeadMode"),
+		BedwarsLevelHeadMode.class,
+		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS);
 	@Getter
 	protected final TeamUpgradesOverlay upgradesOverlay;
-
-
 	protected final BooleanOption removeAnnoyingMessages = new BooleanOption(getTranslationKey("removeAnnoyingMessages"), true);
-
-
+	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
+	@Getter
+	private final OptionCategory category = OptionCategory.create("bedwars");
+	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final BooleanOption tabRenderLatencyIcon = new BooleanOption(getTranslationKey("tabRenderLatencyIcon"), false);
 
 	private final BooleanOption showChatTime = new BooleanOption(getTranslationKey("showChatTime"), true);
-
-	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
+	protected BedwarsGame currentGame = null;
 	private int targetTick = -1;
 	private boolean waiting = false;
 

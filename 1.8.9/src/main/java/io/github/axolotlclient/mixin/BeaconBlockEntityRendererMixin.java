@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,13 +24,13 @@ package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.modules.renderOptions.BeaconBeam;
 import net.minecraft.block.entity.BeaconBlockEntity;
-import net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BeaconRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BeaconBlockEntityRenderer.class)
+@Mixin(BeaconRenderer.class)
 public abstract class BeaconBlockEntityRendererMixin {
 
 	@Inject(method = "render(Lnet/minecraft/block/entity/BeaconBlockEntity;DDDFI)V", at = @At("HEAD"), cancellable = true)

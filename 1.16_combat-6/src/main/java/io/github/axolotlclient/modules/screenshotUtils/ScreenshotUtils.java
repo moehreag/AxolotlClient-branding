@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,9 +22,6 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
-import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -32,8 +29,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.modules.AbstractModule;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.AllArgsConstructor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
@@ -45,17 +45,13 @@ import org.jetbrains.annotations.Nullable;
 public class ScreenshotUtils extends AbstractModule {
 
 	private static final ScreenshotUtils Instance = new ScreenshotUtils();
-	public final StringOption shareUrl = new StringOption("shareUrl", "https://bin.gart.sh");
-	private final OptionCategory category = new OptionCategory("screenshotUtils");
+	private final OptionCategory category = OptionCategory.create("screenshotUtils");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final List<Action> actions = Util.make(() -> {
 		List<Action> actions = new ArrayList<>();
 		actions.add(new Action("copyAction", Formatting.AQUA,
 			"copy_image",
-			new CustomClickEvent((file) -> {
-				FileTransferable selection = new FileTransferable(file);
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-			})));
+			new CustomClickEvent(ScreenshotCopying::copy)));
 
 		actions.add(new Action("deleteAction", Formatting.LIGHT_PURPLE,
 			"delete_image",
@@ -79,7 +75,7 @@ public class ScreenshotUtils extends AbstractModule {
 				new Thread("Image Uploader") {
 					@Override
 					public void run() {
-						ImageShare.getInstance().uploadImage(shareUrl.get().trim(), file);
+						ImageShare.getInstance().uploadImage(file);
 					}
 				}.start();
 			})));
@@ -89,7 +85,7 @@ public class ScreenshotUtils extends AbstractModule {
 		return actions;
 	});
 
-	private final EnumOption autoExec = new EnumOption("autoExec", Util.make(() -> {
+	private final StringArrayOption autoExec = new StringArrayOption("autoExec", Util.make(() -> {
 		List<String> names = new ArrayList<>();
 		names.add("off");
 		actions.forEach(action -> names.add(action.getName()));
@@ -102,11 +98,11 @@ public class ScreenshotUtils extends AbstractModule {
 
 	@Override
 	public void init() {
-		category.add(enabled, autoExec, shareUrl, new GenericOption("imageViewer", "openViewer", (m1, m2) -> {
+		category.add(enabled, autoExec, new GenericOption("imageViewer", "openViewer", () -> {
 			MinecraftClient.getInstance().openScreen(new ImageViewerScreen(MinecraftClient.getInstance().currentScreen));
 		}));
 
-		AxolotlClient.CONFIG.general.addSubCategory(category);
+		AxolotlClient.CONFIG.general.add(category);
 	}
 
 	public Text onScreenshotTaken(MutableText text, File shot) {
@@ -134,7 +130,7 @@ public class ScreenshotUtils extends AbstractModule {
 		return message;
 	}
 
-	interface OnActionCall {
+	public interface OnActionCall {
 
 		void doAction(File file);
 	}
@@ -157,29 +153,6 @@ public class ScreenshotUtils extends AbstractModule {
 		}
 	}
 
-	@AllArgsConstructor
-	protected static class FileTransferable implements Transferable {
-
-		private final File file;
-
-		@Override
-		public DataFlavor[] getTransferDataFlavors() {
-			return new DataFlavor[]{DataFlavor.javaFileListFlavor};
-		}
-
-		@Override
-		public boolean isDataFlavorSupported(DataFlavor flavor) {
-			return DataFlavor.javaFileListFlavor.equals(flavor);
-		}
-
-		@Override
-		public Object getTransferData(DataFlavor flavor) {
-			final ArrayList<File> files = new ArrayList<>();
-			files.add(file);
-			return files;
-		}
-	}
-
 	public static class CustomClickEvent extends ClickEvent {
 
 		private final OnActionCall action;
@@ -195,7 +168,7 @@ public class ScreenshotUtils extends AbstractModule {
 				action.doAction(file);
 			} else {
 				AxolotlClient.LOGGER.warn("How'd you manage to do this? "
-					+ "Now there's a screenshot ClickEvent without a File attached to it!");
+										  + "Now there's a screenshot ClickEvent without a File attached to it!");
 			}
 		}
 

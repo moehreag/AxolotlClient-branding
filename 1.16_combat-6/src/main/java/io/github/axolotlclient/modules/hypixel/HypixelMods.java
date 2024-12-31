@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,10 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hypixel.autoboop.AutoBoop;
 import io.github.axolotlclient.modules.hypixel.autogg.AutoGG;
@@ -45,13 +44,13 @@ import net.minecraft.resource.ResourceType;
 public class HypixelMods extends AbstractModule {
 
 	private static final HypixelMods INSTANCE = new HypixelMods();
-	public final EnumOption cacheMode = new EnumOption("cache_mode", HypixelCacheMode.values(),
-		HypixelCacheMode.ON_CLIENT_DISCONNECT.toString());
-	private final OptionCategory category = new OptionCategory("hypixel-mods");
+
+	public final EnumOption<HypixelCacheMode> cacheMode = new EnumOption<>("cache_mode", HypixelCacheMode.class,
+		HypixelCacheMode.ON_CLIENT_DISCONNECT);
+
+	private final OptionCategory category = OptionCategory.create("hypixel-mods");
 	private final List<AbstractHypixelMod> subModules = new ArrayList<>();
-	public StringOption hypixel_api_key = new StringOption("hypixel_api_key", "");
 	private final BooleanOption removeLobbyJoinMessages = new BooleanOption("removeLobbyJoinMessages", false);
-	private final BooleanOption removeMysteryBoxFindings = new BooleanOption("removeMysteryBoxFindings", false);
 
 	public static HypixelMods getInstance() {
 		return INSTANCE;
@@ -59,10 +58,8 @@ public class HypixelMods extends AbstractModule {
 
 	@Override
 	public void init() {
-		category.add(hypixel_api_key);
 		category.add(cacheMode);
 		category.add(removeLobbyJoinMessages);
-		category.add(removeMysteryBoxFindings);
 
 		addSubModule(LevelHead.getInstance());
 		addSubModule(AutoGG.getInstance());
@@ -79,15 +76,9 @@ public class HypixelMods extends AbstractModule {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(HypixelMessages.getInstance());
 
 		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(event -> {
+			AutoBoop.getInstance().handleMessage(event.getOriginalMessage());
 			HypixelMessages.getInstance().process(removeLobbyJoinMessages, "lobby_join", event);
-			HypixelMessages.getInstance().process(removeMysteryBoxFindings, "mysterybox_find", event);
 		});
-	}
-
-	@Override
-	public void lateInit() {
-		HypixelAbstractionLayer.setApiKeySupplier(() -> hypixel_api_key.get());
-		HypixelAbstractionLayer.loadApiKey();
 	}
 
 	public void tick() {
@@ -99,11 +90,7 @@ public class HypixelMods extends AbstractModule {
 
 	private void addSubModule(AbstractHypixelMod mod) {
 		this.subModules.add(mod);
-		this.category.addSubCategory(mod.getCategory());
-	}
-
-	public OptionCategory getCategory() {
-		return null;
+		this.category.add(mod.getCategory());
 	}
 
 	public enum HypixelCacheMode {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,6 +24,8 @@ package io.github.axolotlclient.mixin;
 
 import java.nio.FloatBuffer;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
@@ -39,17 +41,17 @@ import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.notifications.Notifications;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.MouseInput;
-import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
+import net.minecraft.client.input.MouseInput;
+import net.minecraft.client.options.GameOptions;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.living.LivingEntity;
+import net.minecraft.entity.living.effect.StatusEffect;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
@@ -69,7 +71,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class GameRendererMixin {
 
 	@Shadow
-	private MinecraftClient client;
+	private Minecraft minecraft;
 	@Shadow
 	private float viewDistance;
 	@Shadow
@@ -79,13 +81,16 @@ public abstract class GameRendererMixin {
 	@Shadow
 	private float fogBlue;
 	@Shadow
-	private boolean thickFog;
+	private boolean thiccFog;
 	@Unique
 	private float cachedMouseFactor;
 	@Shadow
-	private boolean renderingPanorama;
+	private boolean debugCamera;
 
-	@Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MouseInput;x:I"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	@Shadow
+	protected abstract FloatBuffer setFogColor(float par1, float par2, float par3, float par4);
+
+	@Inject(method = "render(FJ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/MouseInput;dx:I"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
 	public void axolotlclient$rawMouseInput(float tickDelta, long nanoTime, CallbackInfo ci, boolean displayActive, float f,
 											float g) {
 		if (AxolotlClient.CONFIG.rawMouseInput.get()) {
@@ -93,33 +98,33 @@ public abstract class GameRendererMixin {
 		}
 	}
 
-	@Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MouseInput;x:I"))
+	@Redirect(method = "render(FJ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/MouseInput;dx:I"))
 	public int axolotlclient$rawMouseX(MouseInput instance) {
 		if (AxolotlClient.CONFIG.rawMouseInput.get()) {
-			return (int) (instance.x / cachedMouseFactor * client.options.sensitivity);
+			return (int) (instance.dx / cachedMouseFactor * minecraft.options.mouseSensitivity);
 		}
-		return instance.x;
+		return instance.dx;
 	}
 
-	@Redirect(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MouseInput;y:I"))
+	@Redirect(method = "render(FJ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/MouseInput;dy:I"))
 	public int axolotlclient$rawMouseY(MouseInput instance) {
 		if (AxolotlClient.CONFIG.rawMouseInput.get()) {
-			return (int) (instance.y / cachedMouseFactor * client.options.sensitivity);
+			return (int) (instance.dy / cachedMouseFactor * minecraft.options.mouseSensitivity);
 		}
-		return instance.y;
+		return instance.dy;
 	}
 
 	@Inject(method = "renderFog", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$noFog(int i, float tickDelta, CallbackInfo ci) {
-		if (MinecraftClient.getInstance().world.dimension.canPlayersSleep() && AxolotlClient.CONFIG.customSky.get()
+		if (Minecraft.getInstance().world.dimension.isOverworld() && AxolotlClient.CONFIG.customSky.get()
 			&& SkyboxManager.getInstance().hasSkyBoxes()) {
-			this.viewDistance = (float) (this.viewDistance * 2 + MinecraftClient.getInstance().player.getPos().y);
-			Entity entity = this.client.getCameraEntity();
+			this.viewDistance = (float) (this.viewDistance * 2 + Minecraft.getInstance().player.getSourcePos().y);
+			Entity entity = this.minecraft.getCamera();
 
-			GL11.glFog(2918, this.updateFogColorBuffer(this.fogRed, this.fogGreen, this.fogBlue, 1.0F));
+			GL11.glFog(2918, this.setFogColor(this.fogRed, this.fogGreen, this.fogBlue, 1.0F));
 			GL11.glNormal3f(0.0F, -1.0F, 0.0F);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			Block block = Camera.getSubmergedBlock(this.client.world, entity, tickDelta);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			Block block = Camera.getBlockInside(this.minecraft.world, entity, tickDelta);
 			if (entity instanceof LivingEntity && ((LivingEntity) entity).hasStatusEffect(StatusEffect.BLINDNESS)) {
 				float f = 5.0F;
 				int j = ((LivingEntity) entity).getEffectInstance(StatusEffect.BLINDNESS).getDuration();
@@ -139,7 +144,7 @@ public abstract class GameRendererMixin {
 				if (GLContext.getCapabilities().GL_NV_fog_distance) {
 					GL11.glFogi(34138, 34139);
 				}
-			} else if (this.thickFog) {
+			} else if (this.thiccFog) {
 				GlStateManager.fogMode(2048);
 				GlStateManager.fogDensity(0.1F);
 			} else if (block.getMaterial() == Material.WATER) {
@@ -148,7 +153,7 @@ public abstract class GameRendererMixin {
 					&& ((LivingEntity) entity).hasStatusEffect(StatusEffect.WATER_BREATHING)) {
 					GlStateManager.fogDensity(0.01F);
 				} else {
-					GlStateManager.fogDensity(0.1F - (float) EnchantmentHelper.getRespiration(entity) * 0.03F);
+					GlStateManager.fogDensity(0.1F - (float) EnchantmentHelper.getRespirationLevel(entity) * 0.03F);
 				}
 			} else if (block.getMaterial() == Material.LAVA) {
 				GlStateManager.fogMode(2048);
@@ -159,7 +164,7 @@ public abstract class GameRendererMixin {
 				GlStateManager.fogStart(f - 0.01F);
 				GlStateManager.fogEnd(f);
 
-				if (this.client.world.dimension.isFogThick((int) entity.x, (int) entity.z)) {
+				if (this.minecraft.world.dimension.isFogThick((int) entity.x, (int) entity.z)) {
 					GlStateManager.fogStart(f * 0.05F);
 					GlStateManager.fogEnd(Math.min(f, 192.0F) * 0.5F);
 				}
@@ -172,13 +177,10 @@ public abstract class GameRendererMixin {
 		}
 	}
 
-	@Shadow
-	protected abstract FloatBuffer updateFogColorBuffer(float red, float green, float blue, float alpha);
-
 	@Inject(method = "getFov", at = @At(value = "RETURN"), cancellable = true)
 	public void axolotlclient$setZoom(float tickDelta, boolean changingFov, CallbackInfoReturnable<Float> cir) {
 
-		if (renderingPanorama) {
+		if (debugCamera) {
 			return;
 		}
 
@@ -187,14 +189,14 @@ public abstract class GameRendererMixin {
 		float returnValue = cir.getReturnValue();
 
 		if (!AxolotlClient.CONFIG.dynamicFOV.get()) {
-			Entity entity = this.client.getCameraEntity();
-			float f = changingFov ? client.options.fov : 70F;
+			Entity entity = this.minecraft.getCamera();
+			float f = changingFov ? minecraft.options.fov : 70F;
 			if (entity instanceof LivingEntity && ((LivingEntity) entity).getHealth() <= 0.0F) {
 				float g = (float) ((LivingEntity) entity).deathTime + tickDelta;
 				f /= (1.0F - 500.0F / (g + 500.0F)) * 2.0F + 1.0F;
 			}
 
-			Block block = Camera.getSubmergedBlock(this.client.world, entity, tickDelta);
+			Block block = Camera.getBlockInside(this.minecraft.world, entity, tickDelta);
 			if (block.getMaterial() == Material.WATER) {
 				f = f * 60.0F / 70.0F;
 			}
@@ -206,56 +208,58 @@ public abstract class GameRendererMixin {
 		cir.setReturnValue(returnValue);
 	}
 
-	@Redirect(method = "updateLightmap", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/GameOptions;gamma:F", opcode = Opcodes.GETFIELD))
+	@Redirect(method = "updateLightMap", at = @At(value = "FIELD", target = "Lnet/minecraft/client/options/GameOptions;gamma:F", opcode = Opcodes.GETFIELD))
 	public float axolotlclient$setGamma(GameOptions instance) {
 		if (AxolotlClient.CONFIG.fullBright.get())
 			return 15F;
 		return instance.gamma;
 	}
 
-	@Inject(method = "renderDebugCrosshair", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "renderAxisIndicators", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$customCrosshairF3(float tickDelta, CallbackInfo ci) {
 		CrosshairHud hud = (CrosshairHud) HudManager.getInstance().get(CrosshairHud.ID);
-		if (hud.isEnabled() && this.client.options.debugEnabled && !this.client.options.hudHidden
+		if (hud.isEnabled() && this.minecraft.options.debugEnabled && !this.minecraft.options.hideGui
 			&& hud.overridesF3()) {
 			ci.cancel();
 		}
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/Framebuffer;bind(Z)V", shift = Shift.BEFORE))
+	@Inject(method = "render(FJ)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;bindWrite(Z)V", shift = Shift.BEFORE))
 	public void axolotlclient$worldMotionBlur(float tickDelta, long nanoTime, CallbackInfo ci) {
 		MenuBlur.getInstance().updateBlur();
 		axolotlclient$postRender(tickDelta, nanoTime, null);
 	}
 
-	@Inject(method = "render", at = @At("TAIL"))
+	@Inject(method = "render(FJ)V", at = @At("TAIL"))
+	private void renderNotifications(float f, long l, CallbackInfo ci) {
+		Notifications.getInstance().getToastManager().render();
+	}
+
+	@Inject(method = "render(FJ)V", at = @At("TAIL"))
 	public void axolotlclient$postRender(float tickDelta, long nanoTime, CallbackInfo ci) {
-
-		Notifications.getInstance().renderStatus();
-
 		if ((ci == null) == MotionBlur.getInstance().inGuis.get()) {
 			return;
 		}
 
-		this.client.profiler.push("Motion Blur");
+		this.minecraft.profiler.push("Motion Blur");
 
-		if (MotionBlur.getInstance().enabled.get() && GLX.shadersSupported) {
+		if (MotionBlur.getInstance().enabled.get() && GLX.usePostProcess) {
 			MotionBlur blur = MotionBlur.getInstance();
 			blur.onUpdate();
-			blur.shader.render(tickDelta);
+			blur.shader.process(tickDelta);
 		}
 
-		this.client.profiler.pop();
+		this.minecraft.profiler.pop();
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/ClientPlayerEntity;increaseTransforms(FF)V"))
-	public void axolotlclient$updateRotation(ClientPlayerEntity entity, float yaw, float pitch) {
+	@WrapOperation(method = "render(FJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/LocalClientPlayerEntity;updateLocalPlayerCamera(FF)V"))
+	public void axolotlclient$updateRotation(LocalClientPlayerEntity instance, float yaw, float pitch, Operation<Void> original) {
 		Freelook freelook = Freelook.getInstance();
 
 		if (freelook.consumeRotation(yaw, pitch) || Skyblock.getInstance().rotationLocked.get())
 			return;
 
-		entity.increaseTransforms(yaw, pitch);
+		original.call(instance, yaw, pitch);
 	}
 
 	@Redirect(method = "transformCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"))
@@ -278,35 +282,35 @@ public abstract class GameRendererMixin {
 		return Freelook.getInstance().pitch(entity.prevPitch);
 	}
 
-	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "render(FJ)V", at = @At("HEAD"), cancellable = true)
 	private void axolotlclient$limitFpsOnLostFocus(float tickDelta, long nanoTime, CallbackInfo ci) {
 		if (!UnfocusedFpsLimiter.getInstance().checkForRender()) {
 			ci.cancel();
 		}
 	}
 
-	@Inject(method = "renderWeather", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "renderSnowAndRain", at = @At("HEAD"), cancellable = true)
 	private void axolotlclient$changeWeather(float tickDelta, CallbackInfo ci) {
 		if (AxolotlClient.CONFIG.noRain.get()) {
 			ci.cancel();
 		}
 	}
 
-	@Inject(method = "bobView", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;translate(FFF)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+	@Inject(method = "applyViewBobbing", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;translatef(FFF)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
 	private void axolotlclient$minimalViewBob(float f, CallbackInfo ci, PlayerEntity entity, float g, float h, float i, float j) {
 		if (AxolotlClient.CONFIG.minimalViewBob.get()) {
 			h /= 2;
 			i /= 2;
 			j /= 2;
-			GlStateManager.translate(MathHelper.sin(h * (float) Math.PI) * i * 0.5F, -Math.abs(MathHelper.cos(h * (float) Math.PI) * i), 0.0F);
-			GlStateManager.rotate(MathHelper.sin(h * (float) Math.PI) * i * 3.0F, 0.0F, 0.0F, 1.0F);
-			GlStateManager.rotate(Math.abs(MathHelper.cos(h * (float) Math.PI - 0.2F) * i) * 5.0F, 1.0F, 0.0F, 0.0F);
-			GlStateManager.rotate(j, 1.0F, 0.0F, 0.0F);
+			GlStateManager.translatef(MathHelper.sin(h * (float) Math.PI) * i * 0.5F, -Math.abs(MathHelper.cos(h * (float) Math.PI) * i), 0.0F);
+			GlStateManager.rotatef(MathHelper.sin(h * (float) Math.PI) * i * 3.0F, 0.0F, 0.0F, 1.0F);
+			GlStateManager.rotatef(Math.abs(MathHelper.cos(h * (float) Math.PI - 0.2F) * i) * 5.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotatef(j, 1.0F, 0.0F, 0.0F);
 			ci.cancel();
 		}
 	}
 
-	@Inject(method = "bobViewWhenHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;", ordinal = 1), cancellable = true)
+	@Inject(method = "applyHurtCam", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getCamera()Lnet/minecraft/entity/Entity;", ordinal = 1), cancellable = true)
 	private void axolotlclient$noHurtCam(float f, CallbackInfo ci) {
 		if (AxolotlClient.CONFIG.noHurtCam.get()) {
 			ci.cancel();

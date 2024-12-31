@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,61 +25,45 @@ package io.github.axolotlclient.modules.hypixel.bedwars;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import io.github.axolotlclient.modules.hypixel.BedwarsData;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @author DarkKronicle
  */
 
+@Getter
 @AllArgsConstructor
 public class BedwarsPlayerStats {
 
-	@Getter
-	private int finalKills;
-	@Getter
-	private int finalDeaths;
-	@Getter
-	private int bedsBroken;
-	@Getter
-	private int deaths;
-	@Getter
-	private int kills;
-	@Getter
-	private int gameFinalKills;
-	@Getter
-	private int gameFinalDeaths;
-	@Getter
-	private int gameBedsBroken;
-	@Getter
-	private int gameDeaths;
-	@Getter
-	private int gameKills;
-	@Getter
 	private final int losses;
-	@Getter
 	private final int wins;
-	@Getter
 	private final int winstreak;
-	@Getter
 	private final int stars;
-
+	private int finalKills;
+	private int finalDeaths;
+	private int bedsBroken;
+	private int deaths;
+	private int kills;
+	private int gameFinalKills;
+	private int gameFinalDeaths;
+	private int gameBedsBroken;
+	private int gameDeaths;
+	private int gameKills;
 
 	public static BedwarsPlayerStats generateFake(String name) {
 		long seed = 0;
-		for(int i = 0; i<name.length(); i++){
-			seed = (seed << 2) +  name.getBytes(StandardCharsets.UTF_8)[i];
+		for (int i = 0; i < name.length(); i++) {
+			seed = (seed << 2) + name.getBytes(StandardCharsets.UTF_8)[i];
 		}
 		Random random = new Random(seed);
 		int star = (int) getGaussian(random, 150, 30);
 		double fkdr = Math.min(getGaussian(random, 1.3F, 0.5F), 0.6F);
 		double bblr = (fkdr * 8) / getGaussian(random, 10, 2);
 		int wins = (int) (star * (fkdr * 4) * getFloat(random, 0.95F, 1.05F));
-		int losses = (int) (wins * (2/fkdr) * getFloat(random, 0.95F, 1.05F));
+		int losses = (int) (wins * (2 / fkdr) * getFloat(random, 0.95F, 1.05F));
 		int beds = (int) (bblr * losses);
 		int finalDeaths = (int) (losses * getFloat(random, 1F, 1.03F));
 		int deaths = (int) (finalDeaths * getFloat(random, 8, 20));
@@ -91,61 +75,20 @@ public class BedwarsPlayerStats {
 			losses, wins, 0, star);
 	}
 
-	private static double getGaussian(Random random, float mean, float deviation){
-		return Math.max(Math.min(random.nextGaussian()*deviation+mean, mean - deviation*3), mean + deviation*3);
+	private static double getGaussian(Random random, float mean, float deviation) {
+		return Math.max(Math.min(random.nextGaussian() * deviation + mean, mean - deviation * 3), mean + deviation * 3);
 	}
 
-	private static float getFloat(Random random, float origin, float bound){
-		return random.nextFloat()*(bound - origin)+origin;
+	private static float getFloat(Random random, float origin, float bound) {
+		return random.nextFloat() * (bound - origin) + origin;
 	}
 
-	@Nullable
 	public static BedwarsPlayerStats fromAPI(String uuid) {
-		JsonElement rawStats = HypixelAbstractionLayer.getPlayerProperty(uuid, "stats");
-		if (rawStats == null || !rawStats.isJsonObject()) {
-			return null;
-		}
-		JsonObject stats = rawStats.getAsJsonObject();
-		JsonObject bedwars = getObjectSafe(stats, "Bedwars");
-		if (bedwars == null) {
-			return null;
-		}
-		int finalKills = getAsIntElse(bedwars, "final_kills_bedwars", 0);
-		int finalDeaths = getAsIntElse(bedwars, "final_deaths_bedwars", 0);
-		int bedsBroken = getAsIntElse(bedwars, "beds_broken_bedwars", 0);
-		int deaths = getAsIntElse(bedwars, "deaths_bedwars", 0);
-		int kills = getAsIntElse(bedwars, "kills_bedwars", 0);
-		int losses = getAsIntElse(bedwars, "losses_bedwars", 0);
-		int wins = getAsIntElse(bedwars, "wins_bedwars", 0);
-		int winstreak = getAsIntElse(bedwars, "winstreak", 0);
-		JsonObject achievements = HypixelAbstractionLayer.getPlayerProperty(uuid, "achievements");
-		int stars = 1;
-		if (achievements != null) {
-			stars = getAsIntElse(achievements, "bedwars_level", 1);
-		}
-		return new BedwarsPlayerStats(finalKills, finalDeaths, bedsBroken, deaths, kills, 0, 0, 0, 0, 0, losses, wins, winstreak, stars);
-	}
-
-	public static int getAsIntElse(JsonObject obj, String key, int other) {
-		if (obj.has(key)) {
-			try {
-				return obj.get(key).getAsInt();
-			} catch (NumberFormatException | UnsupportedOperationException | IllegalStateException e) {
-				// Not actually an int
-			}
-		}
-		return other;
-	}
-
-	public static JsonObject getObjectSafe(JsonObject object, String key) {
-		if (!object.has(key)) {
-			return null;
-		}
-		JsonElement el = object.get(key);
-		if (!el.isJsonObject()) {
-			return null;
-		}
-		return el.getAsJsonObject();
+		BedwarsData data = HypixelAbstractionLayer.getBedwarsData(uuid);
+		return new BedwarsPlayerStats(data.finalKills(), data.finalDeaths(), data.bedsBroken(),
+			data.deaths(), data.kills(), 0, 0, 0,
+			0, 0, data.losses(), data.wins(), data.winstreak(),
+			HypixelAbstractionLayer.getBedwarsLevel(uuid));
 	}
 
 	public void addDeath() {

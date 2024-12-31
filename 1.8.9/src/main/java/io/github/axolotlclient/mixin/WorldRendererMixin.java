@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,11 +25,11 @@ package io.github.axolotlclient.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.sky.SkyboxManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.world.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.world.HitResult;
 import net.minecraft.world.dimension.Dimension;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,16 +55,16 @@ public abstract class WorldRendererMixin {
 
 	@Shadow
 	@Final
-	private MinecraftClient client;
+	private Minecraft minecraft;
 
 	@Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$renderCustomSky(float tickDelta, int anaglyphFilter, CallbackInfo ci) {
-		if (this.world.dimension.canPlayersSleep()) {
+		if (this.world.dimension.isOverworld()) {
 			if (AxolotlClient.CONFIG.customSky.get() && SkyboxManager.getInstance().hasSkyBoxes()) {
 				GlStateManager.depthMask(false);
-				this.client.profiler.push("Custom Skies");
-				SkyboxManager.getInstance().renderSkyboxes(tickDelta, world.getRainGradient(tickDelta));
-				this.client.profiler.pop();
+				this.minecraft.profiler.push("Custom Skies");
+				SkyboxManager.getInstance().renderSkyboxes(tickDelta, world.getRain(tickDelta));
+				this.minecraft.profiler.pop();
 				GlStateManager.depthMask(true);
 				ci.cancel();
 			}
@@ -76,7 +76,7 @@ public abstract class WorldRendererMixin {
 		return AxolotlClient.CONFIG.cloudHeight.get();
 	}
 
-	@ModifyArg(method = "drawBlockOutline", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL11;glLineWidth(F)V"), remap = false)
+	@ModifyArg(method = "renderBlockOutline", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL11;glLineWidth(F)V"), remap = false)
 	public float axolotlclient$OutlineWidth(float width) {
 		if (AxolotlClient.CONFIG.enableCustomOutlines.get() && AxolotlClient.CONFIG.outlineWidth.get() > 1) {
 			return 1.0F + AxolotlClient.CONFIG.outlineWidth.get();
@@ -84,18 +84,17 @@ public abstract class WorldRendererMixin {
 		return width;
 	}
 
-	@Inject(method = "drawBlockOutline", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;color(FFFF)V", shift = At.Shift.AFTER))
-	public void axolotlclient$customOutlineColor(PlayerEntity playerEntity, BlockHitResult blockHitResult, int i, float f,
-												 CallbackInfo ci) {
+	@Inject(method = "renderBlockOutline", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;color4f(FFFF)V", shift = At.Shift.AFTER))
+	public void axolotlclient$customOutlineColor(PlayerEntity playerEntity, HitResult hitResult, int i, float f, CallbackInfo ci) {
 		if (AxolotlClient.CONFIG.enableCustomOutlines.get()) {
 			GlStateManager.clearColor();
 
-			int color = AxolotlClient.CONFIG.outlineColor.get().getAsInt();
+			int color = AxolotlClient.CONFIG.outlineColor.get().toInt();
 			float a = (float) (color >> 24 & 0xFF) / 255.0F;
 			float r = (float) (color >> 16 & 0xFF) / 255.0F;
 			float g = (float) (color >> 8 & 0xFF) / 255.0F;
 			float b = (float) (color & 0xFF) / 255.0F;
-			GlStateManager.color(r, g, b, a);
+			GlStateManager.color4f(r, g, b, a);
 		}
 	}
 }

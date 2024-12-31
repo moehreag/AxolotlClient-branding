@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -35,11 +35,11 @@ import net.minecraft.client.network.PlayerListEntry;
 public class BedwarsPlayer {
 
 	private final BedwarsTeam team;
+	private final int number;
 	private PlayerListEntry profile;
 	private boolean alive = true;
 	private boolean disconnected = false;
 	private boolean bed = true;
-	private final int number;
 	private BedwarsPlayerStats stats = null;
 	private boolean triedStats = false;
 	private int tickAlive = -1;
@@ -94,7 +94,7 @@ public class BedwarsPlayer {
 				stats = BedwarsPlayerStats.fromAPI(profile.getProfile().getId().toString().replace("-", ""));
 			} catch (Exception ignored) {
 			}
-			if (stats == null){
+			if (stats == null) {
 				stats = BedwarsPlayerStats.generateFake(profile.getProfile().getName());
 			}
 		}

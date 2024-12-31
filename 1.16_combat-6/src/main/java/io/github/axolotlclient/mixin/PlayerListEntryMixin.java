@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -48,7 +48,7 @@ public abstract class PlayerListEntryMixin {
 			&& NickHider.getInstance().hideOwnSkin.get()) {
 			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
 		} else if (!profile.equals(MinecraftClient.getInstance().player.getGameProfile())
-			&& NickHider.getInstance().hideOtherSkins.get()) {
+				   && NickHider.getInstance().hideOtherSkins.get()) {
 			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
 		}
 	}

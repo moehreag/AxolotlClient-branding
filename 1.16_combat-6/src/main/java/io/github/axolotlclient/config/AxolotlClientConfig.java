@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -27,45 +27,39 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.AxolotlClientConfigConfig;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.common.ConfigHolder;
-import io.github.axolotlclient.AxolotlClientConfig.common.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.common.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.*;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.ui.ConfigUI;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
-import io.github.axolotlclient.util.NetworkHelper;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
+import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 
-public class AxolotlClientConfig extends ConfigHolder {
+public class AxolotlClientConfig {
 
 	public final BooleanOption showOwnNametag = new BooleanOption("showOwnNametag", false);
 	public final BooleanOption useShadows = new BooleanOption("useShadows", false);
 	public final BooleanOption nametagBackground = new BooleanOption("nametagBackground", true);
 
-	public final BooleanOption showBadges = new BooleanOption("showBadges", value -> {
-		if (value) {
-			NetworkHelper.setOnline();
-		} else {
-			NetworkHelper.setOffline();
-		}
-	}, true);
+	public final BooleanOption showBadges = new BooleanOption("showBadges", true);
 	public final BooleanOption customBadge = new BooleanOption("customBadge", false);
 	public final StringOption badgeText = new StringOption("badgeText", "");
 
-	public final BooleanOption timeChangerEnabled = new BooleanOption("enabled", false);
+	public final ForceableBooleanOption timeChangerEnabled = new ForceableBooleanOption("enabled", false);
 	public final IntegerOption customTime = new IntegerOption("time", 0, 0, 24000);
 	public final BooleanOption customSky = new BooleanOption("customSky", true);
 	public final BooleanOption dynamicFOV = new BooleanOption("dynamicFov", true);
-	public final BooleanOption fullBright = new BooleanOption("fullBright", false);
+	public final ForceableBooleanOption fullBright = new ForceableBooleanOption("fullBright", false);
 	public final BooleanOption removeVignette = new BooleanOption("removeVignette", false);
-	public final BooleanOption lowFire = new BooleanOption("lowFire", false);
+	public final ForceableBooleanOption lowFire = new ForceableBooleanOption("lowFire", false);
 	public final BooleanOption lowShield = new BooleanOption("lowShield", false);
-	public final ColorOption hitColor = new ColorOption("hitColor",
+	public final ColorOption hitColor = new ColorOption("hitColor", new Color(255, 0, 0, 77),
 		value -> {
 			try { // needed because apparently someone created a bug that makes this be called when the config is loaded. Will be fixed with the next release.
 				NativeImageBackedTexture texture = ((OverlayTextureAccessor) MinecraftClient.getInstance().gameRenderer.getOverlayTexture()).getTexture();
@@ -90,8 +84,7 @@ public class AxolotlClientConfig extends ConfigHolder {
 				}
 			} catch (Exception ignored) {
 			}
-		},
-		new Color(255, 0, 0, 77));
+		});
 	public final BooleanOption minimalViewBob = new BooleanOption("minimalViewBob", false);
 	public final BooleanOption noHurtCam = new BooleanOption("noHurtCam", false);
 	public final BooleanOption flatItems = new BooleanOption("flatItems", false);
@@ -103,55 +96,40 @@ public class AxolotlClientConfig extends ConfigHolder {
 	public final BooleanOption enableCustomOutlines = new BooleanOption("enabled", false);
 	public final ColorOption outlineColor = new ColorOption("color", Color.parse("#DD000000"));
 	public final BooleanOption outlineChroma = new BooleanOption("chroma", false);
-	public final DoubleOption outlineWidth = new DoubleOption("outlineWidth", 1, 1, 10);
 
 	public final BooleanOption noRain = new BooleanOption("noRain", false);
 
-	public final GenericOption openCredits = new GenericOption("Credits", "Open Credits", (mouseX, mouseY) ->
+	public final GenericOption openCredits = new GenericOption("Credits", "Open Credits", () ->
 		MinecraftClient.getInstance().openScreen(new CreditsScreen(MinecraftClient.getInstance().currentScreen))
 	);
 	public final BooleanOption debugLogOutput = new BooleanOption("debugLogOutput", false);
 	public final BooleanOption creditsBGM = new BooleanOption("creditsBGM", true);
 
-	public final OptionCategory general = new io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory("general");
-	public final OptionCategory nametagOptions = new io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory("nametagOptions");
-	public final OptionCategory rendering = new io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory("rendering");
-	public final OptionCategory outlines = new io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory("blockOutlines");
-	public final OptionCategory timeChanger = new io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory("timeChanger");
-	public final OptionCategory searchFilters = new io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory("searchFilters");
-
-	private final List<Option<?>> options = new ArrayList<>();
-	private final List<OptionCategory> categories = new ArrayList<>();
-
+	public final OptionCategory general = OptionCategory.create("general");
+	public final OptionCategory nametagOptions = OptionCategory.create("nametagOptions");
+	public final OptionCategory rendering = OptionCategory.create("rendering");
+	public final OptionCategory outlines = OptionCategory.create("blockOutlines");
+	public final OptionCategory timeChanger = OptionCategory.create("timeChanger");
+	public final OptionCategory config = OptionCategory.create("config");
 	@Getter
-	private final List<OptionCategory> config = new ArrayList<>();
+	private final List<Option<?>> options = new ArrayList<>();
 
 	public void add(Option<?> option) {
 		options.add(option);
 	}
 
 	public void addCategory(OptionCategory cat) {
-		categories.add(cat);
-	}
-
-	public List<OptionCategory> getCategories() {
-		return categories;
-	}
-
-	public List<Option<?>> getOptions() {
-		return options;
+		config.add(cat);
 	}
 
 
 	public void init() {
 
-		categories.add(general);
-		categories.add(nametagOptions);
-		categories.add(rendering);
+		config.add(general);
+		config.add(nametagOptions);
+		config.add(rendering);
 
-		rendering.addSubCategory(outlines);
-
-		categories.forEach(OptionCategory::clearOptions);
+		rendering.add(outlines);
 
 		nametagOptions.add(showOwnNametag);
 		nametagOptions.add(useShadows);
@@ -163,21 +141,23 @@ public class AxolotlClientConfig extends ConfigHolder {
 
 		general.add(loadingScreenColor);
 		general.add(nightMode);
-		general.add(AxolotlClientConfigConfig.showQuickToggles);
-		general.add(AxolotlClientConfigConfig.showOptionTooltips);
-		general.add(AxolotlClientConfigConfig.showCategoryTooltips);
 		general.add(customWindowTitle);
 		general.add(openCredits);
 		general.add(debugLogOutput);
-
-		searchFilters.add(AxolotlClientConfigConfig.searchIgnoreCase,
-			AxolotlClientConfigConfig.searchForOptions,
-			AxolotlClientConfigConfig.searchSort,
-			AxolotlClientConfigConfig.searchSortOrder);
-		general.addSubCategory(searchFilters);
+		ConfigUI.getInstance().runWhenLoaded(() -> {
+			StringArrayOption configStyle;
+			general.add(configStyle = new StringArrayOption("configStyle",
+				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+					.toArray(String[]::new),
+				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
+				MinecraftClient.getInstance().openScreen(null);
+			}));
+			AxolotlClient.configManager.load();
+			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
+		});
 
 		rendering.add(customSky,
-			AxolotlClientConfigConfig.chromaSpeed,
 			dynamicFOV,
 			fullBright,
 			removeVignette,
@@ -190,12 +170,11 @@ public class AxolotlClientConfig extends ConfigHolder {
 
 		timeChanger.add(timeChangerEnabled);
 		timeChanger.add(customTime);
-		rendering.addSubCategory(timeChanger);
+		rendering.add(timeChanger);
 
 		outlines.add(enableCustomOutlines);
 		outlines.add(outlineColor);
 		outlines.add(outlineChroma);
-		//outlines.add(outlineWidth); // I could not get this to have an effect.
 
 		rendering.add(noRain);
 

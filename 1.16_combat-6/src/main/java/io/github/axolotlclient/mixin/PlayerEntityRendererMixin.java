@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -44,7 +44,7 @@ public abstract class PlayerEntityRendererMixin {
 				&& NickHider.getInstance().hideOwnName.get()) {
 				args.set(1, new LiteralText(NickHider.getInstance().hiddenNameSelf.get()));
 			} else if (player.getUuid() != MinecraftClient.getInstance().player.getUuid()
-				&& NickHider.getInstance().hideOtherNames.get()) {
+					   && NickHider.getInstance().hideOtherNames.get()) {
 				args.set(1, new LiteralText(NickHider.getInstance().hiddenNameOthers.get()));
 			}
 		}

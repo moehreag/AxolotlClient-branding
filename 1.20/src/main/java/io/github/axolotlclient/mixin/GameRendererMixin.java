@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -113,8 +113,8 @@ public abstract class GameRendererMixin {
 	}
 
 	@Inject(method = "bobViewWhenHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getCameraEntity()Lnet/minecraft/entity/Entity;"), cancellable = true)
-	private void axolotlclient$noHurtCam(MatrixStack matrixStack, float f, CallbackInfo ci){
-		if(AxolotlClient.CONFIG.noHurtCam.get()){
+	private void axolotlclient$noHurtCam(MatrixStack matrixStack, float f, CallbackInfo ci) {
+		if (AxolotlClient.CONFIG.noHurtCam.get()) {
 			ci.cancel();
 		}
 	}

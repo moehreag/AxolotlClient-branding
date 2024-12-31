@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -43,7 +43,7 @@ public abstract class BuiltinModelItemRendererMixin {
 		if (AxolotlClient.CONFIG.lowShield.get()
 			&& MinecraftClient.getInstance().options.getPerspective().isFirstPerson()
 			&& (mode.equals(ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND)
-			|| mode.equals(ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND))) {
+				|| mode.equals(ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND))) {
 			matrixStack.translate(0, 0.2F, 0);
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -49,9 +49,9 @@ public abstract class CameraMixin {
 	private void axolotlclient$perspectiveUpdatePitchYaw(BlockView area, Entity focusedEntity, boolean thirdPerson,
 														 boolean inverseView, float tickDelta, CallbackInfo ci) {
 		this.pitch = Freelook.getInstance().pitch(pitch)
-			* (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().active ? -1 : 1);
+					 * (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().active ? -1 : 1);
 		this.yaw = Freelook.getInstance().yaw(yaw)
-			+ (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().active ? 180 : 0);
+				   + (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().active ? 180 : 0);
 	}
 
 	@ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "net/minecraft/client/render/Camera.setRotation(FF)V", ordinal = 0))

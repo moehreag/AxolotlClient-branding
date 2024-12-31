@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,14 +24,14 @@ package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.input.KeyboardInput;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.player.input.GameInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(KeyboardInput.class)
+@Mixin(GameInput.class)
 public abstract class KeyboardInputMixin {
 
 	/**
@@ -39,10 +39,10 @@ public abstract class KeyboardInputMixin {
 	 * @return boolean whether the player should be sneaking or not
 	 * @author moehreag
 	 */
-	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 5))
+	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/options/KeyBinding;isPressed()Z", ordinal = 5))
 	public boolean axolotlclient$toggleSneak(KeyBinding instance) {
 		ToggleSprintHud hud = (ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID);
-		return hud.isEnabled() && hud.getSneakToggled().get() && MinecraftClient.getInstance().currentScreen == null
-			|| instance.isPressed();
+		return hud.isEnabled() && hud.getSneakToggled().get() && Minecraft.getInstance().screen == null
+			   || instance.isPressed();
 	}
 }

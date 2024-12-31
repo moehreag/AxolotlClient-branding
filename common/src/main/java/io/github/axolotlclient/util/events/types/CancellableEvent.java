@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2023 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,11 +22,18 @@
 
 package io.github.axolotlclient.util.events.types;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
 public abstract class CancellableEvent {
 
 	private boolean cancelled;
 
+	public void setCancelled(boolean cancel) {
+		cancelled |= cancel;
+	}
 }

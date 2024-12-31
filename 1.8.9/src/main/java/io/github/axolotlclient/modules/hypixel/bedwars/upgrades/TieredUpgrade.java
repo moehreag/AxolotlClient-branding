@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -36,10 +36,9 @@ public class TieredUpgrade extends TeamUpgrade {
 
 	private final int[] doublesPrice;
 	private final int[] foursPrice;
+	private final TeamUpgradeRenderer drawer;
 	@Getter
 	private int level = 0;
-
-	private final TeamUpgradeRenderer drawer;
 
 	public TieredUpgrade(String name, Pattern regex, int[] foursPrice, int[] doublesPrice, TeamUpgradeRenderer drawer) {
 		super(name, regex);

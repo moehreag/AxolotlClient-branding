@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -29,7 +29,7 @@ import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
 import io.github.axolotlclient.modules.hypixel.HypixelMods;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,7 +42,7 @@ public abstract class ClientWorldMixin {
 	@Inject(method = "onEntityRemoved", at = @At("HEAD"))
 	public void axolotlclient$onEntityRemoved(Entity entity, CallbackInfo ci) {
 		if (entity instanceof PlayerEntity && Objects.equals(HypixelMods.getInstance().cacheMode.get(),
-			HypixelMods.HypixelApiCacheMode.ON_PLAYER_DISCONNECT.toString())) {
+			HypixelMods.HypixelApiCacheMode.ON_PLAYER_DISCONNECT)) {
 			HypixelAbstractionLayer.handleDisconnectEvents(entity.getUuid());
 		}
 	}

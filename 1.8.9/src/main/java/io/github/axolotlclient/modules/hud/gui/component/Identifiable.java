@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,7 +23,7 @@
 package io.github.axolotlclient.modules.hud.gui.component;
 
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.

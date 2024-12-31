@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,7 +23,6 @@
 package io.github.axolotlclient.modules.hypixel.bedwars;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,23 +45,23 @@ public enum BedwarsLevelHeadMode {
 	FKDR(stats -> "§7FKDR: §f" + stats.getFKDR()),
 	BBLR(stats -> "§7BBLR: §f" + stats.getFKDR());
 
-	private final Function<BedwarsPlayerStats, String> titleSupplier;
-
-	BedwarsLevelHeadMode(Function<BedwarsPlayerStats, String> titleSupplier) {
-		this.titleSupplier = titleSupplier;
-	}
-
-	public String apply(BedwarsPlayerStats stats) {
-		return titleSupplier.apply(stats);
-	}
-
 	private static final Map<String, BedwarsLevelHeadMode> modes;
 
 	static {
 		modes = Arrays.stream(values()).collect(Collectors.toMap(Enum::name, value -> value));
 	}
 
+	private final Function<BedwarsPlayerStats, String> titleSupplier;
+
+	BedwarsLevelHeadMode(Function<BedwarsPlayerStats, String> titleSupplier) {
+		this.titleSupplier = titleSupplier;
+	}
+
 	public static BedwarsLevelHeadMode get(String mode) {
 		return modes.get(mode);
+	}
+
+	public String apply(BedwarsPlayerStats stats) {
+		return titleSupplier.apply(stats);
 	}
 }

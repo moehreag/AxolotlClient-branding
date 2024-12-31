@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,9 +22,9 @@
 
 package io.github.axolotlclient.modules.hypixel.nickhider;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.options.StringOption;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
@@ -35,15 +35,13 @@ public class NickHider implements AbstractHypixelMod {
 
 	@Getter
 	private final static NickHider Instance = new NickHider();
-
-	private final OptionCategory category = new OptionCategory("nickhider");
-
-	public StringOption hiddenNameSelf = new StringOption("hiddenNameSelf", "You");
-	public StringOption hiddenNameOthers = new StringOption("hiddenNameOthers", "Player");
-	public BooleanOption hideOwnName = new BooleanOption("hideOwnName", false);
-	public BooleanOption hideOtherNames = new BooleanOption("hideOtherNames", false);
-	public BooleanOption hideOwnSkin = new BooleanOption("hideOwnSkin", false);
-	public BooleanOption hideOtherSkins = new BooleanOption("hideOtherSkins", false);
+	public final StringOption hiddenNameSelf = new StringOption("hiddenNameSelf", "You");
+	public final StringOption hiddenNameOthers = new StringOption("hiddenNameOthers", "Player");
+	public final BooleanOption hideOwnName = new BooleanOption("hideOwnName", false);
+	public final BooleanOption hideOtherNames = new BooleanOption("hideOtherNames", false);
+	public final BooleanOption hideOwnSkin = new BooleanOption("hideOwnSkin", false);
+	public final BooleanOption hideOtherSkins = new BooleanOption("hideOtherSkins", false);
+	private final OptionCategory category = OptionCategory.create("nickhider");
 
 	@Override
 	public void init() {

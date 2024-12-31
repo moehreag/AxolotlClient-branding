@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,8 +24,8 @@ package io.github.axolotlclient.modules.hud.gui.component;
 
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -52,5 +52,5 @@ public interface Configurable {
 	 */
 	List<Option<?>> getConfigurationOptions();
 
-	OptionCategory getOptionsAsCategory();
+	OptionCategory getCategory();
 }

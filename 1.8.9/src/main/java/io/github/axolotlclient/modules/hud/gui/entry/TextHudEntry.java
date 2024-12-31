@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,12 +22,13 @@
 
 package io.github.axolotlclient.modules.hud.gui.entry;
 
+
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.util.ClientColors;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -38,8 +39,8 @@ import io.github.axolotlclient.AxolotlClientConfig.options.Option;
 
 public abstract class TextHudEntry extends BoxHudEntry {
 
-	protected ColorOption textColor = new ColorOption("textcolor", Color.WHITE);
-	protected BooleanOption shadow = new BooleanOption("shadow", getShadowDefault());
+	protected final ColorOption textColor = new ColorOption("textcolor", ClientColors.WHITE);
+	protected final BooleanOption shadow = new BooleanOption("shadow", getShadowDefault());
 
 	public TextHudEntry(int width, int height, boolean backgroundAllowed) {
 		super(width, height, backgroundAllowed);

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -192,7 +192,7 @@ public class ImageViewerScreen extends Screen {
 		addImageButton(copy, true);
 
 		ButtonWidget about = new ButtonWidget(width - 60, 100, 50, 20, new TranslatableText("aboutAction"), buttonWidget -> {
-			OSUtil.getOS().open(aboutPage, AxolotlClient.LOGGER);
+			OSUtil.getOS().open(aboutPage);
 		}, (buttonWidget, matrixStack, i, j) -> ImageViewerScreen.this.renderTooltip(matrixStack, new TranslatableText("about_image"), i, j));
 
 		addImageButton(about, true);

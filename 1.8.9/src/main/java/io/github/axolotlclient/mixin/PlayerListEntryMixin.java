@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,10 +24,10 @@ package io.github.axolotlclient.mixin;
 
 import com.mojang.authlib.GameProfile;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.DefaultSkinHelper;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.PlayerInfo;
+import net.minecraft.client.resource.skin.DefaultSkinUtils;
+import net.minecraft.resource.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PlayerListEntry.class)
+@Mixin(PlayerInfo.class)
 public abstract class PlayerListEntryMixin {
 
 	@Shadow
@@ -44,12 +44,12 @@ public abstract class PlayerListEntryMixin {
 
 	@Inject(method = "getSkinTexture", at = @At("RETURN"), cancellable = true)
 	public void axolotlclient$hideSkins(CallbackInfoReturnable<Identifier> cir) {
-		if (profile.equals(MinecraftClient.getInstance().player.getGameProfile())
+		if (profile.equals(Minecraft.getInstance().player.getGameProfile())
 			&& NickHider.getInstance().hideOwnSkin.get()) {
-			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
-		} else if (!profile.equals(MinecraftClient.getInstance().player.getGameProfile())
-			&& NickHider.getInstance().hideOtherSkins.get()) {
-			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
+			cir.setReturnValue(DefaultSkinUtils.getDefaultSkin(profile.getId()));
+		} else if (!profile.equals(Minecraft.getInstance().player.getGameProfile())
+				   && NickHider.getInstance().hideOtherSkins.get()) {
+			cir.setReturnValue(DefaultSkinUtils.getDefaultSkin(profile.getId()));
 		}
 	}
 }

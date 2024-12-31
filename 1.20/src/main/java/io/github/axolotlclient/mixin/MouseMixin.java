@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -44,15 +44,15 @@ public abstract class MouseMixin {
 		}
 	}
 
-	@Inject(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z"))
-	public void axolotlclient$scrollTooltips(long window, double scrollDeltaX, double scrollDeltaY, CallbackInfo ci) {
+	@Inject(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDD)Z"))
+	private void axolotlclient$scrollTooltips(long window, double scrollDeltaX, double scrollDeltaY, CallbackInfo ci) {
 		if (ScrollableTooltips.getInstance().enabled.get() && Math.signum(scrollDeltaY) != 0) {
 			ScrollableTooltips.getInstance().onScroll(Math.signum(scrollDeltaY) > 0);
 		}
 	}
 
 	@ModifyArg(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;scrollInHotbar(D)V"))
-	public double axolotlclient$scrollZoom(double scrollAmount) {
+	private double axolotlclient$scrollZoom(double scrollAmount) {
 		if (scrollAmount != 0 && Zoom.scroll(scrollAmount)) {
 			return 0;
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,7 +25,7 @@ package io.github.axolotlclient.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
-import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.resource.model.BakedModel;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -38,15 +38,15 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(ItemEntityRenderer.class)
 public class ItemEntityRendererMixin {
 
-	@Inject(method = "method_10221", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;translate(FFF)V"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
+	@Inject(method = "applyItemBobbing", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;translatef(FFF)V"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
 	private void axolotlclient$transformItems(ItemEntity itemEntity, double d, double e, double f, float g, BakedModel bakedModel, CallbackInfoReturnable<Integer> cir, ItemStack stack, Item item, boolean bl, int i) {
 		if (AxolotlClient.CONFIG.flatItems.get()) {
-			GlStateManager.translate(d, e + 0.05, f);
-			GlStateManager.rotate(itemEntity.pitch, 0, 0, 1);
-			GlStateManager.rotate(90, 1, 0, 0);
+			GlStateManager.translated(d, e + 0.05, f);
+			GlStateManager.rotatef(itemEntity.pitch, 0, 0, 1);
+			GlStateManager.rotatef(90, 1, 0, 0);
 			if (!itemEntity.onGround) {
 				itemEntity.pitch -= 5;
-				GlStateManager.rotate(itemEntity.pitch, 1, 1, 1);
+				GlStateManager.rotatef(itemEntity.pitch, 1, 1, 1);
 			}
 			cir.setReturnValue(i);
 		}

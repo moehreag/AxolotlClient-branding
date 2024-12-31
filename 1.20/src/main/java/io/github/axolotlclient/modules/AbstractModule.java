@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,7 +26,7 @@ import net.minecraft.client.MinecraftClient;
 
 public abstract class AbstractModule implements Module {
 
-	protected MinecraftClient client;
+	protected final MinecraftClient client;
 
 	public AbstractModule() {
 		client = MinecraftClient.getInstance();

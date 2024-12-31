@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,7 +25,7 @@ package io.github.axolotlclient.util.events.impl;
 import io.github.axolotlclient.util.events.types.CancellableEvent;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.render.Window;
 import net.minecraft.scoreboard.ScoreboardObjective;
 
 @EqualsAndHashCode(callSuper = true)

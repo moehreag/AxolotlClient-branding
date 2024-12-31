@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,18 +22,18 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.ClientTickTracker;
-import net.minecraft.client.util.Session;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Session;
+import net.minecraft.client.TickTimer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public interface MinecraftClientAccessor {
 
-	@Accessor
-	ClientTickTracker getTicker();
+	@Accessor("timer")
+	TickTimer getTicker();
 
 	@Accessor
 	String getServerAddress();

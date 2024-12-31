@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,13 +25,13 @@ package io.github.axolotlclient.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.sky.SkyboxManager;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -56,11 +56,11 @@ public abstract class WorldRendererMixin {
 	private MinecraftClient client;
 
 	@Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-	public void axolotlclient$renderSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera preStep, boolean bl,
-										Runnable runnable, CallbackInfo ci) {
+	private void axolotlclient$renderSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera preStep, boolean bl,
+										 Runnable runnable, CallbackInfo ci) {
 		runnable.run();
 		if (AxolotlClient.CONFIG.customSky.get() && SkyboxManager.getInstance().hasSkyBoxes()
-			&& !QuiltLoader.isModLoaded("fabricskyboxes")) {
+			&& !FabricLoader.getInstance().isModLoaded("fabricskyboxes")) {
 			this.client.getProfiler().push("Custom Skies");
 
 			RenderSystem.depthMask(false);
@@ -72,9 +72,9 @@ public abstract class WorldRendererMixin {
 	}
 
 	@ModifyArgs(method = "drawBlockOutline", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawShapeOutline(Lnet/minecraft/client/util/math/MatrixStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V"))
-	public void axolotlclient$customOutlineColor(Args args) {
+	private void axolotlclient$customOutlineColor(Args args) {
 		if (AxolotlClient.CONFIG.enableCustomOutlines.get()) {
-			int color = AxolotlClient.CONFIG.outlineColor.get().getAsInt();
+			int color = AxolotlClient.CONFIG.outlineColor.get().toInt();
 			float a = (float) (color >> 24 & 0xFF) / 255.0F;
 			float r = (float) (color >> 16 & 0xFF) / 255.0F;
 			float g = (float) (color >> 8 & 0xFF) / 255.0F;

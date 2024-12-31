@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,37 +22,18 @@
 
 package io.github.axolotlclient.modules.hypixel.autoboop;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
 import io.github.axolotlclient.modules.hypixel.AbstractHypixelMod;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
-import net.minecraft.text.Text;
 
 // Based on https://github.com/VeryHolyCheeeese/AutoBoop/blob/main/src/main/java/autoboop/AutoBoop.java
-public class AutoBoop implements AbstractHypixelMod {
+public class AutoBoop extends AutoBoopCommon implements AbstractHypixelMod {
 
 	@Getter
 	private final static AutoBoop Instance = new AutoBoop();
 
-	protected OptionCategory cat = new OptionCategory("autoBoop");
-	protected BooleanOption enabled = new BooleanOption("enabled", "autoBoop", false);
-
 	@Override
-	public void init() {
-		cat.add(enabled);
-	}
-
-	@Override
-	public OptionCategory getCategory() {
-		return cat;
-	}
-
-	public void onMessage(Text message) {
-		if (enabled.get() && message.getString().contains("Friend >") && message.getString().contains("joined.")) {
-			String player = message.getString().substring(message.getString().indexOf(">"),
-				message.getString().lastIndexOf(" "));
-			Util.sendChatMessage("/boop " + player);
-		}
+	protected void sendChatMessage(String message) {
+		Util.sendChatMessage(message);
 	}
 }

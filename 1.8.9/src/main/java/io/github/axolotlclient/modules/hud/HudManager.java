@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
@@ -38,10 +38,10 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.*;
 import io.github.axolotlclient.modules.hud.gui.hud.vanilla.*;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
-import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.resource.Identifier;
+import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import org.lwjgl.input.Keyboard;
 
 /**
@@ -55,7 +55,7 @@ public class HudManager extends AbstractModule {
 
 	private final static HudManager INSTANCE = new HudManager();
 	static KeyBinding key = new KeyBinding("key.openHud", Keyboard.KEY_RSHIFT, "category.axolotlclient");
-	private final OptionCategory hudCategory = new OptionCategory("hud", false);
+	private final OptionCategory hudCategory = OptionCategory.create("hud");
 	private final Map<Identifier, HudEntry> entries;
 
 	private HudManager() {
@@ -67,7 +67,7 @@ public class HudManager extends AbstractModule {
 	}
 
 	public void init() {
-		KeyBindingHelper.registerKeyBinding(key);
+		KeyBindingEvents.REGISTER_KEYBINDS.register(r -> r.register(key));
 
 		AxolotlClient.CONFIG.addCategory(hudCategory);
 
@@ -79,7 +79,7 @@ public class HudManager extends AbstractModule {
 		add(new KeystrokeHud());
 		add(new ToggleSprintHud());
 		add(new IPHud());
-		add(new iconHud());
+		add(new IconHud());
 		add(new SpeedHud());
 		add(new ScoreboardHud());
 		add(new CrosshairHud());
@@ -107,14 +107,14 @@ public class HudManager extends AbstractModule {
 
 	public void tick() {
 		if (key.isPressed())
-			MinecraftClient.getInstance().setScreen(new HudEditScreen());
+			Minecraft.getInstance().openScreen(new HudEditScreen());
 		entries.values().stream().filter(hudEntry -> hudEntry.isEnabled() && hudEntry.tickable())
 			.forEach(HudEntry::tick);
 	}
 
 	public HudManager add(AbstractHudEntry entry) {
 		entries.put(entry.getId(), entry);
-		hudCategory.addSubCategory(entry.getAllOptions());
+		hudCategory.add(entry.getAllOptions());
 		return this;
 	}
 
@@ -135,9 +135,9 @@ public class HudManager extends AbstractModule {
 		return entries.get(identifier);
 	}
 
-	public void render(MinecraftClient client, float delta) {
+	public void render(Minecraft client, float delta) {
 		client.profiler.push("Hud Modules");
-		if (!(client.currentScreen instanceof HudEditScreen)) {
+		if (!(client.screen instanceof HudEditScreen)) {
 			for (HudEntry hud : getEntries()) {
 				if (hud.isEnabled() && (!client.options.debugEnabled || hud.overridesF3())) {
 					client.profiler.push(hud.getName());

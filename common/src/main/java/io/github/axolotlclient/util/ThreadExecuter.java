@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2023 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,29 +22,17 @@
 
 package io.github.axolotlclient.util;
 
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 
 public class ThreadExecuter {
-
-	private static final ScheduledThreadPoolExecutor EXECUTER_SERVICE = new ScheduledThreadPoolExecutor(3,
-		new ThreadFactoryBuilder().setNameFormat("ExecutionService Thread #%d").setDaemon(true).build());
+	private static final Executor POOL = new ForkJoinPool(5, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
 
 	public static void scheduleTask(Runnable runnable) {
-		scheduleTask(runnable, 0, TimeUnit.MILLISECONDS);
+		POOL.execute(runnable);
 	}
 
-	public static void scheduleTask(Runnable runnable, long delay, TimeUnit timeUnit) {
-		EXECUTER_SERVICE.schedule(runnable, delay, timeUnit);
-	}
-
-	public static void removeTask(Runnable runnable) {
-		EXECUTER_SERVICE.remove(runnable);
-	}
-
-	public static void purge() {
-		EXECUTER_SERVICE.purge();
+	public static Executor service() {
+		return POOL;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,7 +24,7 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -35,7 +35,7 @@ import net.minecraft.util.Identifier;
 
 public class PlayerCountHud extends SimpleTextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "playercounthud");
+	public static final Identifier ID = new Identifier("axolotlclient", "playercounthud");
 
 	@Override
 	public Identifier getId() {
@@ -44,7 +44,7 @@ public class PlayerCountHud extends SimpleTextHudEntry {
 
 	@Override
 	public String getValue() {
-		return client.world.playerEntities.size() + " " + I18n.translate("players");
+		return client.world.players.size() + " " + I18n.translate("players");
 	}
 
 	@Override

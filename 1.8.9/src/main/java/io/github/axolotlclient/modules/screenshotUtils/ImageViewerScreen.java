@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -35,13 +35,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.texture.DynamicTexture;
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 
@@ -53,7 +53,7 @@ public class ImageViewerScreen extends Screen {
 	private static final URI aboutPage = URI.create("https://github.com/AxolotlClient/AxolotlClient-mod/wiki/Features#screenshot-sharing");
 	private final Screen parent;
 	private Identifier imageId;
-	private NativeImageBackedTexture image;
+	private DynamicTexture image;
 	private BufferedImage rawImage;
 	private String url = "";
 	private String imageName;
@@ -73,12 +73,12 @@ public class ImageViewerScreen extends Screen {
 		urlBox.render();
 
 		if (imageId != null) {
-			drawCenteredString(MinecraftClient.getInstance().textRenderer, imageName, width / 2, 25, -1);
+			drawCenteredString(Minecraft.getInstance().textRenderer, imageName, width / 2, 25, -1);
 
 			int imageWidth = Math.min((int) ((height - 150) * imgAspectRatio), width - 150);
 			int imageHeight = (int) (imageWidth / imgAspectRatio);
 
-			MinecraftClient.getInstance().getTextureManager().bindTexture(imageId);
+			Minecraft.getInstance().getTextureManager().bind(imageId);
 			drawTexture(width / 2 - imageWidth / 2, 50, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 
 			buttons.stream().filter(buttonWidget -> buttonWidget.id > 25).forEach(buttonWidget -> {
@@ -92,7 +92,7 @@ public class ImageViewerScreen extends Screen {
 			buttons.stream().filter(buttonWidget -> buttonWidget.id > 25).filter(buttonWidget -> !buttonWidget.visible).forEach(buttonWidget -> buttonWidget.visible = true);
 
 		} else {
-			drawCenteredString(MinecraftClient.getInstance().textRenderer, I18n.translate("viewScreenshot"), width / 2, height / 4, -1);
+			drawCenteredString(Minecraft.getInstance().textRenderer, I18n.translate("viewScreenshot"), width / 2, height / 4, -1);
 			buttons.stream().filter(buttonWidget -> buttonWidget.id > 25).filter(buttonWidget -> buttonWidget.visible).forEach(buttonWidget -> buttonWidget.visible = false);
 		}
 
@@ -100,7 +100,7 @@ public class ImageViewerScreen extends Screen {
 
 		for (ButtonWidget buttonWidget : this.buttons) {
 			if (buttonWidget.isHovered()) {
-				buttonWidget.renderToolTip(mouseX, mouseY);
+				buttonWidget.renderTooltip(mouseX, mouseY);
 				break;
 			}
 		}
@@ -124,10 +124,10 @@ public class ImageViewerScreen extends Screen {
 			case 24:
 				//Logger.info("Downloading image from "+urlBox.getText());
 				imageId = downloadImage(url = urlBox.getText());
-				init(MinecraftClient.getInstance(), width, height);
+				init(Minecraft.getInstance(), width, height);
 				break;
 			case 25:
-				MinecraftClient.getInstance().setScreen(parent);
+				Minecraft.getInstance().openScreen(parent);
 				break;
 			case 26:
 				try {
@@ -157,7 +157,7 @@ public class ImageViewerScreen extends Screen {
 				AxolotlClient.LOGGER.info("Copied image " + imageName + " to the clipboard!");
 				break;
 			case 28:
-				OSUtil.getOS().open(aboutPage, AxolotlClient.LOGGER);
+				OSUtil.getOS().open(aboutPage);
 				break;
 		}
 	}
@@ -167,15 +167,15 @@ public class ImageViewerScreen extends Screen {
 
 		try {
 			if (image != null) {
-				MinecraftClient.getInstance().getTextureManager().close(imageId);
+				Minecraft.getInstance().getTextureManager().close(imageId);
 			}
 			ImageInstance instance = ImageShare.getInstance().downloadImage(url.trim());
 			BufferedImage image = instance.getImage();
 			rawImage = image;
 			if (image != null) {
 				Identifier id = new Identifier("screenshot_share_" + Hashing.sha256().hashUnencodedChars(url));
-				MinecraftClient.getInstance().getTextureManager().loadTexture(id,
-					this.image = new NativeImageBackedTexture(image));
+				Minecraft.getInstance().getTextureManager().register(id,
+					this.image = new DynamicTexture(image));
 
 				imgAspectRatio = image.getWidth() / (double) image.getHeight();
 				imageName = instance.getFileName();
@@ -190,13 +190,13 @@ public class ImageViewerScreen extends Screen {
 	public void init() {
 		Keyboard.enableRepeatEvents(true);
 
-		urlBox = new TextFieldWidget(23, MinecraftClient.getInstance().textRenderer, width / 2 - 100, imageId == null ? height / 2 - 10 : height - 80, 200, 20) {
+		urlBox = new TextFieldWidget(23, Minecraft.getInstance().textRenderer, width / 2 - 100, imageId == null ? height / 2 - 10 : height - 80, 200, 20) {
 			@Override
 			public void render() {
 				super.render();
 
 				if (getText().isEmpty()) {
-					drawWithShadow(MinecraftClient.getInstance().textRenderer, I18n.translate("pasteURL"), x + 3, y + 6, -8355712);
+					drawString(Minecraft.getInstance().textRenderer, I18n.translate("pasteURL"), x + 3, y + 6, -8355712);
 				}
 			}
 		};
@@ -209,9 +209,9 @@ public class ImageViewerScreen extends Screen {
 		buttons.add(new ButtonWidget(24, width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
 			20, 20, I18n.translate("download")) {
 			@Override
-			public void render(MinecraftClient client, int mouseX, int mouseY) {
-				client.getTextureManager().bindTexture(WIDGETS_LOCATION);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			public void render(Minecraft client, int mouseX, int mouseY) {
+				client.getTextureManager().bind(WIDGETS_LOCATION);
+				GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 				this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 				int i = this.getYImage(this.hovered);
 				GlStateManager.enableBlend();
@@ -219,7 +219,7 @@ public class ImageViewerScreen extends Screen {
 				GlStateManager.blendFunc(770, 771);
 				this.drawTexture(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
 				this.drawTexture(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-				MinecraftClient.getInstance().getTextureManager().bindTexture(downloadIcon);
+				Minecraft.getInstance().getTextureManager().bind(downloadIcon);
 				drawTexture(x, y, 0, 0, this.getWidth(), this.height, this.getWidth(), this.height);
 			}
 		});
@@ -228,7 +228,7 @@ public class ImageViewerScreen extends Screen {
 
 		ButtonWidget save = new ButtonWidget(26, width - 60, 50, 50, 20, I18n.translate("saveAction")) {
 			@Override
-			public void renderToolTip(int mouseX, int mouseY) {
+			public void renderTooltip(int mouseX, int mouseY) {
 				ImageViewerScreen.this.renderTooltip(I18n.translate("save_image"), mouseX, mouseY);
 			}
 		};
@@ -236,7 +236,7 @@ public class ImageViewerScreen extends Screen {
 
 		ButtonWidget copy = new ButtonWidget(27, width - 60, 75, 50, 20, I18n.translate("copyAction")) {
 			@Override
-			public void renderToolTip(int mouseX, int mouseY) {
+			public void renderTooltip(int mouseX, int mouseY) {
 				ImageViewerScreen.this.renderTooltip(I18n.translate("copy_image"), mouseX, mouseY);
 			}
 		};
@@ -244,7 +244,7 @@ public class ImageViewerScreen extends Screen {
 
 		buttons.add(new ButtonWidget(28, width - 60, 100, 50, 20, I18n.translate("aboutAction")) {
 			@Override
-			public void renderToolTip(int mouseX, int mouseY) {
+			public void renderTooltip(int mouseX, int mouseY) {
 				ImageViewerScreen.this.renderTooltip(I18n.translate("about_image"), mouseX, mouseY);
 			}
 		});
@@ -260,7 +260,7 @@ public class ImageViewerScreen extends Screen {
 		super.removed();
 		Keyboard.enableRepeatEvents(false);
 		if (image != null) {
-			MinecraftClient.getInstance().getTextureManager().close(imageId);
+			Minecraft.getInstance().getTextureManager().close(imageId);
 		}
 	}
 }

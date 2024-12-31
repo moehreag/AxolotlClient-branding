@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ScreenMixin {
 
 	@Inject(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
-	public void axolotlclient$customClickEvents(Style style, CallbackInfoReturnable<Boolean> cir) {
+	private void axolotlclient$customClickEvents(Style style, CallbackInfoReturnable<Boolean> cir) {
 		ClickEvent event = style.getClickEvent();
 		if (event instanceof ScreenshotUtils.CustomClickEvent) {
 			((ScreenshotUtils.CustomClickEvent) event).doAction();
@@ -46,7 +46,7 @@ public abstract class ScreenMixin {
 		}
 	}
 
-	@Inject(method = "renderWorldOverlayBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fillGradient(IIIIII)V"), cancellable = true)
+	@Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fillGradient(IIIIII)V"), cancellable = true)
 	private void axolotlclient$menuBlur(GuiGraphics graphics, CallbackInfo ci) {
 		if (MenuBlur.getInstance().renderScreen(graphics)) {
 			ci.cancel();

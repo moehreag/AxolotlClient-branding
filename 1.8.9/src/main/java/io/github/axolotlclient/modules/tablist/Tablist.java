@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,15 +23,15 @@
 package io.github.axolotlclient.modules.tablist;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.PlayerInfo;
 
 public class Tablist extends AbstractModule {
 
@@ -49,7 +49,7 @@ public class Tablist extends AbstractModule {
 	private final ColorOption pingColor4 = new ColorOption("pingColor4", Color.parse("#FFFF8800"));
 	private final ColorOption pingColor5 = new ColorOption("pingColor5", Color.parse("#FFFF0000"));
 	private final BooleanOption shadow = new BooleanOption("shadow", true);
-	private final OptionCategory tablist = new OptionCategory("tablist");
+	private final OptionCategory tablist = OptionCategory.create("tablist");
 
 	@Override
 	public void init() {
@@ -59,26 +59,26 @@ public class Tablist extends AbstractModule {
 		AxolotlClient.CONFIG.rendering.add(tablist);
 	}
 
-	public boolean renderNumericPing(int width, int x, int y, PlayerListEntry entry) {
+	public boolean renderNumericPing(int width, int x, int y, PlayerInfo entry) {
 		if (numericalPing.get()) {
 			Color current;
-			if (entry.getLatency() < 0) {
+			if (entry.getPing() < 0) {
 				current = pingColor0.get();
-			} else if (entry.getLatency() < 150) {
+			} else if (entry.getPing() < 150) {
 				current = pingColor1.get();
-			} else if (entry.getLatency() < 300) {
+			} else if (entry.getPing() < 300) {
 				current = pingColor2.get();
-			} else if (entry.getLatency() < 600) {
+			} else if (entry.getPing() < 600) {
 				current = pingColor3.get();
-			} else if (entry.getLatency() < 1000) {
+			} else if (entry.getPing() < 1000) {
 				current = pingColor4.get();
 			} else {
 				current = pingColor5.get();
 			}
 
 			DrawUtil.drawString(
-				String.valueOf(entry.getLatency()),
-				x + width - 1 - MinecraftClient.getInstance().textRenderer.getStringWidth(String.valueOf(entry.getLatency())),
+				String.valueOf(entry.getPing()),
+				x + width - 1 - Minecraft.getInstance().textRenderer.getWidth(String.valueOf(entry.getPing())),
 				y, current, shadow.get());
 			return true;
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,13 +22,20 @@
 
 package io.github.axolotlclient.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
@@ -37,8 +44,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.GL11;
 
 public class Util {
 	public static Color GlColor = new Color();
@@ -122,7 +129,7 @@ public class Util {
 			if (team == null)
 				return lines;
 			String text = team.getPrefix().getString() + team.getSuffix().getString();
-			if (text.trim().length() > 0)
+			if (!text.trim().isEmpty())
 				lines.add(text);
 		}
 
@@ -138,11 +145,11 @@ public class Util {
 
 		List<Formatting> modifiers = new ArrayList<>();
 		for (String s : arr) {
-			Formatting formatting = Formatting.byCode(s.length() > 0 ? s.charAt(0) : 0);
+			Formatting formatting = Formatting.byCode(!s.isEmpty() ? s.charAt(0) : 0);
 			if (formatting != null && formatting.isModifier()) {
 				modifiers.add(formatting);
 			}
-			MutableText part = new LiteralText(s.length() > 0 ? s.substring(1) : "");
+			MutableText part = new LiteralText(!s.isEmpty() ? s.substring(1) : "");
 			if (formatting != null) {
 				part.formatted(formatting);
 
@@ -174,12 +181,36 @@ public class Util {
 		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(msg);
 	}
 
-	public static void applyScissor(int x, int y, int width, int height) {
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		Window window = MinecraftClient.getInstance().getWindow();
-		double scale = window.getScaleFactor();
-		GL11.glScissor((int) (x * scale), (int) ((window.getScaledHeight() - height - y) * scale),
-			(int) (width * scale), (int) (height * scale));
+	public static Identifier getTexture(GraphicsOption option) {
+		return getTexture(option.get(), option.getName());
+	}
+
+	public static Identifier getTexture(Graphics graphics, String name) {
+		Identifier id = new Identifier("axolotlclient", "graphics_" + name.toLowerCase(Locale.ROOT));
+		try {
+			NativeImageBackedTexture texture;
+			if (MinecraftClient.getInstance().getTextureManager().getTexture(id) == null) {
+				texture = new NativeImageBackedTexture(NativeImage.read(new ByteArrayInputStream(graphics.getPixelData())));
+				MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
+			} else {
+				texture = (NativeImageBackedTexture) MinecraftClient.getInstance().getTextureManager().getTexture(id);
+				for (int x = 0; x < graphics.getWidth(); x++) {
+					for (int y = 0; y < graphics.getHeight(); y++) {
+						texture.getImage().setPixelColor(x, y, graphics.getPixelColor(x, y));
+					}
+				}
+			}
+
+			texture.upload();
+		} catch (IOException e) {
+			AxolotlClient.LOGGER.error("Failed to bind texture for " + name + ": ", e);
+		}
+		return id;
+	}
+
+	public static void bindTexture(GraphicsOption option) {
+		Identifier id = getTexture(option);
+		MinecraftClient.getInstance().getTextureManager().bindTexture(id);
 	}
 
 	public static double lerp(double start, double end, double percent) {
@@ -188,7 +219,7 @@ public class Util {
 
 	public static String toRoman(int number) {
 		if (number > 0) {
-			return String.join("", Collections.nCopies(number, "I")).replace("IIIII", "V").replace("IIII", "IV")
+			return Strings.repeat("I", number).replace("IIIII", "V").replace("IIII", "IV")
 				.replace("VV", "X").replace("VIV", "IX").replace("XXXXX", "L").replace("XXXX", "XL")
 				.replace("LL", "C").replace("LXL", "XC").replace("CCCCC", "D").replace("CCCC", "CD")
 				.replace("DD", "M").replace("DCD", "CM");

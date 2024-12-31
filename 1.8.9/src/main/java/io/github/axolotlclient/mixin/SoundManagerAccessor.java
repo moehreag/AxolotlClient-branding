@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,14 +22,14 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.sound.SoundSystem;
+import net.minecraft.client.sound.system.SoundEngine;
+import net.minecraft.client.sound.system.SoundManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SoundManager.class)
 public interface SoundManagerAccessor {
 
-	@Accessor
-	SoundSystem getSoundSystem();
+	@Accessor("engine")
+	SoundEngine getSoundSystem();
 }

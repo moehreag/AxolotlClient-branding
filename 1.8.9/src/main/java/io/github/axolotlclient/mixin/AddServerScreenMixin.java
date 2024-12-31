@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,7 +22,7 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.minecraft.client.gui.screen.AddServerScreen;
+import net.minecraft.client.gui.screen.menu.AddServerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,7 +36,7 @@ public abstract class AddServerScreenMixin {
 	@Shadow
 	private TextFieldWidget serverNameField;
 
-	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;<init>(ILnet/minecraft/client/font/TextRenderer;IIII)V", ordinal = 1))
+	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;<init>(ILnet/minecraft/client/render/TextRenderer;IIII)V", ordinal = 1))
 	public void axolotlclient$noNameLimit(CallbackInfo ci) {
 		serverNameField.setMaxLength(1024);
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,18 +26,18 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.DoubleOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import com.mojang.blaze3d.platform.Lighting;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.modules.hud.gui.entry.BoxHudEntry;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
 import lombok.Getter;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.entity.player.ClientPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -133,17 +133,17 @@ public class PlayerHud extends BoxHudEntry {
 
 		float lerpY = (lastYOffset + ((yOffset - lastYOffset) * delta));
 
-		GlStateManager.color(1, 1, 1, 1);
+		GlStateManager.color4f(1, 1, 1, 1);
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y - lerpY, 1050);
-		GlStateManager.scale(1, 1, -1);
+		GlStateManager.translated(x, y - lerpY, 1050);
+		GlStateManager.scalef(1, 1, -1);
 
-		GlStateManager.translate(0, 0, 1000);
+		GlStateManager.translatef(0, 0, 1000);
 		float scale = getScale() * 40;
-		GlStateManager.scale(scale, scale, scale);
+		GlStateManager.scalef(scale, scale, scale);
 
-		GlStateManager.rotate(180, 0, 0, 1);
+		GlStateManager.rotatef(180, 0, 0, 1);
 
 		// Rotate to whatever is wanted. Also make sure to offset the yaw
 		float deltaYaw = client.player.yaw;
@@ -161,12 +161,12 @@ public class PlayerHud extends BoxHudEntry {
 		client.player.headYaw = client.player.yaw;
 		client.player.prevHeadYaw = client.player.yaw;
 
-		GlStateManager.rotate(deltaYaw - 180 + rotation.get().floatValue(), 0, 1, 0);
-		DiffuseLighting.enableNormally();
-		EntityRenderDispatcher renderer = client.getEntityRenderManager();
-		renderer.setYaw(180);
-		renderer.pitch = 0;
-		renderer.setRenderShadows(false);
+		GlStateManager.rotatef(deltaYaw - 180 + rotation.get().floatValue(), 0, 1, 0);
+		Lighting.turnOn();
+		EntityRenderDispatcher renderer = client.getEntityRenderDispatcher();
+		renderer.setCameraYaw(180);
+		renderer.cameraPitch = 0;
+		renderer.setRenderShadow(false);
 
 		//VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
 
@@ -175,7 +175,7 @@ public class PlayerHud extends BoxHudEntry {
 		currentlyRendering = false;
 		//renderer.render(client.player, 0, 0, 0, delta, 15728880);
 
-		renderer.setRenderShadows(true);
+		renderer.setRenderShadow(true);
 		GlStateManager.popMatrix();
 
 		client.player.yaw = pastYaw;
@@ -184,19 +184,19 @@ public class PlayerHud extends BoxHudEntry {
 		client.player.prevYaw = pastPrevYaw;
 		client.player.bodyYaw = pastBodyYaw;
 
-		DiffuseLighting.disable();
+		Lighting.turnOff();
 		GlStateManager.disableRescaleNormal();
-		GlStateManager.activeTexture(GLX.lightmapTextureUnit);
+		GlStateManager.activeTexture(GLX.GL_TEXTURE1);
 		GlStateManager.disableTexture();
-		GlStateManager.activeTexture(GLX.textureUnit);
+		GlStateManager.activeTexture(GLX.GL_TEXTURE0);
 		//DiffuseLighting.setup3DGuiLighting();
 	}
 
 	private boolean isPerformingAction() {
 		// inspired by tr7zw's mod
-		ClientPlayerEntity player = client.player;
+		LocalClientPlayerEntity player = client.player;
 		return player.isSneaking() || player.isSprinting() || player.abilities.flying
-			|| client.player.isSubmergedIn(Material.WATER) || player.hasVehicle() || player.isUsingItem()
-			|| player.handSwinging || player.hurtTime > 0 || player.isOnFire();
+			   || client.player.isSubmergedIn(Material.WATER) || player.hasVehicle() || player.isUsingItem()
+			   || player.handSwinging || player.hurtTime > 0 || player.isOnFire();
 	}
 }

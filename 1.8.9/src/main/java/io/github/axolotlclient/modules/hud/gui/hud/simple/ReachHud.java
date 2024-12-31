@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,13 +26,13 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 // https://github.com/AxolotlClient/AxolotlClient-mod/blob/4ae2678bfe9e0908be1a7a34e61e689c8005ae0a/src/main/java/io/github/axolotlclient/modules/hud/gui/hud/ReachDisplayHud.java
@@ -44,6 +44,12 @@ public class ReachHud extends SimpleTextHudEntry {
 
 	private String currentDist;
 	private long lastTime = 0;
+
+	public static double getAttackDistance(Entity attacking, Entity receiving) {
+
+		Vec3d camera = attacking.getRotationVec(1);
+		return camera.distanceTo(receiving.getRotationVec(1));
+	}
 
 	@Override
 	public Identifier getId() {
@@ -69,13 +75,7 @@ public class ReachHud extends SimpleTextHudEntry {
 		DecimalFormat formatter = new DecimalFormat(format.toString());
 		formatter.setRoundingMode(RoundingMode.HALF_UP);
 		currentDist = formatter.format(distance) + " " + I18n.translate("blocks");
-		lastTime = MinecraftClient.getTime();
-	}
-
-	public static double getAttackDistance(Entity attacking, Entity receiving) {
-
-		Vec3d camera = attacking.getCameraPosVec(1);
-		return camera.distanceTo(receiving.getCameraPosVec(1));
+		lastTime = Minecraft.getTime();
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class ReachHud extends SimpleTextHudEntry {
 	public String getValue() {
 		if (currentDist == null) {
 			return "0 " + I18n.translate("blocks");
-		} else if (lastTime + 2000 < MinecraftClient.getTime()) {
+		} else if (lastTime + 2000 < Minecraft.getTime()) {
 			currentDist = null;
 			return "0 " + I18n.translate("blocks");
 		}

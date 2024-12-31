@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,9 +23,9 @@
 package io.github.axolotlclient.modules.scrollableTooltips;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import net.minecraft.client.gui.screen.Screen;
 
@@ -36,7 +36,7 @@ public class ScrollableTooltips extends AbstractModule {
 	public final BooleanOption enableShiftHorizontalScroll = new BooleanOption("shiftHorizontalScroll", true);
 	protected final IntegerOption scrollAmount = new IntegerOption("scrollAmount", 5, 1, 20);
 	protected final BooleanOption inverse = new BooleanOption("inverse", false);
-	private final OptionCategory category = new OptionCategory("scrollableTooltips");
+	private final OptionCategory category = OptionCategory.create("scrollableTooltips");
 	public int tooltipOffsetX;
 	public int tooltipOffsetY;
 
@@ -51,7 +51,7 @@ public class ScrollableTooltips extends AbstractModule {
 		category.add(scrollAmount);
 		category.add(inverse);
 
-		AxolotlClient.CONFIG.rendering.addSubCategory(category);
+		AxolotlClient.CONFIG.rendering.add(category);
 	}
 
 	public void onScroll(boolean reverse) {

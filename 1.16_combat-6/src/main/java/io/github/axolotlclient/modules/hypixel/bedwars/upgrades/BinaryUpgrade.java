@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -34,12 +34,10 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public class BinaryUpgrade extends TeamUpgrade {
 
-	private boolean purchased = false;
-
 	private final int foursPrice;
 	private final int doublesPrice;
-
 	private final TeamUpgradeRenderer drawer;
+	private boolean purchased = false;
 
 	public BinaryUpgrade(String name, Pattern regex, int foursPrice, int doublesPrice, TeamUpgradeRenderer drawer) {
 		super(name, regex);

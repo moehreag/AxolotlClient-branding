@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "axolotlclient-test",
+	"version": "1.0.0",
+	"name": "Test Mod",
+	"description": "",
+	"authors": [
+		"moehreag"
+	],
+	"contact": {
+		"sources": "https://github.com/AxolotlClient/AxolotlClient-mod",
+		"issues": "https://github.com/AxolotlClient/AxolotlClient-mod/issues"
+	},
+	"license": "LGPL-3.0",
+	"icon": "assets/axolotlclient/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"io.github.axolotlclient.AxolotlClientTest"
+		]
+	},
+	"depends": {
+		"axolotlclient": "*"
+	}
+}

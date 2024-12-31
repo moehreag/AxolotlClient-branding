@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -87,8 +87,8 @@ public class AccountsScreen extends Screen {
 				} else {
 					client.openScreen(new ConfirmScreen(result -> {
 						if (!result) {
-							initMSAuth();
 							client.openScreen(this);
+							initMSAuth();
 						} else {
 							client.openScreen(new AddOfflineScreen(this));
 						}
@@ -99,6 +99,7 @@ public class AccountsScreen extends Screen {
 		this.deleteButton = this.addButton(new ButtonWidget(this.width / 2 - 50, this.height - 28, 100, 20, new TranslatableText("selectServer.delete"), button -> {
 			AccountsListWidget.Entry entry = this.accountsListWidget.getSelected();
 			if (entry != null) {
+				button.active = false;
 				Auth.getInstance().removeAccount(entry.getAccount());
 				refresh();
 			}
@@ -119,10 +120,11 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startAuth(() -> client.execute(this::refresh));
+		Auth.getInstance().getAuth().startDeviceAuth(() -> client.execute(this::refresh));
 	}
 
 	private void refreshAccount() {
+		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (entry != null) {
 			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> client.execute(() -> {
@@ -135,7 +137,8 @@ public class AccountsScreen extends Screen {
 	private void updateButtonActivationStates() {
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (client.world == null && entry != null) {
-			loginButton.active = deleteButton.active = refreshButton.active = true;
+			loginButton.active = entry.getAccount().isExpired() || !entry.getAccount().equals(Auth.getInstance().getCurrent());
+			deleteButton.active = refreshButton.active = true;
 		} else {
 			loginButton.active = deleteButton.active = refreshButton.active = false;
 		}
@@ -146,6 +149,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void login() {
+		loginButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (entry != null) {
 			Auth.getInstance().login(entry.getAccount());

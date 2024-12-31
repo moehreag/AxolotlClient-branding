@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,13 +25,13 @@ package io.github.axolotlclient.modules.hud.gui.hud.simple;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
 import io.github.axolotlclient.util.events.Events;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -114,8 +114,8 @@ public class CPSHud extends SimpleTextHudEntry {
 
 	public static class ClickList {
 
-		public static ClickList LEFT = new ClickList();
-		public static ClickList RIGHT = new ClickList();
+		public static final ClickList LEFT = new ClickList();
+		public static final ClickList RIGHT = new ClickList();
 		private final List<Long> clicks;
 
 		public ClickList() {
@@ -123,11 +123,11 @@ public class CPSHud extends SimpleTextHudEntry {
 		}
 
 		public void update() {
-			clicks.removeIf((click) -> MinecraftClient.getTime() - click > 1000);
+			clicks.removeIf((click) -> Minecraft.getTime() - click > 1000);
 		}
 
 		public void click() {
-			clicks.add(MinecraftClient.getTime());
+			clicks.add(Minecraft.getTime());
 		}
 
 		public int clicks() {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,10 +24,8 @@ package io.github.axolotlclient.modules.auth;
 
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.LanScanWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.gui.widget.ServerEntry;
 import net.minecraft.client.resource.language.I18n;
 
 public class AccountsScreen extends Screen {
@@ -60,40 +58,24 @@ public class AccountsScreen extends Screen {
 		} else {
 			if (j >= 0) {
 				if (i == 200) {
-					if (hasShiftDown()) {
-						if (j > 0 && entry instanceof ServerEntry) {
+					if (isShiftDown()) {
+						if (j > 0 && entry instanceof AccountsListWidget.Entry) {
 							this.select(this.accountsListWidget.getSelected() - 1);
-							this.accountsListWidget.scroll(-this.accountsListWidget.getItemHeight());
+							this.accountsListWidget.scroll(-this.accountsListWidget.getEntryHeight());
 						}
 					} else if (j > 0) {
 						this.select(this.accountsListWidget.getSelected() - 1);
-						this.accountsListWidget.scroll(-this.accountsListWidget.getItemHeight());
-						if (this.accountsListWidget.getEntry(this.accountsListWidget.getSelected()) instanceof LanScanWidget) {
-							if (this.accountsListWidget.getSelected() > 0) {
-								this.select(this.accountsListWidget.getEntryCount() - 1);
-								this.accountsListWidget.scroll(-this.accountsListWidget.getItemHeight());
-							} else {
-								this.select(-1);
-							}
-						}
+						this.accountsListWidget.scroll(-this.accountsListWidget.getEntryHeight());
 					} else {
 						this.select(-1);
 					}
 				} else if (i == 208) {
-					if (hasShiftDown()) {
+					if (isShiftDown()) {
 						this.select(j + 1);
-						this.accountsListWidget.scroll(this.accountsListWidget.getItemHeight());
-					} else if (j < this.accountsListWidget.getEntryCount()) {
+						this.accountsListWidget.scroll(this.accountsListWidget.getEntryHeight());
+					} else if (j < this.accountsListWidget.size()) {
 						this.select(this.accountsListWidget.getSelected() + 1);
-						this.accountsListWidget.scroll(this.accountsListWidget.getItemHeight());
-						if (this.accountsListWidget.getEntry(this.accountsListWidget.getSelected()) instanceof LanScanWidget) {
-							if (this.accountsListWidget.getSelected() < this.accountsListWidget.getEntryCount() - 1) {
-								this.select(this.accountsListWidget.getEntryCount() + 1);
-								this.accountsListWidget.scroll(this.accountsListWidget.getItemHeight());
-							} else {
-								this.select(-1);
-							}
-						}
+						this.accountsListWidget.scroll(this.accountsListWidget.getEntryHeight());
 					} else {
 						this.select(-1);
 					}
@@ -124,22 +106,22 @@ public class AccountsScreen extends Screen {
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		switch (buttonWidget.id) {
 			case 0:
-				this.client.setScreen(this.parent);
+				this.minecraft.openScreen(this.parent);
 				break;
 			case 1:
 				login();
 				break;
 			case 2:
 				if (Auth.getInstance().allowOfflineAccounts()) {
-					client.setScreen(new ConfirmScreen(this, I18n.translate("auth.add.choose"), "", I18n.translate("auth.add.offline"), I18n.translate("auth.add.ms"), 234));
+					minecraft.openScreen(new ConfirmScreen(this, I18n.translate("auth.add.choose"), "", I18n.translate("auth.add.offline"), I18n.translate("auth.add.ms"), 234));
 				} else {
 					initMSAuth();
-					client.setScreen(this);
 				}
 				break;
 			case 3:
 				AccountsListWidget.Entry entry = this.accountsListWidget.getSelectedEntry();
 				if (entry != null) {
+					buttonWidget.active = false;
 					Auth.getInstance().removeAccount(entry.getAccount());
 					refresh();
 				}
@@ -153,7 +135,7 @@ public class AccountsScreen extends Screen {
 	@Override
 	public void init() {
 
-		accountsListWidget = new AccountsListWidget(this, client, width, height, 32, height - 64, 35);
+		accountsListWidget = new AccountsListWidget(this, minecraft, width, height, 32, height - 64, 35);
 
 		accountsListWidget.setAccounts(Auth.getInstance().getAccounts());
 
@@ -187,15 +169,16 @@ public class AccountsScreen extends Screen {
 	public void confirmResult(boolean bl, int i) {
 		if (i == 234) {
 			if (!bl) {
+				minecraft.openScreen(this);
 				initMSAuth();
 			} else {
-				client.setScreen(new AddOfflineScreen(this));
+				minecraft.openScreen(new AddOfflineScreen(this));
 			}
 		}
 	}
 
 	private void refresh() {
-		this.client.setScreen(new AccountsScreen(this.parent));
+		this.minecraft.openScreen(new AccountsScreen(this.parent));
 	}
 
 	public void select(int index) {
@@ -205,14 +188,16 @@ public class AccountsScreen extends Screen {
 
 	private void updateButtonActivationStates() {
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedEntry();
-		if (client.world == null && entry != null) {
-			loginButton.active = deleteButton.active = refreshButton.active = true;
+		if (minecraft.world == null && entry != null) {
+			loginButton.active = entry.getAccount().isExpired() || !entry.getAccount().equals(Auth.getInstance().getCurrent());
+			deleteButton.active = refreshButton.active = true;
 		} else {
 			loginButton.active = deleteButton.active = refreshButton.active = false;
 		}
 	}
 
 	private void login() {
+		loginButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedEntry();
 		if (entry != null) {
 			Auth.getInstance().login(entry.getAccount());
@@ -220,16 +205,14 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startAuth(() -> client.execute(() -> {
-			refresh();
-			return null;
-		}));
+		Auth.getInstance().getAuth().startDeviceAuth(() -> minecraft.submit(this::refresh));
 	}
 
 	private void refreshAccount() {
+		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedEntry();
 		if (entry != null) {
-			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> client.execute(() -> {
+			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> minecraft.submit(() -> {
 				Auth.getInstance().save();
 				refresh();
 				return null;

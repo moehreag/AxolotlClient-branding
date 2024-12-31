@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -28,14 +28,14 @@ import java.util.Optional;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
-import io.github.axolotlclient.AxolotlClientConfig.screen.OptionsScreenBuilder;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.util.ConfigStyles;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
 import io.github.axolotlclient.modules.hud.snapping.SnappingHelper;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
@@ -50,11 +50,11 @@ import net.minecraft.client.resource.language.I18n;
 public class HudEditScreen extends Screen {
 
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
-	private static final OptionCategory hudEditScreenCategory = new OptionCategory("hudEditScreen");
+	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
 	static {
 		hudEditScreenCategory.add(snapping);
-		AxolotlClient.config.addSubCategory(hudEditScreenCategory);
+		AxolotlClient.config.add(hudEditScreenCategory);
 	}
 
 	private final Screen parent;
@@ -86,11 +86,11 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public void render(int mouseX, int mouseY, float delta) {
-		if (MinecraftClient.getInstance().world != null)
+		if (Minecraft.getInstance().world != null)
 			fillGradient(0, 0, width, height, new Color(0xB0100E0E, true).hashCode(),
 				new Color(0x46212020, true).hashCode());
 		else {
-			renderDirtBackground(0);
+			renderBackground(0);
 		}
 
 		super.render(mouseX, mouseY, delta);
@@ -107,21 +107,22 @@ public class HudEditScreen extends Screen {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int button) {
 		super.mouseClicked(mouseX, mouseY, button);
-		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY(Math.round(mouseX),
-			Math.round(mouseY));
+		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY(mouseX, mouseY);
 		if (button == 0) {
 			mouseDown = true;
 			if (entry.isPresent()) {
 				current = entry.get();
-				offset = new DrawPosition(Math.round(mouseX - current.getTruePos().x()),
-					Math.round(mouseY - current.getTruePos().y()));
+				offset = new DrawPosition(mouseX - current.getTruePos().x(),
+					mouseY - current.getTruePos().y());
 				updateSnapState();
 			} else {
 				current = null;
 			}
 		} else if (button == 1) {
-			entry.ifPresent(abstractHudEntry -> MinecraftClient.getInstance().setScreen(
-				new OptionsScreenBuilder(this, abstractHudEntry.getOptionsAsCategory(), AxolotlClient.modid)));
+			entry.ifPresent(hudEntry -> {
+				Screen screen = ConfigStyles.createScreen(this, hudEntry.getCategory());
+				Minecraft.getInstance().openScreen(screen);
+			});
 		}
 	}
 
@@ -163,19 +164,18 @@ public class HudEditScreen extends Screen {
 			case 3:
 				snapping.toggle();
 				button.message = I18n.translate("hud.snapping") + ": "
-					+ I18n.translate(snapping.get() ? "options.on" : "options.off");
+								 + I18n.translate(snapping.get() ? "options.on" : "options.off");
 				AxolotlClient.configManager.save();
 				break;
 			case 1:
-				MinecraftClient.getInstance().setScreen(new OptionsScreenBuilder(this,
-					(OptionCategory) new OptionCategory("config", false).addSubCategories(AxolotlClient.CONFIG.getCategories()),
-					AxolotlClient.modid));
+				Screen screen = ConfigStyles.createScreen(this, AxolotlClient.configManager.getRoot());
+				Minecraft.getInstance().openScreen(screen);
 				break;
 			case 0:
-				MinecraftClient.getInstance().setScreen(parent);
+				Minecraft.getInstance().openScreen(parent);
 				break;
 			case 2:
-				MinecraftClient.getInstance().setScreen(null);
+				Minecraft.getInstance().openScreen(null);
 				break;
 		}
 	}

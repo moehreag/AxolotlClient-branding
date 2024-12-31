@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -27,16 +27,16 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
+import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
+import net.minecraft.text.Formatting;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -129,11 +129,11 @@ public class ItemUpdateHud extends TextHudEntry {
 				return;
 			}
 			String message = "+ " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + item.times + Formatting.DARK_GRAY
-				+ "] " + Formatting.RESET + item.stack.getCustomName();
+							 + "] " + Formatting.RESET + item.stack.getHoverName();
 			if (shadow.get()) {
-				client.textRenderer.drawWithShadow(message, pos.x, pos.y + lastY, Color.SELECTOR_GREEN.getAsInt());
+				client.textRenderer.drawWithShadow(message, pos.x, pos.y + lastY, ClientColors.SELECTOR_GREEN.toInt());
 			} else {
-				client.textRenderer.draw(message, pos.x, pos.y + lastY, Color.SELECTOR_GREEN.getAsInt());
+				client.textRenderer.draw(message, pos.x, pos.y + lastY, ClientColors.SELECTOR_GREEN.toInt());
 			}
 			lastY = lastY + client.textRenderer.fontHeight + 2;
 			i++;
@@ -144,11 +144,11 @@ public class ItemUpdateHud extends TextHudEntry {
 				return;
 			}
 			String message = "- " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + item.times + Formatting.DARK_GRAY
-				+ "] " + Formatting.RESET + item.stack.getCustomName();
+							 + "] " + Formatting.RESET + item.stack.getHoverName();
 			if (shadow.get()) {
-				client.textRenderer.drawWithShadow(message, pos.x, pos.y + lastY, Color.SELECTOR_RED.getAsInt());
+				client.textRenderer.drawWithShadow(message, pos.x, pos.y + lastY, ClientColors.SELECTOR_RED.toInt());
 			} else {
-				client.textRenderer.draw(message, pos.x, pos.y + lastY, Color.SELECTOR_RED.getAsInt());
+				client.textRenderer.draw(message, pos.x, pos.y + lastY, ClientColors.SELECTOR_RED.toInt());
 			}
 			lastY = lastY + client.textRenderer.fontHeight + 2;
 			i++;
@@ -159,21 +159,21 @@ public class ItemUpdateHud extends TextHudEntry {
 	public void renderPlaceholderComponent(float delta) {
 		DrawPosition pos = getPos();
 		String addM = "+ " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + 2 + Formatting.DARK_GRAY + "] "
-			+ Formatting.RESET + new ItemStack(Blocks.DIRT).getCustomName();
+					  + Formatting.RESET + new ItemStack(Blocks.DIRT).getHoverName();
 		if (shadow.get()) {
-			client.textRenderer.drawWithShadow(addM, pos.x + 1, pos.y + 1, Color.SELECTOR_GREEN.getAsInt());
+			client.textRenderer.drawWithShadow(addM, pos.x + 1, pos.y + 1, ClientColors.SELECTOR_GREEN.toInt());
 		} else {
 			client.textRenderer.draw(addM, pos.x + 1, pos.y + 1 + client.textRenderer.fontHeight + 2,
-				Color.SELECTOR_GREEN.getAsInt());
+				ClientColors.SELECTOR_GREEN.toInt());
 		}
 		String removeM = "- " + Formatting.DARK_GRAY + "[" + Formatting.WHITE + 4 + Formatting.DARK_GRAY + "] "
-			+ Formatting.RESET + new ItemStack(Blocks.GRASS).getCustomName();
+						 + Formatting.RESET + new ItemStack(Blocks.GRASS).getHoverName();
 		if (shadow.get()) {
 			client.textRenderer.drawWithShadow(removeM, pos.x + 1, pos.y + 1 + client.textRenderer.fontHeight + 2,
-				Color.SELECTOR_RED.getAsInt());
+				ClientColors.SELECTOR_RED.toInt());
 		} else {
 			client.textRenderer.draw(removeM, pos.x + 1, pos.y + 1 + client.textRenderer.fontHeight + 3,
-				Color.SELECTOR_RED.getAsInt());
+				ClientColors.SELECTOR_RED.toInt());
 		}
 	}
 

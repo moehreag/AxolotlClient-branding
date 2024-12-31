@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import lombok.Getter;
@@ -45,7 +45,7 @@ import net.minecraft.util.Identifier;
 
 public class PackDisplayHud extends TextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "packdisplayhud");
+	public static final Identifier ID = new Identifier("axolotlclient", "packdisplayhud");
 	public final List<PackWidget> widgets = new ArrayList<>();
 	private final BooleanOption iconsOnly = new BooleanOption("iconsonly", false);
 	private PackWidget placeholder;
@@ -170,15 +170,6 @@ public class PackDisplayHud extends TextHudEntry {
 		public PackWidget(Text name, int textureId) {
 			this.name = name.getString();
 			texture = textureId;
-            /*try {
-                InputStream stream = pack.openRoot("pack.png").get();
-                assert stream != null;
-                this.texture = new NativeImageBackedTexture(NativeImage.read(stream)).getGlId();
-                stream.close();
-            } catch (Exception e) {
-                Logger.warn("Pack " + pack.getName()
-                        + " somehow threw an error! Please investigate... Does it have an icon?");
-            }*/
 		}
 
 		public void render(MatrixStack matrices, int x, int y) {
@@ -187,7 +178,7 @@ public class PackDisplayHud extends TextHudEntry {
 				RenderSystem.bindTexture(texture);
 				DrawableHelper.drawTexture(matrices, x, y, 0, 0, 16, 16, 16, 16);
 			}
-			drawString(matrices, name, x + 18, y + 6, textColor.get().getAsInt(), shadow.get());
+			drawString(matrices, name, x + 18, y + 6, textColor.get().toInt(), shadow.get());
 		}
 	}
 }

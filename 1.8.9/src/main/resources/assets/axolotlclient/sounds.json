@@ -1,0 +1,14 @@
+{
+	"gui.toast.in": {
+		"category": "master",
+		"sounds": [
+			"ui-toast-in"
+		]
+	},
+	"gui.toast.out": {
+		"category": "master",
+		"sounds": [
+			"ui-toast-out"
+		]
+	}
+}

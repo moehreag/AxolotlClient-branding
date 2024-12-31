@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,33 +25,35 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.ChatHudAccessor;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.chat.ChatMessage;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.util.Texts;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.render.TextRenderUtils;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.resource.Identifier;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 public class ChatHud extends TextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "chathud");
-	public BooleanOption background = new BooleanOption("background", "chathud", true);
-	public ColorOption bgColor = new ColorOption("bgcolor", "#40000000");
+	public static final Identifier ID = new Identifier("axolotlclient", "chathud");
+	// tooltip: "chathud"
+	public final BooleanOption background = new BooleanOption("background", true);
+	public final ColorOption bgColor = new ColorOption("bgcolor", Color.parse("#40000000"));
 
-	public IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
-	public ColorOption scrollbarColor = new ColorOption("scrollbarColor", "#70CCCCCC");
-	public IntegerOption lineSpacing = new IntegerOption("lineSpacing", 0, 0, 10);
+	public final IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
+	public final ColorOption scrollbarColor = new ColorOption("scrollbarColor", Color.parse("#70CCCCCC"));
+	public final IntegerOption lineSpacing = new IntegerOption("lineSpacing", 0, 0, 10);
 
 	public int ticks;
 	private int lastHeight;
@@ -60,12 +62,18 @@ public class ChatHud extends TextHudEntry {
 		super(320, 80, false);
 	}
 
+	public static int getHeight(float chatHeight) {
+		int i = 180;
+		int j = 20;
+		return MathHelper.floor(chatHeight * (float) (i - j) + (float) j);
+	}
+
 	@Override
 	public void render(float delta) {
-		int scrolledLines = ((ChatHudAccessor) client.inGameHud.getChatHud()).getScrolledLines();
-		List<ChatHudLine> visibleMessages = ((ChatHudAccessor) client.inGameHud.getChatHud()).getVisibleMessages();
+		int scrolledLines = ((ChatHudAccessor) client.gui.getChat()).getScrolledLines();
+		List<ChatMessage> visibleMessages = ((ChatHudAccessor) client.gui.getChat()).getVisibleMessages();
 
-		if (this.client.options.chatVisibilityType != PlayerEntity.ChatVisibilityType.HIDDEN) {
+		if (this.client.options.chatVisibility != PlayerEntity.ChatVisibility.HIDDEN) {
 			GlStateManager.pushMatrix();
 			scale();
 			DrawPosition pos = getPos();
@@ -80,9 +88,9 @@ public class ChatHud extends TextHudEntry {
 				GlStateManager.pushMatrix();
 
 				for (int m = 0; m + scrolledLines < visibleMessages.size() && m < i; ++m) {
-					ChatHudLine chatHudLine = visibleMessages.get(m + scrolledLines);
+					ChatMessage chatHudLine = visibleMessages.get(m + scrolledLines);
 					if (chatHudLine != null) {
-						int n = ticks - chatHudLine.getCreationTick();
+						int n = ticks - chatHudLine.getTimeOfCreation();
 						if (n < 200 || isChatFocused()) {
 							double d = MathHelper.clamp((1.0 - n / 200.0) * 10.0, 0.0, 1.0);
 							d *= d;
@@ -94,9 +102,9 @@ public class ChatHud extends TextHudEntry {
 								int y = pos.y + getHeight() - (m * (9 + lineSpacing.get()));
 								if (background.get()) {
 									fill(pos.x, y - (9 + lineSpacing.get()), pos.x + l + 4, y,
-										bgColor.get().withAlpha(chatOpacity / 2).getAsInt());
+										bgColor.get().withAlpha(chatOpacity / 2).toInt());
 								}
-								String string = chatHudLine.getText().asFormattedString();
+								String string = chatHudLine.getText().getFormattedString();
 								GlStateManager.enableBlend();
 								DrawUtil.drawString(client.textRenderer, string, pos.x, (y - 8),
 									16777215 + (chatOpacity << 24), shadow.get());
@@ -109,14 +117,14 @@ public class ChatHud extends TextHudEntry {
 
 				if (isChatFocused()) {
 					int m = getFontHeight();
-					GlStateManager.translate(-3.0F, 0.0F, 0.0F);
+					GlStateManager.translatef(-3.0F, 0.0F, 0.0F);
 					int r = k * m + k;
 					int n = j * m + j;
 					int y = (pos.y + getHeight()) - scrolledLines * n / k;
-					if (((ChatHudAccessor) client.inGameHud.getChatHud()).getMessages()
-						.size() > getVisibleLineCount()) {
+					if (((ChatHudAccessor) client.gui.getChat()).getMessages()
+							.size() > getVisibleLineCount()) {
 						int height = n * n / r;
-						fillRect(pos.x, y, 2, -height, scrollbarColor.get().getAsInt());
+						fillRect(pos.x, y, 2, -height, scrollbarColor.get().toInt());
 					}
 				}
 
@@ -133,9 +141,9 @@ public class ChatHud extends TextHudEntry {
 	@Override
 	public void renderPlaceholderComponent(float delta) {
 		DrawPosition pos = getPos();
-		if (MinecraftClient.getInstance().player != null) {
-			client.textRenderer.drawWithShadow("<" + MinecraftClient.getInstance().player.getName().asFormattedString()
-				+ "> OOh! There's my Chat now!", pos.x + 1, pos.y + getHeight() - 9, -1);
+		if (Minecraft.getInstance().player != null) {
+			client.textRenderer.drawWithShadow("<" + Minecraft.getInstance().player.getDisplayName().getFormattedString()
+											   + "> OOh! There's my Chat now!", pos.x + 1, pos.y + getHeight() - 9, -1);
 		} else {
 			client.textRenderer.drawWithShadow("This is where your new and fresh looking chat will be!", pos.x + 1,
 				pos.y + getHeight() - 9, -1);
@@ -149,31 +157,25 @@ public class ChatHud extends TextHudEntry {
 
 	public int getVisibleLineCount() {
 		return getHeight(
-			this.isChatFocused() ? this.client.options.chatHeightFocused : this.client.options.chatHeightUnfocused)
-			/ 9;
+			this.isChatFocused() ? this.client.options.focusedChatHeight : this.client.options.unfocusedChatHeight)
+			   / 9;
 	}
 
 	public boolean isChatFocused() {
-		return this.client.currentScreen instanceof ChatScreen;
+		return this.client.screen instanceof ChatScreen;
 	}
 
 	protected int getFontHeight() {
-		return MathHelper.floor(MinecraftClient.getInstance().textRenderer.fontHeight);
-	}
-
-	public static int getHeight(float chatHeight) {
-		int i = 180;
-		int j = 20;
-		return MathHelper.floor(chatHeight * (float) (i - j) + (float) j);
+		return MathHelper.floor(Minecraft.getInstance().textRenderer.fontHeight);
 	}
 
 	public Text getTextAt(int x, int y) {
-		List<ChatHudLine> visibleMessages = ((ChatHudAccessor) client.inGameHud.getChatHud()).getVisibleMessages();
+		List<ChatMessage> visibleMessages = ((ChatHudAccessor) client.gui.getChat()).getVisibleMessages();
 
 		int offsetOnHudX = MathHelper.floor(x / getScale() - getPos().x);
 		int offsetOnHudY = MathHelper.floor(-(y / getScale() - (getPos().y + height)));
 
-		int scrolledLines = ((ChatHudAccessor) client.inGameHud.getChatHud()).getScrolledLines();
+		int scrolledLines = ((ChatHudAccessor) client.gui.getChat()).getScrolledLines();
 
 		if (offsetOnHudX >= 0 && offsetOnHudY >= 0) {
 			int l = Math.min(this.getVisibleLineCount(), visibleMessages.size());
@@ -181,13 +183,13 @@ public class ChatHud extends TextHudEntry {
 				&& offsetOnHudY < (getFontHeight() + lineSpacing.get()) * l + l) {
 				int m = offsetOnHudY / (getFontHeight() + lineSpacing.get()) + scrolledLines;
 				if (m >= 0 && m < visibleMessages.size()) {
-					ChatHudLine chatHudLine = visibleMessages.get(m);
+					ChatMessage chatHudLine = visibleMessages.get(m);
 					int n = 0;
 
 					for (Text text : chatHudLine.getText()) {
 						if (text instanceof LiteralText) {
-							n += this.client.textRenderer.getStringWidth(
-								Texts.getRenderChatMessage(((LiteralText) text).getRawString(), false));
+							n += this.client.textRenderer.getWidth(
+								TextRenderUtils.prepareText(((LiteralText) text).getRawString(), false));
 							if (n > offsetOnHudX) {
 								return text;
 							}
@@ -212,16 +214,12 @@ public class ChatHud extends TextHudEntry {
 	@Override
 	public void tick() {
 		//setWidth((int) (client.options.chatWidth*320));
-		if (lastHeight != getHeight(client.options.chatHeightUnfocused)) {
-			setHeight(getHeight(this.client.options.chatHeightUnfocused));//int) (client.options.chatHeightUnfocused*180)+11);this.isChatFocused() ? this.client.options.chatHeightFocused
+		if (lastHeight != getHeight(client.options.unfocusedChatHeight)) {
+			setHeight(getHeight(this.client.options.unfocusedChatHeight));
 			onBoundsUpdate();
 			lastHeight = getHeight();
 		}
 	}
-
-    /*public int getHeight() {
-        return getHeight(this.isChatFocused() ? this.client.options.chatHeightFocused : this.client.options.chatHeightUnfocused);
-    }*/
 
 	@Override
 	public double getDefaultX() {
@@ -247,9 +245,5 @@ public class ChatHud extends TextHudEntry {
 		options.add(scrollbarColor);
 		options.add(chatHistory);
 		return options;
-	}
-
-	private float getChatHeightUnfocused() {
-		return client.options.chatHeightUnfocused;
 	}
 }

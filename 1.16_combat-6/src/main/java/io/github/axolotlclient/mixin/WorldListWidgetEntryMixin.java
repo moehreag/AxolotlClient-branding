@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -42,7 +42,7 @@ public abstract class WorldListWidgetEntryMixin {
 	@Inject(method = "play", at = @At("HEAD"))
 	public void axolotlclient$onSPWorldJoin(CallbackInfo ci) {
 		if (!level.isLocked()) {
-			DiscordRPC.setWorld(level.getDisplayName());
+			DiscordRPC.getInstance().setWorld(level.getDisplayName());
 		}
 	}
 }

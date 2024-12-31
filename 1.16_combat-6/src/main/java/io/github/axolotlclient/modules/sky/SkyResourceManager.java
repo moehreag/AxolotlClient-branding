@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -97,7 +97,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 		}
 	}
 
-	private boolean isMCPSky(String path){
+	private boolean isMCPSky(String path) {
 		return path.endsWith(".properties") && path.startsWith("sky");
 	}
 
@@ -122,7 +122,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 								}
 								if (id.getPath().contains("world")) {
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
-										+ "/" + option[1].replace("./", "");
+												+ "/" + option[1].replace("./", "");
 								}
 							}
 						}

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -132,9 +132,9 @@ public abstract class InGameHudMixin {
 		HotbarHUD hud = (HotbarHUD) HudManager.getInstance().get(HotbarHUD.ID);
 		if (hud.isEnabled()) {
 			args.set(2, ((Integer) hud.getX()).floatValue() + ((hud.getWidth() * hud.getScale())
-				- MinecraftClient.getInstance().textRenderer.getWidth((StringVisitable) args.get(1))) / 2);
+															   - MinecraftClient.getInstance().textRenderer.getWidth((StringVisitable) args.get(1))) / 2);
 			args.set(3, ((Integer) hud.getY()).floatValue() - 36
-				+ (!MinecraftClient.getInstance().interactionManager.hasStatusBars() ? 14 : 0));
+						+ (!MinecraftClient.getInstance().interactionManager.hasStatusBars() ? 14 : 0));
 		}
 	}
 
@@ -201,8 +201,8 @@ public abstract class InGameHudMixin {
 	)
 	public int axolotlclient$displayHardcoreHearts(int offset) {
 		boolean hardcore = BedwarsMod.getInstance().isEnabled() &&
-			BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().hardcoreHearts.get() &&
-			!BedwarsMod.getInstance().getGame().get().getSelf().isBed();
+						   BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().hardcoreHearts.get() &&
+						   !BedwarsMod.getInstance().getGame().get().getSelf().isBed();
 		return hardcore ? 5 : offset;
 	}
 
@@ -222,8 +222,8 @@ public abstract class InGameHudMixin {
 	}
 
 	@Inject(method = "renderVignetteOverlay", at = @At("HEAD"), cancellable = true)
-	private void axolotlclient$removeVignette(Entity entity, CallbackInfo ci){
-		if(AxolotlClient.CONFIG.removeVignette.get()){
+	private void axolotlclient$removeVignette(Entity entity, CallbackInfo ci) {
+		if (AxolotlClient.CONFIG.removeVignette.get()) {
 			ci.cancel();
 		}
 	}

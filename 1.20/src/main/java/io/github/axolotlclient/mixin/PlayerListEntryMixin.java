@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,8 +26,8 @@ import com.mojang.authlib.GameProfile;
 import io.github.axolotlclient.modules.hypixel.nickhider.NickHider;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.texture.PlayerSkin;
 import net.minecraft.client.util.DefaultSkinHelper;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,14 +42,14 @@ public abstract class PlayerListEntryMixin {
 	@Final
 	private GameProfile profile;
 
-	@Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
-	private void axolotlclient$hideSkins(CallbackInfoReturnable<PlayerSkin> cir) {
+	@Inject(method = "getSkinTexture", at = @At("RETURN"), cancellable = true)
+	private void axolotlclient$hideSkins(CallbackInfoReturnable<Identifier> cir) {
 		if (profile.equals(MinecraftClient.getInstance().player.getGameProfile())
 			&& NickHider.getInstance().hideOwnSkin.get()) {
-			cir.setReturnValue(DefaultSkinHelper.getSkin(profile));
+			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
 		} else if (!profile.equals(MinecraftClient.getInstance().player.getGameProfile())
-			&& NickHider.getInstance().hideOtherSkins.get()) {
-			cir.setReturnValue(DefaultSkinHelper.getSkin(profile));
+				   && NickHider.getInstance().hideOtherSkins.get()) {
+			cir.setReturnValue(DefaultSkinHelper.getTexture(profile.getId()));
 		}
 	}
 }

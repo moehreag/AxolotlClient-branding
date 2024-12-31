@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,8 +26,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.BedwarsTeamUpgrades;
+import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import io.github.axolotlclient.util.events.impl.ScoreboardRenderEvent;
 import lombok.Getter;
@@ -49,22 +50,20 @@ import org.jetbrains.annotations.Nullable;
  */
 
 public class BedwarsGame {
+	private final Map<String, BedwarsPlayer> players = new HashMap<>();
+	private final Map<UUID, BedwarsPlayer> playersById = new HashMap<>();
+	private final MinecraftClient mc;
+	private final BedwarsMod mod;
+	@Getter
+	private final BedwarsTeamUpgrades upgrades = new BedwarsTeamUpgrades();
 	private BedwarsTeam won = null;
 	private int wonTick = -1;
 	private int seconds = 0;
 	private Text topBarText = new LiteralText("");
 	private Text bottomBarText = new LiteralText("");
-
 	private BedwarsPlayer me = null;
-
-	private final Map<String, BedwarsPlayer> players = new HashMap<>();
-	private final Map<UUID, BedwarsPlayer> playersById = new HashMap<>();
-	private final MinecraftClient mc;
 	@Getter
 	private boolean started = false;
-	private final BedwarsMod mod;
-	@Getter
-	private final BedwarsTeamUpgrades upgrades = new BedwarsTeamUpgrades();
 	private BedwarsPlayer lastKill;
 	private BedwarsPlayer lastKiller;
 
@@ -124,18 +123,18 @@ public class BedwarsGame {
 
 	private String calculateTopBarText() {
 		String topBar = getFormattedTime();
-		if(me.getStats() != null){
-			topBar += "\n"+
-				"K: "+me.getStats().getGameKills()+
-				" D: "+me.getStats().getGameDeaths()+
-				" B: "+me.getStats().getGameBedsBroken();
+		if (me.getStats() != null) {
+			topBar += "\n" +
+					  "K: " + me.getStats().getGameKills() +
+					  " D: " + me.getStats().getGameDeaths() +
+					  " B: " + me.getStats().getGameBedsBroken();
 		}
 		return topBar;
 	}
 
 	private String calculateBottomBarText() {
-		return Formatting.DARK_AQUA + "Last Kill: "+ Formatting.RESET + (lastKill == null ? "N/A" : lastKill.getColoredName()) +
-			Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
+		return Formatting.DARK_AQUA + "Last Kill: " + Formatting.RESET + (lastKill == null ? "N/A" : lastKill.getColoredName()) +
+			   Formatting.DARK_AQUA + " Last Killed By: " + Formatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
 		// left in here because it'll be useful later on
 		/*Comparator<BedwarsPlayer> comparator = Comparator.comparingInt(o -> o.getStats().getGameKills());
 		return "Top 3 Killers: \n" + players.values().stream().filter(Objects::nonNull)
@@ -176,9 +175,9 @@ public class BedwarsGame {
 		if (mod.overrideMessages.get()) {
 			event.setNewMessage(new LiteralText(formatDeath(player, killer, type, finalDeath)));
 		}
-		if(me.equals(killer)){
+		if (me.equals(killer)) {
 			lastKill = player;
-		} else if (me.equals(player)){
+		} else if (me.equals(player)) {
 			lastKiller = killer;
 		}
 	}
@@ -224,7 +223,7 @@ public class BedwarsGame {
 	private String formatBed(BedwarsTeam team, BedwarsPlayer breaker) {
 		String playerFormatted = getPlayerFormatted(breaker);
 		return "§6§l§oBED BROKEN §8§l> " + team.getColorSection() + team.getName() + " Bed §7/broken/ " + playerFormatted +
-			(breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" + breaker.getStats().getBedsBroken());
+			   (breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" + breaker.getStats().getBedsBroken());
 	}
 
 	private String formatDeath(BedwarsPlayer player, @Nullable BedwarsPlayer killer, BedwarsDeathType type, boolean finalDeath) {
@@ -442,11 +441,11 @@ public class BedwarsGame {
 		if (stats == null) {
 			return null;
 		}
-		BedwarsLevelHeadMode mode = BedwarsLevelHeadMode.get(mod.bedwarsLevelHeadMode.get());
+		BedwarsLevelHeadMode mode = mod.bedwarsLevelHeadMode.get();
 		return mode.apply(stats);
 	}
 
-	public void renderCustomScoreboardObjective(MatrixStack matrices, String playerName, ScoreboardObjective objective, int y, int endX){
+	public void renderCustomScoreboardObjective(MatrixStack matrices, String playerName, ScoreboardObjective objective, int y, int endX) {
 		BedwarsPlayer bedwarsPlayer = getPlayer(playerName).orElse(null);
 		if (bedwarsPlayer == null) {
 			return;
@@ -460,10 +459,10 @@ public class BedwarsGame {
 			int tickTillLive = Math.max(0, bedwarsPlayer.getTickAlive() - mc.inGameHud.getTicks());
 			float secondsTillLive = tickTillLive / 20f;
 			render = String.format("%.1f", secondsTillLive) + "s";
-			color = new Color(200, 200, 200).getAsInt();
+			color = new Color(200, 200, 200).toInt();
 		} else {
 			int health = objective.getScoreboard().getPlayerScore(playerName, objective).getScore();
-			color = Color.blend(new Color(255, 255, 255), new Color(215, 0, 64), (int) (1 - (health / 20f))).getAsInt();
+			color = ClientColors.blend(new Color(255, 255, 255), new Color(215, 0, 64), (int) (1 - (health / 20f))).toInt();
 			render = String.valueOf(health);
 		}
 		// Health

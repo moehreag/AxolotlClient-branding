@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -40,11 +40,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.texture.NativeImage;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.util.OSUtil;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -52,7 +53,6 @@ import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.loader.api.QuiltLoader;
 
 public class ImageViewerScreen extends Screen {
 
@@ -79,11 +79,12 @@ public class ImageViewerScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, delta);
 
 		if (imageId != null) {
-			graphics.drawCenteredShadowedText(MinecraftClient.getInstance().textRenderer, imageName, width / 2, 25, -1);
+			graphics.drawCenteredShadowedText(client.textRenderer, imageName, width / 2, 25, -1);
 
 			int imageWidth = Math.min((int) ((height - 150) * imgAspectRatio), width - 150);
 			int imageHeight = (int) (imageWidth / imgAspectRatio);
 
+			RenderSystem.setShaderTexture(0, imageId);
 			graphics.drawTexture(imageId, width / 2 - imageWidth / 2, 50, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 
 			editButtons.keySet().forEach(buttonWidget -> {
@@ -101,7 +102,7 @@ public class ImageViewerScreen extends Screen {
 				buttonWidget.render(graphics, mouseX, mouseY, delta);
 			});
 		} else {
-			graphics.drawCenteredShadowedText(MinecraftClient.getInstance().textRenderer, Text.translatable("viewScreenshot"), width / 2, height / 4, -1);
+			graphics.drawCenteredShadowedText(client.textRenderer, Text.translatable("viewScreenshot"), width / 2, height / 4, -1);
 		}
 	}
 
@@ -129,10 +130,13 @@ public class ImageViewerScreen extends Screen {
 		if (!url.isEmpty()) {
 			urlBox.setText(url);
 		}
-		addDrawableSelectableElement(urlBox);
+		addDrawableChild(urlBox);
 
-		addDrawableSelectableElement(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
+		setFocusedChild(urlBox);
+
+		addDrawableChild(new ButtonWidget(width / 2 + 110, imageId == null ? height / 2 - 10 : height - 80,
 			20, 20, Text.translatable("download"), buttonWidget -> {
+			//Logger.info("Downloading image from "+urlBox.getText());
 			imageId = downloadImage(url = urlBox.getText());
 			clearAndInit();
 		}, Supplier::get) {
@@ -144,14 +148,14 @@ public class ImageViewerScreen extends Screen {
 			}
 		});
 
-		addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.BACK,
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK,
 				buttonWidget -> MinecraftClient.getInstance().setScreen(parent))
 			.position(width / 2 - 75, height - 50).build());
 
 		ButtonWidget save = ButtonWidget.builder(Text.translatable("saveAction"),
 			buttonWidget -> {
 				try {
-					Files.write(QuiltLoader.getGameDir().resolve("screenshots").resolve("_share-" + imageName), Objects.requireNonNull(image.getImage()).getBytes());
+					Files.write(FabricLoader.getInstance().getGameDir().resolve("screenshots").resolve("_share-" + imageName), Objects.requireNonNull(image.getImage()).getBytes());
 					AxolotlClient.LOGGER.info("Saved image " + imageName + " to screenshots folder!");
 				} catch (IOException e) {
 					AxolotlClient.LOGGER.info("Failed to save image!");
@@ -182,7 +186,7 @@ public class ImageViewerScreen extends Screen {
 		addImageButton(copy, true);
 
 		ButtonWidget about = ButtonWidget.builder(Text.translatable("aboutAction"), buttonWidget -> {
-			OSUtil.getOS().open(aboutPage, AxolotlClient.LOGGER);
+			OSUtil.getOS().open(aboutPage);
 		}).position(width - 60, 100).width(50).tooltip(Tooltip.create(Text.translatable("about_image"))).build();
 		addImageButton(about, true);
 	}
@@ -211,12 +215,7 @@ public class ImageViewerScreen extends Screen {
 	}
 
 	private void addImageButton(ButtonWidget button, boolean right) {
-		addSelectableElement(button);
+		addSelectableChild(button);
 		editButtons.put(button, right);
-	}
-
-	@Override
-	public void tick() {
-
 	}
 }

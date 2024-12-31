@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,14 +24,14 @@ package io.github.axolotlclient.mixin;
 
 import java.util.List;
 
-import net.minecraft.client.gl.PostProcessShader;
-import net.minecraft.client.gl.ShaderEffect;
+import net.minecraft.client.render.PostChain;
+import net.minecraft.client.render.PostPass;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(ShaderEffect.class)
+@Mixin(PostChain.class)
 public interface ShaderEffectAccessor {
 
-	@Accessor
-	List<PostProcessShader> getPasses();
+	@Accessor("passes")
+	List<PostPass> getPasses();
 }

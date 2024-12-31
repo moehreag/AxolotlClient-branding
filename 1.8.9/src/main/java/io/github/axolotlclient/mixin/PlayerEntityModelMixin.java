@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,7 +23,7 @@
 package io.github.axolotlclient.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.render.model.entity.PlayerModel;
 import net.minecraft.entity.Entity;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,10 +31,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PlayerEntityModel.class)
+@Mixin(PlayerModel.class)
 public abstract class PlayerEntityModelMixin {
 
-	@Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/entity/model/PlayerEntityModel;child:Z"))
+	@Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/model/entity/PlayerModel;isBaby:Z"))
 	public void axolotlclient$translucencyStart(Entity entity, float f, float g, float h, float i, float j, float scale,
 												CallbackInfo ci) {
 		startTranslucency();

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
@@ -41,8 +41,8 @@ import net.minecraft.util.Identifier;
 
 public class HotbarHUD extends TextHudEntry {
 
+	public static final Identifier ID = new Identifier("axolotlclient", "hotbarhud");
 	private static final Identifier WIDGETS_TEXTURE = new Identifier("textures/gui/widgets.png");
-	public static Identifier ID = new Identifier("axolotlclient", "hotbarhud");
 
 	public HotbarHUD() {
 		super(182, 22, false);

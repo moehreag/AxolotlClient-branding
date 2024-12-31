@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,7 +23,7 @@
 package io.github.axolotlclient.modules.hud.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -143,7 +143,7 @@ public class RenderUtil {
 		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
 
-		return color.getAsInt();
+		return color.toInt();
 	}
 
 	public void colorPostRender(Color color) {
@@ -182,7 +182,7 @@ public class RenderUtil {
 	}
 
 	public void fillBlend(MatrixStack matrices, int x, int y, int width, int height, Color color) {
-		fillBlend(matrices.peek().getModel(), x, y, x + width, y + height, color.getAsInt());
+		fillBlend(matrices.peek().getModel(), x, y, x + width, y + height, color.toInt());
 	}
 
 	public void fillBlend(Matrix4f matrix, int x1, int y1, int x2, int y2, int color) {

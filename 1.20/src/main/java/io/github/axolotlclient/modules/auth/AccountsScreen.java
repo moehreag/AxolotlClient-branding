@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,10 +22,11 @@
 
 package io.github.axolotlclient.modules.auth;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 
@@ -39,13 +40,18 @@ public class AccountsScreen extends Screen {
 	public AccountsScreen(Screen currentScreen) {
 		super(Text.translatable("accounts"));
 		this.parent = currentScreen;
+		this.client = MinecraftClient.getInstance();
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		super.render(graphics, mouseX, mouseY, delta);
-		this.accountsListWidget.render(graphics, mouseX, mouseY, delta);
 		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 20, 16777215);
+	}
+
+	@Override
+	public void renderBackground(GuiGraphics graphics) {
+		renderBackgroundTexture(graphics);
 	}
 
 	@Override
@@ -71,22 +77,22 @@ public class AccountsScreen extends Screen {
 	public void init() {
 
 		accountsListWidget = new AccountsListWidget(this, client, width, height, 32, height - 64, 35);
-		addSelectableElement(accountsListWidget);
+		addDrawableChild(accountsListWidget);
 
 		accountsListWidget.setAccounts(Auth.getInstance().getAccounts());
 
-		addDrawableSelectableElement(loginButton = new ButtonWidget.Builder(Text.translatable("auth.login"),
+		addDrawableChild(loginButton = new ButtonWidget.Builder(Text.translatable("auth.login"),
 			buttonWidget -> login()).positionAndSize(this.width / 2 - 154, this.height - 52, 150, 20).build());
 
-		this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("auth.add"),
+		this.addDrawableChild(ButtonWidget.builder(Text.translatable("auth.add"),
 				button -> {
 					if (!Auth.getInstance().allowOfflineAccounts()) {
 						initMSAuth();
 					} else {
 						client.setScreen(new ConfirmScreen(result -> {
 							if (!result) {
-								initMSAuth();
 								client.setScreen(this);
+								initMSAuth();
 							} else {
 								client.setScreen(new AddOfflineScreen(this));
 							}
@@ -95,21 +101,22 @@ public class AccountsScreen extends Screen {
 				})
 			.positionAndSize(this.width / 2 + 4, this.height - 52, 150, 20).build());
 
-		this.deleteButton = this.addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("selectServer.delete"), button -> {
+		this.deleteButton = this.addDrawableChild(ButtonWidget.builder(Text.translatable("selectServer.delete"), button -> {
 			AccountsListWidget.Entry entry = this.accountsListWidget.getSelectedOrNull();
 			if (entry != null) {
+				button.active = false;
 				Auth.getInstance().removeAccount(entry.getAccount());
 				refresh();
 			}
 		}).positionAndSize(this.width / 2 - 50, this.height - 28, 100, 20).build());
 
 
-		this.addDrawableSelectableElement(refreshButton = ButtonWidget.builder(Text.translatable("auth.refresh"), button -> refreshAccount())
+		this.addDrawableChild(refreshButton = ButtonWidget.builder(Text.translatable("auth.refresh"), button -> refreshAccount())
 			.positionAndSize(this.width / 2 - 154, this.height - 28, 100, 20)
 			.build()
 		);
 
-		this.addDrawableSelectableElement(
+		this.addDrawableChild(
 			ButtonWidget.builder(CommonTexts.BACK, button -> this.client.setScreen(this.parent))
 				.positionAndSize(this.width / 2 + 4 + 50, this.height - 28, 100, 20)
 				.build()
@@ -118,10 +125,11 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startAuth(() -> client.execute(this::refresh));
+		Auth.getInstance().getAuth().startDeviceAuth(() -> client.execute(this::refresh));
 	}
 
 	private void refreshAccount() {
+		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (entry != null) {
 			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> client.execute(() -> {
@@ -134,7 +142,8 @@ public class AccountsScreen extends Screen {
 	private void updateButtonActivationStates() {
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (client.world == null && entry != null) {
-			loginButton.active = deleteButton.active = refreshButton.active = true;
+			loginButton.active = entry.getAccount().isExpired() || !entry.getAccount().equals(Auth.getInstance().getCurrent());
+			deleteButton.active = refreshButton.active = true;
 		} else {
 			loginButton.active = deleteButton.active = refreshButton.active = false;
 		}
@@ -145,6 +154,7 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void login() {
+		loginButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (entry != null) {
 			Auth.getInstance().login(entry.getAccount());

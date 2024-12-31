@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,24 +25,24 @@ package io.github.axolotlclient.mixin;
 import io.github.axolotlclient.modules.tnttime.TntTime;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.TntEntityRenderer;
-import net.minecraft.entity.TntEntity;
+import net.minecraft.client.render.entity.TntRenderer;
+import net.minecraft.entity.PrimedTntEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(TntEntityRenderer.class)
-public abstract class TntEntityRendererMixin extends EntityRenderer<TntEntity> {
+@Mixin(TntRenderer.class)
+public abstract class TntEntityRendererMixin extends EntityRenderer<PrimedTntEntity> {
 
 	protected TntEntityRendererMixin(EntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
-	@Inject(method = "render(Lnet/minecraft/entity/TntEntity;DDDFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/EntityRenderer;render(Lnet/minecraft/entity/Entity;DDDFF)V"), cancellable = true)
-	public void axolotlclient$render(TntEntity entity, double x, double y, double z, float f, float tickDelta, CallbackInfo ci) {
+	@Inject(method = "render(Lnet/minecraft/entity/PrimedTntEntity;DDDFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/EntityRenderer;render(Lnet/minecraft/entity/Entity;DDDFF)V"), cancellable = true)
+	public void axolotlclient$render(PrimedTntEntity entity, double x, double y, double z, float g, float h, CallbackInfo ci) {
 		if (TntTime.getInstance().enabled.get()) {
-			super.renderLabelIfPresent(entity, TntTime.getInstance().getFuseTime(entity.fuseTimer).asFormattedString(),
+			super.renderNameTag(entity, TntTime.getInstance().getFuseTime(entity.fuseTimer).getFormattedString(),
 				x, y, z, 64);
 			ci.cancel();
 		}

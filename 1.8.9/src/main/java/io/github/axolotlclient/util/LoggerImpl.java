@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -28,8 +28,9 @@ import org.apache.logging.log4j.LogManager;
 
 public class LoggerImpl implements Logger {
 
+	private final static org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger("AxolotlClient");
+
 	private static final String modId = FabricLoader.getInstance().isDevelopmentEnvironment() ? "" : "(AxolotlClient) ";
-	public static org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger("AxolotlClient");
 
 	public void warn(String message, Object... args) {
 		LOGGER.warn(modId + message, args);
@@ -49,7 +50,7 @@ public class LoggerImpl implements Logger {
 
 	public void debug(String message, Object... args) {
 		if (AxolotlClient.CONFIG.debugLogOutput.get()) {
-			info(modId + "[DEBUG] " + message, args);
+			LOGGER.info(modId + "[DEBUG] " + message, args);
 		}
 	}
 }

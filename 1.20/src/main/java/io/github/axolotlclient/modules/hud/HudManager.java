@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.KeyBindOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
 import io.github.axolotlclient.modules.hud.gui.component.HudEntry;
@@ -40,8 +39,10 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.*;
 import io.github.axolotlclient.modules.hud.gui.hud.vanilla.*;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
+import io.github.axolotlclient.util.keybinds.KeyBinds;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.option.KeyBind;
 import net.minecraft.util.Identifier;
 
 /**
@@ -54,14 +55,15 @@ import net.minecraft.util.Identifier;
 public class HudManager extends AbstractModule {
 
 	private final static HudManager INSTANCE = new HudManager();
-	private final OptionCategory hudCategory = new OptionCategory("hud", false);
+	private final OptionCategory hudCategory = OptionCategory.create("hud");
 	private final Map<Identifier, HudEntry> entries;
 	private final MinecraftClient client;
 
 	private HudManager() {
 		this.entries = new LinkedHashMap<>();
 		client = MinecraftClient.getInstance();
-		hudCategory.add(new KeyBindOption("key.openHud", InputUtil.KEY_RIGHT_SHIFT_CODE, keyBind -> MinecraftClient.getInstance().setScreen(new HudEditScreen())));
+		KeyBinds.getInstance().registerWithSimpleAction(new KeyBind("key.openHud", InputUtil.KEY_RIGHT_SHIFT_CODE, "category.axolotlclient"),
+			() -> client.setScreen(new HudEditScreen()));
 	}
 
 	public static HudManager getInstance() {
@@ -114,7 +116,7 @@ public class HudManager extends AbstractModule {
 
 	public HudManager add(AbstractHudEntry entry) {
 		entries.put(entry.getId(), entry);
-		hudCategory.addSubCategory(entry.getAllOptions());
+		hudCategory.add(entry.getAllOptions());
 		return this;
 	}
 
@@ -125,7 +127,7 @@ public class HudManager extends AbstractModule {
 	}
 
 	public List<HudEntry> getEntries() {
-		if (entries.size() > 0) {
+		if (!entries.isEmpty()) {
 			return new ArrayList<>(entries.values());
 		}
 		return new ArrayList<>();
@@ -139,7 +141,7 @@ public class HudManager extends AbstractModule {
 		client.getProfiler().push("Hud Modules");
 		if (!(client.currentScreen instanceof HudEditScreen)) {
 			for (HudEntry hud : getEntries()) {
-				if (hud.isEnabled() && (!client.method_53526().chartsVisible() || hud.overridesF3())) {
+				if (hud.isEnabled() && (!client.options.debugEnabled || hud.overridesF3())) {
 					client.getProfiler().push(hud.getName());
 					hud.render(graphics, delta);
 					client.getProfiler().pop();

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,8 +23,8 @@
 package io.github.axolotlclient.modules.renderOptions;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import lombok.Getter;
 
@@ -36,7 +36,7 @@ public class BeaconBeam extends AbstractModule {
 	private final BooleanOption showBeaconBeams = new BooleanOption("showBeaconBeams", true);
 	private final BooleanOption showEndGatewayBeams = new BooleanOption("showEndGatewayBeams", true);
 
-	private final OptionCategory beams = new OptionCategory("beams");
+	private final OptionCategory beams = OptionCategory.create("beams");
 
 	@Override
 	public void init() {

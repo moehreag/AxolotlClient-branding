@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -29,9 +29,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 public class AccountsListWidget extends EntryListWidget {
 
@@ -39,17 +39,17 @@ public class AccountsListWidget extends EntryListWidget {
 	private final List<Entry> entries = new ArrayList<>();
 	private int selectedEntry = -1;
 
-	public AccountsListWidget(AccountsScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
+	public AccountsListWidget(AccountsScreen screen, Minecraft client, int width, int height, int top, int bottom, int entryHeight) {
 		super(client, width, height, top, bottom, entryHeight);
 		this.screen = screen;
 	}
 
-	public void setAccounts(List<MSAccount> accounts) {
+	public void setAccounts(List<Account> accounts) {
 		accounts.forEach(account -> entries.add(new Entry(screen, account)));
 	}
 
 	@Override
-	protected int getEntryCount() {
+	protected int size() {
 		return entries.size();
 	}
 
@@ -94,23 +94,19 @@ public class AccountsListWidget extends EntryListWidget {
 		private static final Identifier checkmark = new Identifier("axolotlclient", "textures/check.png");
 		private static final Identifier warningSign = new Identifier("axolotlclient", "textures/warning.png");
 
-		private final Identifier skin;
-
 		private final AccountsScreen screen;
-		private final MSAccount account;
-		private final MinecraftClient client;
+		private final Account account;
+		private final Minecraft client;
 		private long time;
 
-		public Entry(AccountsScreen screen, MSAccount account) {
+		public Entry(AccountsScreen screen, Account account) {
 			this.screen = screen;
 			this.account = account;
-			this.client = MinecraftClient.getInstance();
-			this.skin = new Identifier(Auth.getInstance().getSkinTextureId(account));
-			Auth.getInstance().loadSkinFile(skin, account);
+			this.client = Minecraft.getInstance();
 		}
 
 		@Override
-		public void updatePosition(int i, int j, int k) {
+		public void renderOutOfBounds(int i, int j, int k) {
 
 		}
 
@@ -118,32 +114,34 @@ public class AccountsListWidget extends EntryListWidget {
 		public void render(int index, int x, int y, int rowWidth, int rowHeight, int mouseX, int mouseY, boolean hovered) {
 			client.textRenderer.draw(account.getName(), x + 3 + 33, y + 1, -1);
 			client.textRenderer.draw(account.getUuid(), x + 3 + 33, y + 12, 8421504);
-			GlStateManager.color(1, 1, 1, 1);
+			GlStateManager.color4f(1, 1, 1, 1);
 			if (Auth.getInstance().getCurrent().equals(account)) {
-				client.getTextureManager().bindTexture(checkmark);
-				drawTexture(x - 35, y + 1, 0, 0, 25, 25, 25, 25);
+				client.getTextureManager().bind(checkmark);
+				drawTexture(x - 35, y + 1, 0, 0, 32, 32, 32, 32);
 			} else if (account.isExpired()) {
-				client.getTextureManager().bindTexture(warningSign);
-				drawTexture(x - 35, y + 1, 0, 0, 25, 25, 25, 25);
+				client.getTextureManager().bind(warningSign);
+				drawTexture(x - 35, y + 1, 0, 0, 32, 32, 32, 32);
 			}
-			if (!account.isOffline()) {
-				GlStateManager.color(1, 1, 1, 1);
-				client.getTextureManager().bindTexture(skin);
-				GlStateManager.enableBlend();
-				drawTexture(x - 1, y - 1, 8, 8, 8, 8, 33, 33, 64, 64);
-				drawTexture(x - 1, y - 1, 40, 8, 8, 8, 33, 33, 64, 64);
-				GlStateManager.disableBlend();
-			}
+			GlStateManager.color4f(1, 1, 1, 1);
+			client.getTextureManager().bind(Auth.getInstance().getSkinTexture(account));
+			GlStateManager.enableBlend();
+			drawTexture(x - 1, y - 1, 8, 8, 8, 8, 33, 33, 64, 64);
+			drawTexture(x - 1, y - 1, 40, 8, 8, 8, 33, 33, 64, 64);
+			GlStateManager.disableBlend();
+
 		}
 
 		@Override
 		public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
 			this.screen.select(index);
-			if (MinecraftClient.getTime() - this.time < 250L && client.world == null) {
-				Auth.getInstance().login(account);
+			if (Minecraft.getTime() - this.time < 250L && client.world == null) {
+				if (!getAccount().equals(Auth.getInstance().getCurrent())) {
+					screen.select(-1);
+					Auth.getInstance().login(account);
+				}
 			}
 
-			this.time = MinecraftClient.getTime();
+			this.time = Minecraft.getTime();
 			return false;
 		}
 
@@ -152,7 +150,7 @@ public class AccountsListWidget extends EntryListWidget {
 
 		}
 
-		public MSAccount getAccount() {
+		public Account getAccount() {
 			return account;
 		}
 	}

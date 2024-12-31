@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,15 +23,17 @@
 package io.github.axolotlclient.modules.freelook;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.EnumOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.FeatureDisabler;
-import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
 import net.minecraft.entity.Entity;
+import net.ornithemc.osl.keybinds.api.KeyBindingEvents;
 import org.lwjgl.input.Keyboard;
 
 public class Freelook extends AbstractModule {
@@ -39,15 +41,14 @@ public class Freelook extends AbstractModule {
 	private static final Freelook INSTANCE = new Freelook();
 	private static final KeyBinding KEY = new KeyBinding("key.freelook", Keyboard.KEY_V,
 		"category.axolotlclient");
-	public final BooleanOption enabled = new BooleanOption("enabled", false);
-	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final OptionCategory category = new OptionCategory("freelook");
-	private final EnumOption mode = new EnumOption("mode",
-		value -> FeatureDisabler.update(),
+	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
+	private final Minecraft client = Minecraft.getInstance();
+	private final OptionCategory category = OptionCategory.create("freelook");
+	private final StringArrayOption mode = new StringArrayOption("mode",
 		new String[]{"snap_perspective", "freelook"},
-		"freelook");
-	private final EnumOption perspective = new EnumOption("perspective", Perspective.values(),
-		Perspective.THIRD_PERSON_BACK.toString());
+		"freelook", value -> FeatureDisabler.update());
+	private final EnumOption<Perspective> perspective = new EnumOption<>("perspective", Perspective.class,
+		Perspective.THIRD_PERSON_BACK);
 	private final BooleanOption invert = new BooleanOption("invert", false);
 	private final BooleanOption toggle = new BooleanOption("toggle", false);
 	private float yaw, pitch;
@@ -60,7 +61,7 @@ public class Freelook extends AbstractModule {
 
 	@Override
 	public void init() {
-		KeyBindingHelper.registerKeyBinding(KEY);
+		KeyBindingEvents.REGISTER_KEYBINDS.register(r -> r.register(KEY));
 		category.add(enabled, mode, perspective, invert, toggle);
 		AxolotlClient.CONFIG.addCategory(category);
 	}
@@ -71,7 +72,7 @@ public class Freelook extends AbstractModule {
 			return;
 
 		if (toggle.get()) {
-			if (KEY.wasPressed()) {
+			if (KEY.consumeClick()) {
 				if (active) {
 					stop();
 				} else {
@@ -91,7 +92,8 @@ public class Freelook extends AbstractModule {
 
 	private void stop() {
 		active = false;
-		client.worldRenderer.scheduleTerrainUpdate();
+		client.worldRenderer.onViewChanged();
+		client.gameRenderer.updateShader(client.getCamera());
 		client.options.perspective = previousPerspective;
 	}
 
@@ -99,9 +101,9 @@ public class Freelook extends AbstractModule {
 		active = true;
 
 		previousPerspective = client.options.perspective;
-		client.options.perspective = Perspective.valueOf(perspective.get()).ordinal();
+		client.options.perspective = perspective.get().ordinal();
 
-		Entity camera = client.getCameraEntity();
+		Entity camera = client.getCamera();
 
 		if (camera == null)
 			camera = client.player;
@@ -128,7 +130,7 @@ public class Freelook extends AbstractModule {
 			pitch = -90;
 		}
 
-		client.worldRenderer.scheduleTerrainUpdate();
+		client.worldRenderer.onViewChanged();
 		return true;
 	}
 

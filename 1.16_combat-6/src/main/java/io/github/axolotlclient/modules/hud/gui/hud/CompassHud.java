@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,17 +25,18 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.IntegerOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.RenderUtil;
+import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
@@ -50,19 +51,59 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 
 	public final Identifier ID = new Identifier("kronhud", "compasshud");
 
-	private final IntegerOption widthOption = new IntegerOption("width", this::updateWidth, width, 100, 800);
+	private final IntegerOption widthOption = new IntegerOption("width", width, this::updateWidth, 100, 800);
 
 	private final ColorOption lookingBox = new ColorOption("lookingbox", new Color(0x80000000));
 	private final ColorOption degreesColor = new ColorOption("degreescolor", new Color(-1));
 	private final ColorOption majorIndicatorColor = new ColorOption("majorindicator", new Color(-1));
 	private final ColorOption minorIndicatorColor = new ColorOption("minorindicator", new Color(0xCCFFFFFF));
-	private final ColorOption cardinalColor = new ColorOption("cardinalcolor", Color.WHITE);
+	private final ColorOption cardinalColor = new ColorOption("cardinalcolor", ClientColors.WHITE);
 	private final ColorOption semiCardinalColor = new ColorOption("semicardinalcolor", new Color(0xFFAAAAAA));
 	private final BooleanOption invert = new BooleanOption("invert_direction", false);
 	private final BooleanOption showDegrees = new BooleanOption("showdegrees", true);
 
 	public CompassHud() {
 		super(240, 33, false);
+	}
+
+	private static Indicator getIndicator(int degrees) {
+		if (degrees % 90 == 0) {
+			return Indicator.CARDINAL;
+		}
+		if (degrees % 45 == 0) {
+			return Indicator.SEMI_CARDINAL;
+		}
+		return Indicator.SMALL;
+	}
+
+	private static String getCardString(Indicator indicator, int degrees) {
+		if (indicator == Indicator.CARDINAL) {
+			switch (degrees) {
+				case 0:
+					return "N";
+
+				case 90:
+					return "E";
+				case 180:
+					return "S";
+				case 270:
+					return "W";
+				default:
+					return "NaD";
+			}
+		}
+		switch (degrees) {
+			case 45:
+				return "NE";
+			case 135:
+				return "SE";
+			case 225:
+				return "SW";
+			case 315:
+				return "NW";
+			default:
+				return "NaD";
+		}
 	}
 
 	private void updateWidth(int newWidth) {
@@ -138,7 +179,7 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 			RenderSystem.color4f(1, 1, 1, targetOpacity);
 			if (indicator == Indicator.CARDINAL) {
 				// We have to call .color() here so that transparency stays
-				RenderUtil.drawRectangle(matrices, innerX, y, 1, 9, majorIndicatorColor.get().getAsInt());
+				RenderUtil.drawRectangle(matrices, innerX, y, 1, 9, majorIndicatorColor.get().toInt());
 				Color color = cardinalColor.get();
 				color = color.withAlpha((int) (color.getAlpha() * targetOpacity));
 				if (color.getAlpha() > 0) {
@@ -154,51 +195,11 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 				}
 			} else {
 				// We have to call .color() here so that transparency stays
-				RenderUtil.drawRectangle(matrices, innerX, y, 1, 5, minorIndicatorColor.get().getAsInt());
+				RenderUtil.drawRectangle(matrices, innerX, y, 1, 5, minorIndicatorColor.get().toInt());
 			}
 		}
 		RenderSystem.color4f(1, 1, 1, 1);
 		matrices.translate(-shift, 0, 0);
-	}
-
-	private static Indicator getIndicator(int degrees) {
-		if (degrees % 90 == 0) {
-			return Indicator.CARDINAL;
-		}
-		if (degrees % 45 == 0) {
-			return Indicator.SEMI_CARDINAL;
-		}
-		return Indicator.SMALL;
-	}
-
-	private static String getCardString(Indicator indicator, int degrees) {
-		if (indicator == Indicator.CARDINAL) {
-			switch (degrees) {
-				case 0:
-					return "N";
-
-				case 90:
-					return "E";
-				case 180:
-					return "S";
-				case 270:
-					return "W";
-				default:
-					return "NaD";
-			}
-		}
-		switch (degrees) {
-			case 45:
-				return "NE";
-			case 135:
-				return "SE";
-			case 225:
-				return "SW";
-			case 315:
-				return "NW";
-			default:
-				return "NaD";
-		}
 	}
 
 	@Override

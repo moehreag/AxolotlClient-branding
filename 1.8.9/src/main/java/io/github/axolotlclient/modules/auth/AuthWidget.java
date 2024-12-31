@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,33 +23,37 @@
 package io.github.axolotlclient.modules.auth;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.MinecraftClient;
+import io.github.axolotlclient.api.API;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.util.Identifier;
 
 public class AuthWidget extends ButtonWidget {
-	private final Identifier skinId;
 
-	public AuthWidget() {
-		super(242, 10, 10,
-			MinecraftClient.getInstance().textRenderer.getStringWidth(Auth.getInstance().getCurrent().getName()) + 28,
-			20, (!Auth.getInstance().getCurrent().isOffline() ? "    " : "") + Auth.getInstance().getCurrent().getName());
-		skinId = new Identifier(Auth.getInstance().getSkinTextureId(Auth.getInstance().getCurrent()));
+	public AuthWidget(int x, int y) {
+		super(242, x, y,
+			Minecraft.getInstance().textRenderer.getWidth(Auth.getInstance().getCurrent().getName()) + 28,
+			20, "    " + Auth.getInstance().getCurrent().getName());
 	}
 
 	@Override
-	public void render(MinecraftClient minecraftClient, int i, int j) {
-		if (!Auth.getInstance().getCurrent().isOffline()) {
-			Auth.getInstance().loadSkinFile(skinId, Auth.getInstance().getCurrent());
-		}
+	public void render(Minecraft minecraftClient, int i, int j) {
 		super.render(minecraftClient, i, j);
-		if (!Auth.getInstance().getCurrent().isOffline()) {
-			GlStateManager.color(1, 1, 1, 1);
-			MinecraftClient.getInstance().getTextureManager().bindTexture(skinId);
-			GlStateManager.enableBlend();
-			drawTexture(x + 1, y + 1, 8, 8, 8, 8, height - 2, height - 2, 64, 64);
-			drawTexture(x + 1, y + 1, 40, 8, 8, 8, height - 2, height - 2, 64, 64);
-			GlStateManager.disableBlend();
+		GlStateManager.color4f(1, 1, 1, 1);
+		Minecraft.getInstance().getTextureManager().bind(Auth.getInstance().getSkinTexture(Auth.getInstance().getCurrent()));
+		GlStateManager.enableBlend();
+		drawTexture(x + 1, y + 1, 8, 8, 8, 8, height - 2, height - 2, 64, 64);
+		drawTexture(x + 1, y + 1, 40, 8, 8, 8, height - 2, height - 2, 64, 64);
+		GlStateManager.disableBlend();
+		if (API.getInstance().getApiOptions().enabled.get()) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translatef(x + height - 1, y + height - 1, 0);
+			GlStateManager.scalef(0.25f, 0.25f, 1);
+			GlStateManager.translatef(-8, -8, 0);
+			int color = API.getInstance().getIndicatorColor();
+			fill(0, 4, 16, 12, color);
+			fill(4, 0, 12, 16, color);
+			fill(2, 2, 14, 14, color);
+			GlStateManager.popMatrix();
 		}
 	}
 }

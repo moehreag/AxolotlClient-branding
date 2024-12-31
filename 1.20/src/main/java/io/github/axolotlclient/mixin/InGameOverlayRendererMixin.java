@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,7 +24,7 @@ package io.github.axolotlclient.mixin;
 
 import io.github.axolotlclient.AxolotlClient;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.in_game.InGameOverlayRenderer;
+import net.minecraft.client.gui.hud.InGameOverlayRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

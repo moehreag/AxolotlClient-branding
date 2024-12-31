@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -31,10 +31,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
 import io.github.axolotlclient.modules.freelook.Freelook;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ToggleSprintHud;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.util.Identifier;
@@ -42,15 +42,15 @@ import net.minecraft.util.Util;
 
 public class FeatureDisabler {
 
-	private static final HashMap<BooleanOption, String[]> disabledServers = new HashMap<>();
-	private static final HashMap<BooleanOption, Supplier<Boolean>> conditions = new HashMap<>();
+	private static final HashMap<ForceableBooleanOption, String[]> disabledServers = new HashMap<>();
+	private static final HashMap<ForceableBooleanOption, Supplier<Boolean>> conditions = new HashMap<>();
 
 	private static final Supplier<Boolean> NONE = () -> true;
 	private static final Identifier channelName = new Identifier("axolotlclient", "block_mods");
 	// Features that can be disabled on the server's behalf
 	// If something should be added here, feel free to ping us via your favorite way.
-	private static final HashMap<String, BooleanOption> features = Util.make(() -> {
-		HashMap<String, BooleanOption> features = new HashMap<>();
+	private static final HashMap<String, ForceableBooleanOption> features = Util.make(() -> {
+		HashMap<String, ForceableBooleanOption> features = new HashMap<>();
 		features.put("freelook", Freelook.getInstance().enabled);
 		features.put("timechanger", AxolotlClient.CONFIG.timeChangerEnabled);
 		features.put("lowfire", AxolotlClient.CONFIG.lowFire);
@@ -86,7 +86,7 @@ public class FeatureDisabler {
 		);
 	}
 
-	private static void setServers(BooleanOption option, Supplier<Boolean> condition, String... servers) {
+	private static void setServers(ForceableBooleanOption option, Supplier<Boolean> condition, String... servers) {
 		disabledServers.put(option, servers);
 		conditions.put(option, condition);
 	}
@@ -105,7 +105,7 @@ public class FeatureDisabler {
 		disabledServers.forEach((option, strings) -> disableOption(option, strings, currentAddress));
 	}
 
-	private static void disableOption(BooleanOption option, String[] servers, String currentServer) {
+	private static void disableOption(ForceableBooleanOption option, String[] servers, String currentServer) {
 		boolean ban = false;
 		for (String s : servers) {
 			if (currentServer.toLowerCase(Locale.ROOT).contains(s.toLowerCase(Locale.ROOT))) {
@@ -114,7 +114,7 @@ public class FeatureDisabler {
 			}
 		}
 
-		if (option.getForceDisabled() != ban) {
+		if (option.isForceOff() != ban) {
 			option.setForceOff(ban, "ban_reason");
 		}
 	}

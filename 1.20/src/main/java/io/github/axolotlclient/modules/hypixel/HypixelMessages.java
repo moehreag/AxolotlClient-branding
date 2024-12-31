@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,6 +24,7 @@ package io.github.axolotlclient.modules.hypixel;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -31,17 +32,17 @@ import java.util.regex.Pattern;
 
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import lombok.Getter;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceReloader;
 
-public class HypixelMessages implements SimpleSynchronousResourceReloader {
+public class HypixelMessages implements SimpleSynchronousResourceReloadListener {
 
 	@Getter
 	private static final HypixelMessages instance = new HypixelMessages();
@@ -87,11 +88,14 @@ public class HypixelMessages implements SimpleSynchronousResourceReloader {
 	}
 
 	public boolean matchesAnyLanguage(String key, String message) {
-		return messageLanguageMap.get(key).values().stream().map(pattern -> pattern.matcher(message)).anyMatch(Matcher::matches);
+		return messageLanguageMap.getOrDefault(key, Collections.emptyMap()).values().stream()
+			.map(pattern -> pattern.matcher(message))
+			.anyMatch(Matcher::matches);
 	}
 
 	public boolean matchesAnyMessage(String lang, String message) {
-		return languageMessageMap.get(lang).values().stream().map(pattern -> pattern.matcher(message)).anyMatch(Matcher::matches);
+		return languageMessageMap.getOrDefault(lang, Collections.emptyMap())
+			.values().stream().map(pattern -> pattern.matcher(message)).anyMatch(Matcher::matches);
 	}
 
 	public boolean matchesAny(String message) {
@@ -100,7 +104,7 @@ public class HypixelMessages implements SimpleSynchronousResourceReloader {
 	}
 
 	@Override
-	public @NotNull Identifier getQuiltId() {
+	public @NotNull Identifier getFabricId() {
 		return new Identifier("axolotlclient", "hypixel_messages");
 	}
 

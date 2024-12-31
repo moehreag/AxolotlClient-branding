@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -32,22 +32,22 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin {
 
-	@Redirect(method = "updateCamera(Lnet/minecraft/world/World;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity;Lnet/minecraft/client/option/GameOptions;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"))
+	@Redirect(method = "prepare", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"))
 	public float axolotlclient$freelook$yaw(Entity entity) {
 		return Freelook.getInstance().yaw(entity.yaw);
 	}
 
-	@Redirect(method = "updateCamera(Lnet/minecraft/world/World;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity;Lnet/minecraft/client/option/GameOptions;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"))
+	@Redirect(method = "prepare", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"))
 	public float axolotlclient$freelook$prevYaw(Entity entity) {
 		return Freelook.getInstance().yaw(entity.prevYaw);
 	}
 
-	@Redirect(method = "updateCamera(Lnet/minecraft/world/World;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity;Lnet/minecraft/client/option/GameOptions;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;pitch:F"))
+	@Redirect(method = "prepare", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;pitch:F"))
 	public float axolotlclient$freelook$pitch(Entity entity) {
 		return Freelook.getInstance().pitch(entity.pitch);
 	}
 
-	@Redirect(method = "updateCamera(Lnet/minecraft/world/World;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity;Lnet/minecraft/client/option/GameOptions;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevPitch:F"))
+	@Redirect(method = "prepare", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevPitch:F"))
 	public float axolotlclient$freelook$prevPitch(Entity entity) {
 		return Freelook.getInstance().pitch(entity.prevPitch);
 	}

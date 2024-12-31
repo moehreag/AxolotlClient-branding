@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,13 +25,15 @@ package io.github.axolotlclient.modules.auth;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.widget.list.AlwaysSelectedEntryListWidget;
+import net.minecraft.client.gui.PlayerFaceRenderer;
+import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsListWidget.Entry> {
 
@@ -42,7 +44,7 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 		this.screen = screen;
 	}
 
-	public void setAccounts(List<MSAccount> accounts) {
+	public void setAccounts(List<Account> accounts) {
 		accounts.forEach(account -> addEntry(new Entry(screen, account)));
 	}
 
@@ -61,25 +63,21 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 		return this.screen.getFocused() == this;
 	}
 
-	@ClientOnly
-	public static class Entry extends AlwaysSelectedEntryListWidget.Entry<Entry> {
+	@Environment(EnvType.CLIENT)
+	public static class Entry extends AlwaysSelectedEntryListWidget.Entry<AccountsListWidget.Entry> {
 
 		private static final Identifier checkmark = new Identifier("axolotlclient", "textures/check.png");
 		private static final Identifier warningSign = new Identifier("axolotlclient", "textures/warning.png");
 
-
-		private final Identifier skin;
 		private final AccountsScreen screen;
-		private final MSAccount account;
+		private final Account account;
 		private final MinecraftClient client;
 		private long time;
 
-		public Entry(AccountsScreen screen, MSAccount account) {
+		public Entry(AccountsScreen screen, Account account) {
 			this.screen = screen;
 			this.account = account;
 			this.client = MinecraftClient.getInstance();
-			this.skin = new Identifier(Auth.getInstance().getSkinTextureId(account));
-			Auth.getInstance().loadSkinFile(skin, account);
 		}
 
 		@Override
@@ -89,15 +87,14 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 
 		@Override
 		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			if (Auth.getInstance().getCurrent().equals(account)) {
-				graphics.drawTexture(checkmark, x - 35, y + 1, 0, 0, 25, 25, 25, 25);
-			} else if (account.isExpired()) {
-				graphics.drawTexture(warningSign, x - 35, y + 1, 0, 0, 25, 25, 25, 25);
-			}
 			RenderSystem.enableBlend();
-			graphics.drawTexture(skin, x - 1, y - 1, 33, 33, 8, 8, 8, 8, 64, 64);
-			graphics.drawTexture(skin, x - 1, y - 1, 33, 33, 40, 8, 8, 8, 64, 64);
-			RenderSystem.disableBlend();
+			if (Auth.getInstance().getCurrent().equals(account)) {
+				graphics.drawTexture(checkmark, x - 35, y + 1, 0, 0, 32, 32, 32, 32);
+			} else if (account.isExpired()) {
+				graphics.drawTexture(warningSign, x - 35, y + 1, 0, 0, 32, 32, 32, 32);
+			}
+			Identifier texture = Auth.getInstance().getSkinTexture(account);
+			PlayerFaceRenderer.draw(graphics, texture, x - 1, y - 1, 33);
 
 			graphics.drawText(client.textRenderer, account.getName(), x + 3 + 33, y + 1, -1, false);
 			graphics.drawText(client.textRenderer, account.getUuid(), x + 3 + 33, y + 12, 8421504, false);
@@ -107,14 +104,17 @@ public class AccountsListWidget extends AlwaysSelectedEntryListWidget<AccountsLi
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			this.screen.select(this);
 			if (Util.getMeasuringTimeMs() - this.time < 250L && client.world == null) {
-				Auth.getInstance().login(account);
+				if (!getAccount().equals(Auth.getInstance().getCurrent())) {
+					screen.select(null);
+					Auth.getInstance().login(account);
+				}
 			}
 
 			this.time = Util.getMeasuringTimeMs();
 			return false;
 		}
 
-		public MSAccount getAccount() {
+		public Account getAccount() {
 			return account;
 		}
 	}

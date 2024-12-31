@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,8 +24,8 @@ package io.github.axolotlclient.modules.hud.gui.hud.item;
 
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
@@ -46,10 +46,11 @@ import net.minecraft.util.Identifier;
 public class ArmorHud extends TextHudEntry {
 
 	public static final Identifier ID = new Identifier("kronhud", "armorhud");
+
+	protected final BooleanOption showProtLvl = new BooleanOption("showProtectionLevel", false);
 	private final ItemStack[] placeholderStacks = new ItemStack[]{new ItemStack(Items.IRON_BOOTS),
 		new ItemStack(Items.IRON_LEGGINGS), new ItemStack(Items.IRON_CHESTPLATE), new ItemStack(Items.IRON_HELMET),
 		new ItemStack(Items.IRON_SWORD)};
-	protected BooleanOption showProtLvl = new BooleanOption("showProtectionLevel", false);
 
 	public ArmorHud() {
 		super(20, 100, true);
@@ -86,13 +87,13 @@ public class ArmorHud extends TextHudEntry {
 		if (total.equals("1")) {
 			total = null;
 		}
-		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, total, textColor.get().getAsInt(),
+		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, total, textColor.get().toInt(),
 			shadow.get());
 	}
 
 	public void renderItem(MatrixStack matrices, ItemStack stack, int x, int y) {
 		ItemUtil.renderGuiItemModel(getScale(), stack, x, y);
-		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, null, textColor.get().getAsInt(),
+		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, null, textColor.get().toInt(),
 			shadow.get());
 	}
 

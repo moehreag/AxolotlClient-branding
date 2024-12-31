@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,20 +22,20 @@
 
 package io.github.axolotlclient.mixin;
 
-import net.minecraft.client.render.VertexBuffer;
-import net.minecraft.client.render.WorldRenderer;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.client.render.world.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(WorldRenderer.class)
 public interface WorldRendererAccessor {
 
-	@Accessor
+	@Accessor("starsGlList")
 	int getStarsList();
 
-	@Accessor
+	@Accessor()
 	VertexBuffer getStarsBuffer();
 
-	@Accessor
+	@Accessor("useVbo")
 	boolean getVbo();
 }

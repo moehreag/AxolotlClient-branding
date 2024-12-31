@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -48,7 +48,7 @@ public class FPSHud extends SimpleTextHudEntry {
 
 	@Override
 	public String getValue() {
-		return MinecraftClientAccessor.getCurrentFps() + " FPS";
+		return MinecraftClientAccessor.axolotlclient$getCurrentFps() + " FPS";
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -24,15 +24,14 @@ package io.github.axolotlclient.mixin;
 
 import java.net.URI;
 
-import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.blur.MenuBlur;
 import io.github.axolotlclient.modules.screenshotUtils.ScreenshotUtils;
 import io.github.axolotlclient.modules.scrollableTooltips.ScrollableTooltips;
 import io.github.axolotlclient.util.OSUtil;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.item.itemgroup.ItemGroup;
+import net.minecraft.client.gui.screen.inventory.menu.CreativeInventoryScreen;
+import net.minecraft.item.CreativeModeTab;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,9 +50,9 @@ public abstract class ScreenMixin {
 	@ModifyArgs(method = "renderTooltip(Lnet/minecraft/item/ItemStack;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderTooltip(Ljava/util/List;II)V"))
 	public void axolotlclient$modifyTooltipPosition(Args args) {
 		if (ScrollableTooltips.getInstance().enabled.get()) {
-			if ((MinecraftClient.getInstance().currentScreen instanceof CreativeInventoryScreen)
-				&& ((CreativeInventoryScreen) MinecraftClient.getInstance().currentScreen)
-				.getSelectedTab() != ItemGroup.INVENTORY.getIndex()) {
+			if ((Minecraft.getInstance().screen instanceof CreativeInventoryScreen)
+				&& ((CreativeInventoryScreen) Minecraft.getInstance().screen)
+					   .getSelectedTab() != CreativeModeTab.INVENTORY.getId()) {
 				return;
 			}
 
@@ -72,11 +71,11 @@ public abstract class ScreenMixin {
 
 	@Inject(method = "openLink", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$openLink(URI link, CallbackInfo ci) {
-		OSUtil.getOS().open(link, AxolotlClient.LOGGER);
+		OSUtil.getOS().open(link);
 		ci.cancel();
 	}
 
-	@Inject(method = "handleTextClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
+	@Inject(method = "handleClickEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/ClickEvent;getAction()Lnet/minecraft/text/ClickEvent$Action;", ordinal = 0), cancellable = true)
 	public void axolotlclient$customClickEvents(Text text, CallbackInfoReturnable<Boolean> cir) {
 		ClickEvent event = text.getStyle().getClickEvent();
 		if (event instanceof ScreenshotUtils.CustomClickEvent) {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -43,6 +43,6 @@ public abstract class KeyboardInputMixin {
 	public boolean axolotlclient$toggleSneak(KeyBinding instance) {
 		ToggleSprintHud hud = (ToggleSprintHud) HudManager.getInstance().get(ToggleSprintHud.ID);
 		return hud.isEnabled() && hud.getSneakToggled().get() && MinecraftClient.getInstance().currentScreen == null
-			|| instance.isPressed();
+			   || instance.isPressed();
 	}
 }

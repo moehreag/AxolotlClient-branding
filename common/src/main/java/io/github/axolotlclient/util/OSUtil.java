@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -27,6 +27,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Locale;
+
+import io.github.axolotlclient.AxolotlClientCommon;
 
 public class OSUtil {
 
@@ -77,22 +79,22 @@ public class OSUtil {
 			return s;
 		}
 
-		public void open(URI uri, Logger logger) {
+		public void open(URI uri) {
 			try {
-				this.open(uri.toURL(), logger);
+				this.open(uri.toURL());
 			} catch (MalformedURLException var3) {
-				logger.error("Couldn't open uri '{}'", uri, var3);
+				AxolotlClientCommon.getInstance().getLogger().error("Couldn't open uri '{}'", uri, var3);
 			}
 		}
 
-		private void open(URL url, Logger logger) {
+		private void open(URL url) {
 			try {
 				Process process = Runtime.getRuntime().exec(this.getURLOpenCommand(url));
 				process.getInputStream().close();
 				process.getErrorStream().close();
 				process.getOutputStream().close();
 			} catch (IOException var3) {
-				logger.error("Couldn't open url '{}'", url, var3);
+				AxolotlClientCommon.getInstance().getLogger().error("Couldn't open url '{}'", url, var3);
 			}
 		}
 

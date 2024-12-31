@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,10 +25,13 @@ package io.github.axolotlclient.mixin;
 import java.util.function.IntSupplier;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientConfig.Color;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.modules.auth.Auth;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.util.ColorUtil;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -46,9 +49,16 @@ public abstract class SplashOverlayMixin {
 
 	@Inject(method = "<clinit>", at = @At("TAIL"))
 	private static void axolotlclient$customBackgroundColor(CallbackInfo ci) {
-		if (!QuiltLoader.isModLoaded("dark-loading-screen")) {
+		if (!FabricLoader.getInstance().isModLoaded("dark-loading-screen")) {
 			Color color = AxolotlClient.CONFIG.loadingScreenColor.get();
 			BRAND_ARGB = () -> ColorUtil.ARGB32.getArgb(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+		}
+	}
+
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init(Lnet/minecraft/client/MinecraftClient;II)V"))
+	private void onReloadFinish(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		if (!API.getInstance().isSocketConnected() && !Auth.getInstance().getCurrent().isOffline()) {
+			API.getInstance().startup(Auth.getInstance().getCurrent());
 		}
 	}
 }

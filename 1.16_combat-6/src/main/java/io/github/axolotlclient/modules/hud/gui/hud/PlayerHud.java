@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,9 +25,9 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.options.BooleanOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.DoubleOption;
-import io.github.axolotlclient.AxolotlClientConfig.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.DoubleOption;
 import io.github.axolotlclient.modules.hud.gui.entry.BoxHudEntry;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
@@ -55,7 +55,7 @@ public class PlayerHud extends BoxHudEntry {
 	public static final Identifier ID = new Identifier("kronhud", "playerhud");
 	@Getter
 	private static boolean currentlyRendering;
-	private final DoubleOption rotation = new DoubleOption("rotation", 0, 0, 360);
+	private final DoubleOption rotation = new DoubleOption("rotation", 0d, 0d, 360d);
 	private final BooleanOption dynamicRotation = new BooleanOption("dynamicrotation", true);
 	private final BooleanOption autoHide = new BooleanOption("autoHide", false);
 	private float lastYawOffset = 0;
@@ -205,7 +205,7 @@ public class PlayerHud extends BoxHudEntry {
 		// inspired by tr7zw's mod
 		ClientPlayerEntity player = client.player;
 		return player.isSneaking() || player.isSprinting() || player.isFallFlying() || player.abilities.flying
-			|| player.isSubmergedInWater() || player.isInSwimmingPose() || player.hasVehicle()
-			|| player.isUsingItem() || player.handSwinging || player.hurtTime > 0 || player.isOnFire();
+			   || player.isSubmergedInWater() || player.isInSwimmingPose() || player.hasVehicle()
+			   || player.isUsingItem() || player.handSwinging || player.hurtTime > 0 || player.isOnFire();
 	}
 }

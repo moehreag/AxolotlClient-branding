@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -67,7 +67,7 @@ public class AddOfflineScreen extends Screen {
 
 		addButton(new ButtonWidget(width / 2 - 155, height - 50, 150, 20, ScreenTexts.CANCEL, button -> client.openScreen(parent)));
 		addButton(new ButtonWidget(width / 2 + 5, height - 50, 150, 20, ScreenTexts.DONE, button -> {
-			Auth.getInstance().addAccount(new MSAccount(nameInput.getText(), UUID.randomUUID().toString(), MSAccount.OFFLINE_TOKEN));
+			Auth.getInstance().addAccount(new Account(nameInput.getText(), UUID.randomUUID().toString(), Account.OFFLINE_TOKEN));
 			client.openScreen(parent);
 		}));
 	}

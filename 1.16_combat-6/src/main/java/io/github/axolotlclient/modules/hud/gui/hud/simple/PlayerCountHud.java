@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -28,7 +28,7 @@ import net.minecraft.util.Identifier;
 
 public class PlayerCountHud extends SimpleTextHudEntry {
 
-	public static Identifier ID = new Identifier("axolotlclient", "playercounthud");
+	public static final Identifier ID = new Identifier("axolotlclient", "playercounthud");
 
 	@Override
 	public Identifier getId() {

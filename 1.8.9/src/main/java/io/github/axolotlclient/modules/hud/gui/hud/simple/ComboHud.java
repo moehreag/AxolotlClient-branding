@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -23,10 +23,10 @@
 package io.github.axolotlclient.modules.hud.gui.hud.simple;
 
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -53,7 +53,7 @@ public class ComboHud extends SimpleTextHudEntry {
 		if (count == 0) {
 			return I18n.translate("combocounter.no_hits");
 		}
-		if (lastTime + 2000 < MinecraftClient.getTime()) {
+		if (lastTime + 2000 < Minecraft.getTime()) {
 			count = 0;
 			return "0 hits";
 		}
@@ -69,21 +69,21 @@ public class ComboHud extends SimpleTextHudEntry {
 	}
 
 	public void onEntityAttack(Entity attacked) {
-		target = attacked.getEntityId();
+		target = attacked.getNetworkId();
 	}
 
 	public void onEntityDamage(Entity entity) {
 		if (client.player == null) {
 			return;
 		}
-		if (entity.getEntityId() == client.player.getEntityId()) {
+		if (entity.getNetworkId() == client.player.getNetworkId()) {
 			target = -1;
 			count = 0;
 			return;
 		}
-		if (entity.getEntityId() == target) {
+		if (entity.getNetworkId() == target) {
 			count++;
-			lastTime = MinecraftClient.getTime();
+			lastTime = Minecraft.getTime();
 		}
 	}
 }

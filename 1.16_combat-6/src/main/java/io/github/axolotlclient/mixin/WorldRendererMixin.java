@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -70,7 +70,7 @@ public abstract class WorldRendererMixin {
 	@ModifyArgs(method = "drawBlockOutline", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawShapeOutline(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V"))
 	public void axolotlclient$customOutlineColor(Args args) {
 		if (AxolotlClient.CONFIG.enableCustomOutlines.get()) {
-			int color = AxolotlClient.CONFIG.outlineColor.get().getAsInt();
+			int color = AxolotlClient.CONFIG.outlineColor.get().toInt();
 			float a = (float) (color >> 24 & 0xFF) / 255.0F;
 			float r = (float) (color >> 16 & 0xFF) / 255.0F;
 			float g = (float) (color >> 8 & 0xFF) / 255.0F;

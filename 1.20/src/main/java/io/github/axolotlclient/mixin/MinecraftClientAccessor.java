@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -36,31 +36,31 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(MinecraftClient.class)
 public interface MinecraftClientAccessor {
 
-	@Accessor
-	static int getCurrentFps() {
+	@Accessor("currentFps")
+	static int axolotlclient$getCurrentFps() {
 		return 0;
 	}
 
-	@Accessor
+	@Accessor("session")
 	@Mutable
-	void setSession(Session session);
+	void axolotlclient$setSession(Session session);
 
-	@Accessor
+	@Accessor("socialInteractionsManager")
 	@Mutable
-	void setSocialInteractionsManager(SocialInteractionsManager manager);
+	void axolotlclient$setSocialInteractionsManager(SocialInteractionsManager manager);
 
-	@Accessor
+	@Accessor("playerKeyPairManager")
 	@Mutable
-	void setPlayerKeyPairManager(PlayerKeyPairManager manager);
+	void axolotlclient$setPlayerKeyPairManager(PlayerKeyPairManager manager);
 
 	@Accessor("chatReportingContext")
 	@Mutable
-	void setChatReportingContext(ChatReportingContext context);
+	void axolotlclient$setChatReportingContext(ChatReportingContext context);
 
-	@Accessor
+	@Accessor("userApiService")
 	@Mutable
-	void setUserApiService(UserApiService service);
+	void axolotlclient$setUserApiService(UserApiService service);
 
-	@Accessor
+	@Accessor("authService")
 	YggdrasilAuthenticationService getAuthService();
 }

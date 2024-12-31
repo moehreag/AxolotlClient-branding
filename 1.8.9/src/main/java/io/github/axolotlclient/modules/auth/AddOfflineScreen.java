@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -62,10 +62,10 @@ public class AddOfflineScreen extends Screen {
 	@Override
 	protected void buttonClicked(ButtonWidget buttonWidget) {
 		if (buttonWidget.id == 1) {
-			client.setScreen(parent);
+			minecraft.openScreen(parent);
 		} else if (buttonWidget.id == 2) {
-			Auth.getInstance().addAccount(new MSAccount(nameInput.getText(), UUID.randomUUID().toString(), MSAccount.OFFLINE_TOKEN));
-			client.setScreen(parent);
+			Auth.getInstance().addAccount(new Account(nameInput.getText(), UUID.randomUUID().toString(), Account.OFFLINE_TOKEN));
+			minecraft.openScreen(parent);
 		}
 	}
 

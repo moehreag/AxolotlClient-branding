@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -25,14 +25,14 @@ package io.github.axolotlclient.mixin;
 import java.util.Map;
 import java.util.UUID;
 
-import net.minecraft.client.gui.hud.boss_bar.BossBarHud;
-import net.minecraft.client.gui.hud.boss_bar.ClientBossBar;
+import net.minecraft.client.gui.hud.BossBarHud;
+import net.minecraft.client.gui.hud.ClientBossBar;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(BossBarHud.class)
 public interface BossBarHudAccessor {
 
-	@Accessor
-	Map<UUID, ClientBossBar> getBossBars();
+	@Accessor("bossBars")
+	Map<UUID, ClientBossBar> axolotlclient$getBossBars();
 }

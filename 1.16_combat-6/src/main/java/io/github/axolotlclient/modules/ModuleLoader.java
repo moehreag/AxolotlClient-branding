@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -59,7 +59,7 @@ public class ModuleLoader {
 					}
 				} catch (Exception e) {
 					AxolotlClient.LOGGER.warn("Skipping module: " + entrypoint.getProvider().getMetadata().getName()
-						+ " because of error:");
+											  + " because of error:");
 					e.printStackTrace();
 				}
 			});

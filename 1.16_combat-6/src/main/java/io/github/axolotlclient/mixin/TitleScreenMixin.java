@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,25 +22,34 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.FriendsScreen;
+import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.zoom.Zoom;
-import io.github.axolotlclient.util.UnsupportedMod;
+import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ConfirmScreen;
+import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -63,8 +72,43 @@ public abstract class TitleScreenMixin extends Screen {
 			MinecraftClient.getInstance().options.keySaveToolbarActivator.setBoundKey(InputUtil.UNKNOWN_KEY);
 			AxolotlClient.LOGGER.info("Unbound \"Save Toolbar Activator\" to resolve conflict with the zoom key!");
 		}
+		List<AbstractButtonWidget> buttons = Collections.synchronizedList(new ArrayList<>());
+		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
-			addButton(new AuthWidget());
+			buttons.add(addButton(new AuthWidget(10, leftButtonY)));
+			leftButtonY += 25;
+		}
+		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
+			buttons.add(addButton(new ButtonWidget(10, leftButtonY, 50, 20, new TranslatableText("api.friends"),
+				w -> client.openScreen(new FriendsScreen(this)))));
+			leftButtonY += 25;
+			buttons.add(addButton(new ButtonWidget(10, leftButtonY, 50, 20, new TranslatableText("api.chats"),
+				w -> client.openScreen(new ChatListScreen(this)))));
+		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(addButton(new ButtonWidget(width - 90, buttonY, 80, 20,
+					new TranslatableText("api.new_version_available"), widget ->
+					MinecraftClient.getInstance().openScreen(new ConfirmChatLinkScreen(r -> {
+						if (r) {
+							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
+						}
+					}, "https://modrinth.com/mod/axolotlclient/versions", true)))));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(addButton(new ButtonWidget(width - 90, buttonY, 80, 20,
+					new TranslatableText("api.notes"), buttonWidget ->
+					MinecraftClient.getInstance().openScreen(new NewsScreen(this)))));
+			}
+		});
+
+		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+			buttons.forEach(r -> r.y += 24 / 2);
 		}
 	}
 
@@ -84,55 +128,11 @@ public abstract class TitleScreenMixin extends Screen {
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawStringWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"), index = 2)
 	public String axolotlclient$setVersionText(String s) {
 		return "Minecraft " + SharedConstants.getGameVersion().getName() + "/AxolotlClient "
-			+ (FabricLoader.getInstance().getModContainer("axolotlclient").isPresent()
-			? FabricLoader.getInstance().getModContainer("axolotlclient").get().getMetadata().getVersion().getFriendlyString()
-			: "");
+			+ AxolotlClient.VERSION;
 	}
 
 	@Inject(method = "areRealmsNotificationsEnabled", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$noRealmsIcons(CallbackInfoReturnable<Boolean> cir) {
 		cir.setReturnValue(false);
-	}
-
-	@Inject(method = "init", at = @At("HEAD"))
-	public void axolotlclient$showBadModsScreen(CallbackInfo ci) {
-		if (AxolotlClient.showWarning) {
-			StringBuilder description = new StringBuilder();
-			for (int i = 0; i < AxolotlClient.badmod.reason().length; i++) {
-				UnsupportedMod.UnsupportedReason reason = AxolotlClient.badmod.reason()[i];
-				if (i > 0 && i < AxolotlClient.badmod.reason().length - 1) {
-					description.append(", to ");
-				} else if (i > 0) {
-					description.append(" and to ");
-				}
-				description.append(reason);
-			}
-			description.append(". ");
-
-			MinecraftClient.getInstance().openScreen(new ConfirmScreen((boolean confirmed) -> {
-				if (confirmed) {
-					AxolotlClient.showWarning = false;
-					AxolotlClient.titleDisclaimer = true;
-					System.out.println("Proceed with Caution!");
-					MinecraftClient.getInstance().openScreen(new TitleScreen());
-				} else {
-					MinecraftClient.getInstance().stop();
-				}
-			}, new LiteralText("Axolotlclient warning").formatted(Formatting.RED), new LiteralText("The mod ")
-				.append(new LiteralText(AxolotlClient.badmod.name()).formatted(Formatting.BOLD, Formatting.DARK_RED))
-				.append(" is known to ").append(description.toString())
-				.append("AxolotlClient will not be responsible for any punishment or crashes you will encounter while using it.\n Proceed with Caution!"),
-				new TranslatableText("gui.proceed"), new TranslatableText("menu.quit")));
-		}
-	}
-
-	@Inject(method = "render", at = @At("TAIL"))
-	public void axolotlclient$addDisclaimer(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		if (AxolotlClient.titleDisclaimer) {
-			TitleScreen.drawCenteredString(matrices, this.textRenderer,
-				"You are playing at your own risk with unsupported Mods", this.width / 2, 5, 0xFFCC8888);
-			TitleScreen.drawCenteredString(matrices, this.textRenderer, "Things could break!", this.width / 2, 15,
-				0xFFCC8888);
-		}
 	}
 }

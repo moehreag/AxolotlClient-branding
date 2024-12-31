@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021-2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,20 +22,38 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.List;
+
+import com.llamalad7.mixinextras.sugar.Local;
+import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.api.APIOptions;
+import io.github.axolotlclient.api.FriendsScreen;
+import io.github.axolotlclient.api.NewsScreen;
+import io.github.axolotlclient.api.chat.ChatListScreen;
+import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.modules.auth.AccountsScreen;
 import io.github.axolotlclient.modules.auth.Auth;
 import io.github.axolotlclient.modules.auth.AuthWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
+import io.github.axolotlclient.util.OSUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.ClientBrandRetriever;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.resource.Identifier;
+import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
@@ -53,11 +71,33 @@ public abstract class TitleScreenMixin extends Screen {
 			args.set(0, 192);
 			args.set(3, I18n.translate("config") + "...");
 		}
+		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
-			buttons.add(new AuthWidget());
+			buttons.add(new AuthWidget(10, leftButtonY));
+			leftButtonY += 25;
 		}
+		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
+			buttons.add(new ButtonWidget(142, 10, leftButtonY, 50, 20, I18n.translate("api.friends")));
+			leftButtonY += 25;
+			buttons.add(new ButtonWidget(42, 10, leftButtonY, 50, 20, I18n.translate("api.chats")));
+		}
+		GlobalDataRequest.get().thenAccept(data -> {
+			int buttonY = 10;
+			if (APIOptions.getInstance().updateNotifications.get() &&
+				data.success() &&
+				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
+				buttons.add(new ButtonWidget(182, width - 90, buttonY, 80, 20, I18n.translate("api.new_version_available")));
+				buttonY += 22;
+			}
+			if (APIOptions.getInstance().displayNotes.get() &&
+				data.success() && !data.notes().isEmpty()) {
+				buttons.add(new ButtonWidget(253, width - 90, buttonY, 80, 20,
+					I18n.translate("api.notes")));
+			}
+		});
 	}
 
+	@Unique
 	private boolean axolotlclient$alternateLayout() {
 		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
@@ -80,20 +120,40 @@ public abstract class TitleScreenMixin extends Screen {
 	@Inject(method = "buttonClicked", at = @At("TAIL"))
 	public void axolotlclient$onClick(ButtonWidget button, CallbackInfo ci) {
 		if (button.id == 192)
-			MinecraftClient.getInstance().setScreen(new HudEditScreen(this));
+			Minecraft.getInstance().openScreen(new HudEditScreen(this));
 		else if (button.id == 242)
-			MinecraftClient.getInstance().setScreen(new AccountsScreen(MinecraftClient.getInstance().currentScreen));
+			Minecraft.getInstance().openScreen(new AccountsScreen(Minecraft.getInstance().screen));
+		else if (button.id == 182)
+			Minecraft.getInstance().openScreen(new ConfirmChatLinkScreen((bl, i) -> {
+				if (bl && i == 353) {
+					OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
+				}
+				Minecraft.getInstance().openScreen(this);
+			}, "https://modrinth.com/mod/axolotlclient/versions", 353, true));
+		else if (button.id == 253)
+			Minecraft.getInstance().openScreen(new NewsScreen(this));
+		else if (button.id == 142) minecraft.openScreen(new FriendsScreen(this));
+		else if (button.id == 42) minecraft.openScreen(new ChatListScreen(this));
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V", ordinal = 0))
 	public void axolotlclient$customBranding(TitleScreen instance, TextRenderer textRenderer, String s, int x, int y, int color) {
 		if (FabricLoader.getInstance().getModContainer("axolotlclient").isPresent()) {
-			instance.drawWithShadow(textRenderer,
-				"Minecraft 1.8.9/" + ClientBrandRetriever.getClientModName() + " " + FabricLoader.getInstance()
-					.getModContainer("axolotlclient").get().getMetadata().getVersion().getFriendlyString(),
+			instance.drawString(textRenderer,
+				"Minecraft 1.8.9/" + ClientBrandRetriever.getClientModName() + " " + AxolotlClient.VERSION,
 				x, y, color);
 		} else {
-			instance.drawWithShadow(textRenderer, s, x, y, color);
+			instance.drawString(textRenderer, s, x, y, color);
+		}
+	}
+
+	@Inject(method = "<init>",
+		at = @At(value = "INVOKE",
+			target = "Ljava/util/List;isEmpty()Z", remap = false))
+	private void axolotlclient$customSplashTexts(CallbackInfo ci, @Local List<String> list) throws IOException {
+		try (InputStream input = Minecraft.getInstance().getResourceManager()
+			.getResource(new Identifier("axolotlclient", "texts/splashes.txt")).asStream()) {
+			list.addAll(IOUtils.readLines(input));
 		}
 	}
 }
