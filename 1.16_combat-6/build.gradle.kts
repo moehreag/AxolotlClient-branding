@@ -109,6 +109,10 @@ publishing {
 	}
 }
 
+tasks.modrinth {
+	dependsOn(tasks.getByName("optimizeOutputsOfRemapJar"))
+}
+
 modrinth {
 	token = System.getenv("MODRINTH_TOKEN")
 	projectId = "p2rxzX0q"
@@ -127,7 +131,7 @@ modrinth {
 	// License: MIT
 	val changelogText = file("../CHANGELOG.md").readText()
 	val regexVersion =
-		((project.version) as String).split("\\+")[0].replace("\\.".toRegex(), "/\\./").replace("\\+".toRegex(), "\\+")
+		((project.version) as String).split("+")[0].replace("\\.".toRegex(), "\\.").replace("\\+".toRegex(), "+")
 	val changelogRegex = "###? ${regexVersion}\\n\\n(( *- .+\\n)+)".toRegex()
 	val matcher = changelogRegex.find(changelogText)
 
@@ -136,8 +140,7 @@ modrinth {
 
 		val changelogLines = changelogText.split("\n")
 		val linkRefRegex = "^\\[([A-z0-9 _\\-/+.]+)]: ".toRegex()
-		for (i in (changelogLines.size - 1)..0 step -1) {
-			val line = changelogLines[i]
+		for (line in changelogLines.reversed()) {
 			if ((linkRefRegex.matches(line)))
 				changelogContent += "\n" + line
 			else break
