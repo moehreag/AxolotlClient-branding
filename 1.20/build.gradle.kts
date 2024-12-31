@@ -59,7 +59,7 @@ dependencies {
 	//localRuntime("org.khelekore:prtree:1.5")
 
 	implementation("net.hypixel:mod-api:1.0.1")
-	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.1+mc1.20.1")!!)
+	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.2+mc1.20.1")!!)
 }
 
 tasks.processResources {
