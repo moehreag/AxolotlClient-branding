@@ -116,14 +116,14 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startDeviceAuth(() -> minecraft.execute(this::refresh));
+		Auth.getInstance().getAuth().startDeviceAuth().thenRun(() -> minecraft.execute(this::refresh));
 	}
 
 	private void refreshAccount() {
 		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelected();
 		if (entry != null) {
-			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> minecraft.execute(() -> {
+			entry.getAccount().refresh(Auth.getInstance().getAuth()).thenRun(() -> minecraft.execute(() -> {
 				Auth.getInstance().save();
 				refresh();
 			}));

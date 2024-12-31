@@ -22,36 +22,42 @@
 
 package io.github.axolotlclient.api.util;
 
-import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
-import com.google.gson.JsonElement;
 import io.github.axolotlclient.api.API;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 
 public class UUIDHelper {
 
 	private static final WeakHashMap<String, String> nameCache = new WeakHashMap<>();
 	private static final WeakHashMap<String, String> uuidCache = new WeakHashMap<>();
+	private static final HttpClient client = NetworkUtil.createHttpClient("UUIDHelper");
 
 	public static String getUsername(String uuid) {
 		return getUsername0(uuid).orElse(uuid);
 	}
 
 	private static Optional<String> getUsername0(String uuid) {
-		return Optional.ofNullable(nameCache.computeIfAbsent(uuid, s -> {
-			try {
-				JsonElement e = NetworkUtil.getRequest("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid, NetworkUtil.createHttpClient("API"));
-				return e.getAsJsonObject().get("name").getAsString();
-			} catch (IOException e) {
-				if (API.getInstance().getApiOptions().detailedLogging.get()) {
-					API.getInstance().getLogger().warn("Conversion uuid -> username failed: {}", e.getMessage());
-				}
-			}
-			return "";
-		})).map(s -> s.isEmpty() ? null : s);
+		return Optional.ofNullable(nameCache.computeIfAbsent(uuid, s ->
+			client.sendAsync(HttpRequest.newBuilder(URI.create("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid)).GET().build(), HttpResponse.BodyHandlers.ofString())
+				.thenApply(HttpResponse::body)
+				.thenApply(GsonHelper::fromJson)
+				.thenApply(o -> {
+					if (o.has("name")) {
+						return o.get("name").getAsString();
+					}
+					if (API.getInstance().getApiOptions().detailedLogging.get()) {
+						API.getInstance().getLogger().warn("Conversion uuid -> username failed: {}", o);
+					}
+					return "";
+				}).join())).map(s -> s.isEmpty() ? null : s);
 	}
 
 	public static String getUuid(String username) {
@@ -59,17 +65,19 @@ public class UUIDHelper {
 	}
 
 	private static Optional<String> getUuid0(String username) {
-		return Optional.of(uuidCache.computeIfAbsent(username, s -> {
-			try {
-				JsonElement response = NetworkUtil.getRequest("https://api.mojang.com/users/profiles/minecraft/" + username, NetworkUtil.createHttpClient("API"));
-				return response.getAsJsonObject().get("id").getAsString();
-			} catch (IOException e) {
-				if (API.getInstance().getApiOptions().detailedLogging.get()) {
-					API.getInstance().getLogger().warn("Conversion username -> uuid failed: {}", e.getMessage());
-				}
-			}
-			return "";
-		})).map(s -> s.isEmpty() ? null : s);
+		return Optional.of(uuidCache.computeIfAbsent(username, s ->
+			client.sendAsync(HttpRequest.newBuilder(URI.create("https://api.mojang.com/users/profiles/minecraft/" + username)).GET().build(), HttpResponse.BodyHandlers.ofString())
+				.thenApply(HttpResponse::body)
+				.thenApply(GsonHelper::fromJson)
+				.thenApply(o -> {
+					if (o.has("id")) {
+						return o.get("id").getAsString();
+					}
+					if (API.getInstance().getApiOptions().detailedLogging.get()) {
+						API.getInstance().getLogger().warn("Conversion username -> uuid failed: {}", o);
+					}
+					return "";
+				}).join())).map(s -> s.isEmpty() ? null : s);
 	}
 
 	public static String ensureUuid(String uuidOrUsername) {

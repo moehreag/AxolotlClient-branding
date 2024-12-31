@@ -38,6 +38,7 @@ import java.util.Arrays;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Account;
+import io.github.axolotlclient.modules.auth.MSAuth;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 import lombok.Builder;
@@ -53,6 +54,7 @@ public class MojangAuth {
 			HttpClient client = NetworkUtil.createHttpClient("MojangAuth");
 
 			HttpRequest.Builder builder = HttpRequest.newBuilder().timeout(Duration.ofSeconds(10));
+			builder.version(HttpClient.Version.HTTP_1_1);
 			builder.header("Content-Type", "application/json; charset=utf-8");
 			builder.header("Accept", "application/json");
 
@@ -75,12 +77,18 @@ public class MojangAuth {
 				return result.status(Status.SUCCESS).build();
 			} else {
 				JsonObject element = GsonHelper.fromJson(response.body());
+
+				String error = element.get("error").getAsString();
+				if ("ForbiddenOperationException".equals(error) && "INVALID_SIGNATURE".equals(element.get("errorMessage").getAsString())) {
+					account.refresh(MSAuth.INSTANCE).thenAccept(MojangAuth::authenticate);
+				}
+
 				API.getInstance().logDetailed("Response code: "+response.statusCode());
 				API.getInstance().logDetailed(element.toString());
 
-				if (element.get("error").getAsString().equals("InsufficientPrivilegesException")) {
+				if (error.equals("InsufficientPrivilegesException")) {
 					return result.status(Status.MULTIPLAYER_DISABLED).build();
-				} else if (element.get("error").getAsString().equals("UserBannedException")) {
+				} else if (error.equals("UserBannedException")) {
 					return result.status(Status.USER_BANNED).build();
 				}
 			}

@@ -68,8 +68,7 @@ public class Auth extends Accounts implements Module {
 		if (isContained(client.getSession().getUuid())) {
 			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).collect(Collectors.toList()).get(0);
 			if (current.needsRefresh()) {
-				current.refresh(auth, () -> {
-				});
+				current.refresh(auth);
 			}
 		} else {
 			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
@@ -95,9 +94,7 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus(new TranslatableText("auth.notif.title"), new TranslatableText("auth.notif.refreshing", account.getName()));
 			}
-			account.refresh(auth, () -> {
-				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
-			});
+			account.refresh(auth).thenAccept(this::login);
 		} else {
 			try {
 				API.getInstance().shutdown();
@@ -151,16 +148,14 @@ public class Auth extends Accounts implements Module {
 		client.execute(() -> client.openScreen(new ConfirmScreen((bl) -> {
 			client.openScreen(current);
 			if (bl) {
-				auth.startDeviceAuth(() -> {
-				});
+				auth.startDeviceAuth();
 			}
 		}, new TranslatableText("auth"), new TranslatableText("auth.accountExpiredNotice", account.getName()))));
 	}
 
 	@Override
 	void displayDeviceCode(DeviceFlowData data) {
-		Screen display = new DeviceCodeDisplayScreen(client.currentScreen, data);
-		client.openScreen(display);
+		client.execute(() -> client.openScreen(new DeviceCodeDisplayScreen(client.currentScreen, data)));
 	}
 
 	public Identifier getSkinTexture(Account account) {

@@ -24,9 +24,9 @@ package io.github.axolotlclient.modules.auth;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
-import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -79,8 +79,8 @@ public class Account {
 		return new Account(uuid, name, authToken, msaToken, refreshToken, expiration);
 	}
 
-	public void refresh(MSAuth auth, Runnable runAfter) {
-		ThreadExecuter.scheduleTask(() -> auth.refreshToken(refreshToken, this, runAfter));
+	public CompletableFuture<Account> refresh(MSAuth auth) {
+		return auth.refreshToken(refreshToken, this);
 	}
 
 	public boolean isOffline() {

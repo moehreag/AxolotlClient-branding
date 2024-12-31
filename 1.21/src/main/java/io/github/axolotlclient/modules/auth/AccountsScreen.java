@@ -120,14 +120,14 @@ public class AccountsScreen extends Screen {
 	}
 
 	private void initMSAuth() {
-		Auth.getInstance().getAuth().startDeviceAuth(() -> client.execute(this::refresh));
+		Auth.getInstance().getAuth().startDeviceAuth().thenRun(() -> client.execute(this::refresh));
 	}
 
 	private void refreshAccount() {
 		refreshButton.active = false;
 		AccountsListWidget.Entry entry = accountsListWidget.getSelectedOrNull();
 		if (entry != null) {
-			entry.getAccount().refresh(Auth.getInstance().getAuth(), () -> client.execute(() -> {
+			entry.getAccount().refresh(Auth.getInstance().getAuth()).thenRun(() -> client.execute(() -> {
 				Auth.getInstance().save();
 				refresh();
 			}));

@@ -70,6 +70,8 @@ public interface Toast {
 		}
 
 		public void playSound(SoundManager handler) {
+			handler.stop(soundEvent);
+			handler.tick();
 			handler.play(this.soundEvent);
 		}
 	}
