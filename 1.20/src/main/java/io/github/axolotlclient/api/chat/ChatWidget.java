@@ -65,6 +65,8 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		setLeftPos(x + 5);
 
 		setRenderHeader(false, 0);
+		setRenderHorizontalShadows(false);
+		setRenderBackground(false);
 		this.screen = screen;
 		channel.getMessages().forEach(this::addMessage);
 

@@ -40,7 +40,7 @@ dependencies {
 
 	implementation(include(project(path = ":common", configuration = "shadow"))!!)
 
-	modImplementation(include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")!!)
+	modApi(include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")!!)
 
 	val lwjglVersion = "3.3.5"
 	api("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
@@ -75,7 +75,7 @@ dependencies {
 		exclude(group = "org.javassist")
 	}
 
-	implementation("org.lwjgl", "lwjgl-tinyfd", "3.3.5")
+	include(implementation("org.lwjgl", "lwjgl-tinyfd", "3.3.5"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-linux"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos"))
@@ -83,7 +83,7 @@ dependencies {
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows-arm64"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos-arm64"))
 
-	implementation("net.hypixel:mod-api:1.0.1")
+	api("net.hypixel:mod-api:1.0.1")
 	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.2+mc1.8.9")!!)
 }
 
