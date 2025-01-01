@@ -3,8 +3,8 @@ plugins {
 	id("com.gradleup.shadow")
 }
 
-group = project.property("maven_group")!!
-base.archivesName.set(project.property("archives_base_name").toString())
+group = project.property("maven_group").toString()+"."+project.property("archives_base_name").toString()
+base.archivesName.set(project.property("archives_base_name").toString()+"-common")
 
 dependencies {
 	compileOnly("org.jetbrains:annotations:24.0.0")
@@ -86,6 +86,7 @@ java {
 publishing {
 	publications {
 		create("shadow", MavenPublication::class) {
+			artifactId = base.archivesName.get()
 			from(components["shadow"])
 		}
 	}

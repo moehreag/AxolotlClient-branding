@@ -126,7 +126,7 @@ java {
 publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
-			artifactId = project.name
+			artifactId = base.archivesName.get()
 			from(components["java"])
 		}
 	}
