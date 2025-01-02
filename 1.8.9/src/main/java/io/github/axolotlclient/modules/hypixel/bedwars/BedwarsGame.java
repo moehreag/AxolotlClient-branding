@@ -198,7 +198,7 @@ public class BedwarsGame {
 		for (BedwarsPlayer p : players.values().stream()
 			.filter(b -> b.getTeam() == team)
 			.sorted(Comparator.comparingInt(BedwarsPlayer::getNumber))
-			.collect(Collectors.toList())) {
+			.toList()) {
 			BedwarsPlayerStats stats = p.getStats();
 			if (stats == null) {
 				continue;
@@ -369,14 +369,14 @@ public class BedwarsGame {
 		Scoreboard scoreboard = event.getObjective().getScoreboard();
 		Collection<ScoreboardScore> scores = scoreboard.getScores(event.getObjective());
 		List<ScoreboardScore> filteredScores = scores.stream()
-			.filter(p_apply_1_ -> p_apply_1_.getOwner() != null && !p_apply_1_.getOwner().startsWith("#"))
+			.filter(score -> score.getOwner() != null && !score.getOwner().startsWith("#"))
 			.collect(Collectors.toList());
 		Collections.reverse(filteredScores);
 		if (filteredScores.size() < 3) {
 			return;
 		}
 		ScoreboardScore score = filteredScores.get(2);
-		Team team = scoreboard.getTeam(score.getOwner());
+		Team team = scoreboard.getTeamOfMember(score.getOwner());
 		String timer = Team.getMemberDisplayName(team, score.getOwner());
 		if (!timer.contains(":")) {
 			return;

@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 public class Account {
 
@@ -37,16 +38,22 @@ public class Account {
 	@Getter
 	private final String uuid;
 	@Getter
-	private final String name;
+	@Setter(AccessLevel.PACKAGE)
+	private String name;
 
 	@Getter(AccessLevel.PACKAGE)
-	private final String msaToken;
+	@Setter(AccessLevel.PACKAGE)
+	private String msaToken;
 
 	@Getter
-	private final String authToken;
+	@Setter(AccessLevel.PACKAGE)
+	private String authToken;
 	@Getter(AccessLevel.PACKAGE)
-	private final String refreshToken;
-	private final Instant expiration;
+	@Setter(AccessLevel.PACKAGE)
+	private String refreshToken;
+	@Setter(AccessLevel.PACKAGE)
+	@Getter
+	private Instant expiration;
 
 	public Account(String name, String uuid, String accessToken, Instant expiration, String refreshToken, String msaToken) {
 		this.name = name;

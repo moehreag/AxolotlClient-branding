@@ -193,7 +193,7 @@ public class Util {
 		}
 
 		for (ScoreboardScore score : scores) {
-			Team team = scoreboard.getTeam(score.getOwner());
+			Team team = scoreboard.getTeamOfMember(score.getOwner());
 			if (team == null)
 				return lines;
 			String text = team.getPrefix() + team.getSuffix();

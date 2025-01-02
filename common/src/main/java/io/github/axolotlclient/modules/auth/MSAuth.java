@@ -28,12 +28,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import com.github.mizosoft.methanol.FormBodyPublisher;
 import com.google.gson.JsonObject;
@@ -141,10 +139,8 @@ public class MSAuth {
 		return CompletableFuture.supplyAsync(() -> {
 			logger.debug("getting xbl token... ");
 			XblData xbl = authXbl(msTokens.getKey()).join();
-			logger.debug(xbl.toString());
 			logger.debug("getting xsts token...");
 			XblData xsts = authXstsMC(xbl.token()).join();
-			logger.debug(xsts.toString());
 			logger.debug("getting mc auth token...");
 			MCXblData mc = authMC(xsts.displayClaims().uhs(), xsts.token()).join();
 
@@ -153,7 +149,7 @@ public class MSAuth {
 				throw new AuthResult.Err(Error.NO_PROFILE);
 			}
 			logger.debug("getting profile...");
-			MCProfile profile = GsonHelper.GSON.fromJson(profileJson, MCProfile.class);
+			MCProfile profile = MCProfile.get(profileJson);
 			return new Account(profile.name(), profile.id(), mc.accessToken(), mc.expiration(), msTokens.getKey(), msTokens.getValue());
 		}).exceptionally(t -> {
 			logger.debug("Error: ", t);
@@ -162,10 +158,30 @@ public class MSAuth {
 	}
 
 	public record MCProfile(String id, String name, List<Skin> skins, List<Cape> capes) {
-		public record Skin(String id, String state, String url, String variant, String alias) {
+		public static MCProfile get(JsonObject json) {
+			return new MCProfile(json.get("id").getAsString(), json.get("name").getAsString(),
+				// Calling StreamSupport is not ideal, but everything else isn't better
+				StreamSupport.stream(json.getAsJsonArray("skins").spliterator(), false)
+					.map(s -> Skin.get(s.getAsJsonObject()))
+					.toList(), StreamSupport.stream(json.getAsJsonArray("capes").spliterator(), false)
+				.map(s -> Cape.get(s.getAsJsonObject()))
+				.toList());
+		}
+
+		public record Skin(String id, String state, String url, String variant, String textureKey) {
+			public static Skin get(JsonObject object) {
+				return new Skin(object.get("id").getAsString(),
+					object.get("state").getAsString(),
+					object.get("url").getAsString(),
+					object.get("variant").getAsString(),
+					object.get("textureKey").getAsString());
+			}
 		}
 
 		public record Cape(String id, String state, String url, String alias) {
+			public static Cape get(JsonObject object) {
+				return new Cape(object.get("id").getAsString(), object.get("state").getAsString(), object.get("url").getAsString(), object.get("alias").getAsString());
+			}
 		}
 
 	}
@@ -213,7 +229,6 @@ public class MSAuth {
 	private CompletableFuture<MCXblData> authMC(String userhash, String xsts) {
 		String body = "{\"identityToken\": \"XBL3.0 x=" + userhash + ";" + xsts + "\"\n}";
 		return requestJson(HttpRequest.newBuilder(URI.create(MC_LOGIN_WITH_XBOX_URL)).POST(HttpRequest.BodyPublishers.ofString(body)).build())
-			.thenApplyAsync(o -> {logger.debug(o.toString()); return o;})
 			.thenApply(response -> new MCXblData(response.get("username").getAsString(),
 				response.get("access_token").getAsString(),
 				Instant.now().plus(response.get("expires_in").getAsLong(), ChronoUnit.SECONDS)));
@@ -241,27 +256,33 @@ public class MSAuth {
 
 	public CompletableFuture<Account> refreshToken(String token, Account account) {
 		return CompletableFuture.supplyAsync(() -> {
-				logger.debug("refreshing auth code... ");
-				HttpRequest.Builder requestBuilder = HttpRequest
-					.newBuilder(URI.create(MS_TOKEN_LOGIN_URL))
-					.POST(FormBodyPublisher.newBuilder()
-						.query("client_id", CLIENT_ID)
-						.query("refresh_token", token)
-						.query("scope", SCOPES)
-						.query("grant_type", "refresh_token").build())
-					.header("Accept", "application/json");
+			logger.debug("refreshing auth code... ");
+			HttpRequest.Builder requestBuilder = HttpRequest
+				.newBuilder(URI.create(MS_TOKEN_LOGIN_URL))
+				.POST(FormBodyPublisher.newBuilder()
+					.query("client_id", CLIENT_ID)
+					.query("refresh_token", token)
+					.query("scope", SCOPES)
+					.query("grant_type", "refresh_token").build())
+				.header("Accept", "application/json");
 
-				JsonObject response = requestJson(requestBuilder.build()).join();
+			JsonObject response = requestJson(requestBuilder.build()).join();
 
-				if (response.has("error_codes")) {
-					if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000) {
-						accounts.showAccountsExpiredScreen(account);
-					}
-					throw new AuthResult.Err();
+			if (response.has("error_codes")) {
+				if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000) {
+					accounts.showAccountsExpiredScreen(account);
 				}
+				throw new RuntimeException("refresh error");
+			}
 
-				return authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
-					response.get("refresh_token").getAsString())).join();
+			Account refreshed = authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
+				response.get("refresh_token").getAsString())).join();
+			account.setRefreshToken(refreshed.getRefreshToken());
+			account.setAuthToken(refreshed.getAuthToken());
+			account.setName(refreshed.getName());
+			account.setMsaToken(refreshed.getMsaToken());
+			account.setExpiration(refreshed.getExpiration());
+			return account;
 		});
 	}
 

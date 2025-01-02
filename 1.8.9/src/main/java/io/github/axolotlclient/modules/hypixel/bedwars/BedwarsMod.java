@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
@@ -190,7 +189,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 		Collection<ScoreboardScore> scores = scoreboard.getScores(event.getObjective());
 		List<ScoreboardScore> filteredScores = scores.stream()
 			.filter(score -> score.getOwner() != null && !score.getOwner().startsWith("#"))
-			.collect(Collectors.toList());
+			.toList();
 		waiting = filteredScores.stream().anyMatch(score -> {
 			Team team = scoreboard.getTeam(score.getOwner());
 			String format = Formatting.strip(Team.getMemberDisplayName(team, score.getOwner())).replaceAll("[^A-z0-9 .:]", "");

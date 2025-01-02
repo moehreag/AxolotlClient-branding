@@ -25,6 +25,7 @@ package io.github.axolotlclient.mixin;
 import java.util.List;
 import java.util.UUID;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.requests.UserRequest;
 import io.github.axolotlclient.modules.hypixel.HypixelAbstractionLayer;
@@ -38,7 +39,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.gui.overlay.PlayerTabOverlay;
 import net.minecraft.client.network.PlayerInfo;
-import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
 import net.minecraft.client.render.TextRenderer;
 import net.minecraft.network.Connection;
 import net.minecraft.scoreboard.Scoreboard;
@@ -51,7 +51,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(PlayerTabOverlay.class)
@@ -158,13 +157,12 @@ public abstract class PlayerListHudMixin extends GuiElement {
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/gui/overlay/PlayerTabOverlay;renderPing(IIILnet/minecraft/client/network/PlayerInfo;)V"
-		),
-		locals = LocalCapture.CAPTURE_FAILHARD
+		)
 	)
 	public void axolotlclient$renderWithoutObjective(
 		int width, Scoreboard scoreboard, ScoreboardObjective playerListScoreboardObjective, CallbackInfo ci,
-		ClientPlayNetworkHandler clientPlayNetworkHandler, List list, int i, int j, int l, int m, int k, boolean bl, int n, int o,
-		int p, int q, int r, List list2, int t, int u, int s, int v, int y, PlayerInfo playerListEntry2
+		@Local(ordinal = 1) int i, @Local(ordinal = 6) int n,
+		@Local(ordinal = 13) int v, @Local(ordinal = 14) int y, @Local PlayerInfo playerListEntry2
 	) {
 		if (!BedwarsMod.getInstance().isEnabled() || !BedwarsMod.getInstance().isWaiting()) {
 			return;

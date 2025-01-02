@@ -24,7 +24,6 @@ package io.github.axolotlclient.modules.auth;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -67,9 +66,9 @@ public class Auth extends Accounts implements Module {
 		load();
 		this.auth = new MSAuth(AxolotlClient.LOGGER, this, () -> client.options.language);
 		if (isContained(client.getSession().getUuid())) {
-			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).collect(Collectors.toList()).get(0);
+			current = getAccounts().stream().filter(account -> account.getUuid().equals(client.getSession().getUuid())).toList().get(0);
 			if (current.needsRefresh()) {
-				current.refresh(auth);
+				current.refresh(auth).thenRun(this::save);
 			}
 		} else {
 			current = new Account(client.getSession().getUsername(), client.getSession().getUuid(), client.getSession().getAccessToken());
@@ -95,7 +94,7 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus("auth.notif.title", "auth.notif.refreshing", account.getName());
 			}
-			account.refresh(auth).thenAccept(this::login);
+			account.refresh(auth).thenAccept(this::login).thenRun(this::save);
 		} else {
 			try {
 				API.getInstance().shutdown();

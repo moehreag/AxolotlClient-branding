@@ -54,7 +54,6 @@ public class MojangAuth {
 			HttpClient client = NetworkUtil.createHttpClient("MojangAuth");
 
 			HttpRequest.Builder builder = HttpRequest.newBuilder().timeout(Duration.ofSeconds(10));
-			builder.version(HttpClient.Version.HTTP_1_1);
 			builder.header("Content-Type", "application/json; charset=utf-8");
 			builder.header("Accept", "application/json");
 
@@ -80,7 +79,7 @@ public class MojangAuth {
 
 				String error = element.get("error").getAsString();
 				if ("ForbiddenOperationException".equals(error) && "INVALID_SIGNATURE".equals(element.get("errorMessage").getAsString())) {
-					account.refresh(MSAuth.INSTANCE).thenAccept(MojangAuth::authenticate);
+					return account.refresh(MSAuth.INSTANCE).thenApply(MojangAuth::authenticate).join();
 				}
 
 				API.getInstance().logDetailed("Response code: "+response.statusCode());

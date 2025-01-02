@@ -71,7 +71,7 @@ public class Auth extends Accounts implements Module {
 			current = getAccounts().stream().filter(account -> account.getUuid()
 				.equals(UUIDTypeAdapter.fromUUID(client.getSession().getPlayerUuid()))).toList().get(0);
 			if (current.needsRefresh()) {
-				current.refresh(auth);
+				current.refresh(auth).thenRun(this::save);
 			}
 		} else {
 			current = new Account(client.getSession().getUsername(), UUIDTypeAdapter.fromUUID(client.getSession().getPlayerUuid()), client.getSession().getAccessToken());
@@ -97,7 +97,7 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
 			}
-			account.refresh(auth).thenAccept(this::login);
+			account.refresh(auth).thenAccept(this::login).thenRun(this::save);
 		} else {
 			try {
 				API.getInstance().shutdown();
