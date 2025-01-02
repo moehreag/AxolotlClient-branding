@@ -1,5 +1,10 @@
 ## Changelog:
 
+### 3.1.1
+
+- Add screenshot gallery
+- Fix various bugs & crashes
+
 ### 3.1.0
 
 - Add a new Backend (made with help from `@Astralchroma`)
