@@ -243,10 +243,10 @@ public class BedwarsMessages {
 	public final static Pattern BED_DESTROY = Pattern.compile("^\\s*?BED DESTRUCTION > (\\w+) Bed");
 	public final static Pattern TEAM_ELIMINATED = Pattern.compile("^\\s*?TEAM ELIMINATED > (\\w+) Team");
 
-	public final static Pattern GAME_END = Pattern.compile("^ +1st Killer - ?\\[?\\w*\\+*\\]? \\w+ - \\d+(?: Kills?)?$");
+	public final static Pattern GAME_END = Pattern.compile("^ +1st Killer - ?\\[?\\w*\\+*]? \\w+ - \\d+(?: Kills?)?$");
 
-	public final static Pattern SELF_VOID = Pattern.compile(formatPlaceholder("^{killed} fell into the void.(?: FINAL KILL!)?\\s*?"));
-	public final static Pattern SELF_UNKNOWN = Pattern.compile(formatPlaceholder("^{killed} died.(?: FINAL KILL!)?\\s*?"));
+	public final static Pattern SELF_VOID = Pattern.compile(formatPlaceholder("^{killed} fell into the void\\.(?: FINAL KILL!)?\\s*?"));
+	public final static Pattern SELF_UNKNOWN = Pattern.compile(formatPlaceholder("^{killed} died\\.(?: FINAL KILL!)?\\s*?"));
 
 	public final static Pattern[] ANNOYING_MESSAGES = Arrays.stream(new String[]{
 		"^You will respawn in \\d* seconds!$",
@@ -259,6 +259,7 @@ public class BedwarsMessages {
 		"^\\+\\d+ Bed Wars Experience",
 		"^You have respawned",
 		"^If you get disconnected use /rejoin to join back in the game\\.$",
+		"^\nYOU GOT LUCKY!\nYou will receive DOUBLE EXP this game!\n$"
 	}).map(Pattern::compile).toArray(Pattern[]::new);
 
 	private static Pattern[] convert(String... input) {
@@ -274,7 +275,7 @@ public class BedwarsMessages {
 
 	public static boolean matched(Pattern pattern, String input, Consumer<Matcher> consumer) {
 		Optional<Matcher> matcher = matched(pattern, input);
-		if (!matcher.isPresent()) {
+		if (matcher.isEmpty()) {
 			return false;
 		}
 		consumer.accept(matcher.get());
@@ -283,7 +284,7 @@ public class BedwarsMessages {
 
 	public static boolean matched(Pattern[] pattern, String input, Consumer<Matcher> consumer) {
 		Optional<Matcher> matcher = matched(pattern, input);
-		if (!matcher.isPresent()) {
+		if (matcher.isEmpty()) {
 			return false;
 		}
 		consumer.accept(matcher.get());

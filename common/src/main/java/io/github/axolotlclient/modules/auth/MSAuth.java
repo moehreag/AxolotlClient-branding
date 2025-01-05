@@ -28,20 +28,17 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import com.github.mizosoft.methanol.FormBodyPublisher;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.NetworkUtil;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 // Partly oriented on In-Game-Account-Switcher by The-Fireplace, VidTu
 public class MSAuth {
@@ -109,9 +106,10 @@ public class MSAuth {
 
 						if (response.has("refresh_token") && response.has("access_token")) {
 							data.setStatus("auth.working");
-							return authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
-								response.get("refresh_token").getAsString()))
+							return authenticateFromMSTokens(response.get("access_token").getAsString(),
+								response.get("refresh_token").getAsString())
 								.thenAccept(accounts::login)
+								.thenRun(accounts::save)
 								.thenRun(() -> data.setStatus("auth.finished")).join();
 						}
 
@@ -130,15 +128,14 @@ public class MSAuth {
 						}
 					}
 				}
-
 				return null;
 			});
 	}
 
-	private CompletableFuture<Account> authenticateFromMSTokens(Map.Entry<String, String> msTokens) {
+	private CompletableFuture<Account> authenticateFromMSTokens(String accessToken, String refreshToken) {
 		return CompletableFuture.supplyAsync(() -> {
 			logger.debug("getting xbl token... ");
-			XblData xbl = authXbl(msTokens.getKey()).join();
+			XblData xbl = authXbl(accessToken).join();
 			logger.debug("getting xsts token...");
 			XblData xsts = authXstsMC(xbl.token()).join();
 			logger.debug("getting mc auth token...");
@@ -146,11 +143,11 @@ public class MSAuth {
 
 			JsonObject profileJson = getMCProfile(mc.accessToken()).join();
 			if (profileJson.has("error") && "NOT_FOUND".equals(profileJson.get("error").getAsString())) {
-				throw new AuthResult.Err(Error.NO_PROFILE);
+				throw new RuntimeException(Error.NO_PROFILE.toString());
 			}
 			logger.debug("getting profile...");
 			MCProfile profile = MCProfile.get(profileJson);
-			return new Account(profile.name(), profile.id(), mc.accessToken(), mc.expiration(), msTokens.getKey(), msTokens.getValue());
+			return new Account(profile.name(), profile.id(), mc.accessToken(), mc.expiration(), accessToken, refreshToken);
 		}).exceptionally(t -> {
 			logger.debug("Error: ", t);
 			return null;
@@ -189,12 +186,12 @@ public class MSAuth {
 	private CompletableFuture<XblData> authXbl(String code) {
 		JsonObject object = new JsonObject();
 		JsonObject properties = new JsonObject();
-		properties.add("AuthMethod", new JsonPrimitive("RPS"));
-		properties.add("SiteName", new JsonPrimitive("user.auth.xboxlive.com"));
-		properties.add("RpsTicket", new JsonPrimitive("d=" + code));
+		properties.addProperty("AuthMethod", "RPS");
+		properties.addProperty("SiteName", "user.auth.xboxlive.com");
+		properties.addProperty("RpsTicket", "d=" + code);
 		object.add("Properties", properties);
-		object.add("RelyingParty", new JsonPrimitive("http://auth.xboxlive.com"));
-		object.add("TokenType", new JsonPrimitive("JWT"));
+		object.addProperty("RelyingParty", "http://auth.xboxlive.com");
+		object.addProperty("TokenType", "JWT");
 		HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
 			.uri(URI.create(XBL_AUTH_URL))
 			.POST(HttpRequest.BodyPublishers.ofString(object.toString()))
@@ -269,19 +266,22 @@ public class MSAuth {
 			JsonObject response = requestJson(requestBuilder.build()).join();
 
 			if (response.has("error_codes")) {
+				logger.debug(response.toString());
 				if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000) {
 					accounts.showAccountsExpiredScreen(account);
 				}
-				throw new RuntimeException("refresh error");
+				return account;
 			}
 
-			Account refreshed = authenticateFromMSTokens(new AbstractMap.SimpleImmutableEntry<>(response.get("access_token").getAsString(),
-				response.get("refresh_token").getAsString())).join();
+			logger.debug("authenticating...");
+			Account refreshed = authenticateFromMSTokens(response.get("access_token").getAsString(),
+				response.get("refresh_token").getAsString()).join();
 			account.setRefreshToken(refreshed.getRefreshToken());
 			account.setAuthToken(refreshed.getAuthToken());
 			account.setName(refreshed.getName());
 			account.setMsaToken(refreshed.getMsaToken());
 			account.setExpiration(refreshed.getExpiration());
+			accounts.save();
 			return account;
 		});
 	}
@@ -289,23 +289,6 @@ public class MSAuth {
 	private CompletableFuture<JsonObject> requestJson(HttpRequest request) {
 		return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
 			.thenApply(res -> GsonHelper.fromJson(res.body()));
-	}
-
-	public sealed interface AuthResult permits AuthResult.Ok, AuthResult.Err {
-		default boolean isOk() {
-			return this instanceof Ok;
-		}
-
-		record Ok(Account value) implements AuthResult {
-
-		}
-
-		@Getter
-		@AllArgsConstructor
-		@RequiredArgsConstructor
-		final class Err extends RuntimeException implements AuthResult {
-			private Error type;
-		}
 	}
 
 	enum Error {

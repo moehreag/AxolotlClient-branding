@@ -70,9 +70,11 @@ public class Auth extends Accounts implements Module {
 		if (isContained(client.getSession().getSessionId())) {
 			current = getAccounts().stream().filter(account -> account.getUuid()
 				.equals(UUIDTypeAdapter.fromUUID(client.getSession().getPlayerUuid()))).toList().get(0);
-			if (current.needsRefresh()) {
+			current.setAuthToken(client.getSession().getAccessToken());
+			current.setName(client.getSession().getUsername());
+			/*if (current.needsRefresh()) {
 				current.refresh(auth).thenRun(this::save);
-			}
+			}*/
 		} else {
 			current = new Account(client.getSession().getUsername(), UUIDTypeAdapter.fromUUID(client.getSession().getPlayerUuid()), client.getSession().getAccessToken());
 		}

@@ -89,6 +89,7 @@ public class HypixelAbstractionLayer {
 
 	@SuppressWarnings("unchecked")
 	private <T> T cache(String uuid, RequestDataType type, Function<Response, T> func, T absent) {
+		uuid = API.getInstance().sanitizeUUID(uuid);
 		if (!API.getInstance().isAuthenticated()) {
 			return absent;
 		}

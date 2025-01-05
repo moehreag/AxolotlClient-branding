@@ -38,7 +38,6 @@ import java.util.Arrays;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.auth.Account;
-import io.github.axolotlclient.modules.auth.MSAuth;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.NetworkUtil;
 import lombok.Builder;
@@ -77,10 +76,14 @@ public class MojangAuth {
 			} else {
 				JsonObject element = GsonHelper.fromJson(response.body());
 
-				String error = element.get("error").getAsString();
-				if ("ForbiddenOperationException".equals(error) && "INVALID_SIGNATURE".equals(element.get("errorMessage").getAsString())) {
-					return account.refresh(MSAuth.INSTANCE).thenApply(MojangAuth::authenticate).join();
+				if (!element.has("error")) {
+					API.getInstance().logDetailed("Don't know how to handle response: "+element);
 				}
+
+				String error = element.get("error").getAsString();
+				/*if ("ForbiddenOperationException".equals(error) && "INVALID_SIGNATURE".equals(element.get("errorMessage").getAsString())) {
+					return account.refresh(MSAuth.INSTANCE).thenApply(MojangAuth::authenticate).join();
+				}*/
 
 				API.getInstance().logDetailed("Response code: "+response.statusCode());
 				API.getInstance().logDetailed(element.toString());

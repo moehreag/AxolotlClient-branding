@@ -28,6 +28,7 @@
 		"HandledScreenMixin",
 		"HeldItemRendererMixin",
 		"InGameHudMixin",
+		"ItemEntityMixin",
 		"ItemEntityRendererMixin",
 		"KeyBindingMixin",
 		"KeyboardInputMixin",

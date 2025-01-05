@@ -68,10 +68,6 @@ public class Account {
 		this(name, uuid.replace("-", ""), accessToken, Instant.EPOCH, "", "");
 	}
 
-	public Account(JsonObject profile, String authToken, String msaToken, String refreshToken) {
-		this(profile.get("name").getAsString(), profile.get("id").getAsString(), authToken, Instant.now().plus(1, ChronoUnit.DAYS), refreshToken, msaToken);
-	}
-
 	private Account(String uuid, String name, String authToken, String msaToken, String refreshToken, long expiration) {
 		this(name, uuid, authToken, Instant.ofEpochSecond(expiration), refreshToken, msaToken);
 	}
@@ -110,7 +106,7 @@ public class Account {
 	}
 
 	public boolean needsRefresh() {
-		return Instant.now().isAfter(expiration.minus(6, ChronoUnit.HOURS));
+		return Instant.now().isAfter(expiration.minus(2, ChronoUnit.HOURS));
 	}
 
 	@Override

@@ -22,6 +22,8 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.TPSHud;
@@ -31,6 +33,7 @@ import net.minecraft.network.packet.s2c.play.EntityTeleportS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveS2CPacket;
 import net.minecraft.network.packet.s2c.play.TeamS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeS2CPacket;
+import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.team.Team;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,6 +59,15 @@ public abstract class ClientPlayNetworkHandlerMixin {
 		if (team == null) {
 			ci.cancel();
 		}
+	}
+
+	@WrapOperation(method = "handleTeam", at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;addTeam(Ljava/lang/String;)Lnet/minecraft/scoreboard/team/Team;"))
+	private Team noStackTraceOnAlreadyExistingTeam(Scoreboard instance, String s, Operation<Team> original, @Local Scoreboard scoreboard){
+		Team team = scoreboard.getTeam(s);
+		if (team == null) {
+			return original.call(instance, s);
+		}
+		return team;
 	}
 
 	@Inject(method = "handleScoreboardObjective", at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;removeObjective(Lnet/minecraft/scoreboard/ScoreboardObjective;)V"), cancellable = true)
