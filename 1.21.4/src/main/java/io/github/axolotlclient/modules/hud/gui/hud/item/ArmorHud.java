@@ -22,7 +22,9 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud.item;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
@@ -62,16 +64,19 @@ public class ArmorHud extends TextHudEntry {
 	@Override
 	public void renderComponent(GuiGraphics graphics, float delta) {
 		int width = 20;
-		if (showDurabilityNumber.get()) {
-			width += 15;
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.getInventory().getSelected()), client.player.getInventory().armor.stream())
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage())))
+			.mapToInt(text -> client.font.width(text)+2).max().orElse(0) : 0;
+		width += labelWidth;
+		if (width != getWidth()) {
+			setWidth(width);
+			onBoundsUpdate();
 		}
-		if (showMaxDurabilityNumber.get()) {
-			width += 15;
-		}
-		setWidth(width);
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
-		renderMainItem(graphics, client.player.getInventory().getSelected(), pos.x() + 2, pos.y() + lastY);
+		renderMainItem(graphics, client.player.getInventory().getSelected(), pos.x() + 2, pos.y() + lastY, labelWidth);
 		lastY = lastY - 20;
 		for (int i = 0; i <= 3; i++) {
 			ItemStack stack = client.player.getInventory().getArmor(i).copy();
@@ -80,48 +85,60 @@ public class ArmorHud extends TextHudEntry {
 					.ifPresent(enchantmentReference -> stack.setCount(
 						EnchantmentHelper.getItemEnchantmentLevel(enchantmentReference, stack)));
 			}
-			renderItem(graphics, stack, pos.x() + 2, lastY + pos.y());
+			renderItem(graphics, stack, pos.x() + 2, lastY + pos.y(), labelWidth);
 			lastY = lastY - 20;
 		}
 	}
 
-	public void renderMainItem(GuiGraphics graphics, ItemStack stack, int x, int y) {
+	public void renderMainItem(GuiGraphics graphics, ItemStack stack, int x, int y, int offset) {
+		renderDurabilityNumber(graphics, stack, x, y);
+		x += offset;
 		String total = String.valueOf(ItemUtil.getTotal(client, stack));
 		if (total.equals("1")) {
 			total = null;
 		}
 		graphics.renderItem(stack, x, y);
 		graphics.renderItemDecorations(client.font, stack, x, y, total);
-		renderDurabilityNumber(graphics, stack, x, y);
 	}
 
-	public void renderItem(GuiGraphics graphics, ItemStack stack, int x, int y) {
+	public void renderItem(GuiGraphics graphics, ItemStack stack, int x, int y, int offset) {
+		renderDurabilityNumber(graphics, stack, x, y);
+		x += offset;
 		graphics.renderItem(stack, x, y);
 		graphics.renderItemDecorations(client.font, stack, x, y);
-		renderDurabilityNumber(graphics, stack, x, y);
 	}
 
 	private void renderDurabilityNumber(GuiGraphics graphics, ItemStack stack, int x, int y) {
 		boolean showDurability = showDurabilityNumber.get();
 		boolean showMaxDurability = showMaxDurabilityNumber.get();
-		if (!(showMaxDurability || showDurability)) {
+		if (!(showMaxDurability || showDurability) || stack.isEmpty()) {
 			return;
 		}
-		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage()));
-		int textX = x - client.font.width(text) - 2;
+		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage()));;
 		int textY = y + 10 - client.font.lineHeight/2;
-		graphics.drawString(client.font, text, textX, textY, stack.getBarColor());
+		graphics.drawString(client.font, text, x, textY, stack.getBarColor());
 	}
 
 	@Override
 	public void renderPlaceholderComponent(GuiGraphics graphics, float delta) {
+		int width = 20;
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		int labelWidth = showDurability || showMaxDurability ? Arrays.stream(placeholderStacks)
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage())))
+			.mapToInt(text -> client.font.width(text)+2).max().orElse(0) : 0;
+		width += labelWidth;
+		if (width != getWidth()) {
+			setWidth(width);
+			onBoundsUpdate();
+		}
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
-		renderItem(graphics, placeholderStacks[4], pos.x() + 2, pos.y() + lastY);
+		renderItem(graphics, placeholderStacks[4], pos.x() + 2, pos.y() + lastY, labelWidth);
 		lastY = lastY - 20;
 		for (int i = 0; i <= 3; i++) {
 			ItemStack item = placeholderStacks[i];
-			renderItem(graphics, item, pos.x() + 2, lastY + pos.y());
+			renderItem(graphics, item, pos.x() + 2, lastY + pos.y(), labelWidth);
 			lastY = lastY - 20;
 		}
 	}

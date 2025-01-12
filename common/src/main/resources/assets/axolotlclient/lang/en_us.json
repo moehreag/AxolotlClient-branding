@@ -629,5 +629,8 @@
 	"show_brackets": "Show Brackets",
 	"bracket_format": "[%s]",
 	"show_durability_num": "Show Durability Number",
-	"show_max_durability_num": "Show Maximum Durability Number"
+	"show_max_durability_num": "Show Maximum Durability Number",
+	"key.freelook.alt": "Freelook (Alternative)",
+	"perspective.alt": "Perspective (Alternative Key)",
+	"toggle.alt": "Toggle (Alternative Key)"
 }

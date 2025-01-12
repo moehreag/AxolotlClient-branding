@@ -22,7 +22,9 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud.item;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
@@ -60,16 +62,19 @@ public class ArmorHud extends TextHudEntry {
 	@Override
 	public void renderComponent(float delta) {
 		int width = 20;
-		if (showDurabilityNumber.get()) {
-			width += 15;
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.inventory.getMainHandStack()), Arrays.stream(client.player.inventory.armorSlots))
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage())))
+			.mapToInt(text -> client.textRenderer.getWidth(text)+2).max().orElse(0) : 0;
+		width += labelWidth;
+		if (width != getWidth()) {
+			setWidth(width);
+			onBoundsUpdate();
 		}
-		if (showMaxDurabilityNumber.get()) {
-			width += 15;
-		}
-		setWidth(width);
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
-		renderMainItem(client.player.inventory.getMainHandStack(), pos.x() + 2, pos.y() + lastY);
+		renderMainItem(client.player.inventory.getMainHandStack(), pos.x() + 2, pos.y() + lastY, labelWidth);
 		lastY = lastY - 20;
 		for (int i = 0; i <= 3; i++) {
 			if (client.player.inventory.armorSlots[i] != null) {
@@ -86,14 +91,16 @@ public class ArmorHud extends TextHudEntry {
 						}
 					}
 				}
-				renderItem(stack, pos.x() + 2, lastY + pos.y());
+				renderItem(stack, pos.x() + 2, lastY + pos.y(), labelWidth);
 			}
 
 			lastY = lastY - 20;
 		}
 	}
 
-	public void renderMainItem(ItemStack stack, int x, int y) {
+	public void renderMainItem(ItemStack stack, int x, int y, int offset) {
+		renderDurabilityNumber(stack, x, y);
+		x += offset;
 		ItemUtil.renderGuiItemModel(stack, x, y);
 		String total = String.valueOf(ItemUtil.getTotal(client, stack));
 		if (total.equals("1")) {
@@ -101,13 +108,13 @@ public class ArmorHud extends TextHudEntry {
 		}
 		ItemUtil.renderGuiItemOverlay(client.textRenderer, stack, x, y, total, textColor.get().toInt(),
 			shadow.get());
-		renderDurabilityNumber(stack, x, y);
 	}
 
-	public void renderItem(ItemStack stack, int x, int y) {
+	public void renderItem(ItemStack stack, int x, int y, int offset) {
+		renderDurabilityNumber(stack, x, y);
+		x += offset;
 		ItemUtil.renderGuiItemModel(stack, x, y);
 		ItemUtil.renderGuiItemOverlay(client.textRenderer, stack, x, y, null, textColor.get().toInt(), shadow.get());
-		renderDurabilityNumber(stack, x, y);
 	}
 
 	private void renderDurabilityNumber(ItemStack stack, int x, int y) {
@@ -128,13 +135,24 @@ public class ArmorHud extends TextHudEntry {
 
 	@Override
 	public void renderPlaceholderComponent(float delta) {
+		int width = 20;
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.inventory.getMainHandStack()), Arrays.stream(client.player.inventory.armorSlots))
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage())))
+			.mapToInt(text -> client.textRenderer.getWidth(text)+2).max().orElse(0) : 0;
+		width += labelWidth;
+		if (width != getWidth()) {
+			setWidth(width);
+			onBoundsUpdate();
+		}
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
-		renderItem(placeholderStacks[4], pos.x() + 2, pos.y() + lastY);
+		renderItem(placeholderStacks[4], pos.x() + 2, pos.y() + lastY, labelWidth);
 		lastY = lastY - 20;
 		for (int i = 0; i <= 3; i++) {
 			ItemStack item = placeholderStacks[i];
-			renderItem(item, pos.x() + 2, lastY + pos.y());
+			renderItem(item, pos.x() + 2, lastY + pos.y(), labelWidth);
 			lastY = lastY - 20;
 		}
 	}

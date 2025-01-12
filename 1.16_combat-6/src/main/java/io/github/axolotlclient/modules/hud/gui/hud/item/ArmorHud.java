@@ -23,6 +23,7 @@
 package io.github.axolotlclient.modules.hud.gui.hud.item;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
@@ -62,16 +63,19 @@ public class ArmorHud extends TextHudEntry {
 	@Override
 	public void renderComponent(MatrixStack matrices, float delta) {
 		int width = 20;
-		if (showDurabilityNumber.get()) {
-			width += 15;
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.inventory.getMainHandStack()), client.player.inventory.armor.stream())
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage())))
+			.mapToInt(text -> client.textRenderer.getWidth(text)+2).max().orElse(0) : 0;
+		width += labelWidth;
+		if (width != getWidth()) {
+			setWidth(width);
+			onBoundsUpdate();
 		}
-		if (showMaxDurabilityNumber.get()) {
-			width += 15;
-		}
-		setWidth(width);
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
-		renderMainItem(matrices, client.player.inventory.getMainHandStack(), pos.x() + 2, pos.y() + lastY);
+		renderMainItem(matrices, client.player.inventory.getMainHandStack(), pos.x() + 2, pos.y() + lastY, labelWidth);
 		lastY = lastY - 20;
 		for (int i = 0; i <= 3; i++) {
 			ItemStack stack = client.player.inventory.getArmorStack(i).copy();
@@ -87,12 +91,14 @@ public class ArmorHud extends TextHudEntry {
 					}
 				}
 			}
-			renderItem(matrices, stack, pos.x() + 2, lastY + pos.y());
+			renderItem(matrices, stack, pos.x() + 2, lastY + pos.y(), labelWidth);
 			lastY = lastY - 20;
 		}
 	}
 
-	public void renderMainItem(MatrixStack matrices, ItemStack stack, int x, int y) {
+	public void renderMainItem(MatrixStack matrices, ItemStack stack, int x, int y, int offset) {
+		renderDurabilityNumber(matrices, stack, x, y);
+		x += offset;
 		ItemUtil.renderGuiItemModel(getScale(), stack, x, y);
 		String total = String.valueOf(ItemUtil.getTotal(client, stack));
 		if (total.equals("1")) {
@@ -100,14 +106,14 @@ public class ArmorHud extends TextHudEntry {
 		}
 		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, total, textColor.get().toInt(),
 			shadow.get());
-		renderDurabilityNumber(matrices, stack, x, y);
 	}
 
-	public void renderItem(MatrixStack matrices, ItemStack stack, int x, int y) {
+	public void renderItem(MatrixStack matrices, ItemStack stack, int x, int y, int offset) {
+		renderDurabilityNumber(matrices, stack, x, y);
+		x += offset;
 		ItemUtil.renderGuiItemModel(getScale(), stack, x, y);
 		ItemUtil.renderGuiItemOverlay(matrices, client.textRenderer, stack, x, y, null, textColor.get().toInt(),
 			shadow.get());
-		renderDurabilityNumber(matrices, stack, x, y);
 	}
 
 	private void renderDurabilityNumber(MatrixStack graphics, ItemStack stack, int x, int y) {
@@ -128,13 +134,24 @@ public class ArmorHud extends TextHudEntry {
 
 	@Override
 	public void renderPlaceholderComponent(MatrixStack matrices, float delta) {
+		int width = 20;
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.inventory.getMainHandStack()), client.player.inventory.armor.stream())
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage())))
+			.mapToInt(text -> client.textRenderer.getWidth(text)+2).max().orElse(0) : 0;
+		width += labelWidth;
+		if (width != getWidth()) {
+			setWidth(width);
+			onBoundsUpdate();
+		}
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
-		renderItem(matrices, placeholderStacks[4], pos.x() + 2, pos.y() + lastY);
+		renderItem(matrices, placeholderStacks[4], pos.x() + 2, pos.y() + lastY, labelWidth);
 		lastY = lastY - 20;
 		for (int i = 0; i <= 3; i++) {
 			ItemStack item = placeholderStacks[i];
-			renderItem(matrices, item, pos.x() + 2, lastY + pos.y());
+			renderItem(matrices, item, pos.x() + 2, lastY + pos.y(), labelWidth);
 			lastY = lastY - 20;
 		}
 	}

@@ -41,6 +41,9 @@ public class GsonHelper {
 	public static final Gson GSON = new GsonBuilder().create();
 
 	public static JsonObject fromJson(String s) {
+		if (s == null || s.isEmpty()) {
+			return new JsonObject();
+		}
 		return GSON.fromJson(s, JsonObject.class);
 	}
 
