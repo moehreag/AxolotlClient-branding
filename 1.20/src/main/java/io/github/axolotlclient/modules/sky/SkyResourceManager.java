@@ -97,6 +97,9 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 
 		for (Map.Entry<Identifier, Resource> entry : manager
 			.findResources("sky", identifier -> identifier.getPath().endsWith(".json")).entrySet()) {
+			if (entry.getKey().getNamespace().equals("celestial")) { // Skip Celestial Packs, we cannot load them.
+				continue;
+			}
 			AxolotlClient.LOGGER.debug("Loading FSB sky from " + entry.getKey());
 			try (BufferedReader reader = entry.getValue().openBufferedReader()) {
 				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(

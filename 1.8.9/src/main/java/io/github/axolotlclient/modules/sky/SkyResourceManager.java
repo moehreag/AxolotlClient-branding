@@ -56,9 +56,12 @@ public class SkyResourceManager extends AbstractModule {
 
 	public void reload(ResourceManager resourceManager) {
 		SkyboxManager.getInstance().clearSkyboxes();
-		for (Map.Entry<Identifier, Resource> entry : ((SearchableResourceManager) resourceManager)
+		for (Map.Entry<Identifier, Resource> entry : resourceManager
 			.findResources("fabricskyboxes", "sky", identifier -> identifier.getPath().endsWith(".json"))
 			.entrySet()) {
+			if (entry.getKey().getNamespace().equals("celestial")) { // Skip Celestial Packs, we cannot load them.
+				continue;
+			}
 			AxolotlClient.LOGGER.debug("Loaded sky: " + entry.getKey());
 			SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(gson.fromJson(
 				new BufferedReader(new InputStreamReader(entry.getValue().asStream(), StandardCharsets.UTF_8))

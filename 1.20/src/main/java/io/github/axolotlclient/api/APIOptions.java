@@ -24,7 +24,6 @@ package io.github.axolotlclient.api;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
@@ -74,12 +73,11 @@ public class APIOptions extends Options {
 		account.add(new GenericOption("api.account.usernames", "clickToOpen",
 			() -> client.setScreen(new UsernameManagementScreen(client.currentScreen))));
 		account.add(new GenericOption("api.account.export", "api.account.export_data", () -> ThreadExecuter.scheduleTask(() -> {
-			Function<String, String> translate = API.getInstance().getTranslationProvider()::translate;
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				var pointers = stack.mallocPointer(1);
 				pointers.put(stack.UTF8("*.json"));
 				pointers.flip();
-				var result = TinyFileDialogs.tinyfd_saveFileDialog(translate.apply("api.account.export.dialog_title"), FabricLoader.getInstance().getGameDir().toString(), pointers, null);
+				var result = TinyFileDialogs.tinyfd_saveFileDialog("Choose export destination", FabricLoader.getInstance().getGameDir().toString(), pointers, null);
 				if (result != null) {
 					AccountDataRequest.get(Path.of(result));
 				}

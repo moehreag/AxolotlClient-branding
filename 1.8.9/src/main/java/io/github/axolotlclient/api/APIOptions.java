@@ -24,7 +24,6 @@ package io.github.axolotlclient.api;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
@@ -75,10 +74,9 @@ public class APIOptions extends Options {
 		account.add(new GenericOption("api.account.usernames", "clickToOpen",
 			() -> client.openScreen(new UsernameManagementScreen(client.screen))));
 		account.add(new GenericOption("api.account.export", "api.account.export_data", () -> ThreadExecuter.scheduleTask(() -> {
-			Function<String, String> translate = API.getInstance().getTranslationProvider()::translate;
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				var pointers = stack.pointers(stack.UTF8("*.json"));
-				var result = TinyFileDialogs.tinyfd_saveFileDialog(translate.apply("api.account.export.dialog_title"), FabricLoader.getInstance().getGameDir().toString(), pointers, null);
+				var result = TinyFileDialogs.tinyfd_saveFileDialog("Choose export destination", FabricLoader.getInstance().getGameDir().toString(), pointers, null);
 				if (result != null) {
 					AccountDataRequest.get(Path.of(result));
 				}

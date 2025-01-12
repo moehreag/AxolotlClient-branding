@@ -4,6 +4,8 @@
 
 - Add screenshot gallery
 - Fix various bugs & crashes
+- Skip Celestial sky packs while scanning for custom skies
+- (1.8.9, 1.16) Enable texture nine-slicing for all ButtonWidgets
 
 ### 3.1.0
 

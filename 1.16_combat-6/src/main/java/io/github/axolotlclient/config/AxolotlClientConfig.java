@@ -147,6 +147,9 @@ public class AxolotlClientConfig {
 		general.add(debugLogOutput);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			StringArrayOption configStyle;
+			if (general.getOptions().removeIf(o -> "configStyle".equals(o.getName()))) {
+				AxolotlClient.configManager.save();
+			}
 			general.add(configStyle = new StringArrayOption("configStyle",
 				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
 					.toArray(String[]::new),
