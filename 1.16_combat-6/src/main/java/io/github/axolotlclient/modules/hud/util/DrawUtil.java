@@ -138,8 +138,18 @@ public class DrawUtil extends DrawableHelper {
 
 	}
 	public record NineSlice(int width, int height, Border border, boolean stretchInner) implements GuiSpriteScaling {
+		public NineSlice(int width, int height, Border border) {
+			this(width, height, border, false);
+		}
+		public NineSlice(int width, int height, int borderSize) {
+			this(width, height, new Border(borderSize));
+		}
 	}
-	public record Border(int left, int right, int top, int bottom){}
+	public record Border(int left, int right, int top, int bottom){
+		public Border(int size) {
+			this(size, size, size, size);
+		}
+	}
 
 	public static void blitSprite(Identifier texture, int i, int j, int k, int l, GuiSpriteScaling guiSpriteScaling) {
 		blitSprite(texture, i, j, k, l, -1, guiSpriteScaling);

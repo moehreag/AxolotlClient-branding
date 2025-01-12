@@ -1,7 +1,7 @@
 {
 	"required": true,
 	"package": "io.github.axolotlclient.mixin",
-	"compatibilityLevel": "JAVA_8",
+	"compatibilityLevel": "JAVA_17",
 	"client": [
 		"AbstractInventoryScreenMixin",
 		"AddServerScreenMixin",
@@ -10,6 +10,8 @@
 		"BossBarHudAccessor",
 		"BossBarHudMixin",
 		"BuiltinModelItemRendererMixin",
+		"ButtonWidgetMixin$Config",
+		"ButtonWidgetMixin$Game",
 		"CameraMixin",
 		"ChatHudMixin",
 		"ClientBrandRetrieverMixin",

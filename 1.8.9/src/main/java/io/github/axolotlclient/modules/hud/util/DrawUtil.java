@@ -114,44 +114,58 @@ public class DrawUtil extends GuiElement {
 
 	public sealed interface GuiSpriteScaling {
 	}
-	public record Stretch() implements GuiSpriteScaling{
+
+	public record Stretch() implements GuiSpriteScaling {
 
 	}
-	public record Tile(int width, int height) implements GuiSpriteScaling{
+
+	public record Tile(int width, int height) implements GuiSpriteScaling {
 
 	}
+
 	public record NineSlice(int width, int height, Border border, boolean stretchInner) implements GuiSpriteScaling {
+		public NineSlice(int width, int height, Border border) {
+			this(width, height, border, false);
+		}
+		public NineSlice(int width, int height, int borderSize) {
+			this(width, height, new Border(borderSize));
+		}
 	}
-	public record Border(int left, int right, int top, int bottom){}
 
-	public static void blitSprite(Identifier texture, int i, int j, int k, int l, GuiSpriteScaling guiSpriteScaling) {
-		blitSprite(texture, i, j, k, l, -1, guiSpriteScaling);
+	public record Border(int left, int right, int top, int bottom) {
+		public Border(int size) {
+			this(size, size, size, size);
+		}
 	}
 
-	public static void blitSprite(Identifier resourceLocation, int i, int j, int k, int l, int m, GuiSpriteScaling guiSpriteScaling) {
+	public static void blitSprite(Identifier texture, int x, int y, int width, int height, GuiSpriteScaling guiSpriteScaling) {
+		blitSprite(texture, x, y, width, height, -1, guiSpriteScaling);
+	}
+
+	public static void blitSprite(Identifier resourceLocation, int x, int y, int width, int height, int color, GuiSpriteScaling guiSpriteScaling) {
 		if (guiSpriteScaling instanceof Stretch) {
-			blitSprite(resourceLocation, i, j, k, l, m);
+			blitSprite(resourceLocation, x, y, width, height, color);
 		} else if (guiSpriteScaling instanceof Tile tile) {
-			blitTiledSprite(resourceLocation, i, j, k, l, 0, 0, tile.width(), tile.height(), tile.width(), tile.height(), m);
+			blitTiledSprite(resourceLocation, x, y, width, height, 0, 0, tile.width(), tile.height(), tile.width(), tile.height(), color);
 		} else if (guiSpriteScaling instanceof NineSlice nineSlice) {
-			blitNineSlicedSprite(resourceLocation, nineSlice, i, j, k, l, m);
+			blitNineSlicedSprite(resourceLocation, nineSlice, x, y, width, height, color);
 		}
 	}
 
 	public static void blitSprite(
-		Identifier resourceLocation, int i, int j, int k, int l, int m, int n, int o, int p, GuiSpriteScaling guiSpriteScaling
+		Identifier resourceLocation, int texWidth, int texHeight, int u, int v, int x, int y, int width, int height, GuiSpriteScaling guiSpriteScaling
 	) {
 		if (guiSpriteScaling instanceof Stretch) {
-			blitSprite(resourceLocation, i, j, k, l, m, n, o, p, -1);
+			blitSprite(resourceLocation, texWidth, texHeight, u, v, x, y, width, height, -1);
 		} else {
-			enableScissor(m, n, m + o, n + p);
-			blitSprite(resourceLocation, m - k, n - l, i, j, -1);
+			enableScissor(x, y, x + width, y + height);
+			blitSprite(resourceLocation, x - u, y - v, texWidth, texHeight, -1);
 			disableScissor();
 		}
 	}
 
-	public static void blitSprite(Identifier texture, int i, int j, int k, int l) {
-		blitSprite(texture, i, j, k, l, -1);
+	public static void blitSprite(Identifier texture, int x, int y, int width, int height) {
+		blitSprite(texture, x, y, width, height, -1);
 	}
 
 	public static void blitSprite(Identifier texture, int x, int y, int width, int height, int color) {
@@ -169,124 +183,124 @@ public class DrawUtil extends GuiElement {
 	}
 
 	private static void blitSprite(
-		Identifier texture, int i, int j, int k, int l, int m, int n, int o, int p, int q
+		Identifier texture, int texWidth, int texHeight, int u, int v, int x, int y, int width, int height, int color
 	) {
-		if (o != 0 && p != 0) {
+		if (width != 0 && height != 0) {
 			innerBlit(
 				texture,
-				m,
-				m + o,
-				n,
-				n + p,
-				(float) k /i, (float) (k + o) /i, (float) l /j, (float) (l + p) /j,
-				q
+				x,
+				x + width,
+				y,
+				y + height,
+				(float) u / texWidth, (float) (u + width) / texWidth, (float) v / texHeight, (float) (v + height) / texHeight,
+				color
 			);
 		}
 	}
 
 	private static void blitNineSlicedSprite(
-		Identifier texture, NineSlice nineSlice, int i, int j, int k, int l, int m
+		Identifier texture, NineSlice nineSlice, int x, int y, int width, int height, int color
 	) {
 		Border border = nineSlice.border();
-		int n = Math.min(border.left(), k / 2);
-		int o = Math.min(border.right(), k / 2);
-		int p = Math.min(border.top(), l / 2);
-		int q = Math.min(border.bottom(), l / 2);
-		if (k == nineSlice.width() && l == nineSlice.height()) {
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, i, j, k, l, m);
-		} else if (l == nineSlice.height()) {
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, i, j, n, l, m);
+		int borderLeft = Math.min(border.left(), width / 2);
+		int borderRight = Math.min(border.right(), width / 2);
+		int borderTop = Math.min(border.top(), height / 2);
+		int borderBottom = Math.min(border.bottom(), height / 2);
+		if (width == nineSlice.width() && height == nineSlice.height()) {
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, x, y, width, height, color);
+		} else if (height == nineSlice.height()) {
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, x, y, borderLeft, height, color);
 			blitNineSliceInnerSegment(
 				texture,
 				nineSlice,
-				i + n,
-				j,
-				k - o - n,
-				l,
-				n,
+				x + borderLeft,
+				y,
+				width - borderRight - borderLeft,
+				height,
+				borderLeft,
 				0,
-				nineSlice.width() - o - n,
+				nineSlice.width() - borderRight - borderLeft,
 				nineSlice.height(),
 				nineSlice.width(),
 				nineSlice.height(),
-				m
+				color
 			);
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), nineSlice.width() - o, 0, i + k - o, j, o, l, m);
-		} else if (k == nineSlice.width()) {
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, i, j, k, p, m);
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), nineSlice.width() - borderRight, 0, x + width - borderRight, y, borderRight, height, color);
+		} else if (width == nineSlice.width()) {
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, x, y, width, borderTop, color);
 			blitNineSliceInnerSegment(
 				texture,
 				nineSlice,
-				i,
-				j + p,
-				k,
-				l - q - p,
+				x,
+				y + borderTop,
+				width,
+				height - borderBottom - borderTop,
 				0,
-				p,
+				borderTop,
 				nineSlice.width(),
-				nineSlice.height() - q - p,
+				nineSlice.height() - borderBottom - borderTop,
 				nineSlice.width(),
 				nineSlice.height(),
-				m
+				color
 			);
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, nineSlice.height() - q, i, j + l - q, k, q, m);
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, nineSlice.height() - borderBottom, x, y + height - borderBottom, width, borderBottom, color);
 		} else {
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, i, j, n, p, m);
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, 0, x, y, borderLeft, borderTop, color);
 			blitNineSliceInnerSegment(
-				texture, nineSlice, i + n, j, k - o - n, p, n, 0, nineSlice.width() - o - n, p, nineSlice.width(), nineSlice.height(), m
+				texture, nineSlice, x + borderLeft, y, width - borderRight - borderLeft, borderTop, borderLeft, 0, nineSlice.width() - borderRight - borderLeft, borderTop, nineSlice.width(), nineSlice.height(), color
 			);
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), nineSlice.width() - o, 0, i + k - o, j, o, p, m);
-			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, nineSlice.height() - q, i, j + l - q, n, q, m);
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), nineSlice.width() - borderRight, 0, x + width - borderRight, y, borderRight, borderTop, color);
+			blitSprite(texture, nineSlice.width(), nineSlice.height(), 0, nineSlice.height() - borderBottom, x, y + height - borderBottom, borderLeft, borderBottom, color);
 			blitNineSliceInnerSegment(
 				texture,
 				nineSlice,
-				i + n,
-				j + l - q,
-				k - o - n,
-				q,
-				n,
-				nineSlice.height() - q,
-				nineSlice.width() - o - n,
-				q,
+				x + borderLeft,
+				y + height - borderBottom,
+				width - borderRight - borderLeft,
+				borderBottom,
+				borderLeft,
+				nineSlice.height() - borderBottom,
+				nineSlice.width() - borderRight - borderLeft,
+				borderBottom,
 				nineSlice.width(),
 				nineSlice.height(),
-				m
+				color
 			);
 			blitSprite(
-				texture, nineSlice.width(), nineSlice.height(), nineSlice.width() - o, nineSlice.height() - q, i + k - o, j + l - q, o, q, m
+				texture, nineSlice.width(), nineSlice.height(), nineSlice.width() - borderRight, nineSlice.height() - borderBottom, x + width - borderRight, y + height - borderBottom, borderRight, borderBottom, color
 			);
 			blitNineSliceInnerSegment(
-				texture, nineSlice, i, j + p, n, l - q - p, 0, p, n, nineSlice.height() - q - p, nineSlice.width(), nineSlice.height(), m
-			);
-			blitNineSliceInnerSegment(
-				texture,
-				nineSlice,
-				i + n,
-				j + p,
-				k - o - n,
-				l - q - p,
-				n,
-				p,
-				nineSlice.width() - o - n,
-				nineSlice.height() - q - p,
-				nineSlice.width(),
-				nineSlice.height(),
-				m
+				texture, nineSlice, x, y + borderTop, borderLeft, height - borderBottom - borderTop, 0, borderTop, borderLeft, nineSlice.height() - borderBottom - borderTop, nineSlice.width(), nineSlice.height(), color
 			);
 			blitNineSliceInnerSegment(
 				texture,
 				nineSlice,
-				i + k - o,
-				j + p,
-				o,
-				l - q - p,
-				nineSlice.width() - o,
-				p,
-				o,
-				nineSlice.height() - q - p,
+				x + borderLeft,
+				y + borderTop,
+				width - borderRight - borderLeft,
+				height - borderBottom - borderTop,
+				borderLeft,
+				borderTop,
+				nineSlice.width() - borderRight - borderLeft,
+				nineSlice.height() - borderBottom - borderTop,
 				nineSlice.width(),
 				nineSlice.height(),
-				m
+				color
+			);
+			blitNineSliceInnerSegment(
+				texture,
+				nineSlice,
+				x + width - borderRight,
+				y + borderTop,
+				borderRight,
+				height - borderBottom - borderTop,
+				nineSlice.width() - borderRight,
+				borderTop,
+				borderRight,
+				nineSlice.height() - borderBottom - borderTop,
+				nineSlice.width(),
+				nineSlice.height(),
+				color
 			);
 		}
 	}
@@ -294,61 +308,61 @@ public class DrawUtil extends GuiElement {
 	private static void blitNineSliceInnerSegment(
 		Identifier texture,
 		NineSlice nineSlice,
-		int i,
-		int j,
-		int k,
-		int l,
-		int m,
-		int n,
-		int o,
-		int p,
-		int q,
-		int r,
-		int s
+		int x,
+		int y,
+		int width,
+		int height,
+		int u,
+		int v,
+		int regionWidth,
+		int regionHeight,
+		int texWidth,
+		int texHeight,
+		int color
 	) {
-		if (k > 0 && l > 0) {
+		if (width > 0 && height > 0) {
 			if (nineSlice.stretchInner()) {
 				innerBlit(
 					texture,
-					i,
-					i + k,
-					j,
-					j + l,
-					(float) m /q, (float) (m + o) /q, (float) n /r, (float) (n + p) /r,
-					s
+					x,
+					x + width,
+					y,
+					y + height,
+					(float) u / texWidth, (float) (u + regionWidth) / texWidth, (float) v / texHeight, (float) (v + regionHeight) / texHeight,
+					color
 				);
 			} else {
-				blitTiledSprite(texture, i, j, k, l, m, n, o, p, q, r, s);
+				blitTiledSprite(texture, x, y, width, height, u, v, regionWidth, regionHeight, texWidth, texHeight, color);
 			}
 		}
 	}
 
 	private static void blitTiledSprite(
 		Identifier texture,
-		int i,
-		int j,
-		int k,
-		int l,
-		int m,
-		int n,
+		int x,
+		int y,
 		int width,
 		int height,
-		int q,
-		int r,
-		int s
+		int u,
+		int v,
+		int spriteWidth,
+		int spriteHeight,
+		int nineSliceWidth,
+		int nineSliceHeight,
+		int color
 	) {
-		if (k > 0 && l > 0) {
-			if (width > 0 && height > 0) {
-				for (int t = 0; t < k; t += width) {
-					int u = Math.min(width, k - t);
+		if (width > 0 && height > 0) {
+			if (spriteWidth > 0 && spriteHeight > 0) {
+				for (int xStep = 0; xStep < width; xStep += spriteWidth) {
+					int i = Math.min(spriteWidth, width - xStep);
 
-					for (int v = 0; v < l; v += height) {
-						int w = Math.min(height, l - v);
-						blitSprite(texture, q, r, m, n, i + t, j + v, u, w, s);
+					for (int yStep = 0; yStep < height; yStep += spriteHeight) {
+						int w = Math.min(spriteHeight, height - yStep);
+						blitSprite(texture, nineSliceWidth, nineSliceHeight, u, v, x + xStep, y + yStep, i, w, color);
 					}
 				}
 			} else {
-				throw new IllegalArgumentException("Tiled sprite texture size must be positive, got " + width + "x" + height);
+				throw new IllegalArgumentException("Tiled sprite texture size must be positive, got " + spriteWidth + "x" + spriteHeight);
 			}
 		}
 	}

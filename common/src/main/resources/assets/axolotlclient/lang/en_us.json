@@ -593,7 +593,6 @@
 	"api.add_shortcut_buttons.tooltip": "Adds buttons to the title screen and the game menu<br> to access social features more quickly.",
 	"api.account.export": "Export account data",
 	"api.account.export_data": "Choose destination file",
-	"api.account.export.dialog_title": "Choose export destination",
 	"api.account.export.success.title": "Export successful",
 	"api.account.export.success.description": "Exported account data to %s",
 	"api.account.export.failure.title": "Export failed",
@@ -626,5 +625,9 @@
 	"gallery.image.view": "View image",
 	"gallery.image.loading.title": "Loading image...",
 	"viewInGalleryAction": "[Gallery]",
-	"view_in_gallery": "View in Gallery"
+	"view_in_gallery": "View in Gallery",
+	"show_brackets": "Show Brackets",
+	"bracket_format": "[%s]",
+	"show_durability_num": "Show Durability Number",
+	"show_max_durability_num": "Show Maximum Durability Number"
 }

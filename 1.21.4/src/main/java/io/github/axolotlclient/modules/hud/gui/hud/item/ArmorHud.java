@@ -36,7 +36,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 /**
  * This implementation of Hud modules is based on KronHUD.
@@ -53,6 +52,8 @@ public class ArmorHud extends TextHudEntry {
 	private final ItemStack[] placeholderStacks =
 		new ItemStack[]{new ItemStack(Items.IRON_BOOTS), new ItemStack(Items.IRON_LEGGINGS),
 			new ItemStack(Items.IRON_CHESTPLATE), new ItemStack(Items.IRON_HELMET), new ItemStack(Items.IRON_SWORD)};
+	private final BooleanOption showDurabilityNumber = new BooleanOption("show_durability_num", false);
+	private final BooleanOption showMaxDurabilityNumber = new BooleanOption("show_max_durability_num", false);
 
 	public ArmorHud() {
 		super(20, 100, true);
@@ -60,6 +61,14 @@ public class ArmorHud extends TextHudEntry {
 
 	@Override
 	public void renderComponent(GuiGraphics graphics, float delta) {
+		int width = 20;
+		if (showDurabilityNumber.get()) {
+			width += 15;
+		}
+		if (showMaxDurabilityNumber.get()) {
+			width += 15;
+		}
+		setWidth(width);
 		DrawPosition pos = getPos();
 		int lastY = 2 + (4 * 20);
 		renderMainItem(graphics, client.player.getInventory().getSelected(), pos.x() + 2, pos.y() + lastY);
@@ -67,7 +76,6 @@ public class ArmorHud extends TextHudEntry {
 		for (int i = 0; i <= 3; i++) {
 			ItemStack stack = client.player.getInventory().getArmor(i).copy();
 			if (showProtLvl.get() && stack.isEnchanted()) {
-				ItemEnchantments nbtList = stack.getEnchantments();
 				client.level.registryAccess().lookup(Registries.ENCHANTMENT).orElseThrow().get(Enchantments.PROTECTION)
 					.ifPresent(enchantmentReference -> stack.setCount(
 						EnchantmentHelper.getItemEnchantmentLevel(enchantmentReference, stack)));
@@ -84,11 +92,25 @@ public class ArmorHud extends TextHudEntry {
 		}
 		graphics.renderItem(stack, x, y);
 		graphics.renderItemDecorations(client.font, stack, x, y, total);
+		renderDurabilityNumber(graphics, stack, x, y);
 	}
 
 	public void renderItem(GuiGraphics graphics, ItemStack stack, int x, int y) {
 		graphics.renderItem(stack, x, y);
 		graphics.renderItemDecorations(client.font, stack, x, y);
+		renderDurabilityNumber(graphics, stack, x, y);
+	}
+
+	private void renderDurabilityNumber(GuiGraphics graphics, ItemStack stack, int x, int y) {
+		boolean showDurability = showDurabilityNumber.get();
+		boolean showMaxDurability = showMaxDurabilityNumber.get();
+		if (!(showMaxDurability || showDurability)) {
+			return;
+		}
+		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage()));
+		int textX = x - client.font.width(text) - 2;
+		int textY = y + 10 - client.font.lineHeight/2;
+		graphics.drawString(client.font, text, textX, textY, stack.getBarColor());
 	}
 
 	@Override
@@ -113,6 +135,8 @@ public class ArmorHud extends TextHudEntry {
 	public List<Option<?>> getConfigurationOptions() {
 		List<Option<?>> options = super.getConfigurationOptions();
 		options.add(showProtLvl);
+		options.add(showDurabilityNumber);
+		options.add(showMaxDurabilityNumber);
 		return options;
 	}
 }

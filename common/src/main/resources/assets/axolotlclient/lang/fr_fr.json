@@ -593,7 +593,6 @@
   "api.add_shortcut_buttons.tooltip": "Ajoute des boutons à l'écran titre et au menu du jeu<br> pour accéder plus rapidement aux fonctionnalités sociales.",
   "api.account.export": "Exporter les données du compte",
   "api.account.export_data": "Choisir le fichier de destination",
-  "api.account.export.dialog_title": "Choisir la destination d'exportation",
   "api.account.export.success.title": "Exportation réussie",
   "api.account.export.success.description": "Données de compte exportées vers %s",
   "api.account.export.failure.title": "Échec de l'exportation",
