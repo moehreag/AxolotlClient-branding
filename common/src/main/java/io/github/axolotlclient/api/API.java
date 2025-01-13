@@ -168,10 +168,11 @@ public class API {
 						logDetailed("Created self user!");
 					}),
 				AccountSettingsRequest.get().thenAccept(r -> {
-					apiOptions.retainUsernames.set(r.isRetainUsernames());
-					apiOptions.showActivity.set(r.isShowActivity());
-					apiOptions.showLastOnline.set(r.isShowLastOnline());
-					apiOptions.showRegistered.set(r.isShowRegistered());
+					apiOptions.retainUsernames.set(r.retainUsernames());
+					apiOptions.showActivity.set(r.showActivity());
+					apiOptions.showLastOnline.set(r.showLastOnline());
+					apiOptions.showRegistered.set(r.showRegistered());
+					apiOptions.allowFriendsImageAccess.set(r.allowFriendsImageAccess());
 				})).thenRun(() -> logDetailed("completed data requests")).join();
 			createSession();
 			startStatusUpdateThread();

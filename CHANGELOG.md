@@ -8,6 +8,7 @@
 - (1.8.9, 1.16) Enable texture nine-slicing for all ButtonWidgets
 - Update bedwars module
 - add secondary keybinding for freelook
+- add options to display durability numbers for ArmorHuds
 
 ### 3.1.0
 

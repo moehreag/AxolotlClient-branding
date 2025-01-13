@@ -632,5 +632,7 @@
 	"show_max_durability_num": "Show Maximum Durability Number",
 	"key.freelook.alt": "Freelook (Alternative)",
 	"perspective.alt": "Perspective (Alternative Key)",
-	"toggle.alt": "Toggle (Alternative Key)"
+	"toggle.alt": "Toggle (Alternative Key)",
+	"api.account.settings.allow_friends_image_access": "Allow Friends Image Access",
+	"api.account.settings.allow_friends_image_access.tooltip": "Allow friends to access images you upload directly in their gallery screen.<br>Disabling this does NOT stop images from being available via their url or id,<br>it only prevents friends from seeing your images in the \"Shared by friends\" gallery tab."
 }
