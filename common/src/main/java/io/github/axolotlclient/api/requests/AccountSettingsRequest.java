@@ -38,7 +38,7 @@ public class AccountSettingsRequest {
 					response.getBody("retain_usernames"),
 					response.getBody("show_last_online"),
 					response.getBody("show_activity"),
-					response.getBody("allow_friends_image_access")));
+					response.getBodyOrElse("allow_friends_image_access", true)));
 	}
 
 	public static CompletableFuture<Void> update(AccountSettings settings) {

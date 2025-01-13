@@ -22,14 +22,18 @@
 
 package io.github.axolotlclient.util.options.vanilla;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionCategoryImpl;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.BooleanWidget;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.CategoryWidget;
 import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
+import io.github.axolotlclient.util.ButtonWidgetTextures;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 
 public class QuickToggleCategoryWidget extends CategoryWidget {
 	private BooleanWidget enabledButton;
@@ -40,7 +44,17 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 			.filter(o -> o instanceof BooleanOption)
 			.map(o -> (BooleanOption) o)
 			.filter(o -> "enabled".equals(o.getName())).findFirst()
-			.ifPresent(booleanOption -> enabledButton = new BooleanWidget(x + (width - 33), y + 3, 30, height - 5, booleanOption));
+			.ifPresent(booleanOption -> enabledButton = new BooleanWidget(x + (width - 33), y + 3, 30, height - 5, booleanOption) {
+				@Override
+				public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+					Identifier tex = ButtonWidgetTextures.get(!this.active ? 0 : (this.isHovered() ? 2 : 1));
+					RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+					io.github.axolotlclient.modules.hud.util.DrawUtil.blitSprite(tex, this.getX(), this.getY(), this.getWidth(), this.getHeight(), new io.github.axolotlclient.modules.hud.util.DrawUtil.NineSlice(200, 20, 3));
+
+					int textColor = this.active ? 16777215 : 10526880;
+					this.drawScrollableText(matrices, MinecraftClient.getInstance().textRenderer, textColor | MathHelper.ceil(this.alpha * 255.0F) << 24);
+				}
+			});
 	}
 
 	@Override

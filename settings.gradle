@@ -9,10 +9,6 @@ pluginManagement {
 			url = 'https://maven.ornithemc.net/releases'
 		}
 		maven {
-			name = 'Quilt'
-			url = 'https://maven.quiltmc.org/repository/release/'
-		}
-		maven {
 			name = 'Ornithe Snapshots'
 			url = 'https://maven.ornithemc.net/snapshots'
 		}

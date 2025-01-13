@@ -24,7 +24,8 @@ repositories {
 
 allprojects {
 	repositories {
-		maven("https://maven.terraformersmc.com/releases/")
+		maven("https://maven.terraformersmc.com/releases")
+		maven("https://maven.fabricmc.net")
 		maven("https://maven.quiltmc.org/repository/release")
 		maven("https://moehreag.duckdns.org/maven/releases")
 		maven("https://moehreag.duckdns.org/maven/snapshots")

@@ -22,16 +22,13 @@
 
 package io.github.axolotlclient;
 
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
-import io.github.axolotlclient.api.API;
-import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import lombok.Getter;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class AxolotlClientCommon {
 	@Getter
@@ -39,9 +36,12 @@ public class AxolotlClientCommon {
 	@Getter
 	public static final String VERSION = readVersion();
 	@Getter
-	private final Logger logger;
-	private final Supplier<ConfigManager> manager;
+	public static final String GAME_VERSION = readGameVersion();
 
+	@Getter
+	private final Logger logger;
+
+	private final Supplier<ConfigManager> manager;
 	public DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CommonOptions.datetimeFormat.get());
 
 	public AxolotlClientCommon(Logger logger, Supplier<ConfigManager> manager) {
@@ -50,13 +50,16 @@ public class AxolotlClientCommon {
 		this.manager = manager;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static String readVersion() {
-		try {
-			return (String) ((Map<Object, Object>) GsonHelper.read(API.class.getResourceAsStream("/fabric.mod.json"))).get("version");
-		} catch (IOException ignored) {
-			return "(unknown)";
-		}
+		return FabricLoader.getInstance().getModContainer("axolotlclient-common").orElseThrow().getMetadata().getVersion().getFriendlyString();
+	}
+
+	private static String readGameVersion() {
+		return FabricLoader.getInstance().getModContainer("minecraft").orElseThrow().getMetadata().getVersion().getFriendlyString();
+	}
+
+	public static String getUAVersionString() {
+		return "AxolotlClient/"+VERSION+" (Minecraft "+GAME_VERSION+")";
 	}
 
 	public void saveConfig() {

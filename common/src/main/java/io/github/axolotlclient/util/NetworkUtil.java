@@ -29,12 +29,11 @@ import com.github.mizosoft.methanol.Methanol;
 import io.github.axolotlclient.AxolotlClientCommon;
 import lombok.experimental.UtilityClass;
 
-
 @UtilityClass
 public class NetworkUtil {
 
 	public HttpClient createHttpClient(String id) {
-		return Methanol.newBuilder().userAgent("AxolotlClient/" + id + " (" + AxolotlClientCommon.VERSION + ") contact: moehreag<at>gmail.com")
+		return Methanol.newBuilder().userAgent("AxolotlClient/" + id + " (" + AxolotlClientCommon.getUAVersionString() + ") contact: moehreag<at>gmail.com")
 			.followRedirects(HttpClient.Redirect.NORMAL)
 			.requestTimeout(Duration.ofMinutes(1))
 			.executor(ThreadExecuter.service()).build();
