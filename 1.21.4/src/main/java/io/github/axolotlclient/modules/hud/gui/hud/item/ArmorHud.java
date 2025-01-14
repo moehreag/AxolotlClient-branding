@@ -28,7 +28,10 @@ import java.util.stream.Stream;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
+import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -46,7 +49,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
  * @license GPL-3.0
  */
 
-public class ArmorHud extends TextHudEntry {
+public class ArmorHud extends TextHudEntry implements DynamicallyPositionable {
 
 	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("kronhud", "armorhud");
 
@@ -56,6 +59,9 @@ public class ArmorHud extends TextHudEntry {
 			new ItemStack(Items.IRON_CHESTPLATE), new ItemStack(Items.IRON_HELMET), new ItemStack(Items.IRON_SWORD)};
 	private final BooleanOption showDurabilityNumber = new BooleanOption("show_durability_num", false);
 	private final BooleanOption showMaxDurabilityNumber = new BooleanOption("show_max_durability_num", false);
+
+	private final EnumOption<AnchorPoint> anchor = new EnumOption<>("anchorpoint", AnchorPoint.class,
+		AnchorPoint.TOP_RIGHT);
 
 	public ArmorHud() {
 		super(20, 100, true);
@@ -154,6 +160,11 @@ public class ArmorHud extends TextHudEntry {
 		options.add(showProtLvl);
 		options.add(showDurabilityNumber);
 		options.add(showMaxDurabilityNumber);
+		options.add(anchor);
 		return options;
+	}
+
+	public AnchorPoint getAnchor() {
+		return anchor.get();
 	}
 }

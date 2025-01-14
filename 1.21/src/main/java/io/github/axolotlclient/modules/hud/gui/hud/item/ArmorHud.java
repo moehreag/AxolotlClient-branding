@@ -22,12 +22,16 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud.item;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
+import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
+import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -46,7 +50,7 @@ import net.minecraft.util.Identifier;
  * @license GPL-3.0
  */
 
-public class ArmorHud extends TextHudEntry {
+public class ArmorHud extends TextHudEntry implements DynamicallyPositionable {
 
 	public static final Identifier ID = Identifier.of("kronhud", "armorhud");
 
@@ -56,6 +60,9 @@ public class ArmorHud extends TextHudEntry {
 		new ItemStack(Items.IRON_SWORD)};
 	private final BooleanOption showDurabilityNumber = new BooleanOption("show_durability_num", false);
 	private final BooleanOption showMaxDurabilityNumber = new BooleanOption("show_max_durability_num", false);
+
+	private final EnumOption<AnchorPoint> anchor = new EnumOption<>("anchorpoint", AnchorPoint.class,
+		AnchorPoint.TOP_RIGHT);
 
 	public ArmorHud() {
 		super(20, 100, true);
@@ -119,9 +126,8 @@ public class ArmorHud extends TextHudEntry {
 			return;
 		}
 		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage()));
-		int textX = x - client.textRenderer.getWidth(text) - 2;
 		int textY = y + 10 - client.textRenderer.fontHeight/2;
-		graphics.drawShadowedText(client.textRenderer, text, textX, textY, stack.getItemBarColor());
+		graphics.drawShadowedText(client.textRenderer, text, x, textY, stack.getItemBarColor());
 	}
 
 	@Override
@@ -129,7 +135,7 @@ public class ArmorHud extends TextHudEntry {
 		int width = 20;
 		boolean showDurability = showDurabilityNumber.get();
 		boolean showMaxDurability = showMaxDurabilityNumber.get();
-		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.getInventory().getMainHandStack()), client.player.getInventory().armor.stream())
+		int labelWidth = showDurability || showMaxDurability ? Arrays.stream(placeholderStacks)
 			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage())))
 			.mapToInt(text -> client.textRenderer.getWidth(text)+2).max().orElse(0) : 0;
 		width += labelWidth;
@@ -159,6 +165,11 @@ public class ArmorHud extends TextHudEntry {
 		options.add(showProtLvl);
 		options.add(showDurabilityNumber);
 		options.add(showMaxDurabilityNumber);
+		options.add(anchor);
 		return options;
+	}
+
+	public AnchorPoint getAnchor() {
+		return anchor.get();
 	}
 }

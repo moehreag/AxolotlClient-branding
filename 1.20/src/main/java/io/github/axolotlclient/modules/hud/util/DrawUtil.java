@@ -82,11 +82,6 @@ public class DrawUtil {
 		drawString(graphics, text, x, y, color.toInt(), shadow);
 	}
 
-	public static void drawString(GuiGraphics graphics, TextRenderer textRenderer, String text, float x, float y,
-								  int color, boolean shadow) {
-		drawString(graphics, text, x, y, color, shadow);
-	}
-
 	public sealed interface GuiSpriteScaling {
 	}
 

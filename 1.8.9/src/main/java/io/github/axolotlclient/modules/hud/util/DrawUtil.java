@@ -73,17 +73,13 @@ public class DrawUtil extends GuiElement {
 		drawString(text, (float) (x - renderer.getWidth(text) / 2), (float) y, color, shadow);
 	}
 
-	public static void drawString(String text, float x, float y, int color, boolean shadow) {
+	public static int drawString(String text, float x, float y, int color, boolean shadow) {
 		GlStateManager.enableTexture();
-		Minecraft.getInstance().textRenderer.draw(text, x, y, color, shadow);
+		return Minecraft.getInstance().textRenderer.draw(text, x, y, color, shadow);
 	}
 
-	public static void drawString(String text, float x, float y, Color color, boolean shadow) {
-		drawString(text, x, y, color.toInt(), shadow);
-	}
-
-	public static void drawString(TextRenderer textRenderer, String text, float x, float y, int color, boolean shadow) {
-		drawString(text, x, y, color, shadow);
+	public static int drawString(String text, float x, float y, Color color, boolean shadow) {
+		return drawString(text, x, y, color.toInt(), shadow);
 	}
 
 	public static void drawScrollableText(TextRenderer textRenderer, String text, int left, int top, int right, int bottom, int color) {

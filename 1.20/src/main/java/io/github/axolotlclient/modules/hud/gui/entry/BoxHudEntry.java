@@ -94,7 +94,6 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 	public void renderPlaceholder(GuiGraphics graphics, float delta) {
 		graphics.getMatrices().push();
 		renderPlaceholderBackground(graphics);
-		outlineRect(graphics, getTrueBounds(), ClientColors.BLACK);
 		scale(graphics);
 		renderPlaceholderComponent(graphics, delta);
 		graphics.getMatrices().pop();

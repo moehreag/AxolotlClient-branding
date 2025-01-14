@@ -106,7 +106,7 @@ public class ChatHud extends TextHudEntry {
 								}
 								String string = chatHudLine.getText().getFormattedString();
 								GlStateManager.enableBlend();
-								DrawUtil.drawString(client.textRenderer, string, pos.x, (y - 8),
+								DrawUtil.drawString(string, pos.x, (y - 8),
 									16777215 + (chatOpacity << 24), shadow.get());
 								GlStateManager.disableAlphaTest();
 								GlStateManager.disableBlend();

@@ -74,8 +74,4 @@ public class DrawUtil {
 	public static void drawString(GuiGraphics graphics, String text, float x, float y, Color color, boolean shadow) {
 		drawString(graphics, text, x, y, color.toInt(), shadow);
 	}
-
-	public static void drawString(GuiGraphics graphics, Font textRenderer, String text, float x, float y, int color, boolean shadow) {
-		drawString(graphics, text, x, y, color, shadow);
-	}
 }
