@@ -30,12 +30,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import java.util.stream.StreamSupport;
 
 import com.github.mizosoft.methanol.FormBodyPublisher;
 import com.google.gson.JsonObject;
+import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
 import io.github.axolotlclient.util.NetworkUtil;
@@ -108,13 +109,14 @@ public class MSAuth {
 							data.setStatus("auth.working");
 							return authenticateFromMSTokens(response.get("access_token").getAsString(),
 								response.get("refresh_token").getAsString())
-								.thenApply(a -> {
-									accounts.getAccounts().set(accounts.getAccounts().indexOf(a), a);
-									return a;
-								})
-								.thenAccept(accounts::login)
-								.thenRun(accounts::save)
-								.thenRun(() -> data.setStatus("auth.finished")).join();
+								.thenAccept(o -> {
+									o.ifPresent(a -> {
+										accounts.getAccounts().set(accounts.getAccounts().indexOf(a), a);
+										accounts.login(a);
+										accounts.save();
+										data.setStatus("auth.finished");
+									});
+								}).join();
 						}
 
 						if (response.has("error")) {
@@ -136,7 +138,7 @@ public class MSAuth {
 			});
 	}
 
-	private CompletableFuture<Account> authenticateFromMSTokens(String accessToken, String refreshToken) {
+	private CompletableFuture<Optional<Account>> authenticateFromMSTokens(String accessToken, String refreshToken) {
 		return CompletableFuture.supplyAsync(() -> {
 			logger.debug("getting xbl token... ");
 			XblData xbl = authXbl(accessToken).join();
@@ -147,24 +149,26 @@ public class MSAuth {
 
 			JsonObject profileJson = getMCProfile(mc.accessToken()).join();
 			if (profileJson.has("error") && "NOT_FOUND".equals(profileJson.get("error").getAsString())) {
-				throw new RuntimeException(Error.NO_PROFILE.toString());
+				AxolotlClientCommon.getInstance().getNotificationProvider().addStatus("auth.notif.login.failed", "auth.notif.login.failed.no_profile");
+				return Optional.empty();
+			}
+			logger.debug("retrieving entitlements...");
+			if (!checkOwnership(accessToken).join()) {
+				AxolotlClientCommon.getInstance().getNotificationProvider().addStatus("auth.notif.login.failed", "auth.notif.login.failed.no_entitlement");
+				return Optional.empty();
 			}
 			logger.debug("getting profile...");
 			MCProfile profile = MCProfile.get(profileJson);
-			return new Account(profile.name(), profile.id(), mc.accessToken(), mc.expiration(), accessToken, refreshToken);
-		}).exceptionally(t -> {
-			logger.debug("Error: ", t);
-			return null;
+			return Optional.of(new Account(profile.name(), profile.id(), mc.accessToken(), mc.expiration(), refreshToken, accessToken));
 		});
 	}
 
-	public record MCProfile(String id, String name, List<Skin> skins, List<Cape> capes) {
+	private record MCProfile(String id, String name, List<Skin> skins, List<Cape> capes) {
 		public static MCProfile get(JsonObject json) {
 			return new MCProfile(json.get("id").getAsString(), json.get("name").getAsString(),
-				// Calling StreamSupport is not ideal, but everything else isn't better
-				StreamSupport.stream(json.getAsJsonArray("skins").spliterator(), false)
+				GsonHelper.jsonArrayToStream(json.getAsJsonArray("skins"))
 					.map(s -> Skin.get(s.getAsJsonObject()))
-					.toList(), StreamSupport.stream(json.getAsJsonArray("capes").spliterator(), false)
+					.toList(), GsonHelper.jsonArrayToStream(json.getAsJsonArray("capes"))
 				.map(s -> Cape.get(s.getAsJsonObject()))
 				.toList());
 		}
@@ -238,14 +242,16 @@ public class MSAuth {
 	private record MCXblData(String username, String accessToken, Instant expiration) {
 	}
 
-	public CompletableFuture<Boolean> checkOwnership(String accessToken) {
+	private CompletableFuture<Boolean> checkOwnership(String accessToken) {
 		return requestJson(HttpRequest
 			.newBuilder(URI.create("https://api.minecraftservices.com/entitlements/mcstore"))
 			.header("Authorization", "Bearer " + accessToken).build())
-			.thenApply(res -> res.get("items").getAsJsonArray().size() != 0);
+			.thenApply(res -> GsonHelper.jsonArrayToStream(res.get("items").getAsJsonArray())
+				.anyMatch(e -> e.isJsonObject() && e.getAsJsonObject().has("name")
+					&& "game_minecraft".equals(e.getAsJsonObject().get("name").getAsString())));
 	}
 
-	public CompletableFuture<JsonObject> getMCProfile(String accessToken) {
+	private CompletableFuture<JsonObject> getMCProfile(String accessToken) {
 		return requestJson(HttpRequest.newBuilder().GET()
 			.uri(URI.create("https://api.minecraftservices.com/minecraft/profile"))
 			.header("Authorization", "Bearer " + accessToken).build());
@@ -255,7 +261,7 @@ public class MSAuth {
 		return NetworkUtil.createHttpClient("Auth");
 	}
 
-	public CompletableFuture<Account> refreshToken(String token, Account account) {
+	public CompletableFuture<Optional<Account>> refreshToken(String token, Account account) {
 		return CompletableFuture.supplyAsync(() -> {
 			logger.debug("refreshing auth code... ");
 			HttpRequest.Builder requestBuilder = HttpRequest
@@ -270,33 +276,33 @@ public class MSAuth {
 			JsonObject response = requestJson(requestBuilder.build()).join();
 
 			if (response.has("error_codes")) {
-				logger.debug(response.toString());
-				if (response.get("error_codes").getAsJsonArray().get(0).getAsInt() == 70000) {
+				int errorCode = response.get("error_codes").getAsJsonArray().get(0).getAsInt();
+				if (errorCode == 70000 || errorCode == 70012) {
 					accounts.showAccountsExpiredScreen(account);
+				} else {
+					logger.warn("Login error, unexpected response: "+response);
+					AxolotlClientCommon.getInstance().getNotificationProvider().addStatus("auth.notif.refresh.error", "auth.notif.refresh.error.unexpected_response");
 				}
-				return account;
+				return Optional.empty();
 			}
 
 			logger.debug("authenticating...");
-			Account refreshed = authenticateFromMSTokens(response.get("access_token").getAsString(),
+			Optional<Account> opt = authenticateFromMSTokens(response.get("access_token").getAsString(),
 				response.get("refresh_token").getAsString()).join();
-			account.setRefreshToken(refreshed.getRefreshToken());
-			account.setAuthToken(refreshed.getAuthToken());
-			account.setName(refreshed.getName());
-			account.setMsaToken(refreshed.getMsaToken());
-			account.setExpiration(refreshed.getExpiration());
-			accounts.save();
-			return account;
+			opt.ifPresent(refreshed -> {
+				account.setRefreshToken(refreshed.getRefreshToken());
+				account.setAuthToken(refreshed.getAuthToken());
+				account.setName(refreshed.getName());
+				account.setMsaToken(refreshed.getMsaToken());
+				account.setExpiration(refreshed.getExpiration());
+				accounts.save();
+			});
+			return opt;
 		});
 	}
 
 	private CompletableFuture<JsonObject> requestJson(HttpRequest request) {
 		return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
 			.thenApply(res -> GsonHelper.fromJson(res.body()));
-	}
-
-	enum Error {
-		GENERIC_ERROR,
-		NO_PROFILE
 	}
 }

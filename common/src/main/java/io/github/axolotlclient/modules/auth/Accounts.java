@@ -23,7 +23,6 @@
 package io.github.axolotlclient.modules.auth;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -94,7 +93,7 @@ public abstract class Accounts {
 		JsonObject object = new JsonObject();
 		object.add("accounts", array);
 		try {
-			Files.write(getAccountsSaveFile(), GsonHelper.GSON.toJson(object).getBytes(StandardCharsets.UTF_8));
+			Files.writeString(getAccountsSaveFile(), GsonHelper.GSON.toJson(object));
 		} catch (IOException e) {
 			getLogger().error("Failed to save acounts config!", e);
 		}

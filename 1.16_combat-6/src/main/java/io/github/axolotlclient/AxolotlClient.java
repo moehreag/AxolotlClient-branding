@@ -119,8 +119,8 @@ public class AxolotlClient implements ClientModInitializer {
 
 		CONFIG.init();
 
-		new AxolotlClientCommon(LOGGER, () -> configManager);
-		new API(LOGGER, Notifications.getInstance(), I18n::translate, new StatusUpdateProviderImpl(), APIOptions.getInstance());
+		new AxolotlClientCommon(LOGGER, Notifications.getInstance(), () -> configManager);
+		new API(LOGGER, I18n::translate, new StatusUpdateProviderImpl(), APIOptions.getInstance());
 		ClientLifecycleEvents.CLIENT_STOPPING.register(c -> API.getInstance().shutdown());
 
 		modules.forEach(Module::init);

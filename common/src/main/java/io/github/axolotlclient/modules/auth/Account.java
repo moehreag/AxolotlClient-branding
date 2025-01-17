@@ -24,6 +24,7 @@ package io.github.axolotlclient.modules.auth;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
@@ -82,7 +83,7 @@ public class Account {
 		return new Account(uuid, name, authToken, msaToken, refreshToken, expiration);
 	}
 
-	public CompletableFuture<Account> refresh(MSAuth auth) {
+	public CompletableFuture<Optional<Account>> refresh(MSAuth auth) {
 		return auth.refreshToken(refreshToken, this);
 	}
 

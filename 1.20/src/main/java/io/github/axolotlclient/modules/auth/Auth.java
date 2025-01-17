@@ -99,11 +99,11 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
 			}
-			account.refresh(auth).thenAccept(a -> {
+			account.refresh(auth).thenAccept(res -> res.ifPresent(a -> {
 				if (!a.isExpired()) {
 					login(a);
 				}
-			}).thenRun(this::save);
+			})).thenRun(this::save);
 		} else {
 			try {
 				API.getInstance().shutdown();

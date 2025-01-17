@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
 import io.github.axolotlclient.util.Logger;
+import io.github.axolotlclient.util.notifications.NotificationProvider;
 import lombok.Getter;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -40,13 +41,16 @@ public class AxolotlClientCommon {
 
 	@Getter
 	private final Logger logger;
+	@Getter
+	private final NotificationProvider notificationProvider;
 
 	private final Supplier<ConfigManager> manager;
 	public DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CommonOptions.datetimeFormat.get());
 
-	public AxolotlClientCommon(Logger logger, Supplier<ConfigManager> manager) {
+	public AxolotlClientCommon(Logger logger, NotificationProvider notifications, Supplier<ConfigManager> manager) {
 		instance = this;
 		this.logger = logger;
+		this.notificationProvider = notifications;
 		this.manager = manager;
 	}
 
