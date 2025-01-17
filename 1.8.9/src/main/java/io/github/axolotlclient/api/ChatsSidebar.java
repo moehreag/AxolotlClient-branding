@@ -74,7 +74,7 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 		}
 		GlStateManager.pushMatrix();
 		GlStateManager.translatef(0, 0, 1000);
-		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(0, 0, sidebarWidth + sidebarAnimX, height);
+		io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil.pushScissor(0, 0, Math.max(0, sidebarWidth + sidebarAnimX), height);
 		fill(sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
 		textRenderer.drawWithShadow(I18n.translate("api.chats"), 10 + sidebarAnimX, 10, -1);
@@ -158,7 +158,7 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 			}
 			buttons.forEach(button -> button.x = (button.x + ANIM_STEP));
 		} else if (remove) {
-			if (sidebarAnimX < -sidebarWidth) {
+			if (sidebarAnimX <= -sidebarWidth) {
 				close();
 			}
 			sidebarAnimX -= ANIM_STEP;
@@ -201,6 +201,9 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 
 		if (input != null) {
 			input.mouseClicked(mouseX, mouseY, button);
+		}
+		if (chatWidget != null) {
+			chatWidget.mouseClicked(mouseX, mouseY, button);
 		}
 		super.mouseClicked(mouseX, mouseY, button);
 	}

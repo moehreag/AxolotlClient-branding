@@ -54,7 +54,7 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		renderBackground(matrices);
+		renderBackgroundTexture(0);
 
 		if (users != null) {
 			users.render(matrices, mouseX, mouseY, delta);

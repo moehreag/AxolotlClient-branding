@@ -108,6 +108,10 @@ public class MSAuth {
 							data.setStatus("auth.working");
 							return authenticateFromMSTokens(response.get("access_token").getAsString(),
 								response.get("refresh_token").getAsString())
+								.thenApply(a -> {
+									accounts.getAccounts().set(accounts.getAccounts().indexOf(a), a);
+									return a;
+								})
 								.thenAccept(accounts::login)
 								.thenRun(accounts::save)
 								.thenRun(() -> data.setStatus("auth.finished")).join();

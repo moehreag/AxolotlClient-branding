@@ -112,8 +112,7 @@ public class Account {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Account other) {
-			return name.equals(other.name) &&
-				uuid.equals(other.uuid);
+			return uuid.equals(other.uuid);
 		}
 		return false;
 	}
