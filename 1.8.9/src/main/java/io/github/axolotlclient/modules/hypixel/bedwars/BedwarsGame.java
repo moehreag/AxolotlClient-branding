@@ -32,6 +32,7 @@ import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.BedwarsTeamUpgra
 import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.events.impl.ReceiveChatMessageEvent;
 import io.github.axolotlclient.util.events.impl.ScoreboardRenderEvent;
+import io.github.axolotlclient.util.notifications.Notifications;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.living.player.ClientPlayerEntity;
@@ -264,9 +265,14 @@ public class BedwarsGame {
 				return;
 			}
 			if (BedwarsMessages.matched(BedwarsMessages.BED_DESTROY, rawMessage, m -> {
-				BedwarsPlayer player = BedwarsMessages.matched(BedwarsMessages.BED_BREAK, rawMessage).flatMap(m1 -> getPlayer(m1.group(1))).orElse(null);
+				Optional<BedwarsPlayer> player = BedwarsMessages.matched(BedwarsMessages.BED_BREAK, rawMessage).flatMap(m1 -> getPlayer(m1.group(1)));
+				if (player.isEmpty()) {
+					AxolotlClient.LOGGER.warn("Unknown bed break message: "+rawMessage);
+					Notifications.getInstance().addStatus("bedwars.unknown_bed_break", "bedwars.unknown_message");
+					return;
+				}
 				BedwarsTeam team = BedwarsTeam.fromName(m.group(1)).orElse(me.getTeam());
-				bedDestroyed(event, team, player);
+				bedDestroyed(event, team, player.get());
 			})) {
 				return;
 			}

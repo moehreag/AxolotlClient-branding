@@ -234,7 +234,8 @@ public class BedwarsMessages {
 		"Bed was spooked by {player}",
 		"Bed was contaminated by {player}",
 		"Bed was sold in a garage sale by {player}",
-		"Bed was destroyed by {player}"
+		"Bed was destroyed by {player}",
+		"Bed was sent to limbo by {player}"
 	}).map(BedwarsMessages::formatPlaceholder).map(Pattern::compile).toArray(Pattern[]::new);
 
 	public final static Pattern DISCONNECT = Pattern.compile("(\\b[A-Za-z0-9_§]{3,16}\\b) disconnected\\.$");

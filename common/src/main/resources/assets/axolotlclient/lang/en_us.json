@@ -125,6 +125,8 @@
 	"bedwars.showHunger": "Show Hunger Bar",
 	"bedwars.tabRenderLatencyIcon": "Render Tablist Latency Icon",
 	"bedwars.tabRenderLatencyIcon.tooltip": "This lets you remove the latency icon <br>since it's always 1 for others while in a game. <br>This is probably some kind of limitation of hypixel.",
+	"bedwars.unknown_bed_break": "Unknown bed break message!",
+	"bedwars.unknown_message": "Please post your current game log in AxolotlClient's discord to get this fixed!",
 	"bedwars_teamupgrades": "Team Upgrades HUD",
 	"bedwars_teamupgrades.renderWhenRelevant": "Only Render When Relevant",
 	"bgcolor": "Background Color",
