@@ -40,4 +40,7 @@ public interface ChatHudAccessor {
 
 	@Accessor("trimmedMessages")
 	List<ChatMessage> getVisibleMessages();
+
+	@Accessor("hasNewMessagesSinceScroll")
+	boolean hasUnreadNewMessages();
 }

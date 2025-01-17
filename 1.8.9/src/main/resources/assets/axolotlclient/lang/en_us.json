@@ -14,5 +14,7 @@
 	"scrollbarColor": "Scrollbar Color",
 	"unfocusedFPS": "Unfocused FPS",
 	"unfocusedVolumeMultiplier": "Unfocused Volume Multiplier",
-	"alignToBottom": "Align to Bottom Screen Edge"
+	"alignToBottom": "Align to Bottom Screen Edge",
+	"animate_chat": "Animate chat",
+	"keep_messages_on_disconnect": "Keep messages after disconnect"
 }

@@ -9,6 +9,7 @@
 - Update bedwars module
 - add secondary keybinding for freelook
 - add options to display durability numbers for ArmorHuds
+- Add option to display the current biome on the CoordHuds
 
 ### 3.1.0
 

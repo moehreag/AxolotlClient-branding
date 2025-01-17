@@ -34,6 +34,7 @@ import io.github.axolotlclient.mixin.ChatHudAccessor;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
+import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.ChatMessage;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -54,12 +55,26 @@ public class ChatHud extends TextHudEntry {
 	public final IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
 	public final ColorOption scrollbarColor = new ColorOption("scrollbarColor", Color.parse("#70CCCCCC"));
 	public final IntegerOption lineSpacing = new IntegerOption("lineSpacing", 0, 0, 10);
+	public final BooleanOption keepMessagesOnDisconnect = new BooleanOption("keep_messages_on_disconnect", false);
+	public final BooleanOption animateChat = new BooleanOption("animate_chat", false);
 
 	public int ticks;
 	private int lastHeight;
 
+	private float percentComplete;
+	public int newLines;
+	private long prevMillis = System.currentTimeMillis();
+	public float animationPercent;
+
+	private void updatePercentage(long diff) {
+		if (percentComplete < 1)
+			percentComplete += 0.004f * diff;
+		percentComplete = MathHelper.clamp(percentComplete, 0, 1);
+	}
+
 	public ChatHud() {
 		super(320, 80, false);
+		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(e -> percentComplete = 0);
 	}
 
 	public static int getHeight(float chatHeight) {
@@ -70,6 +85,12 @@ public class ChatHud extends TextHudEntry {
 
 	@Override
 	public void render(float delta) {
+		long current = System.currentTimeMillis();
+		long diff = current - prevMillis;
+		prevMillis = current;
+		updatePercentage(diff);
+		float t = percentComplete-1;
+		animationPercent = MathHelper.clamp(1 - (float)Math.pow(t, 4), 0, 1);
 		int scrolledLines = ((ChatHudAccessor) client.gui.getChat()).getScrolledLines();
 		List<ChatMessage> visibleMessages = ((ChatHudAccessor) client.gui.getChat()).getVisibleMessages();
 
@@ -86,6 +107,9 @@ public class ChatHud extends TextHudEntry {
 				float g = getScale();
 				int l = MathHelper.ceil((float) getWidth() / g);
 				GlStateManager.pushMatrix();
+				if (animateChat.get() && !((ChatHudAccessor)this.client.gui.getChat()).hasUnreadNewMessages()) {
+					GlStateManager.translatef(0, (9 - 9 * animationPercent) * getScale(), 0);
+				}
 
 				for (int m = 0; m + scrolledLines < visibleMessages.size() && m < i; ++m) {
 					ChatMessage chatHudLine = visibleMessages.get(m + scrolledLines);
@@ -94,6 +118,9 @@ public class ChatHud extends TextHudEntry {
 						if (n < 200 || isChatFocused()) {
 							double d = MathHelper.clamp((1.0 - n / 200.0) * 10.0, 0.0, 1.0);
 							d *= d;
+							if (m+scrolledLines < newLines) {
+								d *= animationPercent;
+							}
 							int Opacity = isChatFocused() ? 255 : (int) (255.0 * d);
 
 							int chatOpacity = (int) (Opacity * f);
@@ -148,11 +175,6 @@ public class ChatHud extends TextHudEntry {
 			client.textRenderer.drawWithShadow("This is where your new and fresh looking chat will be!", pos.x + 1,
 				pos.y + getHeight() - 9, -1);
 		}
-	}
-
-	@Override
-	public boolean movable() {
-		return true;
 	}
 
 	public int getVisibleLineCount() {
@@ -244,6 +266,8 @@ public class ChatHud extends TextHudEntry {
 		options.add(lineSpacing);
 		options.add(scrollbarColor);
 		options.add(chatHistory);
+		options.add(animateChat);
+		options.add(keepMessagesOnDisconnect);
 		return options;
 	}
 }

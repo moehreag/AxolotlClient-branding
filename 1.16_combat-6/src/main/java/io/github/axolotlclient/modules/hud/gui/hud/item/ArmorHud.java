@@ -126,7 +126,7 @@ public class ArmorHud extends TextHudEntry implements DynamicallyPositionable {
 	private void renderDurabilityNumber(MatrixStack graphics, ItemStack stack, int x, int y) {
 		boolean showDurability = showDurabilityNumber.get();
 		boolean showMaxDurability = showMaxDurabilityNumber.get();
-		if (!(showMaxDurability || showDurability)) {
+		if (stack.isEmpty() || !(showMaxDurability || showDurability) || stack.getMaxDamage() == 0) {
 			return;
 		}
 		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamage())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamage() : stack.getMaxDamage()));
