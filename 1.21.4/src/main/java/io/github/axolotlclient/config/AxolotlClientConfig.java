@@ -39,6 +39,7 @@ import io.github.axolotlclient.mixin.OverlayTextureAccessor;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 
@@ -143,19 +144,21 @@ public class AxolotlClientConfig {
 		general.add(debugLogOutput);
 		general.add(CommonOptions.datetimeFormat);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
-			StringArrayOption configStyle;
-			if (general.getOptions().removeIf(o -> "configStyle".equals(o.getName()))) {
-				AxolotlClient.configManager.save();
+			general.getOptions().removeIf(o -> "configStyle".equals(o.getName()));
+			boolean isPojavLauncher = FabricLoader.getInstance().getGameDir().toString().contains("/Android/data/net.kdt.pojavlaunch/");
+			String[] themes = ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+				.filter(s -> !isPojavLauncher || !s.startsWith("rounded"))
+				.toArray(String[]::new);
+			if (themes.length > 1) {
+				StringArrayOption configStyle;
+				general.add(configStyle = new StringArrayOption("configStyle", themes,
+					"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+					ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
+					Minecraft.getInstance().setScreen(null);
+				}));
+				AxolotlClient.configManager.load();
+				ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
 			}
-			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
-					.toArray(String[]::new),
-				"configStyle." + ConfigUI.getInstance().getDefaultStyle().getName(), s -> {
-				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
-				Minecraft.getInstance().setScreen(null);
-			}));
-			AxolotlClient.configManager.load();
-			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
 		});
 
 		rendering.add(
