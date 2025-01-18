@@ -48,6 +48,10 @@ public class ForceableBooleanOption extends BooleanOption {
 		this.reason = reason;
 	}
 
+	@Override
+	public String getTooltip() {
+		return isForceOff() ? reason : super.getTooltip();
+	}
 
 	@Override
 	public String getWidgetIdentifier() {

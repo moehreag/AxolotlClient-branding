@@ -24,6 +24,7 @@ package io.github.axolotlclient.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
@@ -36,7 +37,6 @@ import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
 public class AxolotlClientConfig {
@@ -121,7 +121,7 @@ public class AxolotlClientConfig {
 		general.add(CommonOptions.datetimeFormat);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			general.getOptions().removeIf(o -> "configStyle".equals(o.getName()));
-			boolean isPojavLauncher = FabricLoader.getInstance().getGameDir().toString().contains("/Android/data/net.kdt.pojavlaunch/");
+			boolean isPojavLauncher = Objects.requireNonNullElse(System.getenv("TMPDIR"), "").contains("/Android/data/net.kdt.pojavlaunch/");
 			String[] themes = ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
 				.filter(s -> !isPojavLauncher || !s.startsWith("rounded"))
 				.toArray(String[]::new);

@@ -28,6 +28,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionCategoryIm
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.NVGFont;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.rounded.widgets.CategoryWidget;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.rounded.widgets.PillBooleanWidget;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import net.minecraft.client.Minecraft;
 
 public class QuickToggleCategoryWidget extends CategoryWidget {
@@ -39,7 +40,10 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 			.filter(o -> o instanceof BooleanOption)
 			.map(o -> (BooleanOption) o)
 			.filter(o -> "enabled".equals(o.getName())).findFirst()
-			.ifPresent(booleanOption -> enabledButton = new PillBooleanWidget(x + (width - 43), y + 3, 40, height - 5, booleanOption));
+			.ifPresent(booleanOption -> {
+				enabledButton = new PillBooleanWidget(x + (width - 43), y + 3, 40, height - 5, booleanOption);
+				enabledButton.active = !(booleanOption instanceof ForceableBooleanOption o && o.isForceOff());
+			});
 	}
 
 	@Override
