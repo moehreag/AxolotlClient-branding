@@ -153,8 +153,9 @@ public class MSAuth {
 				return Optional.empty();
 			}
 			logger.debug("retrieving entitlements...");
-			if (!checkOwnership(accessToken).join()) {
+			if (!checkOwnership(mc.accessToken()).join()) {
 				AxolotlClientCommon.getInstance().getNotificationProvider().addStatus("auth.notif.login.failed", "auth.notif.login.failed.no_entitlement");
+				logger.warn("Failed to check for game ownership!");
 				return Optional.empty();
 			}
 			logger.debug("getting profile...");
@@ -280,7 +281,7 @@ public class MSAuth {
 				if (errorCode == 70000 || errorCode == 70012) {
 					accounts.showAccountsExpiredScreen(account);
 				} else {
-					logger.warn("Login error, unexpected response: "+response);
+					logger.warn("Login error, unexpected response: " + response);
 					AxolotlClientCommon.getInstance().getNotificationProvider().addStatus("auth.notif.refresh.error", "auth.notif.refresh.error.unexpected_response");
 				}
 				return Optional.empty();

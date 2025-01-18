@@ -109,14 +109,14 @@ public class ImageScreen extends Screen {
 		}
 		int actionX = element.x + imageWidth + 4;
 		var actions = new ArrayList<ButtonWidget>();
-		if (image instanceof ImageInstance.Local local) {
+		if (image instanceof ImageInstance.Local) {
 			if (API.getInstance().isAuthenticated() && !(image instanceof ImageInstance.Remote)) {
 				actions.add(new ButtonWidget(0, 0, 0, buttonWidth, 20, I18n.translate("gallery.image.upload")));
 			}
 			actions.add(new ButtonWidget(1, 0, 0, buttonWidth, 20, I18n.translate("gallery.image.copy")));
 			actions.add(new ButtonWidget(2, 0, 0, buttonWidth, 20, I18n.translate("gallery.image.open.external")));
 		}
-		if (image instanceof ImageInstance.Remote remote) {
+		if (image instanceof ImageInstance.Remote) {
 			if (!(image instanceof ImageInstance.Local)) {
 				actions.add(new ButtonWidget(3, 0, 0, buttonWidth, 20, I18n.translate("gallery.image.save")));
 				actions.add(new ButtonWidget(4, 0, 0, buttonWidth, 20, I18n.translate("gallery.image.copy")));
