@@ -23,6 +23,7 @@
 package io.github.axolotlclient.modules.sky;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -102,9 +103,8 @@ public class SkyResourceManager extends AbstractModule {
 		JsonObject object = new JsonObject();
 		String string;
 		String[] option;
-		try {
-			BufferedReader reader = new BufferedReader(
-				new InputStreamReader(resourceManager.getResource(id).asStream(), StandardCharsets.UTF_8));
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(resourceManager.getResource(id).asStream(), StandardCharsets.UTF_8))) {
 			while ((string = reader.readLine()) != null) {
 				try {
 					if (!string.startsWith("#")) {
@@ -118,6 +118,13 @@ public class SkyResourceManager extends AbstractModule {
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
 										+ "/" + option[1].replace("./", "");
 								}
+							}
+							try {
+								resourceManager.getResource(new Identifier(option[1]));
+							} catch (FileNotFoundException e) {
+								AxolotlClient.LOGGER.warn("Sky "+id+" does not have a valid texture attached to it: ", option[1]);
+								AxolotlClient.LOGGER.warn("Please fix your packs.");
+								return;
 							}
 						}
 						if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")

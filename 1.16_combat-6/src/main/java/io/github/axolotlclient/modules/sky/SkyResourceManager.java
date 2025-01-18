@@ -23,6 +23,7 @@
 package io.github.axolotlclient.modules.sky;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ import io.github.axolotlclient.modules.AbstractModule;
 import lombok.Getter;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
@@ -128,6 +130,13 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
 												+ "/" + option[1].replace("./", "");
 								}
+							}
+							try {
+								MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(option[1]));
+							} catch (FileNotFoundException e) {
+								AxolotlClient.LOGGER.warn("Sky "+id+" does not have a valid texture attached to it: ", option[1]);
+								AxolotlClient.LOGGER.warn("Please fix your packs.");
+								return;
 							}
 						}
 						if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")

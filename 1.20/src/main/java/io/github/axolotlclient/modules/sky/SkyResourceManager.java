@@ -34,6 +34,7 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.AbstractModule;
 import lombok.Getter;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -73,6 +74,11 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 								}
 							}
 						}
+						if (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(option[1])).isEmpty()) {
+							AxolotlClient.LOGGER.warn("Sky " + id + " does not have a valid texture attached to it: ", option[1]);
+							AxolotlClient.LOGGER.warn("Please fix your packs.");
+							return null;
+						}
 					}
 					if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")
 						|| option[0].equals("startFadeOut") || option[0].equals("endFadeOut")) {
@@ -106,7 +112,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 			try (BufferedReader reader = entry.getValue().openBufferedReader()) {
 				JsonObject json = gson.fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class);
 				if (!json.has("type") || !json.get("type").getAsString().equals("square-textured")) {
-					AxolotlClient.LOGGER.debug("Skipping "+entry+" as we currently cannot load it!");
+					AxolotlClient.LOGGER.debug("Skipping " + entry + " as we currently cannot load it!");
 					continue;
 				}
 				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(
@@ -120,16 +126,24 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 			.findResources("mcpatcher/sky", identifier -> isMCPSky(identifier.getPath()))
 			.entrySet()) {
 			AxolotlClient.LOGGER.debug("Loading MCP sky from " + entry.getKey());
+			JsonObject json = loadMCPSky("mcpatcher", entry.getKey(), entry.getValue());
+			if (json == null) {
+				continue;
+			}
 			SkyboxManager.getInstance()
-				.addSkybox(new MCPSkyboxInstance(loadMCPSky("mcpatcher", entry.getKey(), entry.getValue())));
+				.addSkybox(new MCPSkyboxInstance(json));
 			AxolotlClient.LOGGER.debug("Loaded MCP sky from " + entry.getKey());
 		}
 
 		for (Map.Entry<Identifier, Resource> entry : manager
 			.findResources("optifine/sky", identifier -> isMCPSky(identifier.getPath())).entrySet()) {
 			AxolotlClient.LOGGER.debug("Loading OF sky from " + entry.getKey());
+			JsonObject json = loadMCPSky("optifine", entry.getKey(), entry.getValue());
+			if (json == null) {
+				continue;
+			}
 			SkyboxManager.getInstance()
-				.addSkybox(new MCPSkyboxInstance(loadMCPSky("optifine", entry.getKey(), entry.getValue())));
+				.addSkybox(new MCPSkyboxInstance(json));
 			AxolotlClient.LOGGER.debug("Loaded OF sky from " + entry.getKey());
 		}
 
