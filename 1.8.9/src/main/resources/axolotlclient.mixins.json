@@ -55,6 +55,7 @@
 		"SoundManagerAccessor",
 		"SoundSystemAccessor",
 		"TextRendererMixin",
+		"TextureManagerAccessor",
 		"TitleScreenMixin",
 		"TntEntityRendererMixin",
 		"VertexBufferMixin",

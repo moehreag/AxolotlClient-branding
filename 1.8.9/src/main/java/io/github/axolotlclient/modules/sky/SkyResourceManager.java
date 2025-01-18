@@ -53,7 +53,6 @@ public class SkyResourceManager extends AbstractModule {
 
 	public void reload(ResourceManager resourceManager) {
 		AxolotlClient.LOGGER.debug("Loading custom skies!");
-		SkyboxManager.getInstance().clearSkyboxes();
 		for (Identifier entry : resourceManager
 			.findResources("fabricskyboxes", "sky", identifier -> identifier.getPath().endsWith(".json"))
 			.keySet()) {
@@ -140,6 +139,7 @@ public class SkyResourceManager extends AbstractModule {
 
 	@Override
 	public void init() {
+		ResourceLoaderEvents.START_RESOURCE_RELOAD.register(() -> SkyboxManager.getInstance().clearSkyboxes());
 		ResourceLoaderEvents.END_RESOURCE_RELOAD.register(() -> reload(Minecraft.getInstance().getResourceManager()));
 	}
 }
