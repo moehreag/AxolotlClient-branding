@@ -10,6 +10,7 @@
 - add secondary keybinding for freelook
 - add options to display durability numbers for ArmorHuds
 - Add option to display the current biome on the CoordHuds
+- (1.21.1) remove custom sky module, please just use fabricskyboxes or celestial instead (it was broken anyway)
 
 ### 3.1.0
 

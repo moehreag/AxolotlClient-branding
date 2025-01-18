@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.TextRenderer;
 import net.minecraft.resource.Identifier;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -56,6 +57,10 @@ public abstract class ButtonWidgetMixin {
 	@Shadow
 	protected abstract int getYImage(boolean par1);
 
+	@Shadow
+	@Final
+	protected static Identifier WIDGETS_LOCATION;
+
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;drawCenteredString(Lnet/minecraft/client/render/TextRenderer;Ljava/lang/String;III)V"))
 	private void drawScrollableString(ButtonWidget instance, TextRenderer renderer, String message, int centerX, int y_original, int color) {
 		int left = x + 2;
@@ -72,5 +77,6 @@ public abstract class ButtonWidgetMixin {
 	private void addSlices(Minecraft minecraft, int i, int j, CallbackInfo ci) {
 		Identifier tex = ButtonWidgetTextures.get(getYImage(hovered));
 		DrawUtil.blitSprite(tex, x, y, width, height, new DrawUtil.NineSlice(200, 20, 3));
+		minecraft.getTextureManager().bind(WIDGETS_LOCATION);
 	}
 }

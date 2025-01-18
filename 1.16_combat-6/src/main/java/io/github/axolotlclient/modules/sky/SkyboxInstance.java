@@ -33,7 +33,10 @@ import io.github.axolotlclient.mixin.WorldRendererAccessor;
 import io.github.axolotlclient.util.Util;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.Identifier;
@@ -299,7 +302,7 @@ public abstract class SkyboxInstance {
 			bufferBuilder.vertex(matrix4f2, k, 100.0F, -k).texture(1.0F, 0.0F).next();
 			bufferBuilder.vertex(matrix4f2, k, 100.0F, k).texture(1.0F, 1.0F).next();
 			bufferBuilder.vertex(matrix4f2, -k, 100.0F, k).texture(0.0F, 1.0F).next();
-			BufferRenderer.draw(bufferBuilder);
+			Tessellator.getInstance().draw();
 		}
 		if (showMoon) {
 			k = 20.0F;
@@ -316,7 +319,7 @@ public abstract class SkyboxInstance {
 			bufferBuilder.vertex(matrix4f2, k, -100.0F, k).texture(t, q).next();
 			bufferBuilder.vertex(matrix4f2, k, -100.0F, -k).texture(t, o).next();
 			bufferBuilder.vertex(matrix4f2, -k, -100.0F, -k).texture(p, o).next();
-			BufferRenderer.draw(bufferBuilder);
+			Tessellator.getInstance().draw();
 		}
 		if (showStars) {
 			RenderSystem.disableTexture();

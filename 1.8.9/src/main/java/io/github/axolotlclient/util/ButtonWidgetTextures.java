@@ -37,7 +37,12 @@ import net.ornithemc.osl.resource.loader.api.ResourceLoaderEvents;
 public class ButtonWidgetTextures {
 	private static Identifier disabledTexture, activeTexture, hoveredTexture;
 	static {
-		ResourceLoaderEvents.END_RESOURCE_RELOAD.register(() -> disabledTexture = activeTexture = hoveredTexture = null);
+		ResourceLoaderEvents.END_RESOURCE_RELOAD.register(() -> {
+			Minecraft.getInstance().getTextureManager().close(disabledTexture);
+			Minecraft.getInstance().getTextureManager().close(activeTexture);
+			Minecraft.getInstance().getTextureManager().close(hoveredTexture);
+			disabledTexture = activeTexture = hoveredTexture = null;
+		});
 	}
 
 	private static void load(){
@@ -60,10 +65,8 @@ public class ButtonWidgetTextures {
 
 	private static Identifier register(BufferedImage atlas, String name, int imageY) {
 		var id = new Identifier("axolotlclient", "minecraft/buttonwidget/" + name);
-		if (Minecraft.getInstance().getTextureManager().get(id) != null) {
-			return id;
-		}
-		var texture = new DynamicTexture(atlas.getSubimage(0, imageY, 200, 20));
+		int scale = atlas.getHeight()/256;
+		var texture = new DynamicTexture(atlas.getSubimage(0, imageY * scale, 200*scale, 20*scale));
 		Minecraft.getInstance().getTextureManager().register(id, texture);
 		return id;
 	}

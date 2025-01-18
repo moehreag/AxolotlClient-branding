@@ -32,6 +32,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
@@ -50,11 +51,8 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 
 	private final static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+	@Getter
 	private final static SkyResourceManager Instance = new SkyResourceManager();
-
-	public static SkyResourceManager getInstance() {
-		return Instance;
-	}
 
 	@Override
 	public void init() {
@@ -73,10 +71,15 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 					continue;
 				}
 				AxolotlClient.LOGGER.debug("Loading FSB sky from " + entry);
-				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(gson.fromJson(
+				JsonObject json = gson.fromJson(
 					new BufferedReader(new InputStreamReader(manager.getResource(entry).getInputStream(), StandardCharsets.UTF_8))
 						.lines().collect(Collectors.joining("\n")),
-					JsonObject.class)));
+					JsonObject.class);
+				if (!json.has("type") || !json.get("type").getAsString().equals("square-textured")) {
+					AxolotlClient.LOGGER.debug("Skipping "+entry+" as we currently cannot load it!");
+					continue;
+				}
+				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(json));
 				AxolotlClient.LOGGER.debug("Loaded FSB sky from " + entry);
 			}
 
@@ -117,9 +120,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 					if (!string.startsWith("#")) {
 						option = string.split("=");
 						if (option[0].equals("source")) {
-							if (option[1].contains(":")) {
-								option[1] = option[1].split(":")[1];
-							} else {
+							if (!option[1].contains(":")) {
 								if (option[1].startsWith("assets")) {
 									option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
 								}

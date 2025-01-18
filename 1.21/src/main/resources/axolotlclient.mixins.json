@@ -4,7 +4,6 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"AddServerScreenMixin",
-		"BackgroundRendererMixin",
 		"BeaconBlockEntityRendererMixin",
 		"BossBarHudAccessor",
 		"BossBarHudMixin",

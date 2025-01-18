@@ -84,7 +84,7 @@ dependencies {
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos-arm64"))
 
 	api("net.hypixel:mod-api:1.0.1")
-	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.2+mc1.8.9")!!)
+	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.4+mc1.8.9")!!)
 }
 
 configurations.configureEach {

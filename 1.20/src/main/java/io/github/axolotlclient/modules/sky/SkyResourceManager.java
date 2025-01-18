@@ -63,12 +63,14 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 					String[] option = line.split("=");
 
 					if (option[0].equals("source")) {
-						if (option[1].startsWith("assets")) {
-							option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
-						} else {
-							if (id.getPath().contains("world")) {
-								option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
-											+ option[1].replace("./", "");
+						if (!option[1].contains(":")) {
+							if (option[1].startsWith("assets")) {
+								option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
+							} else {
+								if (id.getPath().contains("world")) {
+									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0] + "/"
+										+ option[1].replace("./", "");
+								}
 							}
 						}
 					}
@@ -102,8 +104,13 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 			}
 			AxolotlClient.LOGGER.debug("Loading FSB sky from " + entry.getKey());
 			try (BufferedReader reader = entry.getValue().openBufferedReader()) {
+				JsonObject json = gson.fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class);
+				if (!json.has("type") || !json.get("type").getAsString().equals("square-textured")) {
+					AxolotlClient.LOGGER.debug("Skipping "+entry+" as we currently cannot load it!");
+					continue;
+				}
 				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(
-					gson.fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class)));
+					json));
 				AxolotlClient.LOGGER.debug("Loaded FSB sky from " + entry.getKey());
 			} catch (IOException ignored) {
 			}
@@ -130,6 +137,6 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 	}
 
 	private boolean isMCPSky(String path) {
-		return path.endsWith(".properties") && path.startsWith("sky");
+		return path.endsWith(".properties") && path.substring(path.lastIndexOf("/") + 1).startsWith("sky");
 	}
 }

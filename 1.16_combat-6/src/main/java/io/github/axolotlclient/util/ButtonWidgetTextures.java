@@ -52,6 +52,9 @@ public class ButtonWidgetTextures {
 
 			@Override
 			public void apply(ResourceManager manager) {
+				MinecraftClient.getInstance().getTextureManager().destroyTexture(disabledTexture);
+				MinecraftClient.getInstance().getTextureManager().destroyTexture(activeTexture);
+				MinecraftClient.getInstance().getTextureManager().destroyTexture(hoveredTexture);
 				disabledTexture = activeTexture = hoveredTexture = null;
 			}
 		});
@@ -75,12 +78,10 @@ public class ButtonWidgetTextures {
 
 	private static Identifier register(BufferedImage atlas, String name, int imageY) throws IOException {
 		var id = new Identifier("axolotlclient", "minecraft/buttonwidget/" + name);
-		if (MinecraftClient.getInstance().getTextureManager().getTexture(id) != null) {
-			return id;
-		}
 		NativeImage img;
 		try (var out = new ByteArrayOutputStream()) {
-			ImageIO.write(atlas.getSubimage(0, imageY, 200, 20), "png", out);
+			int scale = atlas.getHeight()/256;
+			ImageIO.write(atlas.getSubimage(0, imageY*scale, 200*scale, 20*scale), "png", out);
 			var in = new ByteArrayInputStream(out.toByteArray());
 			img = NativeImage.read(in);
 			in.close();
