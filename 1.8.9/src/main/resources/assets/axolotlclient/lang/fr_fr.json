@@ -13,5 +13,8 @@
 	"runGCOnUnfocus": "Exécuter GC en Défocus",
 	"scrollbarColor": "Couleur de la Barre de Défilement",
 	"unfocusedFPS": "FPS Défocus",
-	"unfocusedVolumeMultiplier": "Multiplicateur de Volume en Défocus"
+	"unfocusedVolumeMultiplier": "Multiplicateur de Volume en Défocus",
+	"alignToBottom": "Aligner sur le bord inférieur de l'écran",
+ 	"animate_chat": "Animer le tchat",
+ 	"keep_messages_on_disconnect": "Conserver les messages après déconnexion"
 }
