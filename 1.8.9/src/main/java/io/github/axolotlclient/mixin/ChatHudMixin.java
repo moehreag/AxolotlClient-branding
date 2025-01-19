@@ -76,6 +76,11 @@ public abstract class ChatHudMixin {
 
 	@ModifyArg(method = "addMessage(Lnet/minecraft/text/Text;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/chat/ChatGui;addMessage(Lnet/minecraft/text/Text;IIZ)V"))
 	public Text axolotlclient$editChat(Text message) {
+		io.github.axolotlclient.modules.hud.gui.hud.ChatHud hud = (io.github.axolotlclient.modules.hud.gui.hud.ChatHud) HudManager
+			.getInstance().get(io.github.axolotlclient.modules.hud.gui.hud.ChatHud.ID);
+		if (hud.isEnabled()) {
+			hud.resetAnimation();
+		}
 		return NickHider.getInstance().editMessage(message);
 	}
 

@@ -34,7 +34,6 @@ import io.github.axolotlclient.mixin.ChatHudAccessor;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
-import io.github.axolotlclient.util.events.Events;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.ChatMessage;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -74,13 +73,16 @@ public class ChatHud extends TextHudEntry {
 
 	public ChatHud() {
 		super(320, 80, false);
-		Events.RECEIVE_CHAT_MESSAGE_EVENT.register(e -> percentComplete = 0);
 	}
 
 	public static int getHeight(float chatHeight) {
 		int i = 180;
 		int j = 20;
 		return MathHelper.floor(chatHeight * (float) (i - j) + (float) j);
+	}
+
+	public void resetAnimation() {
+		percentComplete = 0;
 	}
 
 	@Override
@@ -118,7 +120,7 @@ public class ChatHud extends TextHudEntry {
 						if (n < 200 || isChatFocused()) {
 							double d = MathHelper.clamp((1.0 - n / 200.0) * 10.0, 0.0, 1.0);
 							d *= d;
-							if (m+scrolledLines < newLines) {
+							if (animateChat.get() && m+scrolledLines < newLines) {
 								d *= animationPercent;
 							}
 							int Opacity = isChatFocused() ? 255 : (int) (255.0 * d);
