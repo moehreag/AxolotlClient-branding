@@ -29,12 +29,16 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Constants;
 import io.github.axolotlclient.api.Request;
 
 public abstract class ImageNetworking {
+
+	private static final Pattern URL_PATTERN = Pattern.compile("(?:.+/)?(\\d+)(?:/?.+)?");
 
 	public abstract void uploadImage(Path file);
 
@@ -52,17 +56,18 @@ public abstract class ImageNetworking {
 	}
 
 	protected static String idToUrl(String id) {
-		return Request.Route.IMAGE.builder().path(id).path("raw").build().resolve().toString();
+		return Request.Route.IMAGE.builder().path(id).path("view").build().resolve().toString();
 	}
 
 	protected static Optional<String> urlToId(String url) {
 		if (url.contains("/") && !url.startsWith(Constants.API_URL)) {
 			return Optional.empty();
 		}
-		if (url.endsWith("/raw")) {
-			url = url.substring(0, url.length() - 4);
+		Matcher matcher = URL_PATTERN.matcher(url);
+		if (!matcher.matches()) {
+			return Optional.empty();
 		}
-		return Optional.of(url.substring(url.lastIndexOf("/") + 1));
+		return Optional.of(matcher.group(1));
 	}
 
 	protected static Optional<String> ensureUrl(String urlOrId) {
