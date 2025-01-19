@@ -23,8 +23,6 @@
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +33,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.*;
 
@@ -57,10 +56,10 @@ public class ImageShare extends ImageNetworking {
 						.setStyle(new Style()
 							.setUnderlined(true)
 							.setColor(Formatting.DARK_PURPLE)
-							.setClickEvent(new ScreenshotUtils.CustomClickEvent(null) {
+							.setClickEvent(new ScreenshotUtils.CustomClickEvent(null, null) {
 											   @Override
 											   public void doAction() {
-												   Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(downloadUrl), null);
+												   Screen.setClipboard(downloadUrl);
 											   }
 										   }
 							)
