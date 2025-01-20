@@ -55,13 +55,19 @@ public class ImageScreen extends Screen {
 	private final boolean isRemote;
 
     static Screen create(Screen parent, CompletableFuture<ImageInstance> future, boolean freeOnClose) {
-        if (future.isDone()) {
-            return new ImageScreen(parent, future.join(), freeOnClose);
-        }
+		if (future.isDone()) {
+			if (future.join() != null) {
+				return new ImageScreen(parent, future.join(), freeOnClose);
+			} else {
+				return parent;
+			}
+		}
         return new LoadingImageScreen(parent, future.thenAccept(i -> {
             if (i != null) {
                 MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().setScreen(new ImageScreen(parent, i, freeOnClose)));
-            }
+            } else {
+				MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().setScreen(parent));
+			}
         }), freeOnClose);
     }
 

@@ -82,11 +82,7 @@ public class PingHud extends SimpleTextHudEntry {
 
 	private void updatePing() {
 		if (MinecraftClient.getInstance().getCurrentServerEntry() != null) {
-			if (MinecraftClient.getInstance().getCurrentServerEntry().ping <= 1) {
-				getRealTimeServerPing(MinecraftClient.getInstance().getCurrentServerEntry());
-			} else {
-				currentServerPing = (int) MinecraftClient.getInstance().getCurrentServerEntry().ping;
-			}
+			getRealTimeServerPing(MinecraftClient.getInstance().getCurrentServerEntry());
 		} else if (MinecraftClient.getInstance().isIntegratedServerRunning()) {
 			currentServerPing = 1;
 		}

@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.TntRenderer;
 import net.minecraft.client.renderer.entity.state.TntRenderState;
 import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -44,16 +45,20 @@ public abstract class TntEntityRendererMixin extends EntityRenderer<PrimedTnt, T
 
 	@Inject(
 		method = "render(Lnet/minecraft/client/renderer/entity/state/TntRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-		at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"))
+		at = @At(value = "TAIL"))
 	private void axolotlclient$render(TntRenderState tntRenderState, PoseStack matrices, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
 		if (TntTime.getInstance().enabled.get()) {
 			matrices.pushPose();
 			if (tntRenderState.nameTag != null) {
 				matrices.translate(0, 0.25, 0);
 			}
-			super.renderNameTag(tntRenderState, TntTime.getInstance().getFuseTime(tntRenderState.fuseRemainingInTicks),
+			Vec3 prevAttachment = tntRenderState.nameTagAttachment;
+			if (prevAttachment == null) {
+				tntRenderState.nameTagAttachment = new Vec3(0, 2, 0);
+			}
+			renderNameTag(tntRenderState, TntTime.getInstance().getFuseTime(tntRenderState.fuseRemainingInTicks),
 								matrices, vertexConsumers, i);
+			tntRenderState.nameTagAttachment = prevAttachment;
 			matrices.popPose();
 		}
 	}

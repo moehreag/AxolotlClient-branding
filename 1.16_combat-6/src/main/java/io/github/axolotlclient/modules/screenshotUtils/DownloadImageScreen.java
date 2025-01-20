@@ -81,7 +81,7 @@ public class DownloadImageScreen extends Screen {
 			}
 		});
 
-		addButton(new ButtonWidget(width / 2 - 75, height - 33 / 2, 150, 20, ScreenTexts.BACK, b -> onClose()));
+		addButton(new ButtonWidget(width / 2 - 75, height - 33 / 2 - 10, 150, 20, ScreenTexts.BACK, b -> onClose()));
 
 
 		setInitialFocus(urlBox);

@@ -83,13 +83,9 @@ public class PingHud extends SimpleTextHudEntry {
 
 	private void updatePing() {
 		if (Minecraft.getInstance().getCurrentServerEntry() != null) {
-			if (Minecraft.getInstance().getCurrentServerEntry().ping <= 1) {
-				ServerAddress address = ServerAddress
-					.parse(Minecraft.getInstance().getCurrentServerEntry().address);
-				getRealTimeServerPing(address.getAddress(), address.getPort());
-			} else {
-				currentServerPing = (int) Minecraft.getInstance().getCurrentServerEntry().ping;
-			}
+			ServerAddress address = ServerAddress
+				.parse(Minecraft.getInstance().getCurrentServerEntry().address);
+			getRealTimeServerPing(address.getAddress(), address.getPort());
 		} else if (((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress() != null) {
 			getRealTimeServerPing(((MinecraftClientAccessor) Minecraft.getInstance()).getServerAddress(),
 				((MinecraftClientAccessor) Minecraft.getInstance()).getServerPort());

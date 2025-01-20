@@ -81,7 +81,7 @@ public class DownloadImageScreen extends Screen {
 			}
 		});
 
-		buttons.add(new ButtonWidget(2, width / 2 - 75, height - 33 / 2, 150, 20, I18n.translate("gui.back")));
+		buttons.add(new ButtonWidget(2, width / 2 - 75, height - 33 / 2 - 10, 150, 20, I18n.translate("gui.back")));
 	}
 
 	@Override

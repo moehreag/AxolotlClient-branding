@@ -82,7 +82,7 @@ public class DownloadImageScreen extends Screen {
 			}
 		});
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).positionAndSize(width / 2 - 75, height - 33 / 2, 150, 20).build());
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).positionAndSize(width / 2 - 75, height - 33 / 2 - 10, 150, 20).build());
 
 
 		setInitialFocus(urlBox);

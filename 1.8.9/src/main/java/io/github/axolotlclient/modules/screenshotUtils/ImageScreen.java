@@ -56,11 +56,17 @@ public class ImageScreen extends Screen {
 
 	static Screen create(Screen parent, CompletableFuture<ImageInstance> future, boolean freeOnClose) {
 		if (future.isDone()) {
-			return new ImageScreen(parent, future.join(), freeOnClose);
+			if (future.join() != null) {
+				return new ImageScreen(parent, future.join(), freeOnClose);
+			} else {
+				return parent;
+			}
 		}
 		return new LoadingImageScreen(parent, future.thenAccept(i -> {
 			if (i != null) {
 				Minecraft.getInstance().submit(() -> Minecraft.getInstance().openScreen(new ImageScreen(parent, i, freeOnClose)));
+			} else {
+				Minecraft.getInstance().submit(() -> Minecraft.getInstance().openScreen(parent));
 			}
 		}), freeOnClose);
 	}
