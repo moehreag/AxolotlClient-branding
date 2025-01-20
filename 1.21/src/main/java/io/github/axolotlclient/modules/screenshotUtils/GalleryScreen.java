@@ -181,9 +181,17 @@ public class GalleryScreen extends Screen {
 
 	@Override
 	public void closeScreen() {
-		Tab.LOCAL.loadingCache().forEach((path, instance) -> client.getTextureManager().destroyTexture(instance.id()));
+		Tab.LOCAL.loadingCache().forEach((path, instance) -> {
+			if (instance != null) {
+				client.getTextureManager().destroyTexture(instance.id());
+			}
+		});
 		Tab.LOCAL.loadingCache().clear();
-		Tab.SHARED.loadingCache().forEach((s, instance) -> client.getTextureManager().destroyTexture(instance.id()));
+		Tab.SHARED.loadingCache().forEach((s, instance) -> {
+			if (instance != null) {
+				client.getTextureManager().destroyTexture(instance.id());
+			}
+		});
 		Tab.SHARED.loadingCache().clear();
 		Watcher.close(watcher);
 		client.setScreen(parent);

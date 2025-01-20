@@ -204,9 +204,17 @@ public class GalleryScreen extends Screen {
 			case 2 -> setTab(Tab.SHARED);
 			case 3 -> minecraft.openScreen(new DownloadImageScreen(this));
 			case 4 -> {
-				Tab.LOCAL.loadingCache().forEach((path, instance) -> minecraft.getTextureManager().close(instance.id()));
+				Tab.LOCAL.loadingCache().forEach((path, instance) -> {
+					if (instance != null) {
+						minecraft.getTextureManager().close(instance.id());
+					}
+				});
 				Tab.LOCAL.loadingCache().clear();
-				Tab.SHARED.loadingCache().forEach((s, instance) -> minecraft.getTextureManager().close(instance.id()));
+				Tab.SHARED.loadingCache().forEach((s, instance) -> {
+					if (instance != null) {
+						minecraft.getTextureManager().close(instance.id());
+					}
+				});
 				Tab.SHARED.loadingCache().clear();
 				Watcher.close(watcher);
 				minecraft.openScreen(parent);

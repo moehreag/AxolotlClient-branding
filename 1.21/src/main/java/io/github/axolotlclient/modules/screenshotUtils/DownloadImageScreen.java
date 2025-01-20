@@ -65,7 +65,7 @@ public class DownloadImageScreen extends Screen {
 				urlBox.setSuggestion("");
 			}
 		});
-		urlBox.setMaxLength(52);
+		urlBox.setMaxLength(63);
 		var linear = hFL.addToContents(LinearLayoutWidget.createHorizontal().setSpacing(4));
 		linear.copyDefaultSettings().alignVerticallyCenter();
 		linear.add(urlBox);

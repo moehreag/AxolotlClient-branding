@@ -62,7 +62,7 @@ public class DownloadImageScreen extends Screen {
 				urlBox.setSuggestion("");
 			}
 		});
-		urlBox.setMaxLength(52);
+		urlBox.setMaxLength(63);
 		addDrawableChild(urlBox);
 		addDrawableChild(new ButtonWidget(width / 2 + 100 + 4, height / 2 - 10, 20, 20, Text.translatable("download"), b -> {
 			String url = urlBox.getText().trim();

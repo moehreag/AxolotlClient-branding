@@ -180,9 +180,17 @@ public class GalleryScreen extends Screen {
 
 	@Override
 	public void onClose() {
-		Tab.LOCAL.loadingCache().forEach((path, instance) -> minecraft.getTextureManager().release(instance.id()));
+		Tab.LOCAL.loadingCache().forEach((path, instance) -> {
+			if (instance != null) {
+				minecraft.getTextureManager().release(instance.id());
+			}
+		});
 		Tab.LOCAL.loadingCache().clear();
-		Tab.SHARED.loadingCache().forEach((s, instance) -> minecraft.getTextureManager().release(instance.id()));
+		Tab.SHARED.loadingCache().forEach((s, instance) -> {
+			if (instance != null) {
+				minecraft.getTextureManager().release(instance.id());
+			}
+		});
 		Tab.SHARED.loadingCache().clear();
 		Watcher.close(watcher);
 		minecraft.setScreen(parent);

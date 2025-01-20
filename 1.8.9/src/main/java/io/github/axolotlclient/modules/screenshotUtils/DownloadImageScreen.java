@@ -63,7 +63,7 @@ public class DownloadImageScreen extends Screen {
 				}
 			}
 		};
-		urlBox.setMaxLength(52);
+		urlBox.setMaxLength(63);
 		buttons.add(new ButtonWidget(1, width / 2 + 100 + 4, height / 2 - 10, 20, 20, I18n.translate("download")) {
 			@Override
 			public void render(Minecraft client, int mouseX, int mouseY) {
