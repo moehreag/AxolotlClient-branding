@@ -28,13 +28,19 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.AbstractContainerScreenAccessor;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 
 public class ScrollableTooltips extends AbstractModule {
 
+	@Getter
 	private static final ScrollableTooltips Instance = new ScrollableTooltips();
 	public final BooleanOption enabled = new BooleanOption("enabled", false);
 	public final BooleanOption enableShiftHorizontalScroll = new BooleanOption("shiftHorizontalScroll", true);
@@ -43,10 +49,6 @@ public class ScrollableTooltips extends AbstractModule {
 	private final OptionCategory category = OptionCategory.create("scrollableTooltips");
 	public int tooltipOffsetX;
 	public int tooltipOffsetY;
-
-	public static ScrollableTooltips getInstance() {
-		return Instance;
-	}
 
 	@Override
 	public void init() {
@@ -60,8 +62,13 @@ public class ScrollableTooltips extends AbstractModule {
 
 	public boolean onScroll(boolean reverse) {
 		if (client.screen instanceof AbstractContainerScreen<?> screen) {
+			if ((Minecraft.getInstance().screen instanceof CreativeModeInventoryScreen)
+				&& ((CreativeModeInventoryScreen) Minecraft.getInstance().screen)
+				.getSelectedItemGroup() != BuiltInRegistries.CREATIVE_MODE_TAB.getValue(CreativeModeTabs.INVENTORY)) {
+				return false;
+			}
 			Slot hovered = ((AbstractContainerScreenAccessor)screen).getHoveredSlot();
-			if (hovered != null && hovered.hasItem() && hovered.getItem().is(Items.BUNDLE) && !Screen.hasControlDown()) {
+			if (hovered == null || hovered.hasItem() && hovered.getItem().is(Items.BUNDLE) && !Screen.hasControlDown()) {
 				return false;
 			}
 			if (Screen.hasShiftDown()) {

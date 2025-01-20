@@ -40,8 +40,10 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 
 /**
@@ -189,7 +191,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 			BlockPos b = new BlockPos(Mth.floor(x), Mth.floor(y), Mth.floor(z));
 			int bX = graphics.drawString(textRenderer, I18n.get("coordshud.biome"), pos.x() + 1, height + pos.y(), firstColor.get().toInt(), shadow.get());
 			bX += 5;
-			width = Math.max(width + pos.x() - 1, graphics.drawString(textRenderer, (String) this.client.level.getBiome(b).unwrap().map(registryKey -> registryKey.location().toString(), biome -> "[unregistered " + biome + "]"), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
+			width = Math.max(width + pos.x() - 1, graphics.drawString(textRenderer, getBiomeName(this.client.level.getBiome(b).unwrap().left().orElse(null)), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
 			height += 10;
 		}
 		boolean changed = false;
@@ -204,6 +206,33 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		if (changed) {
 			onBoundsUpdate();
 		}
+	}
+
+	private String getBiomeName(ResourceKey<Biome> biome) {
+		if (biome == null) {
+			return "Unknown";
+		}
+		String path = biome.location().getPath();
+		if (!biome.location().getNamespace().equals("minecraft")) {
+			path += "("+biome.location().getNamespace()+")";
+		}
+		final String str = path.replace("_", " ");
+		if (str.isEmpty()) {
+			return str;
+		}
+
+		final int[] codepoints = str.codePoints().toArray();
+		boolean capitalizeNext = true;
+		for (int i = 0; i < codepoints.length; i++) {
+			final int ch = codepoints[i];
+			if (Character.isWhitespace(ch)) {
+				capitalizeNext = true;
+			} else if (capitalizeNext) {
+				codepoints[i] = Character.toTitleCase(ch);
+				capitalizeNext = false;
+			}
+		}
+		return new String(codepoints, 0, codepoints.length);
 	}
 
 	public String getWordedDirection(int dir) {
@@ -291,7 +320,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		if (biome.get()) {
 			int bX = graphics.drawString(textRenderer, I18n.get("coordshud.biome"), pos.x() + 1, height + pos.y(), firstColor.get().toInt(), shadow.get());
 			bX += 5;
-			width = Math.max(width + pos.x() - 1, graphics.drawString(textRenderer, Biomes.PLAINS.location().toString(), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
+			width = Math.max(width + pos.x() - 1, graphics.drawString(textRenderer, getBiomeName(Biomes.PLAINS), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
 			height += 10;
 		}
 		boolean changed = false;

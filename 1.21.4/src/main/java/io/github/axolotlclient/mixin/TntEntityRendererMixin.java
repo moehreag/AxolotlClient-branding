@@ -48,9 +48,13 @@ public abstract class TntEntityRendererMixin extends EntityRenderer<PrimedTnt, T
 			target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"))
 	private void axolotlclient$render(TntRenderState tntRenderState, PoseStack matrices, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
 		if (TntTime.getInstance().enabled.get()) {
+			matrices.pushPose();
+			if (tntRenderState.nameTag != null) {
+				matrices.translate(0, 0.25, 0);
+			}
 			super.renderNameTag(tntRenderState, TntTime.getInstance().getFuseTime(tntRenderState.fuseRemainingInTicks),
-								matrices, vertexConsumers, i
-							   );
+								matrices, vertexConsumers, i);
+			matrices.popPose();
 		}
 	}
 }

@@ -186,7 +186,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 			BlockPos b = new BlockPos(x, y, z);
 			int bX = drawString(matrices, I18n.translate("coordshud.biome"), pos.x() + 1, height + pos.y(), firstColor.get().toInt(), shadow.get());
 			bX += 5;
-			width = Math.max(width + pos.x() - 1, drawString(matrices, String.valueOf(this.client.world.getRegistryManager().get(Registry.BIOME_KEY).getId(this.client.world.getBiome(b))), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
+			width = Math.max(width + pos.x() - 1, drawString(matrices, getBiomeName(this.client.world.getRegistryManager().get(Registry.BIOME_KEY).getId(this.client.world.getBiome(b))), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
 			height += 10;
 		}
 		boolean changed = false;
@@ -201,6 +201,33 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		if (changed) {
 			onBoundsUpdate();
 		}
+	}
+
+	private String getBiomeName(Identifier biome) {
+		if (biome == null) {
+			return "Unknown";
+		}
+		String path = biome.getPath();
+		if (!biome.getNamespace().equals("minecraft")) {
+			path += "("+biome.getNamespace()+")";
+		}
+		final String str = path.replace("_", " ");
+		if (str.isEmpty()) {
+			return str;
+		}
+
+		final int[] codepoints = str.codePoints().toArray();
+		boolean capitalizeNext = true;
+		for (int i = 0; i < codepoints.length; i++) {
+			final int ch = codepoints[i];
+			if (Character.isWhitespace(ch)) {
+				capitalizeNext = true;
+			} else if (capitalizeNext) {
+				codepoints[i] = Character.toTitleCase(ch);
+				capitalizeNext = false;
+			}
+		}
+		return new String(codepoints, 0, codepoints.length);
 	}
 
 	public String getWordedDirection(int dir) {
@@ -287,7 +314,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		if (biome.get()) {
 			int bX = drawString(matrices, I18n.translate("coordshud.biome"), pos.x() + 1, height + pos.y(), firstColor.get().toInt(), shadow.get());
 			bX += 5;
-			width = Math.max(width + pos.x() - 1, drawString(matrices, String.valueOf(BiomeKeys.PLAINS.getValue()), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
+			width = Math.max(width + pos.x() - 1, drawString(matrices, getBiomeName(BiomeKeys.PLAINS.getValue()), bX, height + pos.y(), secondColor.get().toInt(), shadow.get())) - pos.x() + 1;
 			height += 10;
 		}
 		boolean changed = false;
