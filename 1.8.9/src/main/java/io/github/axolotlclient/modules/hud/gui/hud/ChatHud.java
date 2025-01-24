@@ -104,7 +104,6 @@ public class ChatHud extends TextHudEntry {
 			int i = getVisibleLineCount();
 			int j = 0;
 			int k = visibleMessages.size();
-			float f = this.client.options.chatOpacity * 0.9F + 0.1F;
 			if (k > 0) {
 				float g = getScale();
 				int l = MathHelper.ceil((float) getWidth() / g);
@@ -123,20 +122,27 @@ public class ChatHud extends TextHudEntry {
 							if (animateChat.get() && m+scrolledLines < newLines) {
 								d *= animationPercent;
 							}
-							int Opacity = isChatFocused() ? 255 : (int) (255.0 * d);
 
-							int chatOpacity = (int) (Opacity * f);
 							++j;
-							if (chatOpacity > 3) {
+							int opacity = (int) (Math.max(bgColor.get().getAlpha(), textColor.get().getAlpha()) * d);
+							if (opacity > 3) {
 								int y = pos.y + getHeight() - (m * (9 + lineSpacing.get()));
 								if (background.get()) {
+									int bg = bgColor.get().toInt();
+									if (!isChatFocused()) {
+										bg += ((int)((bg >> 24) * d)) << 24;
+									}
 									fill(pos.x, y - (9 + lineSpacing.get()), pos.x + l + 4, y,
-										bgColor.get().withAlpha(chatOpacity / 2).toInt());
+										bg);
 								}
 								String string = chatHudLine.getText().getFormattedString();
 								GlStateManager.enableBlend();
+								int text = textColor.get().toInt();
+								if (!isChatFocused()) {
+									text += ((int)((text >> 24) * d)) << 24;
+								}
 								DrawUtil.drawString(string, pos.x, (y - 8),
-									16777215 + (chatOpacity << 24), shadow.get());
+									text, shadow.get());
 								GlStateManager.disableAlphaTest();
 								GlStateManager.disableBlend();
 							}
