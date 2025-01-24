@@ -94,7 +94,7 @@ public class ImageScreen extends Screen {
 
         int buttonWidth = 75;
         double imgAspectRatio = image.image().getWidth() / (double) image.image().getHeight();
-        int imageWidth = Math.min((int) (layout.getContentsHeight() * imgAspectRatio), layout.getWidth() - buttonWidth - 4 - 10);
+        int imageWidth = Math.min((int) (layout.getContentsHeight() * imgAspectRatio), layout.getWidth() - buttonWidth - 4 - 20);
         int imageHeight = (int) (imageWidth / imgAspectRatio);
 
         var contents = layout.addToContents(LinearLayoutWidget.createHorizontal().setSpacing(4));
@@ -110,7 +110,7 @@ public class ImageScreen extends Screen {
                     b.active = false;
                     ImageShare.getInstance().upload(local.location()).thenAccept(s -> {
                         if (s.isEmpty()) {
-                            Notifications.getInstance().addStatus("gallery.image.upload.failure", "gallery.image.upload.description");
+                            Notifications.getInstance().addStatus("gallery.image.upload.failure", "gallery.image.upload.failure.description");
                         } else {
                             client.execute(() -> client.setScreen(new ImageScreen(parent, local.toShared(s, API.getInstance().getSelf().getUuid(), Instant.now()), freeOnClose)));
                             client.keyboard.setClipboard(s);

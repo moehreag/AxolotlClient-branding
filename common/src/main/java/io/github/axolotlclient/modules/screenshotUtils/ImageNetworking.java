@@ -32,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.api.Constants;
 import io.github.axolotlclient.api.Request;
@@ -46,13 +47,20 @@ public abstract class ImageNetworking {
 		try {
 			return upload(file.getFileName().toString(), Files.readAllBytes(file));
 		} catch (IOException e) {
+			AxolotlClientCommon.getInstance().getLogger().error("Failed to upload image", e);
 			return CompletableFuture.completedFuture("");
 		}
 	}
 
 	protected CompletableFuture<String> upload(String name, byte[] data) {
 		return API.getInstance().post(Request.Route.IMAGE.builder().path(name).rawBody(data).build())
-			.thenApply(response -> response.isError() ? "" : idToUrl(response.getPlainBody()));
+			.thenApply(response -> {
+				if (response.isError()) {
+					AxolotlClientCommon.getInstance().getLogger().error("Failed to upload image, server responded with "+response);
+					return "";
+				}
+				return idToUrl(response.getPlainBody());
+			});
 	}
 
 	protected static String idToUrl(String id) {
@@ -76,7 +84,7 @@ public abstract class ImageNetworking {
 
 	protected CompletableFuture<ImageData> download(String url) {
 		Optional<String> id = urlToId(url);
-		return id.map(s -> API.getInstance().get(Request.Route.IMAGE.builder().path(s).build())
+		return id.map(s -> API.getInstance().get(Request.Route.IMAGE.builder().requiresAuthentication(false).path(s).build())
 			.thenApply(res -> {
 				if (res.isError()) {
 					return ImageData.EMPTY;

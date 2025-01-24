@@ -101,7 +101,7 @@ public class ImageScreen extends Screen {
 		int contentsHeight = height - ((isRemote ? 38 : 33) + 33);
         int buttonWidth = 75;
         double imgAspectRatio = image.image().getWidth() / (double) image.image().getHeight();
-        int imageWidth = Math.min((int) (contentsHeight * imgAspectRatio), width - buttonWidth - 4 - 10);
+        int imageWidth = Math.min((int) (contentsHeight * imgAspectRatio), width - buttonWidth - 4 - 20);
         int imageHeight = (int) (imageWidth / imgAspectRatio);
 
 
@@ -109,7 +109,7 @@ public class ImageScreen extends Screen {
 		if (width / 2 > (imageWidth / 2) + buttonWidth + 4) {
 			element.setPosition(width/2 - imageWidth/2, 36);
 		} else {
-			element.setPosition(10, 36);
+			element.setPosition(width/2 - imageWidth/2 - buttonWidth/2 - 2, 36);
 		}
 		int actionX = element.getX() + imageWidth + 4;
 		var actions = new ArrayList<ButtonWidget>();
@@ -119,7 +119,7 @@ public class ImageScreen extends Screen {
                     b.active = false;
                     ImageShare.getInstance().upload(local.location()).thenAccept(s -> {
                         if (s.isEmpty()) {
-                            Notifications.getInstance().addStatus("gallery.image.upload.failure", "gallery.image.upload.description");
+                            Notifications.getInstance().addStatus("gallery.image.upload.failure", "gallery.image.upload.failure.description");
                         } else {
                             client.execute(() -> client.setScreen(new ImageScreen(parent, local.toShared(s, API.getInstance().getSelf().getUuid(), Instant.now()), freeOnClose)));
                             client.keyboard.setClipboard(s);
