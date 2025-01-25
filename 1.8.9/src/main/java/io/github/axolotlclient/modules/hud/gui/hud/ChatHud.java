@@ -124,7 +124,8 @@ public class ChatHud extends TextHudEntry {
 							}
 
 							++j;
-							int opacity = (int) (Math.max(bgColor.get().getAlpha(), textColor.get().getAlpha()) * d);
+							int alpha = Math.max(bgColor.get().getAlpha(), textColor.get().getAlpha());
+							int opacity = isChatFocused() ? alpha : (int) (alpha * d);
 							if (opacity > 3) {
 								int y = pos.y + getHeight() - (m * (9 + lineSpacing.get()));
 								if (background.get()) {

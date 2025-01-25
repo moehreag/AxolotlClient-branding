@@ -37,10 +37,7 @@ import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.api.types.*;
-import io.github.axolotlclient.api.util.MojangAuth;
-import io.github.axolotlclient.api.util.SocketMessageHandler;
-import io.github.axolotlclient.api.util.StatusUpdateProvider;
-import io.github.axolotlclient.api.util.TimestampParser;
+import io.github.axolotlclient.api.util.*;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
@@ -75,7 +72,7 @@ public class API {
 	private AccountSettings settings;
 	private HttpClient client;
 	private CompletableFuture<?> restartingFuture;
-	private static final List<Runnable> afterStartupListeners = new ArrayList<>();
+	private static final List<BiContainer<Runnable, ListenerType>> afterStartupListeners = new ArrayList<>();
 
 	public API(Logger logger, TranslationProvider translationProvider,
 			   StatusUpdateProvider statusUpdateProvider, Options apiOptions) {
@@ -98,14 +95,22 @@ public class API {
 	}
 
 	public static void addStartupListener(Runnable listener) {
-		afterStartupListeners.add(listener);
+		afterStartupListeners.add(BiContainer.of(listener, ListenerType.REPEATING));
 	}
 
+	public static void addStartupListener(Runnable listener, ListenerType type) {
+		afterStartupListeners.add(BiContainer.of(listener, type));
+	}
+
+	public enum ListenerType {
+		ONCE, REPEATING
+	}
 
 	public void onOpen(WebSocket channel) {
 		this.socket = channel;
 		logger.debug("API connected!");
-		afterStartupListeners.forEach(Runnable::run);
+		afterStartupListeners.forEach(p -> p.getLeft().run());
+		afterStartupListeners.removeIf(p -> p.getRight() == ListenerType.ONCE);
 	}
 
 	private void authenticate() {

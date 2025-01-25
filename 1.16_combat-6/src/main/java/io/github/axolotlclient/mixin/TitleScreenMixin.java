@@ -78,12 +78,19 @@ public abstract class TitleScreenMixin extends Screen {
 			buttons.add(addButton(new AuthWidget(10, leftButtonY)));
 			leftButtonY += 25;
 		}
-		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
-			buttons.add(addButton(new ButtonWidget(10, leftButtonY, 50, 20, new TranslatableText("api.friends"),
-				w -> client.openScreen(new FriendsScreen(this)))));
-			leftButtonY += 25;
-			buttons.add(addButton(new ButtonWidget(10, leftButtonY, 50, 20, new TranslatableText("api.chats"),
-				w -> client.openScreen(new ChatListScreen(this)))));
+		if (APIOptions.getInstance().addShortcutButtons.get()) {
+			int shortcutButtonY = leftButtonY;
+			Runnable addApiButtons = () -> {
+				buttons.add(addButton(new ButtonWidget(10, shortcutButtonY, 50, 20, new TranslatableText("api.friends"),
+					w -> client.openScreen(new FriendsScreen(this)))));
+				buttons.add(addButton(new ButtonWidget(10, shortcutButtonY+25, 50, 20, new TranslatableText("api.chats"),
+					w -> client.openScreen(new ChatListScreen(this)))));
+			};
+			if (API.getInstance().isAuthenticated()) {
+				addApiButtons.run();
+			} else {
+				API.addStartupListener(addApiButtons, API.ListenerType.ONCE);
+			}
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;
