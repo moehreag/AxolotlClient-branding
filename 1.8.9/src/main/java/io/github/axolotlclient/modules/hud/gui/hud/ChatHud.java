@@ -49,7 +49,7 @@ public class ChatHud extends TextHudEntry {
 	public static final Identifier ID = new Identifier("axolotlclient", "chathud");
 	// tooltip: "chathud"
 	public final BooleanOption background = new BooleanOption("background", true);
-	public final ColorOption bgColor = new ColorOption("bgcolor", Color.parse("#40000000"));
+	public final ColorOption bgColor = new ColorOption("bgcolor", Color.parse("#80000000"));
 
 	public final IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
 	public final ColorOption scrollbarColor = new ColorOption("scrollbarColor", Color.parse("#70CCCCCC"));
@@ -128,18 +128,18 @@ public class ChatHud extends TextHudEntry {
 							if (opacity > 3) {
 								int y = pos.y + getHeight() - (m * (9 + lineSpacing.get()));
 								if (background.get()) {
-									int bg = bgColor.get().toInt();
+									Color bg = bgColor.get();
 									if (!isChatFocused()) {
-										bg += ((int)((bg >> 24) * d)) << 24;
+										bg = bg.withAlpha((int) (bg.getAlpha()*d));
 									}
 									fill(pos.x, y - (9 + lineSpacing.get()), pos.x + l + 4, y,
-										bg);
+										bg.toInt());
 								}
 								String string = chatHudLine.getText().getFormattedString();
 								GlStateManager.enableBlend();
-								int text = textColor.get().toInt();
+								Color text = textColor.get();
 								if (!isChatFocused()) {
-									text += ((int)((text >> 24) * d)) << 24;
+									text = text.withAlpha((int) (text.getAlpha()*d));
 								}
 								DrawUtil.drawString(string, pos.x, (y - 8),
 									text, shadow.get());
