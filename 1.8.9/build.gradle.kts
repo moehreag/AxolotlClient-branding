@@ -58,6 +58,8 @@ dependencies {
 	implementation(include("org.slf4j:slf4j-api:1.7.36")!!)
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
 
+	compileOnly("org.lwjgl:lwjgl-glfw:${lwjglVersion}")
+
 	modCompileOnly("io.github.moehreag:legacy-lwjgl3:${project.property("legacy_lwgjl3")}") {
 		exclude(group = "org.lwjgl", module = "lwjgl-glfw")
 		exclude(group = "org.lwjgl", module = "lwjgl-openal")
@@ -105,7 +107,10 @@ tasks.processResources {
 }
 
 tasks.runClient {
-	jvmArgs("-Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient")
+	if (project.property("native_glfw") == "true") {
+		val glfwPath = project.properties.getOrDefault("native_glfw_path", "/usr/lib/libglfw.so")
+		jvmArgs("-Dorg.lwjgl.glfw.libname=$glfwPath")
+	}
 	classpath(sourceSets.getByName("test").runtimeClasspath)
 }
 

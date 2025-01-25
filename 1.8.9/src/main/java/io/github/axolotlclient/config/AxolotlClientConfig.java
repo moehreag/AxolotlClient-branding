@@ -34,10 +34,13 @@ import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
 import io.github.axolotlclient.CommonOptions;
 import io.github.axolotlclient.config.screen.CreditsScreen;
+import io.github.axolotlclient.modules.Module;
+import io.github.axolotlclient.util.GLFWUtil;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.glfw.GLFW;
 
 public class AxolotlClientConfig {
 
@@ -65,7 +68,8 @@ public class AxolotlClientConfig {
 
 	public final ColorOption loadingScreenColor = new ColorOption("loadingBgColor", new Color(-1));
 	public final BooleanOption nightMode = new BooleanOption("nightMode", false);
-	public final BooleanOption rawMouseInput = new BooleanOption("rawMouseInput", false);
+	public final BooleanOption rawMouseInput = new BooleanOption("rawMouseInput", false, v ->
+		GLFWUtil.runUsingGlfwHandle(h -> GLFW.glfwSetInputMode(h, GLFW.GLFW_RAW_MOUSE_MOTION, v ? 1 : 0)));
 
 	public final BooleanOption enableCustomOutlines = new BooleanOption("enabled", false);
 	public final ColorOption outlineColor = new ColorOption("color", Color.parse("#DD000000"));
@@ -116,6 +120,12 @@ public class AxolotlClientConfig {
 		general.add(nightMode);
 		general.add(customWindowTitle);
 		general.add(rawMouseInput);
+		AxolotlClient.modules.add(new Module() {
+			@Override
+			public void lateInit() {
+				GLFWUtil.runUsingGlfwHandle(h -> GLFW.glfwSetInputMode(h, GLFW.GLFW_RAW_MOUSE_MOTION, rawMouseInput.get() ? 1 : 0));
+			}
+		});
 		general.add(openCredits);
 		general.add(debugLogOutput);
 		general.add(CommonOptions.datetimeFormat);

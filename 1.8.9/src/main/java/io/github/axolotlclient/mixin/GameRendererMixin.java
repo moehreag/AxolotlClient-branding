@@ -43,7 +43,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
-import net.minecraft.client.input.MouseInput;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -58,7 +57,6 @@ import org.lwjgl.opengl.GLContext;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -82,37 +80,12 @@ public abstract class GameRendererMixin {
 	private float fogBlue;
 	@Shadow
 	private boolean thiccFog;
-	@Unique
-	private float cachedMouseFactor;
 	@Shadow
 	private boolean debugCamera;
 
 	@Shadow
 	protected abstract FloatBuffer setFogColor(float par1, float par2, float par3, float par4);
 
-	@Inject(method = "render(FJ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/MouseInput;dx:I"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-	public void axolotlclient$rawMouseInput(float tickDelta, long nanoTime, CallbackInfo ci, boolean displayActive, float f,
-											float g) {
-		if (AxolotlClient.CONFIG.rawMouseInput.get()) {
-			cachedMouseFactor = g;
-		}
-	}
-
-	@Redirect(method = "render(FJ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/MouseInput;dx:I"))
-	public int axolotlclient$rawMouseX(MouseInput instance) {
-		if (AxolotlClient.CONFIG.rawMouseInput.get()) {
-			return (int) (instance.dx / cachedMouseFactor * minecraft.options.mouseSensitivity);
-		}
-		return instance.dx;
-	}
-
-	@Redirect(method = "render(FJ)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/MouseInput;dy:I"))
-	public int axolotlclient$rawMouseY(MouseInput instance) {
-		if (AxolotlClient.CONFIG.rawMouseInput.get()) {
-			return (int) (instance.dy / cachedMouseFactor * minecraft.options.mouseSensitivity);
-		}
-		return instance.dy;
-	}
 
 	@Inject(method = "renderFog", at = @At("HEAD"), cancellable = true)
 	public void axolotlclient$noFog(int i, float tickDelta, CallbackInfo ci) {
