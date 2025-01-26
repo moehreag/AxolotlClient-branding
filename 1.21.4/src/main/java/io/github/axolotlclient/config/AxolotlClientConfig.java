@@ -66,9 +66,9 @@ public class AxolotlClientConfig {
 			NativeImage nativeImage = texture.getPixels();
 			if (nativeImage != null) {
 				int color = 255 - value.getAlpha();
-				color = (color << 8) + value.getBlue();
-				color = (color << 8) + value.getGreen();
 				color = (color << 8) + value.getRed();
+				color = (color << 8) + value.getGreen();
+				color = (color << 8) + value.getBlue();
 
 				for (int i = 0; i < 8; ++i) {
 					for (int j = 0; j < 8; ++j) {
