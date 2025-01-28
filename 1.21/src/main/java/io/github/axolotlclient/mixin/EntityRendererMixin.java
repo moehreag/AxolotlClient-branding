@@ -46,6 +46,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -106,13 +107,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		}
 	}
 
-	void drawTexture(MatrixStack matr, Identifier texture, int x1, int x2, int y1, int y2, int z, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight) {
-		this.drawTexturedQuad(matr, texture, x1, x2, y1, y2, z, (u + 0.0F) / (float) textureWidth,
-							  (u + (float) regionWidth) / (float) textureWidth, (v + 0.0F) / (float) textureHeight,
-							  (v + (float) regionHeight) / (float) textureHeight
-							 );
-	}
-
+	@Unique
 	void drawTexturedQuad(MatrixStack matrices, Identifier texture, int x1, int x2, int y1, int y2, int z, float u1, float u2, float v1, float v2) {
 		RenderSystem.setShaderTexture(0, texture);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -127,7 +122,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 	}
 
 	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I"),
+		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 0),
 		index = 8)
 	public int axolotlclient$bgColor(int color) {
 		if (AxolotlClient.CONFIG.nametagBackground.get()) {
@@ -138,7 +133,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 	}
 
 	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I"),
+		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 1),
 		index = 4)
 	public boolean axolotlclient$enableShadows(boolean shadow) {
 		return AxolotlClient.CONFIG.useShadows.get();

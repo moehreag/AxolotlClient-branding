@@ -78,10 +78,10 @@ public abstract class TitleScreenMixin extends Screen {
 		}
 		if (APIOptions.getInstance().addShortcutButtons.get()) {
 			int y = leftButtonY;
-			Runnable addApiButtons = () -> {
+			Runnable addApiButtons = () -> minecraft.submit(() -> {
 				buttons.add(new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends")));
 				buttons.add(new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats")));
-			};
+			});
 			if (API.getInstance().isAuthenticated()) {
 				addApiButtons.run();
 			} else {

@@ -59,7 +59,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		if (entity instanceof AbstractClientPlayerEntity && text.getString().contains(entity.getName().getString())) {
 			if (!entity.isSneaky()) {
 				if (AxolotlClient.CONFIG.showBadges.get() && UserRequest.getOnline(entity.getUuid().toString())) {
-					RenderSystem.enableDepthTest();
+					//RenderSystem.enableDepthTest();
 					RenderSystem.setShaderTexture(0, AxolotlClient.badgeIcon);
 
 					assert MinecraftClient.getInstance().player != null;
@@ -82,7 +82,14 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 					if (AxolotlClient.CONFIG.customBadge.get()) {
 						Text badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
-						MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1, AxolotlClient.CONFIG.useShadows.get(),
+						if (AxolotlClient.CONFIG.useShadows.get()) {
+							matrices.push();
+							matrices.translate(0, 0, 0.1f);
+							MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1, true,
+								matrices.peek().getModel(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+							matrices.pop();
+						}
+						MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1, false,
 							matrices.peek().getModel(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 					} else {
 						Tessellator tessellator = Tessellator.getInstance();
