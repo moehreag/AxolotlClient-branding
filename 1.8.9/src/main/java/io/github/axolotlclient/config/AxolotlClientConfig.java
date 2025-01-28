@@ -123,6 +123,9 @@ public class AxolotlClientConfig {
 		AxolotlClient.modules.add(new Module() {
 			@Override
 			public void lateInit() {
+				if (System.getProperty("org.lwjgl.input.Mouse.disableRawInput") == null) {
+					System.setProperty("org.lwjgl.input.Mouse.disableRawInput", "true");
+				}
 				GLFWUtil.runUsingGlfwHandle(h -> GLFW.glfwSetInputMode(h, GLFW.GLFW_RAW_MOUSE_MOTION, rawMouseInput.get() ? 1 : 0));
 			}
 		});

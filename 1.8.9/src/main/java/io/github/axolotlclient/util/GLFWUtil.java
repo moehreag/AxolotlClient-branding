@@ -27,6 +27,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.function.Consumer;
 
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 import org.lwjgl.opengl.Display;
 
 public class GLFWUtil {
@@ -35,16 +36,15 @@ public class GLFWUtil {
 
 	static {
 		try {
-			getHandle = MethodHandles.lookup().findVirtual(Display.class, "getHandle", MethodType.methodType(Long.class));
+			getHandle = MethodHandles.lookup().findStatic(Class.forName("org.lwjgl.opengl.Display"), "getHandle", MethodType.methodType(long.class));
 		} catch (Throwable ignored) {
 		}
 	}
 
 	private static long windowHandle = -1;
 
-	public static long getWindowHandle(){
-		if (windowHandle == -1){
-
+	public static long getWindowHandle() {
+		if (windowHandle == -1) {
 			try {
 				windowHandle = (long) getHandle.invoke();
 			} catch (Throwable ignored) {
@@ -60,7 +60,13 @@ public class GLFWUtil {
 	}
 
 	public static void runUsingGlfwHandle(Consumer<Long> action) {
-		if (isHandleAvailable()) {
+		if (!Display.isCreated()) {
+			MinecraftClientEvents.READY.register(mc -> {
+				if (isHandleAvailable()) {
+					action.accept(getWindowHandle());
+				}
+			});
+		} else if (isHandleAvailable()) {
 			action.accept(getWindowHandle());
 		}
 	}
