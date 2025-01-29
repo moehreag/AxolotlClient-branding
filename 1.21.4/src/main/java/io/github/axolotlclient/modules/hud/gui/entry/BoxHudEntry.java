@@ -29,7 +29,6 @@ import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
-import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -79,10 +78,7 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 		scale(graphics);
 		if (backgroundAllowed) {
 			if (background.get() && backgroundColor.get().getAlpha() > 0) {
-				Rectangle bounds= getBounds();
-				graphics.fill(0, 50, 50, 100, 0x64000000);
-				fillRect(graphics, bounds.x, bounds.y, bounds.width, bounds.height, 0x64000000);
-				//fillRect(graphics, getBounds(), backgroundColor.getDefault());
+				fillRect(graphics, getBounds(), backgroundColor.get());
 			}
 			if (outline.get() && outlineColor.get().getAlpha() > 0) {
 				outlineRect(graphics, getBounds(), outlineColor.get());
