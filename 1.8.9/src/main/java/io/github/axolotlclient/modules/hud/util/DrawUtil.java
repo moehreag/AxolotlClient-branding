@@ -49,10 +49,6 @@ public class DrawUtil extends GuiElement {
 		GuiElement.fill(x, y, x + width, y + height, color);
 	}
 
-	public static void fillRect(int x, int y, int width, int height, Color color) {
-		fillRect(x, y, x + width, y + height, color.toInt());
-	}
-
 	public static void outlineRect(Rectangle rectangle, Color color) {
 		outlineRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}

@@ -22,12 +22,15 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.scrollableTooltips.ScrollableTooltips;
 import io.github.axolotlclient.modules.zoom.Zoom;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.MouseInputEvent;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.gui.screen.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -58,6 +61,13 @@ public abstract class MouseMixin {
 		}
 
 		return scrollAmount;
+	}
+
+	@WrapOperation(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;applyMousePressScrollNarratorDelay()V"))
+	private void wrapNarratorDelay(Screen instance, Operation<Void> original){
+		if (instance != null) {
+			original.call(instance);
+		}
 	}
 
 	@Inject(method = "ignorePastPos", at = @At(value = "HEAD"))

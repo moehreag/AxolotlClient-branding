@@ -65,7 +65,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I"))
 	public void axolotlclient$addBadges(T entity, String string, double d, double e, double f, int i, CallbackInfo ci) {
-		if (entity instanceof ClientPlayerEntity && string.contains(entity.getDisplayName().getFormattedString()))
+		if (entity instanceof ClientPlayerEntity)
 			BadgeRenderer.renderNametagBadge(entity);
 	}
 
@@ -77,7 +77,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I", ordinal = 1))
 	public void axolotlclient$addLevel(T entity, String string, double d, double e, double f, int i, CallbackInfo ci) {
-		if (entity instanceof ClientPlayerEntity && string.contains(entity.getDisplayName().getFormattedString())) {
+		if (entity instanceof ClientPlayerEntity) {
 			if (Util.currentServerAddressContains("hypixel.net")) {
 				if (BedwarsMod.getInstance().isEnabled() &&
 					BedwarsMod.getInstance().inGame() &&

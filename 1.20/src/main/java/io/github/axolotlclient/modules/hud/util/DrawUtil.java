@@ -49,10 +49,6 @@ public class DrawUtil {
 		graphics.fill(x, y, x + width, y + height, color);
 	}
 
-	public static void fillRect(GuiGraphics graphics, int x, int y, int width, int height, Color color) {
-		RenderUtil.drawRectangle(graphics, x, y, x + width, y + height, color.toInt());
-	}
-
 	public static void outlineRect(GuiGraphics graphics, Rectangle rectangle, Color color) {
 		outlineRect(graphics, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}

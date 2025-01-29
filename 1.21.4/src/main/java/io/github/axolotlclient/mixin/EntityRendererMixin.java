@@ -57,7 +57,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 
 	@Inject(method = "renderNameTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/network/chat/Component;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I", ordinal = 0))
 	public void axolotlclient$addBadges(S entityRenderState, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
-		if (entityRenderState instanceof PlayerRenderState state && text.getString().contains(state.name)) {
+		if (entityRenderState instanceof PlayerRenderState state) {
 			if (!state.isCrouching) {
 				if (AxolotlClient.CONFIG.showBadges.get()) {
 					Player entity = (Player) Minecraft.getInstance().level.getEntity(state.id);
@@ -104,7 +104,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 		if (entityRenderState instanceof PlayerRenderState state) {
 			if (Minecraft.getInstance().getCurrentServer() != null && Minecraft.getInstance().getCurrentServer().ip.contains("hypixel.net")) {
 				AbstractClientPlayer entity = (AbstractClientPlayer) Minecraft.getInstance().level.getEntity(state.id);
-				if (entity != null && c.getString().contains(entity.getName().getString())) {
+				if (entity != null) {
 					Font textRenderer = Minecraft.getInstance().font;
 					if (BedwarsMod.getInstance().isEnabled() && BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().bedwarsLevelHead.get()) {
 						String text = BedwarsMod.getInstance().getGame().get().getLevelHead(entity);

@@ -55,7 +55,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 	@Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I", ordinal = 0))
 	public void axolotlclient$addBadges(T entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
 										CallbackInfo ci) {
-		if (entity instanceof AbstractClientPlayerEntity && text.getString().contains(entity.getName().getString())) {
+		if (entity instanceof AbstractClientPlayerEntity) {
 			if (!entity.isSneaky()) {
 				if (AxolotlClient.CONFIG.showBadges.get() && UserRequest.getOnline(entity.getUuid().toString())) {
 					RenderSystem.enableDepthTest();
@@ -112,8 +112,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 									   CallbackInfo ci) {
 		if (entity instanceof AbstractClientPlayerEntity) {
 			if (MinecraftClient.getInstance().getCurrentServerEntry() != null
-				&& MinecraftClient.getInstance().getCurrentServerEntry().address.contains("hypixel.net")
-				&& string.getString().contains(entity.getName().getString())) {
+				&& MinecraftClient.getInstance().getCurrentServerEntry().address.contains("hypixel.net")) {
 				TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 				if (BedwarsMod.getInstance().isEnabled() &&
 					BedwarsMod.getInstance().inGame() &&

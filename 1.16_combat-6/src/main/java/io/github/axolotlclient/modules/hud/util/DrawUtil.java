@@ -53,10 +53,6 @@ public class DrawUtil extends DrawableHelper {
 		DrawableHelper.fill(matrices, x, y, x + width, y + height, color);
 	}
 
-	public static void fillRect(MatrixStack matrices, int x, int y, int width, int height, Color color) {
-		RenderUtil.drawRectangle(matrices, x, y, x + width, y + height, color.toInt());
-	}
-
 	public static void outlineRect(MatrixStack matrices, Rectangle rectangle, Color color) {
 		outlineRect(matrices, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}

@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
@@ -145,6 +146,7 @@ public class HudManager extends AbstractModule {
 
 	public void render(GuiGraphics graphics, DeltaTracker delta) {
 		Profiler.get().push("Hud Modules");
+		RenderSystem.setShaderColor(1, 1, 1, 1);
 		if (!(client.screen instanceof HudEditScreen)) {
 			for (HudEntry hud : getEntries()) {
 				if (hud.isEnabled() && (!client.gui.getDebugOverlay().showDebugScreen() || hud.overridesF3())) {
