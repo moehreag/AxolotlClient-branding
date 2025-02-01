@@ -58,17 +58,17 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 	@Inject(method = "renderNameTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/network/chat/Component;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I", ordinal = 0))
 	public void axolotlclient$addBadges(S entityRenderState, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
 		if (entityRenderState instanceof PlayerRenderState state && text.equals(entityRenderState.nameTag)) {
-			if (!state.isCrouching) {
+			if (!state.isDiscrete) {
 				if (AxolotlClient.CONFIG.showBadges.get()) {
+					RenderSystem.enableDepthTest();
 					Player entity = (Player) Minecraft.getInstance().level.getEntity(state.id);
 					if (entity != null && UserRequest.getOnline(entity.getStringUUID())) {
-						RenderSystem.enableDepthTest();
 						assert Minecraft.getInstance().player != null;
 						int x = -(Minecraft.getInstance().font.width(entity == Minecraft.getInstance().player ? (NickHider.getInstance().hideOwnName.get() ? NickHider.getInstance().hiddenNameSelf.get() : PlayerTeam.formatNameForTeam(entity.getTeam(), entity.getName()).getString()) : (NickHider.getInstance().hideOtherNames.get() ? NickHider.getInstance().hiddenNameOthers.get() : PlayerTeam.formatNameForTeam(entity.getTeam(), entity.getName()).getString())) / 2 + (AxolotlClient.CONFIG.customBadge.get() ? Minecraft.getInstance().font.width(" " + ChatFormatting.stripFormatting(AxolotlClient.CONFIG.badgeText.get())) : 10));
 
 						if (AxolotlClient.CONFIG.customBadge.get()) {
 							Component badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
-							Minecraft.getInstance().font.drawInBatch(badgeText, x, 0, -1, AxolotlClient.CONFIG.useShadows.get(), matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 15728880);
+							Minecraft.getInstance().font.drawInBatch(badgeText, x+6, 0, -1, AxolotlClient.CONFIG.useShadows.get(), matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 15728880);
 						} else {
 							var type = RenderType.guiTextured(AxolotlClient.badgeIcon);
 							var builder = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(type);
@@ -80,6 +80,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 							Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
 						}
 					}
+					RenderSystem.disableDepthTest();
 				}
 			}
 		}

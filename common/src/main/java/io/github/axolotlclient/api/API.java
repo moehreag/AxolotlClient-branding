@@ -107,10 +107,10 @@ public class API {
 	}
 
 	public void onOpen(WebSocket channel) {
-		this.socket = channel;
 		logger.debug("API connected!");
 		afterStartupListeners.forEach(p -> p.getLeft().run());
 		afterStartupListeners.removeIf(p -> p.getRight() == ListenerType.ONCE);
+		this.socket = channel;
 	}
 
 	private void authenticate() {

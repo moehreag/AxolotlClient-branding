@@ -98,7 +98,7 @@ public abstract class TitleScreenMixin extends Screen {
 				buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.chats"),
 					w -> minecraft.setScreen(new ChatListScreen(this))).bounds(10, shortcutButtonY+25, 50, 20).build()));
 			});
-			if (API.getInstance().isAuthenticated()) {
+			if (API.getInstance().isSocketConnected()) {
 				addApiButtons.run();
 			} else {
 				API.addStartupListener(addApiButtons, API.ListenerType.ONCE);

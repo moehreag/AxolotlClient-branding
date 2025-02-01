@@ -63,7 +63,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		}
 	}
 
-	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I"))
+	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I", ordinal = 0))
 	public void axolotlclient$addBadges(T entity, String string, double d, double e, double f, int i, CallbackInfo ci) {
 		if (entity instanceof ClientPlayerEntity && string.equals(entity.getDisplayName().getFormattedString()))
 			BadgeRenderer.renderNametagBadge(entity);

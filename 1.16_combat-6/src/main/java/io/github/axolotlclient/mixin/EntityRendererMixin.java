@@ -82,18 +82,20 @@ public abstract class EntityRendererMixin<T extends Entity> {
 					if (AxolotlClient.CONFIG.customBadge.get()) {
 						Text badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
 						if (AxolotlClient.CONFIG.useShadows.get()) {
-							MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, badgeText, x, 0, -1);
+							MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, badgeText, x+6, 0, -1);
 						} else {
-							MinecraftClient.getInstance().textRenderer.draw(matrices, badgeText, x, 0, -1);
+							MinecraftClient.getInstance().textRenderer.draw(matrices, badgeText, x+6, 0, -1);
 						}
-					} else
+					} else {
 						DrawableHelper.drawTexture(matrices, x, 0, 0, 0, 8, 8, 8, 8);
+					}
+					RenderSystem.disableDepthTest();
 				}
 			}
 		}
 	}
 
-	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I"), index = 8)
+	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I", ordinal = 0), index = 8)
 	public int axolotlclient$bgColor(int color) {
 		if (AxolotlClient.CONFIG.nametagBackground.get()) {
 			return color;

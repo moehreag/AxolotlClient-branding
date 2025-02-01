@@ -81,7 +81,7 @@ public abstract class TitleScreenMixin extends Screen {
 				buttons.add(new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends")));
 				buttons.add(new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats")));
 			});
-			if (API.getInstance().isAuthenticated()) {
+			if (API.getInstance().isSocketConnected()) {
 				addApiButtons.run();
 			} else {
 				API.addStartupListener(addApiButtons, API.ListenerType.ONCE);

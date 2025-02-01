@@ -85,11 +85,11 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						if (AxolotlClient.CONFIG.useShadows.get()) {
 							matrices.push();
 							matrices.translate(0, 0, 0.1f);
-							MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1, true,
+							MinecraftClient.getInstance().textRenderer.draw(badgeText, x+6, 0, -1, true,
 								matrices.peek().getModel(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, light);
 							matrices.pop();
 						}
-						MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1, false,
+						MinecraftClient.getInstance().textRenderer.draw(badgeText, x+6, 0, -1, false,
 							matrices.peek().getModel(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, light);
 					} else {
 						RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -104,6 +104,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						builder.vertex(matrix4f, x + 8, 0, 0).uv(1, 0).next();
 						BufferRenderer.drawWithShader(builder.end());
 					}
+					RenderSystem.disableDepthTest();
 				}
 			}
 		}

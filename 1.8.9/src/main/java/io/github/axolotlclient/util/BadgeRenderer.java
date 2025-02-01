@@ -55,8 +55,10 @@ public class BadgeRenderer {
 				if (AxolotlClient.CONFIG.customBadge.get())
 					Minecraft.getInstance().textRenderer.draw(AxolotlClient.CONFIG.badgeText.get(), x, 0, -1,
 						AxolotlClient.CONFIG.useShadows.get());
-				else
+				else {
 					GuiElement.drawTexture(x, 0, 0, 0, 8, 8, 8, 8);
+				}
+				GlStateManager.disableDepthTest();
 			}
 		}
 	}

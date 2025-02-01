@@ -80,7 +80,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 					if (AxolotlClient.CONFIG.customBadge.get()) {
 						Text badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
-						MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1,
+						MinecraftClient.getInstance().textRenderer.draw(badgeText, x+6, 0, -1,
 																		AxolotlClient.CONFIG.useShadows.get(),
 																		matrices.peek().getModel(), vertexConsumers,
 																		TextRenderer.TextLayerType.NORMAL, 0, 15728880
@@ -100,6 +100,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						BufferRenderer.drawWithShader(builder.endOrThrow());
 						matrices.pop();
 					}
+					RenderSystem.disableDepthTest();
 				}
 			}
 		}
