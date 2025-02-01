@@ -22,24 +22,22 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
 import net.minecraft.client.resource.model.BakedModel;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ItemEntityRenderer.class)
 public class ItemEntityRendererMixin {
 
-	@Inject(method = "applyItemBobbing", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;translatef(FFF)V"), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
-	private void axolotlclient$transformItems(ItemEntity itemEntity, double d, double e, double f, float g, BakedModel bakedModel, CallbackInfoReturnable<Integer> cir, ItemStack stack, Item item, boolean bl, int i) {
+	@Inject(method = "applyItemBobbing", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;translatef(FFF)V", ordinal = 0), cancellable = true)
+	private void axolotlclient$transformItems(ItemEntity itemEntity, double d, double e, double f, float g, BakedModel bakedModel, CallbackInfoReturnable<Integer> cir, @Local int i) {
 		if (AxolotlClient.CONFIG.flatItems.get()) {
 			GlStateManager.translated(d, e + 0.05, f);
 			GlStateManager.rotatef(itemEntity.pitch, 0, 0, 1);

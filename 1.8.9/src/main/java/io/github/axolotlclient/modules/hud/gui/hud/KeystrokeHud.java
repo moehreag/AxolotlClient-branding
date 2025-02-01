@@ -231,11 +231,6 @@ public class KeystrokeHud extends TextHudEntry {
 	}
 
 	@Override
-	public boolean movable() {
-		return true;
-	}
-
-	@Override
 	public boolean tickable() {
 		return true;
 	}
@@ -298,7 +293,7 @@ public class KeystrokeHud extends TextHudEntry {
 		protected final Rectangle bounds;
 		private final int animTime = 100;
 		protected DrawPosition offset;
-		private float start = -1;
+		private long start = -1;
 		private boolean wasPressed = false;
 
 		public Keystroke(Rectangle bounds, DrawPosition offset, KeyBinding key, KeystrokeRenderer render) {
@@ -309,12 +304,12 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		public Color getFGColor() {
-			return !key.isPressed() ? ClientColors.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
+			return key.isPressed() ? ClientColors.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedTextColor.get(), textColor.get(), getPercentPressed());
 		}
 
 		private float getPercentPressed() {
-			return start == -1 ? 1 : MathHelper.clamp((Minecraft.getTime() - start) / animTime, 0, 1);
+			return start == -1 ? 1 : MathHelper.clamp((float) (System.currentTimeMillis() - start) / animTime, 0, 1);
 		}
 
 		public void render() {
@@ -323,8 +318,8 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		public void renderStroke() {
-			if (key.isPressed() == wasPressed) {
-				start = Minecraft.getTime();
+			if (key.isPressed() != wasPressed) {
+				start = System.currentTimeMillis();
 			}
 			Rectangle rect = bounds.offset(offset);
 			if (background.get()) {
@@ -333,20 +328,20 @@ public class KeystrokeHud extends TextHudEntry {
 			if (outline.get()) {
 				outlineRect(rect, getOutlineColor());
 			}
-			if ((Minecraft.getTime() - start) / animTime >= 1) {
+			if ((float)(System.currentTimeMillis() - start) / animTime >= 1) {
 				start = -1;
 			}
 			wasPressed = key.isPressed();
 		}
 
 		public Color getColor() {
-			return !key.isPressed()
+			return key.isPressed()
 				? ClientColors.blend(backgroundColor.get(), pressedBackgroundColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedBackgroundColor.get(), backgroundColor.get(), getPercentPressed());
 		}
 
 		public Color getOutlineColor() {
-			return !key.isPressed() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
+			return key.isPressed() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
 		}
 	}
