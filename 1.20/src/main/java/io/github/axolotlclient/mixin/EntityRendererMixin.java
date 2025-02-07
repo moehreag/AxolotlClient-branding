@@ -119,14 +119,9 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		}
 	}
 
-	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 0), index = 4)
-	private boolean enableShadows$sneaking(boolean par5, @Local Matrix4f matrix4f, @Local boolean notSneaking) {
-		matrix4f.scale(1, 1, -1);
-		return !notSneaking && AxolotlClient.CONFIG.useShadows.get();
-	}
-
 	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 1), index = 4)
 	private boolean enableShadows(boolean par5, @Local Matrix4f matrix4f) {
+		matrix4f.scale(1, 1, -1);
 		return AxolotlClient.CONFIG.useShadows.get();
 	}
 

@@ -26,10 +26,7 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.*;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import io.github.axolotlclient.AxolotlClientCommon;
@@ -72,6 +69,8 @@ public class API {
 	private AccountSettings settings;
 	private HttpClient client;
 	private CompletableFuture<?> restartingFuture;
+	private Future<?> statusUpdateFuture;
+	private final ScheduledExecutorService statusUpdateExecutor;
 	private static final List<BiContainer<Runnable, ListenerType>> afterStartupListeners = new ArrayList<>();
 
 	public API(Logger logger, TranslationProvider translationProvider,
@@ -91,6 +90,7 @@ public class API {
 		handlers.add(new StatusUpdateHandler());
 		handlers.add(new ChannelInviteHandler());
 		Instance = this;
+		statusUpdateExecutor = Executors.newSingleThreadScheduledExecutor();
 		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 	}
 
@@ -295,6 +295,10 @@ public class API {
 			restartingFuture.cancel(true);
 			restartingFuture = null;
 		}
+		if (statusUpdateFuture != null) {
+			statusUpdateFuture.cancel(true);
+			statusUpdateFuture = null;
+		}
 		if (isAuthenticated()) {
 			logger.debug("Shutting down API");
 			if (isSocketConnected()) {
@@ -445,27 +449,15 @@ public class API {
 
 	private void startStatusUpdateThread() {
 		statusUpdateProvider.initialize();
-		new Thread("Status Update Thread") {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException ignored) {
-				}
-				while (API.getInstance().isAuthenticated()) {
-					Request request = statusUpdateProvider.getStatus();
-					if (request != null) {
-						post(request);
-					}
-					try {
-						//noinspection BusyWait
-						Thread.sleep(Constants.STATUS_UPDATE_DELAY * 1000);
-					} catch (InterruptedException ignored) {
-
-					}
-				}
+		if (statusUpdateFuture != null) {
+			statusUpdateFuture.cancel(true);
+		}
+		statusUpdateFuture = statusUpdateExecutor.scheduleAtFixedRate(() -> {
+			Request request = statusUpdateProvider.getStatus();
+			if (request != null) {
+				post(request);
 			}
-		}.start();
+		}, 50, Constants.STATUS_UPDATE_DELAY * 1000, TimeUnit.MILLISECONDS);
 	}
 
 	public String sanitizeUUID(String uuid) {
