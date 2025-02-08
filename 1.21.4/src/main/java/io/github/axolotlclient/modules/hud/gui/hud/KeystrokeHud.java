@@ -22,8 +22,10 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -37,8 +39,12 @@ import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.ClientColors;
+import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
+import io.github.axolotlclient.util.options.GenericOption;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphics;
@@ -84,7 +90,8 @@ public class KeystrokeHud extends TextHudEntry {
 		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
 		new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
 	});
-	private ArrayList<Keystroke> keystrokes;
+	private final KeystrokesGenericOption keystrokesOption = new KeystrokesGenericOption("keystrokes", "keystrokes.configure");
+	public ArrayList<Keystroke> keystrokes;
 	private float mouseX = 0;
 	private float mouseY = 0;
 	private float lastMouseX = 0;
@@ -110,13 +117,7 @@ public class KeystrokeHud extends TextHudEntry {
 		return Optional.empty();
 	}
 
-	public void setKeystrokes() {
-		if (client.getWindow() == null) {
-			keystrokes = null;
-			return;
-			// Wait until render is called
-		}
-		keystrokes = new ArrayList<>();
+	public void setDefaultKeystrokes() {
 		DrawPosition pos = getPos();
 		// LMB
 		keystrokes.add(createFromKey(new Rectangle(0, 36, 26, 17), pos, client.options.keyAttack));
@@ -132,7 +133,7 @@ public class KeystrokeHud extends TextHudEntry {
 		keystrokes.add(createFromKey(new Rectangle(36, 18, 17, 17), pos, client.options.keyRight));
 
 		// Space
-		keystrokes.add(new Keystroke(new Rectangle(0, 54, 53, 7), pos, client.options.keyJump, (stroke, matrices) -> {
+		keystrokes.add(new KeyOptionKeystroke(new Rectangle(0, 54, 53, 7), pos, client.options.keyJump, (stroke, matrices) -> {
 			Rectangle bounds = stroke.bounds;
 			Rectangle spaceBounds = new Rectangle(bounds.x() + stroke.offset.x() + 4,
 				bounds.y() + stroke.offset.y() + 2, bounds.width() - 8, 1);
@@ -142,6 +143,16 @@ public class KeystrokeHud extends TextHudEntry {
 					(stroke.getFGColor().toInt() & 16579836) >> 2 | stroke.getFGColor().toInt() & -16777216));
 			}
 		}));
+	}
+
+	public void setKeystrokes() {
+		if (client.getWindow() == null) {
+			keystrokes = null;
+			return;
+			// Wait until render is called
+		}
+		keystrokes = new ArrayList<>();
+		setDefaultKeystrokes();
 		KeyMapping.releaseAll();
 		KeyMapping.setAll();
 
@@ -178,14 +189,7 @@ public class KeystrokeHud extends TextHudEntry {
 	}
 
 	public Keystroke createFromString(Rectangle bounds, DrawPosition offset, KeyMapping key, String word) {
-		return new Keystroke(bounds, offset, key, (stroke, matrices) -> {
-			Rectangle strokeBounds = stroke.bounds;
-			float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
-					  - ((float) client.font.width(word) / 2);
-			float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
-
-			drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
-		});
+		return new KeyOptionKeystroke(bounds, offset, key, word);
 	}
 
 	@Override
@@ -288,9 +292,11 @@ public class KeystrokeHud extends TextHudEntry {
 		void render(Keystroke stroke, GuiGraphics graphics);
 	}
 
-	public class Keystroke {
+	public abstract class Keystroke {
 
-		protected final KeyMapping key;
+		@Getter
+		@Setter
+		protected KeyMapping key;
 		protected final KeystrokeRenderer render;
 		protected final Rectangle bounds;
 		private final int animTime = 100;
@@ -345,6 +351,109 @@ public class KeystrokeHud extends TextHudEntry {
 		public Color getOutlineColor() {
 			return key.isDown() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
+		}
+
+		public Map<String, Object> serialize() {
+			return Map.of("key", key.saveString(),
+				"bounds", Map.of("x", bounds.x(), "y", bounds.y(), "width", bounds.width(), "height", bounds.height()));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Keystroke deserializeKey(Map<String, ?> json) {
+		if ("option".equals(json.get("type"))) {
+			KeyMapping key = KeyMapping.get((String) json.get("option"));
+			String name = getMouseKeyBindName(key).orElse(key.getTranslatedKeyMessage().getString().toUpperCase());
+			if (name.length() > 4) {
+				name = name.substring(0, 2);
+			}
+			return new KeyOptionKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key, name);
+		} else {
+			KeyMapping key = new KeyMapping("", 0, "keystrokehud.keys_category");
+			key.setKey(InputConstants.getKey((String) json.get("key")));
+			return new CustomKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key);
+		}
+	}
+
+	private static Rectangle getRectangle(Map<String, ?> json) {
+		return new Rectangle((int) json.get("x"), (int) json.get("y"), (int) json.get("width"), (int) json.get("height"));
+	}
+
+	public class KeyOptionKeystroke extends Keystroke {
+
+		public KeyOptionKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, KeystrokeRenderer render) {
+			super(bounds, offset, key, render);
+		}
+
+		public KeyOptionKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, String word) {
+			this(bounds, offset, key,  (stroke, matrices) -> {
+				Rectangle strokeBounds = stroke.bounds;
+				float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
+					- ((float) client.font.width(word) / 2);
+				float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
+
+				drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
+			});
+		}
+
+
+		@Override
+		public Map<String, Object> serialize() {
+			Map<String, Object> json = super.serialize();
+			json.put("type", "option");
+			json.put("option", key.getName());
+			return json;
+		}
+	}
+
+	public class CustomKeystroke extends Keystroke {
+
+		public CustomKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key) {
+			super(bounds, offset, key, (stroke, matrices) -> {
+				String word = key.getName();
+				Rectangle strokeBounds = stroke.bounds;
+				float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
+					- ((float) client.font.width(word) / 2);
+				float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
+
+				drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
+			});
+		}
+
+		@Override
+		public Map<String, Object> serialize() {
+			Map<String, Object> json = super.serialize();
+			json.put("type", "custom");
+			json.put("key", key.saveString());
+			return json;
+		}
+	}
+
+	public class KeystrokesGenericOption extends GenericOption {
+
+		public KeystrokesGenericOption(String name, String label) {
+			super(name, label, () -> {
+
+			});
+		}
+
+		@Override
+		public String toSerializedValue() {
+			return GsonHelper.GSON.toJson(keystrokes.stream().map(Keystroke::serialize).toList());
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void fromSerializedValue(String s) {
+			keystrokes.clear();
+			try {
+				List<?> entries = (List<?>) GsonHelper.read(s);
+				entries.stream().map(e -> (Map<String, Object>) e)
+					.map(KeystrokeHud.this::deserializeKey)
+					.forEach(keystrokes::add);
+			} catch (IOException e) {
+
+			}
 		}
 	}
 }

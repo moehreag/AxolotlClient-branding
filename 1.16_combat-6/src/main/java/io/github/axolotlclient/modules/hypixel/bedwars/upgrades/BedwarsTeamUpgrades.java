@@ -57,14 +57,6 @@ public class BedwarsTeamUpgrades {
 		}
 	});
 
-	public final TeamUpgrade dragonBuff = new BinaryUpgrade(
-		"dragonbuff", Pattern.compile("^\\b[A-Za-z0-9_§]{3,16}\\b purchased Dragon Buff\\s*$"),
-		5, 5, (graphics, x, y, width, height, purchased) -> {
-		if (purchased > 0) {
-			ItemUtil.renderGuiItemModel(BedwarsMod.getInstance().getUpgradesOverlay().getScale(), new ItemStack(Items.END_CRYSTAL), x, y);
-		}
-	});
-
 	public final TeamUpgrade healPool = new BinaryUpgrade(
 		"healpool", Pattern.compile("^\\b[A-Za-z0-9_§]{3,16}\\b purchased Heal Pool\\s*$"),
 		3, 1, (graphics, x, y, width, height, upgradeLevel) -> {
@@ -146,7 +138,16 @@ public class BedwarsTeamUpgrades {
 		}
 	});
 
-	public final TeamUpgrade[] upgrades = {trap, sharpness, dragonBuff, healPool, protection, maniacMiner, forge};
+	public final TeamUpgrade featherFalling = new TieredUpgrade("feather_falling", Pattern.compile("^\\b[A-Za-z0-9_§]{3,16}\\b purchased Cushioned Boots .{1,2}\\s*$"),
+		new int[]{2, 4}, new int[]{1, 2}, (graphics, x, y, width, height, upgradeLevel) -> {
+		if (upgradeLevel == 1) {
+			ItemUtil.renderGuiItemModel(BedwarsMod.getInstance().getUpgradesOverlay().getScale(), new ItemStack(Items.IRON_BOOTS), x, y);
+		} else {
+			ItemUtil.renderGuiItemModel(BedwarsMod.getInstance().getUpgradesOverlay().getScale(), new ItemStack(Items.DIAMOND_BOOTS), x, y);
+		}
+	});
+
+	public final TeamUpgrade[] upgrades = {trap, sharpness, healPool, protection, maniacMiner, forge, featherFalling};
 
 	public BedwarsTeamUpgrades() {
 

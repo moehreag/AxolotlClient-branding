@@ -77,14 +77,19 @@ public abstract class TitleScreenMixin extends Screen {
 		}
 		if (APIOptions.getInstance().addShortcutButtons.get()) {
 			int y = leftButtonY;
-			Runnable addApiButtons = () -> minecraft.submit(() -> {
-				buttons.add(new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends")));
-				buttons.add(new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats")));
-			});
+			List<ButtonWidget> shortcutButtons = new ArrayList<>();
+			Runnable addApiButtons = () -> {
+				shortcutButtons.add(new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends")));
+				shortcutButtons.add(new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats")));
+			};
 			if (API.getInstance().isSocketConnected()) {
 				addApiButtons.run();
+				buttons.addAll(shortcutButtons);
 			} else {
-				API.addStartupListener(addApiButtons, API.ListenerType.ONCE);
+				API.addStartupListener(() -> minecraft.submit(() -> {
+					addApiButtons.run();
+					this.buttons.addAll(shortcutButtons);
+				}), API.ListenerType.ONCE);
 			}
 		}
 		GlobalDataRequest.get().thenAccept(data -> {

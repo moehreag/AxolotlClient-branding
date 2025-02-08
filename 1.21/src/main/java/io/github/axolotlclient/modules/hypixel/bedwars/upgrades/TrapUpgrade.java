@@ -140,7 +140,7 @@ public class TrapUpgrade extends TeamUpgrade {
 			if (s.contains("miner")) {
 				return MINER_FATIGUE;
 			}
-			if (s.contains("alarm")) {
+			if (s.contains("reveal")) {
 				return ALARM;
 			}
 			if (s.contains("counter")) {

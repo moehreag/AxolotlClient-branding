@@ -22,17 +22,17 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.util.UUID;
+
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.TPSHud;
+import net.minecraft.client.network.PlayerInfo;
 import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.packet.s2c.play.EntityTeleportS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveS2CPacket;
-import net.minecraft.network.packet.s2c.play.TeamS2CPacket;
-import net.minecraft.network.packet.s2c.play.WorldTimeS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.team.Team;
@@ -47,6 +47,9 @@ public abstract class ClientPlayNetworkHandlerMixin {
 
 	@Shadow
 	private ClientWorld world;
+
+	@Shadow
+	public abstract PlayerInfo getOnlinePlayer(UUID uUID);
 
 	@Inject(method = "handleWorldTime", at = @At("HEAD"))
 	private void axolotlclient$onWorldUpdate(WorldTimeS2CPacket packet, CallbackInfo ci) {
@@ -80,6 +83,13 @@ public abstract class ClientPlayNetworkHandlerMixin {
 	@Inject(method = "handleEntityTeleport", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getEntity(I)Lnet/minecraft/entity/Entity;"), cancellable = true)
 	private void noStackTraceOnNullWorld(EntityTeleportS2CPacket entityTeleportS2CPacket, CallbackInfo ci) {
 		if (this.world == null) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(method = "handleAddPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/RemoteClientPlayerEntity;<init>(Lnet/minecraft/world/World;Lcom/mojang/authlib/GameProfile;)V"), cancellable = true)
+	private void noStackTraceonNotOnlinePlayer(AddPlayerS2CPacket addPlayerS2CPacket, CallbackInfo ci) {
+		if (getOnlinePlayer(addPlayerS2CPacket.getUuid()) == null) {
 			ci.cancel();
 		}
 	}

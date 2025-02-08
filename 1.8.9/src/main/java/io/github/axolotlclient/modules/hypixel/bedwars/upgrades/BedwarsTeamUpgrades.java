@@ -30,7 +30,6 @@ import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.ItemUtil;
 import io.github.axolotlclient.util.ClientColors;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.item.ItemStack;
@@ -52,15 +51,6 @@ public class BedwarsTeamUpgrades {
 			ItemUtil.renderGuiItemModel(new ItemStack(Items.STONE_SWORD), x, y);
 		} else {
 			ItemUtil.renderGuiItemModel(new ItemStack(Items.DIAMOND_SWORD), x, y);
-		}
-	}
-	);
-
-	public final TeamUpgrade dragonBuff = new BinaryUpgrade(
-		"dragonbuff", Pattern.compile("^\\b[A-Za-z0-9_§]{3,16}\\b purchased Dragon Buff\\s*$"),
-		5, 5, (x, y, width, height, purchased) -> {
-		if (purchased > 0) {
-			ItemUtil.renderGuiItemModel(new ItemStack(Blocks.DRAGON_EGG), x, y);
 		}
 	}
 	);
@@ -132,14 +122,11 @@ public class BedwarsTeamUpgrades {
 			GuiElement.drawTexture(x, y, 0, 0, width, height, width, height);
 		} else {
 			if (upgradeLevel == 2) {
-				Color color = Color.parse("#FFFF00");
-				GlStateManager.color4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
+				GlStateManager.color4f(1, 1, 0, 1);
 			} else if (upgradeLevel == 3) {
-				Color color = Color.parse("#00FF00");
-				GlStateManager.color4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
+				GlStateManager.color4f(0, 1, 0, 1);
 			} else if (upgradeLevel == 4) {
-				Color color = Color.parse("#FF0000");
-				GlStateManager.color4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
+				GlStateManager.color4f(1, 0, 0, 1);
 			}
 			Minecraft.getInstance().getTextureManager().bind(new Identifier("textures/blocks/furnace_front_on.png"));
 			GuiElement.drawTexture(x, y, 0, 0, width, height, width, height);
@@ -148,7 +135,16 @@ public class BedwarsTeamUpgrades {
 	}
 	);
 
-	public final TeamUpgrade[] upgrades = {trap, sharpness, dragonBuff, healPool, protection, maniacMiner, forge};
+	public final TeamUpgrade featherFalling = new TieredUpgrade("feather_falling", Pattern.compile("^\\b[A-Za-z0-9_§]{3,16}\\b purchased Cushioned Boots .{1,2}\\s*$"),
+		new int[]{2, 4}, new int[]{1, 2}, (x, y, width, height, upgradeLevel) -> {
+		if (upgradeLevel == 1) {
+			ItemUtil.renderGuiItemModel(new ItemStack(Items.IRON_BOOTS), x, y);
+		} else {
+			ItemUtil.renderGuiItemModel(new ItemStack(Items.DIAMOND_BOOTS), x, y);
+		}
+	});
+
+	public final TeamUpgrade[] upgrades = {trap, sharpness, healPool, protection, maniacMiner, forge, featherFalling};
 
 	public BedwarsTeamUpgrades() {
 

@@ -27,11 +27,13 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.ComboHud;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.ReachHud;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.modules.particles.Particles;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.entity.particle.ParticleType;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -95,6 +97,13 @@ public abstract class PlayerEntityMixin extends Entity {
 	public void axolotlclient$disableArmor(CallbackInfoReturnable<Integer> ci) {
 		if (BedwarsMod.getInstance().isEnabled() && BedwarsMod.getInstance().inGame() && !BedwarsMod.getInstance().displayArmor.get()) {
 			ci.setReturnValue(0);
+		}
+	}
+
+	@Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/state/BlockState;"), cancellable = true)
+	private void removeErrorOnAirBlock(BlockPos blockPos, CallbackInfoReturnable<PlayerEntity.SleepAllowedStatus> cir){
+		if (world.getBlockState(blockPos).getBlock().is(Blocks.AIR)) {
+			cir.setReturnValue(PlayerEntity.SleepAllowedStatus.OTHER_PROBLEM);
 		}
 	}
 }
