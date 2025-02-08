@@ -151,14 +151,15 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		graphics.drawSprite(x, y, 0, 18, 18, sprite);
 		if (!iconsOnly.get()) {
+			float tickrate = client.world != null ? client.world.getTickManager().getTickRate() : 1;
 			if (showEffectName.get()) {
 				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()));
 
 				graphics.drawText(client.textRenderer, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
-				Text duration = StatusEffectUtil.durationToString(effect, 1, tickDelta);
+				Text duration = StatusEffectUtil.durationToString(effect, 1, tickrate);
 				graphics.drawText(client.textRenderer, duration, x + 19, y + 1 + 10, 8355711, shadow.get());
 			} else {
-				graphics.drawText(client.textRenderer, StatusEffectUtil.durationToString(effect, 1, tickDelta), x + 19, y + 5,
+				graphics.drawText(client.textRenderer, StatusEffectUtil.durationToString(effect, 1, tickrate), x + 19, y + 5,
 					textColor.get().toInt(), shadow.get());
 			}
 		}

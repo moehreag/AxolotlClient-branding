@@ -25,7 +25,6 @@ package io.github.axolotlclient.modules.hud.gui.hud;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
@@ -148,18 +147,18 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		Holder<MobEffect> type = effect.getEffect();
 		TextureAtlasSprite sprite = client.getMobEffectTextures().get(type);
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
 		graphics.blitSprite(RenderType::guiTextured, sprite, x, y, 18, 18);
 		if (!iconsOnly.get()) {
+			float tickrate = client.level != null ? client.level.tickRateManager().tickrate() : 1;
 			if (showEffectName.get()) {
 				Component string = Component.translatable(effect.getDescriptionId()).append(" ")
 					.append(Util.toRoman(effect.getAmplifier()));
 
 				graphics.drawString(client.font, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
-				Component duration = MobEffectUtil.formatDuration(effect, 1, tickDelta);
+				Component duration = MobEffectUtil.formatDuration(effect, 1, tickrate);
 				graphics.drawString(client.font, duration, x + 19, y + 1 + 10, 8355711, shadow.get());
 			} else {
-				graphics.drawString(client.font, MobEffectUtil.formatDuration(effect, 1, tickDelta), x + 19, y + 5,
+				graphics.drawString(client.font, MobEffectUtil.formatDuration(effect, 1, tickrate), x + 19, y + 5,
 									textColor.get().toInt(), shadow.get()
 								   );
 			}
