@@ -22,7 +22,13 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud.simple;
 
+import java.util.List;
+
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.modules.hud.gui.entry.SimpleTextHudEntry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -35,9 +41,17 @@ import net.minecraft.resources.ResourceLocation;
 public class IPHud extends SimpleTextHudEntry {
 
 	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("kronhud", "iphud");
+	private final BooleanOption showIcon = new BooleanOption("iphud.show_icon", false);
+	private FaviconTexture icon;
 
 	public IPHud() {
 		super(115, 13);
+		ClientPlayConnectionEvents.JOIN.register((clientPacketListener, packetSender, minecraft) -> {
+			if (icon != null) {
+				icon.close();
+				icon = null;
+			}
+		});
 	}
 
 	@Override
@@ -54,6 +68,13 @@ public class IPHud extends SimpleTextHudEntry {
 			return "none";
 		}
 		return client.getCurrentServer().ip;
+	}
+
+	@Override
+	public List<Option<?>> getConfigurationOptions() {
+		var options = super.getConfigurationOptions();
+
+		return options;
 	}
 
 	@Override

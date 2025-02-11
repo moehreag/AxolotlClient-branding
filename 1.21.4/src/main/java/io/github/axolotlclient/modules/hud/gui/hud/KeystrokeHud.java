@@ -23,10 +23,7 @@
 package io.github.axolotlclient.modules.hud.gui.hud;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
@@ -35,6 +32,7 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
+import io.github.axolotlclient.modules.hud.gui.keystrokes.KeystrokeKeyScreen;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
@@ -153,6 +151,7 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 		keystrokes = new ArrayList<>();
 		setDefaultKeystrokes();
+		keystrokesOption.load();
 		KeyMapping.releaseAll();
 		KeyMapping.setAll();
 
@@ -279,6 +278,7 @@ public class KeystrokeHud extends TextHudEntry {
 		options.add(outline);
 		options.add(outlineColor);
 		options.add(pressedOutlineColor);
+		options.add(keystrokesOption);
 		return options;
 	}
 
@@ -354,8 +354,10 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		public Map<String, Object> serialize() {
-			return Map.of("key", key.saveString(),
-				"bounds", Map.of("x", bounds.x(), "y", bounds.y(), "width", bounds.width(), "height", bounds.height()));
+			Map<String, Object> map = new HashMap<>();
+			map.put("key", key.saveString());
+			map.put("bounds", Map.of("x", bounds.x(), "y", bounds.y(), "width", bounds.width(), "height", bounds.height()));
+			return map;
 		}
 	}
 
@@ -376,7 +378,7 @@ public class KeystrokeHud extends TextHudEntry {
 	}
 
 	private static Rectangle getRectangle(Map<String, ?> json) {
-		return new Rectangle((int) json.get("x"), (int) json.get("y"), (int) json.get("width"), (int) json.get("height"));
+		return new Rectangle((int)(long) json.get("x"), (int)(long) json.get("y"), (int)(long) json.get("width"), (int)(long) json.get("height"));
 	}
 
 	public class KeyOptionKeystroke extends Keystroke {
@@ -406,6 +408,10 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 	}
 
+	public CustomKeystroke newStroke() {
+		return new CustomKeystroke(new Rectangle(0, 0, 0, 0), new DrawPosition(0, 0), null);
+	}
+
 	public class CustomKeystroke extends Keystroke {
 
 		public CustomKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key) {
@@ -431,9 +437,10 @@ public class KeystrokeHud extends TextHudEntry {
 
 	public class KeystrokesGenericOption extends GenericOption {
 
+		private String serializedKeystrokes;
 		public KeystrokesGenericOption(String name, String label) {
 			super(name, label, () -> {
-
+				client.submit(() -> client.setScreen(new KeystrokeKeyScreen(KeystrokeHud.this, client.screen)));
 			});
 		}
 
@@ -443,17 +450,30 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		@SuppressWarnings("unchecked")
-		@Override
-		public void fromSerializedValue(String s) {
+		public void load() {
+			if (serializedKeystrokes == null || serializedKeystrokes.isEmpty()) {
+				return;
+			}
 			keystrokes.clear();
 			try {
-				List<?> entries = (List<?>) GsonHelper.read(s);
+				List<?> entries = (List<?>) GsonHelper.read(serializedKeystrokes);
 				entries.stream().map(e -> (Map<String, Object>) e)
 					.map(KeystrokeHud.this::deserializeKey)
 					.forEach(keystrokes::add);
 			} catch (IOException e) {
-
+				e.printStackTrace();
 			}
+		}
+
+		@Override
+		public void fromSerializedValue(String s) {
+			serializedKeystrokes = s;
+
+		}
+
+		@Override
+		public String getWidgetIdentifier() {
+			return "generic-keystrokes";
 		}
 	}
 }

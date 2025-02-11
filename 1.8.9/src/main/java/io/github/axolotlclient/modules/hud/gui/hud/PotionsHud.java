@@ -27,7 +27,9 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
+import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
@@ -56,6 +58,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 	private final EnumOption<CardinalOrder> order = DefaultOptions.getCardinalOrder(CardinalOrder.TOP_DOWN);
 	private final BooleanOption iconsOnly = new BooleanOption("iconsonly", false);
 	private final BooleanOption showEffectName = new BooleanOption("showEffectNames", true);
+	private final ColorOption timerTextColor = new ColorOption("potionshud.timer_text_color", Color.parse("#7F7F7F"));
 	private final List<StatusEffectInstance> placeholder = Util.make(() -> {
 		List<StatusEffectInstance> list = new ArrayList<>();
 		StatusEffectInstance effect = new StatusEffectInstance(StatusEffect.SPEED.id, 9999);
@@ -157,11 +160,11 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (showEffectName.get()) {
 				String string = I18n.translate(effect.getName()) + " " + Util.toRoman(effect.getAmplifier());
 
-				drawString(string, (float) (x + 19), (float) (y + 1), 16777215, shadow.get());
+				drawString(string, (float) (x + 19), (float) (y + 1), textColor.get().toInt(), shadow.get());
 				String duration = StatusEffect.getDurationString(effect);
-				drawString(duration, (float) (x + 19), (float) (y + 1 + 10), textColor.get().toInt(), shadow.get());
+				drawString(duration, (float) (x + 19), (float) (y + 1 + 10), timerTextColor.get().toInt(), shadow.get());
 			} else {
-				drawString(StatusEffect.getDurationString(effect), x + 19, y + 5, textColor.get().toInt(), shadow.get());
+				drawString(StatusEffect.getDurationString(effect), x + 19, y + 5, timerTextColor.get().toInt(), shadow.get());
 			}
 		}
 	}
@@ -177,6 +180,8 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		options.add(anchor);
 		options.add(order);
 		options.add(iconsOnly);
+		options.add(showEffectName);
+		options.add(timerTextColor);
 		return options;
 	}
 

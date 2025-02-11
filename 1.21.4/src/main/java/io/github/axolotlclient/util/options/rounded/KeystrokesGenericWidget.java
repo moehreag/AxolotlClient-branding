@@ -20,46 +20,12 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.util.options;
+package io.github.axolotlclient.util.options.rounded;
 
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionBase;
-import lombok.Getter;
+import io.github.axolotlclient.modules.hud.gui.hud.KeystrokeHud;
 
-@Getter
-public class GenericOption extends OptionBase<GenericOption.ActionListener> {
-	private final String label;
-
-	public GenericOption(String name, String label, ActionListener listener) {
-		super(name, listener);
-		this.label = label;
-	}
-
-	@Override
-	public void set(ActionListener value) {
-
-	}
-
-	@Override
-	public ActionListener get() {
-		return getDefault();
-	}
-
-	@Override
-	public String toSerializedValue() {
-		return null;
-	}
-
-	@Override
-	public void fromSerializedValue(String s) {
-
-	}
-
-	@Override
-	public String getWidgetIdentifier() {
-		return "generic";
-	}
-
-	public interface ActionListener {
-		void onClick();
+public class KeystrokesGenericWidget extends GenericWidget {
+	public KeystrokesGenericWidget(int x, int y, int width, int height, KeystrokeHud.KeystrokesGenericOption option) {
+		super(x, y, width, height, option);
 	}
 }

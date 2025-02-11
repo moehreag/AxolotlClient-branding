@@ -3,7 +3,8 @@
 		"vanilla": {
 			"widgets": {
 				"forceableboolean": "io.github.axolotlclient.util.options.vanilla.ForceableBooleanWidget",
-				"generic": "io.github.axolotlclient.util.options.vanilla.GenericWidget"
+				"generic": "io.github.axolotlclient.util.options.vanilla.GenericWidget",
+				"generic-keystrokes": "io.github.axolotlclient.util.options.vanilla.KeystrokesGenericWidget"
 			}
 		},
 		"vanilla-quicktoggles": {
@@ -15,7 +16,8 @@
 		"rounded": {
 			"widgets": {
 				"forceableboolean": "io.github.axolotlclient.util.options.rounded.ForceableBooleanWidget",
-				"generic": "io.github.axolotlclient.util.options.rounded.GenericWidget"
+				"generic": "io.github.axolotlclient.util.options.rounded.GenericWidget",
+				"generic-keystrokes": "io.github.axolotlclient.util.options.rounded.KeystrokesGenericWidget"
 			}
 		},
 		"rounded-quicktoggles": {
