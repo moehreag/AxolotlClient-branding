@@ -9,9 +9,9 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 public class KeyBindSelectionScreen extends Screen {
-	private static final Component TITLE = Component.translatable("controls.keybinds.title");
+	private static final Component TITLE = Component.translatable("keystrokes.strokes.keys.select");
 	private final Screen lastScreen;
-	private final KeystrokeHud.Keystroke stroke;
+	public final KeystrokeHud.Keystroke stroke;
 	private KeyBindSelectionList keyBindsList;
 	public HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 

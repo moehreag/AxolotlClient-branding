@@ -112,7 +112,6 @@ public class KeyBindSelectionList extends ContainerObjectSelectionList<KeyBindSe
 	public class KeyEntry extends KeyBindSelectionList.Entry {
 		private final Component name, boundKey;
 		private final Button changeButton;
-		private boolean hasCollision = false;
 
 		KeyEntry(final KeyMapping key, final Component name) {
 			this.name = name;
@@ -122,12 +121,8 @@ public class KeyBindSelectionList extends ContainerObjectSelectionList<KeyBindSe
 					keyBindsScreen.onClose();
 				})
 				.bounds(0, 0, 75, 20)
-				.createNarration(
-					supplier -> key.isUnbound()
-							? Component.translatable("narrator.controls.unbound", name)
-							: Component.translatable("narrator.controls.bound", name, supplier.get())
-				)
 				.build();
+			changeButton.active = !(keyBindsScreen.stroke.getKey() != null && key == keyBindsScreen.stroke.getKey());
 		}
 
 		@Override
@@ -137,13 +132,8 @@ public class KeyBindSelectionList extends ContainerObjectSelectionList<KeyBindSe
 			int k = i - 5 - this.changeButton.getWidth();
 			this.changeButton.setPosition(k, j);
 			this.changeButton.render(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawString(KeyBindSelectionList.this.minecraft.font, this.name, left, top + height / 2 - 9 / 2, -1);
-			if (this.hasCollision) {
-				int l = 3;
-				int m = this.changeButton.getX() - 6;
-				guiGraphics.fill(m, top - 1, m + 3, top + height, -65536);
-			}
-			guiGraphics.drawString(minecraft.font, boundKey, left+k/2, top+height/2 - 9/2, Colors.GRAY.toInt());
+			guiGraphics.drawString(minecraft.font, this.name, left, top + height / 2 - 9 / 2, -1);
+			guiGraphics.drawString(minecraft.font, boundKey, left+width/2-minecraft.font.width(boundKey)/2, top+height/2 - 9/2, Colors.GRAY.toInt());
 		}
 
 		@Override

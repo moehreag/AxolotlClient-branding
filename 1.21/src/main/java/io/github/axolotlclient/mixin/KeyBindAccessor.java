@@ -35,4 +35,9 @@ public interface KeyBindAccessor {
 	static Map<String, Integer> getOrderByCategories() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Accessor("KEY_BINDS")
+	static Map<String, KeyBind> getAllKeyBinds() {
+		throw new UnsupportedOperationException();
+	}
 }

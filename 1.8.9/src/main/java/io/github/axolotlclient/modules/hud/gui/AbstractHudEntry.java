@@ -75,6 +75,10 @@ public abstract class AbstractHudEntry extends DrawUtil implements HudEntry {
 	public AbstractHudEntry(int width, int height) {
 		this.width = width;
 		this.height = height;
+		truePosition = new DrawPosition(0, 0);
+		renderPosition = new DrawPosition(0, 0);
+		renderBounds = new Rectangle(0, 0, 1, 1);
+		trueBounds = new Rectangle(0, 0, 1, 1);
 	}
 
 	public static float intToFloat(int current, int max, int offset) {

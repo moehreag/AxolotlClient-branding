@@ -8,25 +8,30 @@ import io.github.axolotlclient.modules.hud.gui.hud.KeystrokeHud;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entry> {
-	private static final int ITEM_HEIGHT = 20;
-	final KeystrokeKeyScreen keyBindsScreen;
+	final KeystrokesScreen keyBindsScreen;
 	private int maxNameWidth;
 
-	public KeyBindsList(KeystrokeKeyScreen keyBindsScreen, List<KeystrokeHud.Keystroke> keys) {
-		super(Minecraft.getInstance(), keyBindsScreen.width, keyBindsScreen.layout.getContentHeight(), keyBindsScreen.layout.getHeaderHeight(), 20);
+	public KeyBindsList(KeystrokesScreen keyBindsScreen, List<KeystrokeHud.Keystroke> keys) {
+		super(Minecraft.getInstance(), keyBindsScreen.width, keyBindsScreen.layout.getContentHeight(), keyBindsScreen.layout.getHeaderHeight(), 24);
 		this.keyBindsScreen = keyBindsScreen;
 
+		reload(keys);
+	}
+
+	public void reload(List<KeystrokeHud.Keystroke> keys) {
+		clearEntries();
 		for (KeystrokeHud.Keystroke keyMapping : keys) {
 
 			Component component = Component.translatable(keyMapping.getKey().getName());
@@ -38,11 +43,8 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 			this.addEntry(new KeyEntry(keyMapping, component));
 		}
 
+		addEntry(new SpacerEntry());
 		addEntry(new NewEntry());
-	}
-
-	public void refreshEntries() {
-		this.children().forEach(Entry::refreshEntry);
 	}
 
 	@Override
@@ -52,9 +54,33 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 
 	@Environment(EnvType.CLIENT)
 	public abstract static class Entry extends ContainerObjectSelectionList.Entry<Entry> {
-		abstract void refreshEntry();
 
 	}
+
+	public static class SpacerEntry extends Entry {
+
+		@Override
+		public List<? extends NarratableEntry> narratables() {
+			return List.of();
+		}
+
+		@Override
+		public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
+
+		}
+
+		@Override
+		public List<? extends GuiEventListener> children() {
+			return List.of();
+		}
+
+		@Nullable
+		@Override
+		public ComponentPath nextFocusPath(FocusNavigationEvent event) {
+			return null;
+		}
+	}
+
 	private static final Component CONFIGURE_BUTTON_TITLE = Component.translatable("keystrokes.stroke.configure");
 	@Environment(EnvType.CLIENT)
 	public class KeyEntry extends Entry {
@@ -65,8 +91,8 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 
 		KeyEntry(final KeystrokeHud.Keystroke key, final Component name) {
 			this.key = key;
-			this.name = name;
-			this.configureButton = Button.builder(CONFIGURE_BUTTON_TITLE, button -> minecraft.setScreen(new KeyBindSelectionScreen(keyBindsScreen, key)))
+			this.name = key.getKey().getTranslatedKeyMessage();
+			this.configureButton = Button.builder(CONFIGURE_BUTTON_TITLE, button -> minecraft.setScreen(new ConfigureKeyBindScreen(keyBindsScreen, keyBindsScreen.hud, key, false)))
 				.bounds(0, 0, 75, 20)
 				.build();
 			this.removeButton = Button.builder(REMOVE_BUTTON_TITLE, b -> {
@@ -74,7 +100,6 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 				keyBindsScreen.removeKey(key);
 			}).bounds(0, 0, 50, 20)
 					.build();
-			this.refreshEntry();
 		}
 
 		@Override
@@ -86,8 +111,15 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 			int k = i - this.configureButton.getWidth();
 			this.configureButton.setPosition(k, j);
 			this.configureButton.render(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawString(KeyBindsList.this.minecraft.font, this.name, left, top + height / 2 - 9 / 2, -1);
-			guiGraphics.drawString(minecraft.font, key.getKey().getTranslatedKeyMessage(), left+k/2, top+height/2 - 9/2, Colors.GRAY.toInt());
+			guiGraphics.pose().pushPose();
+			var rect = key.getRenderPosition();
+			float scale = Math.min( (float) height / rect.height(), (float) 100 / rect.width());
+			guiGraphics.pose().translate(left, top, 0);
+			guiGraphics.pose().scale(scale, scale, 1);
+			guiGraphics.pose().translate(-rect.x(), -rect.y(), 0);
+			key.render(guiGraphics);
+			guiGraphics.pose().popPose();
+			guiGraphics.drawString(minecraft.font, name, left+width/2-minecraft.font.width(name)/2, top+height/2 - 9/2, Colors.GRAY.toInt());
 		}
 
 		@Override
@@ -98,72 +130,42 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 		@Override
 		public List<? extends NarratableEntry> narratables() {
 			return ImmutableList.of(this.configureButton, removeButton);
-		}
-
-		@Override
-		protected void refreshEntry() {
-			this.name = Component.translatable(key.getKey().getName());
 		}
 	}
 
 	public class NewEntry extends Entry {
 
-		private static final Component NOT_BOUND = Component.translatable("keystrokes.stroke.not_bound").withStyle(Style.EMPTY.withItalic(true));
-		private final Button addButton;
-		private final Button configureButton;
-		private final EditBox nameInput;
-		private KeystrokeHud.Keystroke key = keyBindsScreen.hud.newStroke();
+		private final Button addButton, addSpecialButton;
+		private final KeystrokeHud.Keystroke key = keyBindsScreen.hud.newStroke();
 
 		public NewEntry() {
-			this.nameInput = new EditBox(minecraft.font, 120, 20, Component.empty());
-			this.addButton = Button.builder(Component.translatable("keystrokes.stroke.add"), b -> {
-				removeEntry(this);
-				addEntry(new KeyEntry(key, nameInput.getValue().isBlank() ? Component.translatable("Empty name") : Component.literal(nameInput.getValue())));
-				keyBindsScreen.hud.keystrokes.add(key);
-				addEntry(this);
-				key = keyBindsScreen.hud.newStroke();
-				refreshEntry();
-			}).bounds(0, 0, 50, 20).build();
-			addButton.active = false;
-			this.configureButton = Button.builder(CONFIGURE_BUTTON_TITLE, button -> minecraft.setScreen(new KeyBindSelectionScreen(keyBindsScreen, key)))
-				.bounds(0, 0, 75, 20)
+			this.addButton = Button.builder(Component.translatable("keystrokes.stroke.add"), button -> minecraft.setScreen(new ConfigureKeyBindScreen(keyBindsScreen, keyBindsScreen.hud, key, true)))
+				.bounds(0, 0, 150, 20)
 				.build();
-		}
-
-		@Override
-		void refreshEntry() {
-			if (key.getKey() != null) {
-				addButton.active = true;
-			}
+			this.addSpecialButton = Button.builder(Component.translatable("keystrokes.stroke.add.special"),
+					button -> minecraft.setScreen(new AddSpecialKeystrokeScreen(keyBindsScreen, keyBindsScreen.hud)))
+					.width(150).build();
 		}
 
 		@Override
 		public List<? extends NarratableEntry> narratables() {
-			return List.of(nameInput, configureButton, addButton);
+			return List.of(addSpecialButton, addButton);
 		}
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-			int i = KeyBindsList.this.scrollBarX() - addButton.getWidth() - 10;
+			int i = KeyBindsList.this.scrollBarX() - width/2 - 10 + 4;
 			int j = top - 2;
 			this.addButton.setPosition(i, j);
 			this.addButton.render(guiGraphics, mouseX, mouseY, partialTick);
-			int k = i - this.configureButton.getWidth();
-			this.configureButton.setPosition(k, j);
-			this.configureButton.render(guiGraphics, mouseX, mouseY, partialTick);
-			this.nameInput.setPosition(left, top);
-			this.nameInput.setSize(Math.min(200, k/2 - 4), height);
-			this.nameInput.render(guiGraphics, mouseX, mouseY, partialTick);
-			if (key.getKey() != null) {
-				guiGraphics.drawString(minecraft.font, key.getKey().getTranslatedKeyMessage(), left + k / 2, top + height / 2 - 9 / 2, Colors.GRAY.toInt());
-			} else {
-				guiGraphics.drawString(minecraft.font, NOT_BOUND, left + k / 2, top + height / 2 - 9 / 2, Colors.GRAY.toInt());
-			}
+			int k = i - addButton.getWidth() - 8;
+			this.addSpecialButton.setPosition(k, j);
+			this.addSpecialButton.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 
 		@Override
 		public List<? extends GuiEventListener> children() {
-			return List.of(nameInput, configureButton, addButton);
+			return List.of(addSpecialButton, addButton);
 		}
 	}
 }

@@ -47,10 +47,10 @@ import io.github.axolotlclient.modules.hud.gui.hud.vanilla.ScoreboardHud;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.util.GsonHelper;
+import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.keybinds.KeyBinds;
 import io.github.axolotlclient.util.options.GenericOption;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -67,7 +67,7 @@ import net.minecraft.util.profiling.Profiler;
 
 public class HudManager extends AbstractModule {
 
-	private final static Path CUSTOM_MODULE_SAVE_PATH = FabricLoader.getInstance().getConfigDir().resolve("axolotlclient").resolve("custom_hud.json");
+	private final static Path CUSTOM_MODULE_SAVE_PATH = AxolotlClient.resolveConfigFile("custom_hud.json");
 	private final static HudManager INSTANCE = new HudManager();
 	private final OptionCategory hudCategory = OptionCategory.create("hud");
 	private final Map<ResourceLocation, HudEntry> entries;
@@ -114,9 +114,8 @@ public class HudManager extends AbstractModule {
 		add(new TPSHud());
 		add(new ComboHud()); // TODO
 		add(new PlayerHud());
+		add(new MouseMovementHud());
 		entries.put(BedwarsMod.getInstance().getUpgradesOverlay().getId(), BedwarsMod.getInstance().getUpgradesOverlay());
-
-		loadCustomEntries();
 
 		entries.values().forEach(HudEntry::init);
 
@@ -124,6 +123,7 @@ public class HudManager extends AbstractModule {
 		((ComboHud) get(ComboHud.ID)).getEnabled().setForceOff(true, "feature.broken");
 
 		refreshAllBounds();
+		Events.GAME_LOAD_EVENT.register(mc -> loadCustomEntries());
 
 		hudCategory.add(new GenericOption("hud.custom_entry", "hud.custom_entry.add", () -> {
 			CustomHudEntry entry = new CustomHudEntry();
@@ -142,8 +142,8 @@ public class HudManager extends AbstractModule {
 	private void loadCustomEntries() {
 		try {
 			if (Files.exists(CUSTOM_MODULE_SAVE_PATH)) {
-				var obj = (Map<String, Object>) GsonHelper.read(Files.readString(CUSTOM_MODULE_SAVE_PATH));
-				obj.forEach((s, o) -> {
+				var obj = (List<Object>) GsonHelper.read(Files.readString(CUSTOM_MODULE_SAVE_PATH));
+				obj.forEach(o -> {
 					CustomHudEntry entry = new CustomHudEntry();
 					var values = (Map<String, Object>)o;
 					entry.getAllOptions().getOptions().forEach(opt -> {
@@ -153,10 +153,12 @@ public class HudManager extends AbstractModule {
 					});
 					entry.getCategory().includeInParentTree(false);
 					add(entry);
+					entry.init();
+					entry.onBoundsUpdate();
 				});
 			}
 		} catch (IOException e) {
-
+//TODO notify
 		}
 	}
 
@@ -165,12 +167,10 @@ public class HudManager extends AbstractModule {
 			Files.createDirectories(CUSTOM_MODULE_SAVE_PATH.getParent());
 			var writer = Files.newBufferedWriter(CUSTOM_MODULE_SAVE_PATH);
 			var json = GsonHelper.GSON.newJsonWriter(writer);
-			json.beginObject();
+			json.beginArray();
 			for (Map.Entry<ResourceLocation, HudEntry> entry : entries.entrySet()) {
-				ResourceLocation resourceLocation = entry.getKey();
 				HudEntry hudEntry = entry.getValue();
 				if (hudEntry instanceof CustomHudEntry hud) {
-					json.name(resourceLocation.toString());
 					json.beginObject();
 					for (Option<?> opt : hud.getCategory().getOptions()) {
 						json.name(opt.getName());
@@ -179,10 +179,10 @@ public class HudManager extends AbstractModule {
 					json.endObject();
 				}
 			}
-			json.endObject();
+			json.endArray();
 			json.close();
 		} catch (IOException e) {
-
+//TODO notify
 		}
 	}
 

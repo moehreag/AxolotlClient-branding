@@ -70,4 +70,8 @@ public class Rectangle {
 		this.width = width;
 		this.height = height;
 	}
+
+	public Rectangle copy() {
+		return new Rectangle(x, y, width, height);
+	}
 }

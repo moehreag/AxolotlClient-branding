@@ -52,6 +52,14 @@ public class HudEditScreen extends Screen {
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
 	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
+	public static boolean isSnappingEnabled() {
+		return snapping.get();
+	}
+
+	public static void toggleSnapping() {
+		snapping.toggle();
+	}
+
 	static {
 		hudEditScreenCategory.add(snapping);
 		AxolotlClient.config.add(hudEditScreenCategory);

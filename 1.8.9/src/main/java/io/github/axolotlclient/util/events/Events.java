@@ -23,6 +23,7 @@
 package io.github.axolotlclient.util.events;
 
 import io.github.axolotlclient.util.events.impl.*;
+import net.minecraft.client.Minecraft;
 import net.ornithemc.osl.core.api.events.Event;
 
 public class Events {
@@ -34,6 +35,7 @@ public class Events {
 	public static final Event<EventCallback<ScoreboardRenderEvent>> SCOREBOARD_RENDER_EVENT = createEvent();
 	public static final Event<EventCallback<ReceiveChatMessageEvent>> RECEIVE_CHAT_MESSAGE_EVENT = createEvent();
 	public static final Event<EventCallback<WorldLoadEvent>> WORLD_LOAD_EVENT = createEvent();
+	public static final Event<EventCallback<Minecraft>> GAME_LOAD_EVENT = createEvent();
 
 	private static <T> Event<EventCallback<T>> createEvent() {
 		return Event.of(eventCallbacks -> event -> eventCallbacks.forEach(l -> l.invoke(event)));

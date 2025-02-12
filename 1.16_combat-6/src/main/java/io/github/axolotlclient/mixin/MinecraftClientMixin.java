@@ -87,4 +87,9 @@ public abstract class MinecraftClientMixin {
 	private void axolotlclient$onWorldLoad(ClientWorld world, CallbackInfo ci) {
 		Events.WORLD_LOAD_EVENT.invoker().invoke(new WorldLoadEvent(world));
 	}
+
+	@Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;<init>()V"))
+	private void onGameLoad(CallbackInfo ci) {
+		Events.GAME_LOAD_EVENT.invoker().invoke((MinecraftClient) (Object)this);
+	}
 }

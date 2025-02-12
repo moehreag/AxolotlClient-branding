@@ -69,4 +69,9 @@ public abstract class MinecraftClientMixin {
 	private void axolotlclient$onWorldLoad(ClientLevel world, ReceivingLevelScreen.Reason type, CallbackInfo ci) {
 		Events.WORLD_LOAD_EVENT.invoker().invoke(new WorldLoadEvent(world));
 	}
+
+	@Inject(method = "onGameLoadFinished", at = @At(value = "INVOKE", target = "Ljava/lang/Runnable;run()V", remap = false))
+	private void onGameLoad(Minecraft.GameLoadCookie gameLoadCookie, CallbackInfo ci) {
+		Events.GAME_LOAD_EVENT.invoker().invoke((Minecraft)(Object)this);
+	}
 }

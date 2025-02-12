@@ -22,10 +22,12 @@
 
 package io.github.axolotlclient;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.managers.VersionedJsonConfigManager;
@@ -130,7 +132,16 @@ public class AxolotlClient implements ClientModInitializer {
 
 		io.github.axolotlclient.AxolotlClientConfig.api.AxolotlClientConfig.getInstance()
 			.register(configManager = new VersionedJsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve("AxolotlClient.json"),
-				CONFIG.getConfig(), 1, (oldVersion, newVersion, config, json) -> {
+				CONFIG.getConfig(), 2, (oldVersion, newVersion, config, json) -> {if (oldVersion.getMajor() == 1) {
+				var keystrokes = json.get("hud").getAsJsonObject().get("keystrokehud")
+					.getAsJsonObject();
+				var mousemovement = new JsonObject();
+				mousemovement.addProperty("enabled", keystrokes.get("mousemovement").getAsBoolean());
+				mousemovement.addProperty("mouseMovementIndicator", keystrokes.get("mouseMovementIndicator").getAsString());
+				mousemovement.addProperty("mouseMovementIndicatorOuter", keystrokes.get("mouseMovementIndicatorOuter").getAsString());
+				json.get("hud").getAsJsonObject().add("mousemovementhud", mousemovement);
+			}
+
 				// convert changed Options between versions here
 				return json;
 			}));
@@ -149,5 +160,9 @@ public class AxolotlClient implements ClientModInitializer {
 		LOGGER.debug("Debug Output activated, Logs will be more verbose!");
 
 		LOGGER.info("AxolotlClient Initialized");
+	}
+
+	public static Path resolveConfigFile(String file) {
+		return FabricLoader.getInstance().getConfigDir().resolve("axolotlclient").resolve(file);
 	}
 }

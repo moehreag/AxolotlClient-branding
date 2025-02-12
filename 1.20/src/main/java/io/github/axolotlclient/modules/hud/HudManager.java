@@ -22,11 +22,15 @@
 
 package io.github.axolotlclient.modules.hud;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.InputUtil;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.modules.hud.gui.AbstractHudEntry;
@@ -39,7 +43,11 @@ import io.github.axolotlclient.modules.hud.gui.hud.simple.*;
 import io.github.axolotlclient.modules.hud.gui.hud.vanilla.*;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
+import io.github.axolotlclient.util.GsonHelper;
+import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.keybinds.KeyBinds;
+import io.github.axolotlclient.util.options.GenericOption;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.option.KeyBind;
@@ -54,6 +62,7 @@ import net.minecraft.util.Identifier;
 
 public class HudManager extends AbstractModule {
 
+	private final static Path CUSTOM_MODULE_SAVE_PATH = AxolotlClient.resolveConfigFile("custom_hud.json");
 	private final static HudManager INSTANCE = new HudManager();
 	private final OptionCategory hudCategory = OptionCategory.create("hud");
 	private final Map<Identifier, HudEntry> entries;
@@ -102,11 +111,74 @@ public class HudManager extends AbstractModule {
 		add(new TPSHud());
 		add(new ComboHud());
 		add(new PlayerHud());
+		add(new MouseMovementHud());
 		entries.put(BedwarsMod.getInstance().getUpgradesOverlay().getId(), BedwarsMod.getInstance().getUpgradesOverlay());
 
 		entries.values().forEach(HudEntry::init);
 
 		refreshAllBounds();
+
+		Events.GAME_LOAD_EVENT.register(mc -> loadCustomEntries());
+
+		hudCategory.add(new GenericOption("hud.custom_entry", "hud.custom_entry.add", () -> {
+			CustomHudEntry entry = new CustomHudEntry();
+			entry.setEnabled(true);
+			entry.init();
+			entry.onBoundsUpdate();
+			entry.getAllOptions().includeInParentTree(false);
+			add(entry);
+			client.currentScreen.resize(client, client.currentScreen.width, client.currentScreen.height);
+			saveCustomEntries();
+		}));
+		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> saveCustomEntries());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadCustomEntries() {
+		try {
+			if (Files.exists(CUSTOM_MODULE_SAVE_PATH)) {
+				var obj = (List<Object>) GsonHelper.read(Files.readString(CUSTOM_MODULE_SAVE_PATH));
+				obj.forEach(o -> {
+					CustomHudEntry entry = new CustomHudEntry();
+					var values = (Map<String, Object>)o;
+					entry.getAllOptions().getOptions().forEach(opt -> {
+						if (values.containsKey(opt.getName())) {
+							opt.fromSerializedValue((String) values.get(opt.getName()));
+						}
+					});
+					entry.getCategory().includeInParentTree(false);
+					add(entry);
+					entry.init();
+					entry.onBoundsUpdate();
+				});
+			}
+		} catch (IOException e) {
+//TODO notify
+		}
+	}
+
+	public void saveCustomEntries() {
+		try {
+			Files.createDirectories(CUSTOM_MODULE_SAVE_PATH.getParent());
+			var writer = Files.newBufferedWriter(CUSTOM_MODULE_SAVE_PATH);
+			var json = GsonHelper.GSON.newJsonWriter(writer);
+			json.beginArray();
+			for (Map.Entry<Identifier, HudEntry> entry : entries.entrySet()) {
+				HudEntry hudEntry = entry.getValue();
+				if (hudEntry instanceof CustomHudEntry hud) {
+					json.beginObject();
+					for (Option<?> opt : hud.getCategory().getOptions()) {
+						json.name(opt.getName());
+						json.value(opt.toSerializedValue());
+					}
+					json.endObject();
+				}
+			}
+			json.endArray();
+			json.close();
+		} catch (IOException e) {
+//TODO notify
+		}
 	}
 
 	public void tick() {
@@ -135,6 +207,10 @@ public class HudManager extends AbstractModule {
 
 	public HudEntry get(Identifier identifier) {
 		return entries.get(identifier);
+	}
+
+	public void removeEntry(Identifier identifier) {
+		hudCategory.getSubCategories().remove(entries.remove(identifier).getCategory());
 	}
 
 	public void render(GuiGraphics graphics, float delta) {

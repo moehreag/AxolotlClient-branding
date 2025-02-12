@@ -71,4 +71,8 @@ public class Rectangle {
 		this.height = height;
 		return this;
 	}
+
+	public Rectangle copy() {
+		return new Rectangle(x, y, width, height);
+	}
 }

@@ -75,4 +75,9 @@ public abstract class MinecraftClientMixin {
 	private void axolotlclient$onWorldLoad(ClientWorld world, CallbackInfo ci) {
 		Events.WORLD_LOAD_EVENT.invoker().invoke(new WorldLoadEvent(world));
 	}
+
+	@Inject(method = "onGameLoaded", at = @At(value = "TAIL"))
+	private void onGameLoad(CallbackInfo ci) {
+		Events.GAME_LOAD_EVENT.invoker().invoke((MinecraftClient) (Object)this);
+	}
 }

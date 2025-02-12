@@ -22,31 +22,34 @@
 
 package io.github.axolotlclient.modules.hud.gui.hud;
 
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Supplier;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
-import io.github.axolotlclient.AxolotlClientConfig.impl.options.GraphicsOption;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
-import io.github.axolotlclient.modules.hud.gui.keystrokes.KeystrokeKeyScreen;
+import io.github.axolotlclient.modules.hud.gui.keystrokes.KeystrokePositioningScreen;
+import io.github.axolotlclient.modules.hud.gui.keystrokes.KeystrokesScreen;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
-import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.ClientColors;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.events.Events;
-import io.github.axolotlclient.util.events.impl.PlayerDirectionChangeEvent;
 import io.github.axolotlclient.util.options.GenericOption;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
@@ -60,45 +63,27 @@ import org.lwjgl.glfw.GLFW;
 
 public class KeystrokeHud extends TextHudEntry {
 
+	private static final Path KEYSTROKE_SAVE_FILE = AxolotlClient.resolveConfigFile("keystrokes.json");
 	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("kronhud", "keystrokehud");
 
 	private final ColorOption pressedTextColor = new ColorOption("heldtextcolor", new Color(0xFF000000));
 	private final ColorOption pressedBackgroundColor = new ColorOption("heldbackgroundcolor", new Color(0x64FFFFFF));
 	private final ColorOption pressedOutlineColor = new ColorOption("heldoutlinecolor", ClientColors.BLACK);
-	private final BooleanOption mouseMovement = new BooleanOption("mousemovement", false, this::onMouseMovementOption);
-	private final GraphicsOption mouseMovementIndicatorInner = new GraphicsOption("mouseMovementIndicator", new int[][]{
-		new int[]{0, 0, 0, 0, 0, 0, 0},
-		new int[]{0, 0, 0, 0, 0, 0, 0},
-		new int[]{0, 0, 0, 0, 0, 0, 0},
-		new int[]{0, 0, 0, -1, 0, 0, 0},
-		new int[]{0, 0, 0, 0, 0, 0, 0},
-		new int[]{0, 0, 0, 0, 0, 0, 0},
-		new int[]{0, 0, 0, 0, 0, 0, 0}
-	});
-	private final GraphicsOption mouseMovementIndicatorOuter = new GraphicsOption("mouseMovementIndicatorOuter", new int[][]{
-		new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1},
-		new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-	});
+
 	private final KeystrokesGenericOption keystrokesOption = new KeystrokesGenericOption("keystrokes", "keystrokes.configure");
+	private final GenericOption configurePositions = new GenericOption("keystrokes.positions", "keystrokes.positions.configure",
+		() -> client.setScreen(new KeystrokePositioningScreen(client.screen, this)));
 	public ArrayList<Keystroke> keystrokes;
-	private float mouseX = 0;
-	private float mouseY = 0;
-	private float lastMouseX = 0;
-	private float lastMouseY = 0;
+
 
 	public KeystrokeHud() {
 		super(53, 61, true);
-		Events.KEYBIND_CHANGE.register(key -> setKeystrokes());
-		Events.PLAYER_DIRECTION_CHANGE.register(this::onPlayerDirectionChange);
+		Events.KEYBIND_CHANGE.register(key -> {
+			if (Minecraft.getInstance().getWindow() != null) {
+				KeyMapping.releaseAll();
+				KeyMapping.setAll();
+			}
+		});
 	}
 
 	public static Optional<String> getMouseKeyBindName(KeyMapping keyBinding) {
@@ -131,16 +116,7 @@ public class KeystrokeHud extends TextHudEntry {
 		keystrokes.add(createFromKey(new Rectangle(36, 18, 17, 17), pos, client.options.keyRight));
 
 		// Space
-		keystrokes.add(new KeyOptionKeystroke(new Rectangle(0, 54, 53, 7), pos, client.options.keyJump, (stroke, matrices) -> {
-			Rectangle bounds = stroke.bounds;
-			Rectangle spaceBounds = new Rectangle(bounds.x() + stroke.offset.x() + 4,
-				bounds.y() + stroke.offset.y() + 2, bounds.width() - 8, 1);
-			fillRect(matrices, spaceBounds, stroke.getFGColor());
-			if (shadow.get()) {
-				fillRect(matrices, spaceBounds.offset(1, 1), new Color(
-					(stroke.getFGColor().toInt() & 16579836) >> 2 | stroke.getFGColor().toInt() & -16777216));
-			}
-		}));
+		keystrokes.add(new CustomRenderKeystroke(SpecialKeystroke.SPACE));
 	}
 
 	public void setKeystrokes() {
@@ -154,20 +130,6 @@ public class KeystrokeHud extends TextHudEntry {
 		keystrokesOption.load();
 		KeyMapping.releaseAll();
 		KeyMapping.setAll();
-
-		onMouseMovementOption(mouseMovement.get());
-	}
-
-	public void onPlayerDirectionChange(PlayerDirectionChangeEvent event) {
-		// Implementation credit goes to TheKodeToad
-		// This project has the author's approval to use this
-		// https://github.com/Sol-Client/Client/blob/main/game/src/main/java/io/github/solclient/client/mod/impl/hud/keystrokes/KeystrokesMod.java
-		mouseX += (event.getYaw() - event.getPrevYaw()) / 7F;
-		mouseY += (event.getPitch() - event.getPrevPitch()) / 7F;
-		// 0, 0 will be the center of the HUD element
-		float halfWidth = getWidth() / 2f;
-		mouseX = Mth.clamp(mouseX, -halfWidth + 4, halfWidth - 4);
-		mouseY = Mth.clamp(mouseY, -13, 13);
 	}
 
 	public Keystroke createFromKey(Rectangle bounds, DrawPosition offset, KeyMapping key) {
@@ -178,17 +140,8 @@ public class KeystrokeHud extends TextHudEntry {
 		return createFromString(bounds, offset, key, name);
 	}
 
-	public void onMouseMovementOption(boolean value) {
-		int baseHeight = 61;
-		if (value) {
-			baseHeight += 36;
-		}
-		height = baseHeight;
-		onBoundsUpdate();
-	}
-
 	public Keystroke createFromString(Rectangle bounds, DrawPosition offset, KeyMapping key, String word) {
-		return new KeyOptionKeystroke(bounds, offset, key, word);
+		return new LabelKeystroke(bounds, offset, key, word);
 	}
 
 	@Override
@@ -206,27 +159,6 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 		for (Keystroke stroke : keystrokes) {
 			stroke.render(graphics);
-		}
-		if (mouseMovement.get()) {
-			int spaceY = 62 + getRawY();
-			int spaceX = getRawX();
-			if (background.get()) {
-				DrawUtil.fillRect(graphics, spaceX, spaceY, width, 35, backgroundColor.get().toInt());
-			}
-			if (outline.get()) {
-				DrawUtil.outlineRect(graphics, spaceX, spaceY, width, 35, outlineColor.get().toInt());
-			}
-
-			float calculatedMouseX = (lastMouseX + ((mouseX - lastMouseX) * delta)) - 5;
-			float calculatedMouseY = (lastMouseY + ((mouseY - lastMouseY) * delta)) - 5;
-
-			graphics.blit(RenderType::guiTextured, io.github.axolotlclient.util.Util.getTexture(mouseMovementIndicatorInner),
-				spaceX + (width / 2) - 7 / 2 - 1, spaceY + 17 - (7 / 2), 0, 0, 7, 7, 7, 7);
-
-			graphics.pose().translate(calculatedMouseX, calculatedMouseY, 0); // Woah KodeToad, good use of translate
-
-			graphics.blit(RenderType::guiTextured, io.github.axolotlclient.util.Util.getTexture(mouseMovementIndicatorOuter),
-				spaceX + (width / 2) - 1, spaceY + 17, 0, 0, 11, 11, 11, 11);
 		}
 	}
 
@@ -249,10 +181,6 @@ public class KeystrokeHud extends TextHudEntry {
 		for (Keystroke stroke : keystrokes) {
 			stroke.offset = pos;
 		}
-		lastMouseX = mouseX;
-		lastMouseY = mouseY;
-		mouseX *= .75f;
-		mouseY *= .75f;
 	}
 
 	@Override
@@ -266,9 +194,6 @@ public class KeystrokeHud extends TextHudEntry {
 		List<Option<?>> options = new ArrayList<>();
 		options.add(enabled);
 		options.add(scale);
-		options.add(mouseMovement);
-		options.add(mouseMovementIndicatorInner);
-		options.add(mouseMovementIndicatorOuter);
 		options.add(textColor);
 		options.add(pressedTextColor);
 		options.add(shadow);
@@ -279,6 +204,7 @@ public class KeystrokeHud extends TextHudEntry {
 		options.add(outlineColor);
 		options.add(pressedOutlineColor);
 		options.add(keystrokesOption);
+		options.add(configurePositions);
 		return options;
 	}
 
@@ -297,7 +223,8 @@ public class KeystrokeHud extends TextHudEntry {
 		@Getter
 		@Setter
 		protected KeyMapping key;
-		protected final KeystrokeRenderer render;
+		protected KeystrokeRenderer render;
+		@Getter
 		protected final Rectangle bounds;
 		private final int animTime = 100;
 		protected DrawPosition offset;
@@ -311,13 +238,25 @@ public class KeystrokeHud extends TextHudEntry {
 			this.render = render;
 		}
 
+		public void setX(int x) {
+			bounds.x(x - offset.x());
+		}
+
+		public void setY(int y) {
+			bounds.y(y - offset.y());
+		}
+
+		public Rectangle getRenderPosition() {
+			return bounds.offset(offset);
+		}
+
 		public Color getFGColor() {
-			return key.isDown() ? ClientColors.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
+			return isKeyDown() ? ClientColors.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedTextColor.get(), textColor.get(), getPercentPressed());
 		}
 
 		private float getPercentPressed() {
-			return start == -1 ? 1 : Mth.clamp((float)(Util.getMillis() - start) / animTime, 0, 1);
+			return start == -1 ? 1 : Mth.clamp((float) (Util.getMillis() - start) / animTime, 0, 1);
 		}
 
 		public void render(GuiGraphics matrices) {
@@ -326,30 +265,34 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		public void renderStroke(GuiGraphics matrices) {
-			if (key.isDown() != wasPressed) {
+			if (isKeyDown() != wasPressed) {
 				start = Util.getMillis();
 			}
-			Rectangle rect = bounds.offset(offset);
+			Rectangle rect = getRenderPosition();
 			if (background.get()) {
 				fillRect(matrices, rect, getColor());
 			}
 			if (outline.get()) {
 				outlineRect(matrices, rect, getOutlineColor());
 			}
-			if ((float)(Util.getMillis() - start) / animTime >= 1) {
+			if ((float) (Util.getMillis() - start) / animTime >= 1) {
 				start = -1;
 			}
-			wasPressed = key.isDown();
+			wasPressed = isKeyDown();
+		}
+
+		private boolean isKeyDown() {
+			return key != null && key.isDown();
 		}
 
 		public Color getColor() {
-			return key.isDown()
+			return isKeyDown()
 				? ClientColors.blend(backgroundColor.get(), pressedBackgroundColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedBackgroundColor.get(), backgroundColor.get(), getPercentPressed());
 		}
 
 		public Color getOutlineColor() {
-			return key.isDown() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
+			return isKeyDown() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
 				: ClientColors.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
 		}
 
@@ -359,121 +302,204 @@ public class KeystrokeHud extends TextHudEntry {
 			map.put("bounds", Map.of("x", bounds.x(), "y", bounds.y(), "width", bounds.width(), "height", bounds.height()));
 			return map;
 		}
+
+		public abstract String getLabel();
+
+		public abstract void setLabel(String label);
+
+		public abstract boolean isLabelEditable();
 	}
 
 	@SuppressWarnings("unchecked")
 	private Keystroke deserializeKey(Map<String, ?> json) {
 		if ("option".equals(json.get("type"))) {
 			KeyMapping key = KeyMapping.get((String) json.get("option"));
-			String name = getMouseKeyBindName(key).orElse(key.getTranslatedKeyMessage().getString().toUpperCase());
-			if (name.length() > 4) {
-				name = name.substring(0, 2);
-			}
-			return new KeyOptionKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key, name);
+			return new CustomRenderKeystroke(SpecialKeystroke.valueOf((String) json.get("special_name")), getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key);
 		} else {
-			KeyMapping key = new KeyMapping("", 0, "keystrokehud.keys_category");
-			key.setKey(InputConstants.getKey((String) json.get("key")));
-			return new CustomKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key);
+			var key = KeyMapping.get((String) json.get("key_name"));
+			return new LabelKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key, (String) json.get("label"), (boolean) json.get("synchronize_label"));
 		}
 	}
 
 	private static Rectangle getRectangle(Map<String, ?> json) {
-		return new Rectangle((int)(long) json.get("x"), (int)(long) json.get("y"), (int)(long) json.get("width"), (int)(long) json.get("height"));
+		return new Rectangle((int) (long) json.get("x"), (int) (long) json.get("y"), (int) (long) json.get("width"), (int) (long) json.get("height"));
 	}
 
-	public class KeyOptionKeystroke extends Keystroke {
+	public class CustomRenderKeystroke extends Keystroke {
 
-		public KeyOptionKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, KeystrokeRenderer render) {
-			super(bounds, offset, key, render);
+		private static final Supplier<String> label = () -> ChatFormatting.ITALIC + I18n.get("keystrokes.stroke.custom_renderer");
+
+		private final SpecialKeystroke parent;
+
+		public CustomRenderKeystroke(SpecialKeystroke stroke, Rectangle bounds, DrawPosition offset, KeyMapping key) {
+			super(bounds, offset, key, (s, g) -> stroke.getRenderer().render(KeystrokeHud.this, s, g));
+			this.parent = stroke;
 		}
 
-		public KeyOptionKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, String word) {
-			this(bounds, offset, key,  (stroke, matrices) -> {
-				Rectangle strokeBounds = stroke.bounds;
-				float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
-					- ((float) client.font.width(word) / 2);
-				float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
-
-				drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
-			});
+		public CustomRenderKeystroke(SpecialKeystroke stroke) {
+			this(stroke, stroke.getRect().copy(), KeystrokeHud.this.getPos(), stroke.getKey());
 		}
-
 
 		@Override
 		public Map<String, Object> serialize() {
 			Map<String, Object> json = super.serialize();
 			json.put("type", "option");
 			json.put("option", key.getName());
+			json.put("special_name", parent.name());
 			return json;
+		}
+
+		@Override
+		public String getLabel() {
+			return label.get();
+		}
+
+		@Override
+		public void setLabel(String label) {
+
+		}
+
+		@Override
+		public boolean isLabelEditable() {
+			return false;
 		}
 	}
 
-	public CustomKeystroke newStroke() {
-		return new CustomKeystroke(new Rectangle(0, 0, 0, 0), new DrawPosition(0, 0), null);
+	public Keystroke newSpecialStroke(SpecialKeystroke stroke) {
+		return new CustomRenderKeystroke(stroke);
 	}
 
-	public class CustomKeystroke extends Keystroke {
+	public LabelKeystroke newStroke() {
+		return new LabelKeystroke(new Rectangle(0, 0, 17, 17), getPos(), null, "", false);
+	}
 
-		public CustomKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key) {
+	@Setter
+	public class LabelKeystroke extends Keystroke {
+
+		private String label;
+		@Getter
+		private boolean synchronizeLabel;
+
+		public LabelKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, String label) {
+			this(bounds, offset, key, label, true);
+		}
+
+		public LabelKeystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, String label, boolean synchronizeLabel) {
 			super(bounds, offset, key, (stroke, matrices) -> {
-				String word = key.getName();
+			});
+			this.label = label;
+			this.render = (stroke, matrices) -> {
 				Rectangle strokeBounds = stroke.bounds;
 				float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
-					- ((float) client.font.width(word) / 2);
+					- ((float) client.font.width(getLabel()) / 2);
 				float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
 
-				drawString(matrices, word, (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
-			});
+				drawString(matrices, getLabel(), (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
+			};
+			this.synchronizeLabel = synchronizeLabel;
 		}
 
 		@Override
 		public Map<String, Object> serialize() {
 			Map<String, Object> json = super.serialize();
 			json.put("type", "custom");
-			json.put("key", key.saveString());
+			json.put("key_name", key.getName());
+			json.put("label", label);
+			json.put("synchronize_label", synchronizeLabel);
 			return json;
+		}
+
+		public void setSynchronizeLabel(boolean synchronizeLabel) {
+			if (synchronizeLabel) {
+				String name = getMouseKeyBindName(key).orElse(key.getTranslatedKeyMessage().getString().toUpperCase());
+				if (name.length() > 4) {
+					name = name.substring(0, 2);
+				}
+				this.label = name;
+			}
+			this.synchronizeLabel = synchronizeLabel;
+		}
+
+		@Override
+		public void setKey(KeyMapping key) {
+			if (synchronizeLabel) {
+				String name = getMouseKeyBindName(key).orElse(key.getTranslatedKeyMessage().getString().toUpperCase());
+				if (name.length() > 4) {
+					name = name.substring(0, 2);
+				}
+				this.label = name;
+			}
+			super.setKey(key);
+		}
+
+		@Override
+		public String getLabel() {
+			return label;
+		}
+
+		@Override
+		public boolean isLabelEditable() {
+			return true;
 		}
 	}
 
 	public class KeystrokesGenericOption extends GenericOption {
 
-		private String serializedKeystrokes;
 		public KeystrokesGenericOption(String name, String label) {
-			super(name, label, () -> {
-				client.submit(() -> client.setScreen(new KeystrokeKeyScreen(KeystrokeHud.this, client.screen)));
-			});
+			super(name, label, () -> client.submit(() -> client.setScreen(new KeystrokesScreen(KeystrokeHud.this, client.screen))));
 		}
 
 		@Override
 		public String toSerializedValue() {
-			return GsonHelper.GSON.toJson(keystrokes.stream().map(Keystroke::serialize).toList());
+			try {
+				Files.writeString(KEYSTROKE_SAVE_FILE, GsonHelper.GSON.toJson(keystrokes.stream().map(Keystroke::serialize).toList()));
+			} catch (Exception e) {
+				// TODO failed to save keystrokes.
+			}
+			return null;
 		}
 
 		@SuppressWarnings("unchecked")
 		public void load() {
-			if (serializedKeystrokes == null || serializedKeystrokes.isEmpty()) {
-				return;
-			}
-			keystrokes.clear();
 			try {
-				List<?> entries = (List<?>) GsonHelper.read(serializedKeystrokes);
-				entries.stream().map(e -> (Map<String, Object>) e)
+				List<?> entries = (List<?>) GsonHelper.read(Files.readString(KEYSTROKE_SAVE_FILE));
+				var loaded = entries.stream().map(e -> (Map<String, Object>) e)
 					.map(KeystrokeHud.this::deserializeKey)
-					.forEach(keystrokes::add);
-			} catch (IOException e) {
+					.toList();
+				keystrokes.clear();
+				keystrokes.addAll(loaded);
+			} catch (Exception e) {
+				// TODO failed to load keystrokes, defaults are used.
 				e.printStackTrace();
 			}
 		}
 
 		@Override
-		public void fromSerializedValue(String s) {
-			serializedKeystrokes = s;
-
-		}
-
-		@Override
 		public String getWidgetIdentifier() {
 			return "generic-keystrokes";
+		}
+	}
+
+	@AllArgsConstructor
+	@Getter
+	public enum SpecialKeystroke {
+		SPACE(new Rectangle(0, 54, 53, 7), Minecraft.getInstance().options.keyJump, (hud, stroke, matrices) -> {
+			Rectangle bounds = stroke.bounds;
+			Rectangle spaceBounds = new Rectangle(bounds.x() + stroke.offset.x() + 4,
+				bounds.y() + stroke.offset.y() + bounds.height() / 2 - 1, bounds.width() - 8, 1);
+			fillRect(matrices, spaceBounds, stroke.getFGColor());
+			if (hud.shadow.get()) {
+				fillRect(matrices, spaceBounds.offset(1, 1), new Color(
+					(stroke.getFGColor().toInt() & 16579836) >> 2 | stroke.getFGColor().toInt() & -16777216));
+			}
+		});
+
+		private final Rectangle rect;
+		private final KeyMapping key;
+		private final SpecialKeystrokeRenderer renderer;
+
+		public interface SpecialKeystrokeRenderer {
+			void render(KeystrokeHud hud, KeystrokeHud.Keystroke stroke, GuiGraphics graphics);
 		}
 	}
 }

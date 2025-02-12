@@ -28,11 +28,11 @@ import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Identifier;
 
-public class iconHud extends BoxHudEntry {
+public class IconHud extends BoxHudEntry {
 
 	public final Identifier ID = Identifier.of("axolotlclient", "iconhud");
 
-	public iconHud() {
+	public IconHud() {
 		super(15, 15, false);
 	}
 

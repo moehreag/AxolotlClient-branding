@@ -51,6 +51,14 @@ public class HudEditScreen extends Screen {
 	private static final BooleanOption snapping = new BooleanOption("snapping", true);
 	private static final OptionCategory hudEditScreenCategory = OptionCategory.create("hudEditScreen");
 
+	public static boolean isSnappingEnabled() {
+		return snapping.get();
+	}
+
+	public static void toggleSnapping() {
+		snapping.toggle();
+	}
+
 	static {
 		hudEditScreenCategory.add(snapping);
 		AxolotlClient.config.add(hudEditScreenCategory);
@@ -123,7 +131,7 @@ public class HudEditScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		super.mouseClicked(mouseX, mouseY, button);
+		boolean value = super.mouseClicked(mouseX, mouseY, button);
 		Optional<HudEntry> entry = HudManager.getInstance().getEntryXY((int) Math.round(mouseX),
 			(int) Math.round(mouseY));
 		if (button == 0) {
@@ -143,7 +151,7 @@ public class HudEditScreen extends Screen {
 				minecraft.setScreen(screen);
 			});
 		}
-		return false;
+		return value;
 	}
 
 	@Override
