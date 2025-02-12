@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2025 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -20,28 +20,19 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.modules.hypixel;
+package io.github.axolotlclient.mixin;
 
-import java.util.concurrent.CompletableFuture;
+import net.minecraft.entity.ItemEntity;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-import io.github.axolotlclient.util.Util;
+@Mixin(ItemEntity.class)
+public class ItemEntityMixin {
 
-public class HypixelLocation {
+	@Redirect(method = "getItemStack", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;)V", remap = false))
+	private void removeErrorLogging(Logger instance, String s) {
 
-	private static CompletableFuture<String> consumer;
-
-	public static CompletableFuture<String> get() {
-		Util.sendChatMessage("/locraw");
-		consumer = new CompletableFuture<>();
-		return consumer;
-	}
-
-	public static boolean waitingForResponse(String message) {
-		boolean consume = consumer != null && message.startsWith("{") && message.endsWith("}") && message.contains("server");
-		if (consume) {
-			consumer.complete(message);
-			consumer = null;
-		}
-		return consume;
 	}
 }

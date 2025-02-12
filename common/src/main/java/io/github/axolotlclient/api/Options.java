@@ -79,6 +79,7 @@ public abstract class Options implements Module {
 	public final BooleanOption retainUsernames = new BooleanOption("api.account.settings.retain_usernames", true, settingUpdated::accept);
 	public final BooleanOption showLastOnline = new BooleanOption("api.account.settings.show_last_online", true, settingUpdated::accept);
 	public final BooleanOption showActivity = new BooleanOption("api.account.settings.show_activity", true, settingUpdated::accept);
+	public final BooleanOption allowFriendsImageAccess = new BooleanOption("api.account.settings.allow_friends_image_access", true, settingUpdated::accept);
 
 	protected final OptionCategory category = OptionCategory.create("api.category");
 	protected final OptionCategory pluralkit = OptionCategory.create("api.pluralkit");
@@ -90,11 +91,12 @@ public abstract class Options implements Module {
 			showRegistered.get(),
 			retainUsernames.get(),
 			showLastOnline.get(),
-			showActivity.get()
+			showActivity.get(),
+			allowFriendsImageAccess.get()
 		));
 		pkToken.setMaxLength(65);
 		pluralkit.add(pkToken, autoproxy, autoproxyMode, autoproxyMember);
-		account.add(showRegistered, retainUsernames, showLastOnline, showActivity);
+		account.add(showRegistered, retainUsernames, showLastOnline, showActivity, allowFriendsImageAccess);
 		category.add(pluralkit, account);
 		category.add(enabled, friendRequestsEnabled, statusUpdateNotifs, channelInvitesEnabled, detailedLogging, updateNotifications, displayNotes, addShortcutButtons);
 	}

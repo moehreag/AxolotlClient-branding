@@ -37,9 +37,9 @@ public abstract class OverlayTextureMixin {
 
 		Color c = AxolotlClient.CONFIG.hitColor.get();
 		int color = 255 - c.getAlpha();
-		color = (color << 8) + c.getBlue();
-		color = (color << 8) + c.getGreen();
 		color = (color << 8) + c.getRed();
+		color = (color << 8) + c.getGreen();
+		color = (color << 8) + c.getBlue();
 		return color;
 	}
 }

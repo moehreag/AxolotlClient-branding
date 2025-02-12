@@ -28,7 +28,6 @@ import java.util.Optional;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.util.ClientColors;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.MinecraftClient;
@@ -223,7 +222,7 @@ public class ItemUtil {
 			int j = MathHelper.hsvToRgb(h / 3.0F, 1.0F, 1.0F);
 			DrawUtil.fillRect(matrices, x + 2, y + 13, 13, 2, ClientColors.BLACK.toInt());
 			DrawUtil.fillRect(matrices, x + 2, y + 13, i, 1,
-				new Color(j >> 16 & 255, j >> 8 & 255, j & 255, 255).toInt());
+				(((255 << 8) + (j >> 16 & 255) << 8) + (j >> 8 & 255) << 8) + (j & 255));
 			RenderSystem.enableBlend();
 			RenderSystem.enableTexture();
 			RenderSystem.enableDepthTest();

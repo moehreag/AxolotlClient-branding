@@ -26,7 +26,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.TextRenderer;
 import net.minecraft.client.sound.instance.SimpleSoundInstance;
-import net.minecraft.client.sound.instance.SoundInstance;
 import net.minecraft.client.sound.system.SoundManager;
 import net.minecraft.resource.Identifier;
 
@@ -63,14 +62,14 @@ public interface Toast {
 		SHOW(new Identifier("axolotlclient", "gui.toast.in")),
 		HIDE(new Identifier("axolotlclient", "gui.toast.out"));
 
-		private final SoundInstance soundEvent;
+		private final Identifier soundEvent;
 
 		Visibility(final Identifier soundEvent) {
-			this.soundEvent = SimpleSoundInstance.of(soundEvent);
+			this.soundEvent = soundEvent;
 		}
 
 		public void playSound(SoundManager handler) {
-			handler.play(this.soundEvent);
+			handler.play(SimpleSoundInstance.of(this.soundEvent));
 		}
 	}
 }

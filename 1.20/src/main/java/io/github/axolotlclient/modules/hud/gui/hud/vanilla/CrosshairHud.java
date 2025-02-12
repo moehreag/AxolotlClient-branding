@@ -62,10 +62,6 @@ import net.minecraft.world.World;
 
 public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositionable {
 	public static final Identifier ID = new Identifier("kronhud", "crosshairhud");
-	private static final Identifier CROSSHAIR_TEXTURE = new Identifier("hud/crosshair");
-	private static final Identifier ATTACK_INDICATOR_FULL = new Identifier("hud/crosshair_attack_indicator_full");
-	private static final Identifier ATTACK_INDICATOR_BACKGROUND = new Identifier("hud/crosshair_attack_indicator_background");
-	private static final Identifier ATTACK_INDICATOR_PROGRESS = new Identifier("hud/crosshair_attack_indicator_progress");
 	private final EnumOption<Crosshair> type = new EnumOption<>("crosshair_type", Crosshair.class, Crosshair.CROSS);
 	private final BooleanOption showInF5 = new BooleanOption("showInF5", false);
 	private final ColorOption defaultColor = new ColorOption("defaultcolor", ClientColors.WHITE);

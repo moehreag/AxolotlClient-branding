@@ -79,7 +79,7 @@ public class APIOptions extends Options {
 				var pointers = stack.mallocPointer(1);
 				pointers.put(stack.UTF8("*.json"));
 				pointers.flip();
-				var result = TinyFileDialogs.tinyfd_saveFileDialog(translate.apply("api.account.export.dialog_title"), FabricLoader.getInstance().getGameDir().toString(), pointers, null);
+				var result = TinyFileDialogs.tinyfd_saveFileDialog("Choose export destination", FabricLoader.getInstance().getGameDir().toString(), pointers, null);
 				if (result != null) {
 					AccountDataRequest.get(Path.of(result));
 				}

@@ -22,23 +22,75 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Locale;
+
+import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.texture.NativeImage;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.util.Identifier;
 
-public class ImageInstance {
+public interface ImageInstance {
 
-	private final NativeImage image;
-	private final String fileName;
+	Identifier id();
 
-	public ImageInstance(NativeImage image, String name) {
-		this.image = image;
-		this.fileName = name;
+	NativeImage image();
+
+	String filename();
+
+	interface Local extends ImageInstance {
+		Path location();
+
+		default ImageInstance toShared(String url, String uploader, Instant sharedAt) {
+			return new SharedImpl(id(), image(), filename(), location(), url, uploader, sharedAt);
+		}
 	}
 
-	public NativeImage getImage() {
-		return image;
+	interface Remote extends ImageInstance {
+		String url();
+
+		String uploader();
+
+		Instant sharedAt();
+
+		default ImageInstance toShared(Path saved) {
+			return new SharedImpl(id(), image(), filename(), saved, url(), uploader(), sharedAt());
+		}
 	}
 
-	public String getFileName() {
-		return fileName;
+	private static void register(Identifier id, NativeImage img) {
+		MinecraftClient.getInstance().getTextureManager().registerTexture(id, new NativeImageBackedTexture(img));
 	}
+
+	record LocalImpl(Identifier id, NativeImage image, String filename, Path location) implements Local {
+		public LocalImpl(NativeImage image, String filename, Path location) {
+			this(Identifier.of("axolotlclient", "gallery_local_" + Hashing.sha256().hashUnencodedChars(location.toString().toLowerCase(Locale.ROOT).replaceAll("[./]", "_"))),
+				image, filename, location);
+			register(id(), image());
+		}
+
+		public LocalImpl(Path p) throws IOException {
+			this(NativeImage.read(Files.newInputStream(p)), p.getFileName().toString(), p);
+		}
+	}
+
+	record SharedImpl(Identifier id, NativeImage image, String filename, Path location, String url, String uploader,
+					  Instant sharedAt) implements Local, Remote {
+
+	}
+
+	record RemoteImpl(Identifier id, NativeImage image, String filename, String uploader, Instant sharedAt,
+					  String url) implements Remote {
+		public RemoteImpl(NativeImage image, String filename, String uploader, Instant sharedAt, String url) {
+			this(Identifier.of("axolotlclient", "gallery_remote_" + Hashing.sha256().hashUnencodedChars(url.toLowerCase(Locale.ROOT).replaceAll("[./]", "_"))),
+				image, filename, uploader, sharedAt, url
+			);
+			register(id(), image());
+		}
+	}
+
 }

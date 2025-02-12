@@ -71,11 +71,7 @@ public class PingHud extends SimpleTextHudEntry {
 
 	private void updatePing() {
 		if (client.getCurrentServer() != null) {
-			if (client.getCurrentServer().ping <= 1) {
-				getRealTimeServerPing(client.getCurrentServer());
-			} else {
-				currentServerPing = (int) client.getCurrentServer().ping;
-			}
+			getRealTimeServerPing(client.getCurrentServer());
 		} else if (client.hasSingleplayerServer()) {
 			currentServerPing = 1;
 		}

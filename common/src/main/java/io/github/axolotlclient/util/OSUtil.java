@@ -25,6 +25,7 @@ package io.github.axolotlclient.util;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
 
@@ -95,6 +96,14 @@ public class OSUtil {
 				process.getOutputStream().close();
 			} catch (IOException var3) {
 				AxolotlClientCommon.getInstance().getLogger().error("Couldn't open url '{}'", url, var3);
+			}
+		}
+
+		public void open(String uri) {
+			try {
+				this.open(new URI(uri));
+			} catch (IllegalArgumentException | URISyntaxException var3) {
+				AxolotlClientCommon.getInstance().getLogger().error("Couldn't open uri '{}'", uri, var3);
 			}
 		}
 

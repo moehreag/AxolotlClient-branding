@@ -23,9 +23,13 @@
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
 import net.minecraft.client.texture.NativeImage;
@@ -40,7 +44,7 @@ public class ImageShare extends ImageNetworking {
 	private ImageShare() {
 	}
 
-	public void uploadImage(File file) {
+	public void uploadImage(Path file) {
 		Util.sendChatMessage(new TranslatableText("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {
@@ -56,14 +60,24 @@ public class ImageShare extends ImageNetworking {
 		});
 	}
 
-	public ImageInstance downloadImage(String url) {
-		ImageData data = download(url);
-		if (data != ImageData.EMPTY) {
-			try {
-				return new ImageInstance(NativeImage.read(new ByteArrayInputStream(data.data())), data.name());
-			} catch (IOException ignored) {
+	public CompletableFuture<ImageInstance> downloadImage(String url) {
+		return download(url).thenApply(data -> {
+			if (data != ImageData.EMPTY) {
+				try (var in = new ByteArrayInputStream(data.data())) {
+					ImageInstance.Remote remote = new ImageInstance.RemoteImpl(NativeImage.read(in), data.name(), data.uploader(), data.sharedAt(), ensureUrl(url).orElseThrow());
+					try {
+						Path local = GalleryScreen.SCREENSHOTS_DIR.resolve(remote.filename());
+						HashFunction hash = Hashing.goodFastHash(32);
+						if (Files.exists(local) && hash.hashBytes(data.data()).equals(hash.hashBytes(Files.readAllBytes(local)))) {
+							return remote.toShared(local);
+						}
+					} catch (IOException ignored) {
+					}
+					return remote;
+				} catch (IOException ignored) {
+				}
 			}
-		}
-		return null;
+			return null;
+		});
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2025 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -20,25 +20,19 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.util;
+package io.github.axolotlclient.mixin;
 
-public record UnsupportedMod(String name, io.github.axolotlclient.util.UnsupportedMod.UnsupportedReason... reason) {
+import java.util.Map;
 
-	public enum UnsupportedReason {
+import net.minecraft.client.render.texture.Texture;
+import net.minecraft.client.render.texture.TextureManager;
+import net.minecraft.resource.Identifier;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-		BAN_REASON("be bannable on lots of servers"), CRASH("crash your game"),
-		MIGHT_CRASH("have effects that could crash your game"),
-		UNKNOWN_CONSEQUENSES("have unknown consequences in combination with this mod");
+@Mixin(TextureManager.class)
+public interface TextureManagerAccessor {
 
-		private final String description;
-
-		UnsupportedReason(String desc) {
-			description = desc;
-		}
-
-		@Override
-		public String toString() {
-			return description;
-		}
-	}
+	@Accessor("textures")
+	Map<Identifier, Texture> getTextures();
 }

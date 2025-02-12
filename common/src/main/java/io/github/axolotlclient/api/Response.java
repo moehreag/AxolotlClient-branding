@@ -89,7 +89,7 @@ public class Response {
 	}
 
 	public String toString() {
-		return "Response(body=" + bodyToString(this.getBody()) + ", plainBody=" + getPlainBody() + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
+		return "Response(headers="+this.getHeaders() +", body=" + bodyToString(this.getBody()) + ", plainBody=" + getPlainBody() + ", status=" + this.getStatus() + ", error=" + this.getError() + ")";
 	}
 
 	@SuppressWarnings("unchecked")

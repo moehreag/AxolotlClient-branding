@@ -37,15 +37,17 @@ public class AccountSettingsRequest {
 					response.getBody("show_registered"),
 					response.getBody("retain_usernames"),
 					response.getBody("show_last_online"),
-					response.getBody("show_activity")));
+					response.getBody("show_activity"),
+					response.getBodyOrElse("allow_friends_image_access", true)));
 	}
 
 	public static CompletableFuture<Void> update(AccountSettings settings) {
 		return API.getInstance().patch(Request.Route.ACCOUNT_SETTINGS.builder()
-				.field("show_registered", settings.isShowRegistered())
-				.field("retain_usernames", settings.isRetainUsernames())
-				.field("show_last_online", settings.isShowLastOnline())
-				.field("show_activity", settings.isShowActivity())
+				.field("show_registered", settings.showRegistered())
+				.field("retain_usernames", settings.retainUsernames())
+				.field("show_last_online", settings.showLastOnline())
+				.field("show_activity", settings.showActivity())
+				.field("allow_friends_image_access", settings.allowFriendsImageAccess())
 				.build())
 			.thenAccept(response -> {
 

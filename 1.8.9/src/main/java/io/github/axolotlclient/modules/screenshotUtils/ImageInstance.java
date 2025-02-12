@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -22,23 +22,76 @@
 
 package io.github.axolotlclient.modules.screenshotUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Locale;
 
-public class ImageInstance {
+import com.google.common.hash.Hashing;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.texture.DynamicTexture;
+import net.minecraft.resource.Identifier;
 
-	private final BufferedImage image;
-	private final String fileName;
+public interface ImageInstance {
 
-	public ImageInstance(BufferedImage image, String name) {
-		this.image = image;
-		this.fileName = name;
+	Identifier id();
+
+	BufferedImage image();
+
+	String filename();
+
+	interface Local extends ImageInstance {
+		Path location();
+
+		default ImageInstance toShared(String url, String uploader, Instant sharedAt) {
+			return new SharedImpl(id(), image(), filename(), location(), url, uploader, sharedAt);
+		}
 	}
 
-	public BufferedImage getImage() {
-		return image;
+	interface Remote extends ImageInstance {
+		String url();
+
+		String uploader();
+
+		Instant sharedAt();
+
+		default ImageInstance toShared(Path saved) {
+			return new SharedImpl(id(), image(), filename(), saved, url(), uploader(), sharedAt());
+		}
 	}
 
-	public String getFileName() {
-		return fileName;
+	private static void register(Identifier id, BufferedImage img) {
+		Minecraft.getInstance().submit(() -> Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(img)));
 	}
+
+	record LocalImpl(Identifier id, BufferedImage image, String filename, Path location) implements Local {
+		public LocalImpl(BufferedImage image, String filename, Path location) {
+			this(new Identifier("gallery_local_" + Hashing.sha256().hashUnencodedChars(location.toString().toLowerCase(Locale.ROOT).replaceAll("[./]", "_"))),
+				image, filename, location);
+			register(id(), image());
+		}
+
+		public LocalImpl(Path p) throws IOException {
+			this(ImageIO.read(Files.newInputStream(p)), p.getFileName().toString(), p);
+		}
+	}
+
+	record SharedImpl(Identifier id, BufferedImage image, String filename, Path location, String url, String uploader,
+					  Instant sharedAt) implements Local, Remote {
+
+	}
+
+	record RemoteImpl(Identifier id, BufferedImage image, String filename, String uploader, Instant sharedAt,
+					  String url) implements Remote {
+		public RemoteImpl(BufferedImage image, String filename, String uploader, Instant sharedAt, String url) {
+			this(new Identifier("axolotlclient", "gallery_remote_" + Hashing.sha256().hashUnencodedChars(url.toLowerCase(Locale.ROOT).replaceAll("[./]", "_"))),
+				image, filename, uploader, sharedAt, url
+			);
+			register(id(), image());
+		}
+	}
+
 }

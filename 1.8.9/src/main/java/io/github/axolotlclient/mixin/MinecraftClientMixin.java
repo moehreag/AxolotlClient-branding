@@ -22,6 +22,8 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.api.API;
@@ -36,6 +38,7 @@ import io.github.axolotlclient.util.events.impl.MouseInputEvent;
 import io.github.axolotlclient.util.events.impl.WorldLoadEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
+import net.minecraft.client.gui.chat.ChatGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.main.RunArgs;
 import net.minecraft.client.options.GameOptions;
@@ -178,6 +181,15 @@ public abstract class MinecraftClientMixin {
 	private void axolotlclient$onScreenOpen(Screen screen, CallbackInfo ci) {
 		if (Minecraft.getInstance().screen == null) {
 			MenuBlur.getInstance().onScreenOpen();
+		}
+	}
+
+	@WrapOperation(method = "openScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/chat/ChatGui;clear()V"))
+	private void keepChatMessagesOnDisconnect(ChatGui instance, Operation<Void> original) {
+		io.github.axolotlclient.modules.hud.gui.hud.ChatHud hud = (io.github.axolotlclient.modules.hud.gui.hud.ChatHud) HudManager
+			.getInstance().get(io.github.axolotlclient.modules.hud.gui.hud.ChatHud.ID);
+		if (hud != null && !hud.keepMessagesOnDisconnect.get()) {
+			original.call(instance);
 		}
 	}
 }

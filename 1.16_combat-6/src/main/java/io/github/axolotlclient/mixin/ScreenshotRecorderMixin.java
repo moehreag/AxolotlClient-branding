@@ -23,32 +23,20 @@
 package io.github.axolotlclient.mixin;
 
 import java.io.File;
-import java.util.function.Consumer;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.modules.screenshotUtils.ScreenshotUtils;
-import net.minecraft.client.texture.NativeImage;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(net.minecraft.client.util.ScreenshotUtils.class)
 public abstract class ScreenshotRecorderMixin {
 
-	private static File currentFile;
-
-	@SuppressWarnings("unresolvable-target")
-	@Inject(method = "method_1661", at = @At("HEAD"))
-	private static void axolotlclient$getFile(NativeImage nativeImage, File file, Consumer<Text> consumer, CallbackInfo ci) {
-		currentFile = file;
-	}
-
-	@SuppressWarnings({"unchecked", "unresolvable-target"})
-	@ModifyArg(method = "method_1661", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
-	private static <T> T axolotlclient$onScreenShotTaken(T t) {
-		return (T) ScreenshotUtils.getInstance().onScreenshotTaken((MutableText) t, currentFile);
+	@WrapOperation(method = "method_1661", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/TranslatableText;<init>(Ljava/lang/String;[Ljava/lang/Object;)V", ordinal = 0))
+	private static MutableText axolotlclient$onScreenshotSaveSuccess(String s, Object[] objects, Operation<MutableText> original, @Local(argsOnly = true) File target) {
+		return ScreenshotUtils.getInstance().onScreenshotTaken(original.call(s, objects), target);
 	}
 }

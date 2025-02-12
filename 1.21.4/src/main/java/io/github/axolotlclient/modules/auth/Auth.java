@@ -74,8 +74,7 @@ public class Auth extends Accounts implements Module {
 		if (isContained(mc.getUser().getSessionId())) {
 			current = getAccounts().stream().filter(account -> account.getUuid().equals(UndashedUuid.toString(mc.getUser().getProfileId()))).toList().getFirst();
 			if (current.needsRefresh()) {
-				current.refresh(auth, () -> {
-				});
+				current.refresh(auth).thenRun(this::save);
 			}
 		} else {
 			current = new Account(mc.getUser().getName(), UndashedUuid.toString(mc.getUser().getProfileId()), mc.getUser().getAccessToken());
@@ -101,9 +100,11 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.refreshing", account.getName()));
 			}
-			account.refresh(auth, () -> {
-				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
-			});
+			account.refresh(auth).thenAccept(res -> res.ifPresent(a -> {
+				if (!a.isExpired()) {
+					login(a);
+				}
+			})).thenRun(this::save);
 		} else {
 			try {
 				API.getInstance().shutdown();
@@ -146,16 +147,14 @@ public class Auth extends Accounts implements Module {
 		mc.execute(() -> mc.setScreen(new ConfirmScreen((bl) -> {
 			mc.setScreen(current);
 			if (bl) {
-				auth.startDeviceAuth(() -> {
-				});
+				auth.startDeviceAuth();
 			}
 		}, Component.translatable("auth"), Component.translatable("auth.accountExpiredNotice", account.getName()))));
 	}
 
 	@Override
 	void displayDeviceCode(DeviceFlowData data) {
-		Screen display = new DeviceCodeDisplayScreen(mc.screen, data);
-		mc.setScreen(display);
+		mc.execute(() -> mc.setScreen(new DeviceCodeDisplayScreen(mc.screen, data)));
 	}
 
 	private void loadTexture(String uuid) {

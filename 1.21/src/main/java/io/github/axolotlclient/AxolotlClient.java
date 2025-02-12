@@ -47,7 +47,6 @@ import io.github.axolotlclient.modules.renderOptions.BeaconBeam;
 import io.github.axolotlclient.modules.rpc.DiscordRPC;
 import io.github.axolotlclient.modules.screenshotUtils.ScreenshotUtils;
 import io.github.axolotlclient.modules.scrollableTooltips.ScrollableTooltips;
-import io.github.axolotlclient.modules.sky.SkyResourceManager;
 import io.github.axolotlclient.modules.tablist.Tablist;
 import io.github.axolotlclient.modules.tnttime.TntTime;
 import io.github.axolotlclient.modules.zoom.Zoom;
@@ -58,11 +57,9 @@ import io.github.axolotlclient.util.notifications.Notifications;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 public class AxolotlClient implements ClientModInitializer {
@@ -79,7 +76,6 @@ public class AxolotlClient implements ClientModInitializer {
 	public static ConfigManager configManager;
 
 	public static void getModules() {
-		modules.add(SkyResourceManager.getInstance());
 		modules.add(Zoom.getInstance());
 		modules.add(HudManager.getInstance());
 		modules.add(HypixelMods.getInstance());
@@ -118,8 +114,8 @@ public class AxolotlClient implements ClientModInitializer {
 
 		CONFIG.init();
 
-		new AxolotlClientCommon(LOGGER, () -> configManager);
-		new API(LOGGER, Notifications.getInstance(), I18n::translate, new StatusUpdateProviderImpl(), APIOptions.getInstance());
+		new AxolotlClientCommon(LOGGER, Notifications.getInstance(), () -> configManager);
+		new API(LOGGER, I18n::translate, new StatusUpdateProviderImpl(), APIOptions.getInstance());
 		ClientLifecycleEvents.CLIENT_STOPPING.register(c -> API.getInstance().shutdown());
 
 		modules.forEach(Module::init);
@@ -140,7 +136,6 @@ public class AxolotlClient implements ClientModInitializer {
 		modules.forEach(Module::lateInit);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> tickClient());
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SkyResourceManager.getInstance());
 
 		FeatureDisabler.init();
 

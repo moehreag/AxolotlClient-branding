@@ -101,12 +101,12 @@ public class AxolotlClientToast extends DrawUtil implements Toast {
 		drawTexture(4, 4, 0, 0, 15, 15, 15, 15);
 		int textOffset = 22;
 		if (this.messageLines.isEmpty()) {
-			drawString(font, title, textOffset, LINE_SPACING, -256, false);
+			drawString(title, textOffset, LINE_SPACING, -256, false);
 		} else {
-			drawString(font, title, textOffset, 7, -256, false);
+			drawString(title, textOffset, 7, -256, false);
 
 			for (int i = 0; i < this.messageLines.size(); i++) {
-				drawString(font, this.messageLines.get(i), textOffset, 18 + i * LINE_SPACING, -1, false);
+				drawString(this.messageLines.get(i), textOffset, 18 + i * LINE_SPACING, -1, false);
 			}
 		}
 	}

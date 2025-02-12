@@ -24,8 +24,8 @@ package io.github.axolotlclient.api.types;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
+import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.api.API;
 import lombok.*;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 @AllArgsConstructor
 public class Status {
-	private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
 	public static final Status UNKNOWN = new Status(false, null, Activity.UNKNOWN);
 
@@ -64,7 +63,7 @@ public class Status {
 	public String getLastOnline() {
 		return lastOnline == null ? null :
 			API.getInstance().getTranslationProvider()
-				.translate("api.status.last_online", lastOnline.atZone(ZoneId.systemDefault()).format(format));
+				.translate("api.status.last_online", lastOnline.atZone(ZoneId.systemDefault()).format(AxolotlClientCommon.getInstance().formatter));
 	}
 
 	public record Activity(String title, String description, String rawDescription, Instant started) {

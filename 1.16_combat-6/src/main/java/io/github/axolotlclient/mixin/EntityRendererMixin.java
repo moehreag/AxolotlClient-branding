@@ -55,7 +55,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 	@Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I", ordinal = 0))
 	public void axolotlclient$addBadges(T entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
 										CallbackInfo ci) {
-		if (entity instanceof AbstractClientPlayerEntity && text.getString().contains(entity.getName().getString())) {
+		if (entity instanceof AbstractClientPlayerEntity && text.equals(entity.getDisplayName())) {
 			if (!entity.isSneaky()) {
 				if (AxolotlClient.CONFIG.showBadges.get() && UserRequest.getOnline(entity.getUuid().toString())) {
 					RenderSystem.enableDepthTest();
@@ -82,18 +82,20 @@ public abstract class EntityRendererMixin<T extends Entity> {
 					if (AxolotlClient.CONFIG.customBadge.get()) {
 						Text badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
 						if (AxolotlClient.CONFIG.useShadows.get()) {
-							MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, badgeText, x, 0, -1);
+							MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, badgeText, x+6, 0, -1);
 						} else {
-							MinecraftClient.getInstance().textRenderer.draw(matrices, badgeText, x, 0, -1);
+							MinecraftClient.getInstance().textRenderer.draw(matrices, badgeText, x+6, 0, -1);
 						}
-					} else
+					} else {
 						DrawableHelper.drawTexture(matrices, x, 0, 0, 0, 8, 8, 8, 8);
+					}
+					RenderSystem.disableDepthTest();
 				}
 			}
 		}
 	}
 
-	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I"), index = 8)
+	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I", ordinal = 0), index = 8)
 	public int axolotlclient$bgColor(int color) {
 		if (AxolotlClient.CONFIG.nametagBackground.get()) {
 			return color;
@@ -102,7 +104,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		}
 	}
 
-	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I"), index = 4)
+	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I", ordinal = 1), index = 4)
 	public boolean axolotlclient$enableShadows(boolean shadow) {
 		return AxolotlClient.CONFIG.useShadows.get();
 	}
@@ -110,10 +112,9 @@ public abstract class EntityRendererMixin<T extends Entity> {
 	@Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I", ordinal = 1))
 	public void axolotlclient$addLevel(T entity, Text string, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
 									   CallbackInfo ci) {
-		if (entity instanceof AbstractClientPlayerEntity) {
+		if (entity instanceof AbstractClientPlayerEntity && string.equals(entity.getDisplayName())) {
 			if (MinecraftClient.getInstance().getCurrentServerEntry() != null
-				&& MinecraftClient.getInstance().getCurrentServerEntry().address.contains("hypixel.net")
-				&& string.getString().contains(entity.getName().getString())) {
+				&& MinecraftClient.getInstance().getCurrentServerEntry().address.contains("hypixel.net")) {
 				TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 				if (BedwarsMod.getInstance().isEnabled() &&
 					BedwarsMod.getInstance().inGame() &&

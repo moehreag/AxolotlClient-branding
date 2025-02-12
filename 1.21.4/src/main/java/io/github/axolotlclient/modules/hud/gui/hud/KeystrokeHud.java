@@ -295,7 +295,7 @@ public class KeystrokeHud extends TextHudEntry {
 		protected final Rectangle bounds;
 		private final int animTime = 100;
 		protected DrawPosition offset;
-		private float start = -1;
+		private long start = -1;
 		private boolean wasPressed = false;
 
 		public Keystroke(Rectangle bounds, DrawPosition offset, KeyMapping key, KeystrokeRenderer render) {
@@ -311,7 +311,7 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		private float getPercentPressed() {
-			return start == -1 ? 1 : Mth.clamp((Util.getMillis() - start) / animTime, 0, 1);
+			return start == -1 ? 1 : Mth.clamp((float)(Util.getMillis() - start) / animTime, 0, 1);
 		}
 
 		public void render(GuiGraphics matrices) {
@@ -330,7 +330,7 @@ public class KeystrokeHud extends TextHudEntry {
 			if (outline.get()) {
 				outlineRect(matrices, rect, getOutlineColor());
 			}
-			if ((Util.getMillis() - start) / animTime >= 1) {
+			if ((float)(Util.getMillis() - start) / animTime >= 1) {
 				start = -1;
 			}
 			wasPressed = key.isDown();

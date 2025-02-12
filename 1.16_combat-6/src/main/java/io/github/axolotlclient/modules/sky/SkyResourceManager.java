@@ -23,6 +23,7 @@
 package io.github.axolotlclient.modules.sky;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -32,8 +33,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.AbstractModule;
+import lombok.Getter;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
@@ -50,11 +53,8 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 
 	private final static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+	@Getter
 	private final static SkyResourceManager Instance = new SkyResourceManager();
-
-	public static SkyResourceManager getInstance() {
-		return Instance;
-	}
 
 	@Override
 	public void init() {
@@ -69,11 +69,19 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 
 			for (Identifier entry : manager
 				.findResources("sky", identifier -> identifier.endsWith(".json"))) {
+				if (entry.getNamespace().equals("celestial")) { // Skip Celestial Packs, we cannot load them.
+					continue;
+				}
 				AxolotlClient.LOGGER.debug("Loading FSB sky from " + entry);
-				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(gson.fromJson(
+				JsonObject json = gson.fromJson(
 					new BufferedReader(new InputStreamReader(manager.getResource(entry).getInputStream(), StandardCharsets.UTF_8))
 						.lines().collect(Collectors.joining("\n")),
-					JsonObject.class)));
+					JsonObject.class);
+				if (!json.has("type") || !json.get("type").getAsString().equals("square-textured")) {
+					AxolotlClient.LOGGER.debug("Skipping "+entry+" as we currently cannot load it!");
+					continue;
+				}
+				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(json));
 				AxolotlClient.LOGGER.debug("Loaded FSB sky from " + entry);
 			}
 
@@ -114,9 +122,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 					if (!string.startsWith("#")) {
 						option = string.split("=");
 						if (option[0].equals("source")) {
-							if (option[1].contains(":")) {
-								option[1] = option[1].split(":")[1];
-							} else {
+							if (!option[1].contains(":")) {
 								if (option[1].startsWith("assets")) {
 									option[1] = option[1].replace("./", "").replace("assets/minecraft/", "");
 								}
@@ -124,6 +130,13 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
 												+ "/" + option[1].replace("./", "");
 								}
+							}
+							try {
+								MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(option[1]));
+							} catch (FileNotFoundException e) {
+								AxolotlClient.LOGGER.warn("Sky "+id+" does not have a valid texture attached to it: ", option[1]);
+								AxolotlClient.LOGGER.warn("Please fix your packs.");
+								return;
 							}
 						}
 						if (option[0].equals("startFadeIn") || option[0].equals("endFadeIn")

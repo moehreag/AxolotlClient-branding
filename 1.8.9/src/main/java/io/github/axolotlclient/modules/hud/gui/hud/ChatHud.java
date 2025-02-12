@@ -49,14 +49,27 @@ public class ChatHud extends TextHudEntry {
 	public static final Identifier ID = new Identifier("axolotlclient", "chathud");
 	// tooltip: "chathud"
 	public final BooleanOption background = new BooleanOption("background", true);
-	public final ColorOption bgColor = new ColorOption("bgcolor", Color.parse("#40000000"));
+	public final ColorOption bgColor = new ColorOption("bgcolor", Color.parse("#80000000"));
 
 	public final IntegerOption chatHistory = new IntegerOption("chatHistoryLength", 100, 10, 5000);
 	public final ColorOption scrollbarColor = new ColorOption("scrollbarColor", Color.parse("#70CCCCCC"));
 	public final IntegerOption lineSpacing = new IntegerOption("lineSpacing", 0, 0, 10);
+	public final BooleanOption keepMessagesOnDisconnect = new BooleanOption("keep_messages_on_disconnect", false);
+	public final BooleanOption animateChat = new BooleanOption("animate_chat", false);
 
 	public int ticks;
 	private int lastHeight;
+
+	private float percentComplete;
+	public int newLines;
+	private long prevMillis = System.currentTimeMillis();
+	public float animationPercent;
+
+	private void updatePercentage(long diff) {
+		if (percentComplete < 1)
+			percentComplete += 0.004f * diff;
+		percentComplete = MathHelper.clamp(percentComplete, 0, 1);
+	}
 
 	public ChatHud() {
 		super(320, 80, false);
@@ -68,8 +81,18 @@ public class ChatHud extends TextHudEntry {
 		return MathHelper.floor(chatHeight * (float) (i - j) + (float) j);
 	}
 
+	public void resetAnimation() {
+		percentComplete = 0;
+	}
+
 	@Override
 	public void render(float delta) {
+		long current = System.currentTimeMillis();
+		long diff = current - prevMillis;
+		prevMillis = current;
+		updatePercentage(diff);
+		float t = percentComplete-1;
+		animationPercent = MathHelper.clamp(1 - (float)Math.pow(t, 4), 0, 1);
 		int scrolledLines = ((ChatHudAccessor) client.gui.getChat()).getScrolledLines();
 		List<ChatMessage> visibleMessages = ((ChatHudAccessor) client.gui.getChat()).getVisibleMessages();
 
@@ -81,11 +104,13 @@ public class ChatHud extends TextHudEntry {
 			int i = getVisibleLineCount();
 			int j = 0;
 			int k = visibleMessages.size();
-			float f = this.client.options.chatOpacity * 0.9F + 0.1F;
 			if (k > 0) {
 				float g = getScale();
 				int l = MathHelper.ceil((float) getWidth() / g);
 				GlStateManager.pushMatrix();
+				if (animateChat.get() && !((ChatHudAccessor)this.client.gui.getChat()).hasUnreadNewMessages()) {
+					GlStateManager.translatef(0, (9 - 9 * animationPercent) * getScale(), 0);
+				}
 
 				for (int m = 0; m + scrolledLines < visibleMessages.size() && m < i; ++m) {
 					ChatMessage chatHudLine = visibleMessages.get(m + scrolledLines);
@@ -94,20 +119,31 @@ public class ChatHud extends TextHudEntry {
 						if (n < 200 || isChatFocused()) {
 							double d = MathHelper.clamp((1.0 - n / 200.0) * 10.0, 0.0, 1.0);
 							d *= d;
-							int Opacity = isChatFocused() ? 255 : (int) (255.0 * d);
+							if (animateChat.get() && m+scrolledLines < newLines) {
+								d *= animationPercent;
+							}
 
-							int chatOpacity = (int) (Opacity * f);
 							++j;
-							if (chatOpacity > 3) {
+							int alpha = Math.max(bgColor.get().getAlpha(), textColor.get().getAlpha());
+							int opacity = isChatFocused() ? alpha : (int) (alpha * d);
+							if (opacity > 3) {
 								int y = pos.y + getHeight() - (m * (9 + lineSpacing.get()));
 								if (background.get()) {
+									Color bg = bgColor.get();
+									if (!isChatFocused()) {
+										bg = bg.withAlpha((int) (bg.getAlpha()*d));
+									}
 									fill(pos.x, y - (9 + lineSpacing.get()), pos.x + l + 4, y,
-										bgColor.get().withAlpha(chatOpacity / 2).toInt());
+										bg.toInt());
 								}
 								String string = chatHudLine.getText().getFormattedString();
 								GlStateManager.enableBlend();
-								DrawUtil.drawString(client.textRenderer, string, pos.x, (y - 8),
-									16777215 + (chatOpacity << 24), shadow.get());
+								Color text = textColor.get();
+								if (!isChatFocused()) {
+									text = text.withAlpha((int) (text.getAlpha()*d));
+								}
+								DrawUtil.drawString(string, pos.x, (y - 8),
+									text, shadow.get());
 								GlStateManager.disableAlphaTest();
 								GlStateManager.disableBlend();
 							}
@@ -148,11 +184,6 @@ public class ChatHud extends TextHudEntry {
 			client.textRenderer.drawWithShadow("This is where your new and fresh looking chat will be!", pos.x + 1,
 				pos.y + getHeight() - 9, -1);
 		}
-	}
-
-	@Override
-	public boolean movable() {
-		return true;
 	}
 
 	public int getVisibleLineCount() {
@@ -244,6 +275,8 @@ public class ChatHud extends TextHudEntry {
 		options.add(lineSpacing);
 		options.add(scrollbarColor);
 		options.add(chatHistory);
+		options.add(animateChat);
+		options.add(keepMessagesOnDisconnect);
 		return options;
 	}
 }

@@ -43,7 +43,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -58,7 +57,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I",
 		ordinal = 0))
 	public void axolotlclient$addBadges(Entity entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float tickDelta, CallbackInfo ci) {
-		if (entity instanceof AbstractClientPlayerEntity && text.getString().contains(entity.getName().getString())) {
+		if (entity instanceof AbstractClientPlayerEntity && text.equals(entity.getDisplayName())) {
 			if (!entity.isSneaky()) {
 				if (AxolotlClient.CONFIG.showBadges.get() && UserRequest.getOnline(entity.getUuid().toString())) {
 					RenderSystem.enableDepthTest();
@@ -81,7 +80,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 					if (AxolotlClient.CONFIG.customBadge.get()) {
 						Text badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
-						MinecraftClient.getInstance().textRenderer.draw(badgeText, x, 0, -1,
+						MinecraftClient.getInstance().textRenderer.draw(badgeText, x+6, 0, -1,
 																		AxolotlClient.CONFIG.useShadows.get(),
 																		matrices.peek().getModel(), vertexConsumers,
 																		TextRenderer.TextLayerType.NORMAL, 0, 15728880
@@ -101,33 +100,14 @@ public abstract class EntityRendererMixin<T extends Entity> {
 						BufferRenderer.drawWithShader(builder.endOrThrow());
 						matrices.pop();
 					}
+					RenderSystem.disableDepthTest();
 				}
 			}
 		}
 	}
 
-	void drawTexture(MatrixStack matr, Identifier texture, int x1, int x2, int y1, int y2, int z, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight) {
-		this.drawTexturedQuad(matr, texture, x1, x2, y1, y2, z, (u + 0.0F) / (float) textureWidth,
-							  (u + (float) regionWidth) / (float) textureWidth, (v + 0.0F) / (float) textureHeight,
-							  (v + (float) regionHeight) / (float) textureHeight
-							 );
-	}
-
-	void drawTexturedQuad(MatrixStack matrices, Identifier texture, int x1, int x2, int y1, int y2, int z, float u1, float u2, float v1, float v2) {
-		RenderSystem.setShaderTexture(0, texture);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		Matrix4f matrix4f = matrices.peek().getModel();
-		BufferBuilder bufferBuilder =
-			Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-		bufferBuilder.xyz(matrix4f, (float) x1, (float) y1, (float) z).uv0(u1, v1);
-		bufferBuilder.xyz(matrix4f, (float) x1, (float) y2, (float) z).uv0(u1, v2);
-		bufferBuilder.xyz(matrix4f, (float) x2, (float) y2, (float) z).uv0(u2, v2);
-		bufferBuilder.xyz(matrix4f, (float) x2, (float) y1, (float) z).uv0(u2, v1);
-		BufferRenderer.drawWithShader(bufferBuilder.endOrThrow());
-	}
-
 	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I"),
+		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 0),
 		index = 8)
 	public int axolotlclient$bgColor(int color) {
 		if (AxolotlClient.CONFIG.nametagBackground.get()) {
@@ -138,7 +118,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
 	}
 
 	@ModifyArg(method = "renderLabelIfPresent", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I"),
+		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 1),
 		index = 4)
 	public boolean axolotlclient$enableShadows(boolean shadow) {
 		return AxolotlClient.CONFIG.useShadows.get();
@@ -148,10 +128,9 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I",
 		ordinal = 1))
 	public void axolotlclient$addLevel(Entity entity, Text string, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float tickDelta, CallbackInfo ci) {
-		if (entity instanceof AbstractClientPlayerEntity) {
+		if (entity instanceof AbstractClientPlayerEntity && string.equals(entity.getDisplayName())) {
 			if (MinecraftClient.getInstance().getCurrentServerEntry() != null &&
-				MinecraftClient.getInstance().getCurrentServerEntry().address.contains("hypixel.net") &&
-				string.getString().contains(entity.getName().getString())) {
+				MinecraftClient.getInstance().getCurrentServerEntry().address.contains("hypixel.net")) {
 				TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 				if (BedwarsMod.getInstance().isEnabled() && BedwarsMod.getInstance().inGame() &&
 					BedwarsMod.getInstance().bedwarsLevelHead.get()) {

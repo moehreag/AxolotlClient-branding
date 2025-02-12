@@ -22,6 +22,8 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -63,21 +65,23 @@ public abstract class EntityRendererMixin<T extends Entity> {
 		}
 	}
 
-	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I"))
+	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I", ordinal = 0))
 	public void axolotlclient$addBadges(T entity, String string, double d, double e, double f, int i, CallbackInfo ci) {
-		if (entity instanceof ClientPlayerEntity && string.contains(entity.getDisplayName().getFormattedString()))
+		if (entity instanceof ClientPlayerEntity && string.equals(entity.getDisplayName().getFormattedString()))
 			BadgeRenderer.renderNametagBadge(entity);
 	}
 
-	@Redirect(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I"))
-	public int axolotlclient$forceShadows(TextRenderer instance, String text, int x, int y, int color) {
-		instance.draw(text, x, y, color, AxolotlClient.CONFIG.useShadows.get());
-		return 0;
+	@WrapOperation(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I", ordinal = 1))
+	public int axolotlclient$forceShadows(TextRenderer instance, String string, int x, int y, int color, Operation<Integer> original, Entity entity) {
+		if (AxolotlClient.CONFIG.useShadows.get() && !entity.isSneaking()) {
+			return instance.draw(string, x, y, color, true);
+		}
+		return original.call(instance, string, x, y, color);
 	}
 
 	@Inject(method = "renderNameTag(Lnet/minecraft/entity/Entity;Ljava/lang/String;DDDI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TextRenderer;draw(Ljava/lang/String;III)I", ordinal = 1))
 	public void axolotlclient$addLevel(T entity, String string, double d, double e, double f, int i, CallbackInfo ci) {
-		if (entity instanceof ClientPlayerEntity && string.contains(entity.getDisplayName().getFormattedString())) {
+		if (entity instanceof ClientPlayerEntity && string.equals(entity.getDisplayName().getFormattedString())) {
 			if (Util.currentServerAddressContains("hypixel.net")) {
 				if (BedwarsMod.getInstance().isEnabled() &&
 					BedwarsMod.getInstance().inGame() &&

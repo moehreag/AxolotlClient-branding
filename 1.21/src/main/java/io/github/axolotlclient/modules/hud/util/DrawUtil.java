@@ -44,10 +44,6 @@ public class DrawUtil {
 		graphics.fill(x, y, x + width, y + height, color);
 	}
 
-	public static void fillRect(GuiGraphics graphics, int x, int y, int width, int height, Color color) {
-		RenderUtil.drawRectangle(graphics, x, y, x + width, y + height, color.toInt());
-	}
-
 	public static void outlineRect(GuiGraphics graphics, Rectangle rectangle, Color color) {
 		outlineRect(graphics, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
@@ -75,10 +71,5 @@ public class DrawUtil {
 
 	public static void drawString(GuiGraphics graphics, String text, float x, float y, Color color, boolean shadow) {
 		drawString(graphics, text, x, y, color.toInt(), shadow);
-	}
-
-	public static void drawString(GuiGraphics graphics, TextRenderer textRenderer, String text, float x, float y,
-								  int color, boolean shadow) {
-		drawString(graphics, text, x, y, color, shadow);
 	}
 }

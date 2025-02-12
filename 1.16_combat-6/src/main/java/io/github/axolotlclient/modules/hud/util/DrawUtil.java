@@ -53,10 +53,6 @@ public class DrawUtil extends DrawableHelper {
 		DrawableHelper.fill(matrices, x, y, x + width, y + height, color);
 	}
 
-	public static void fillRect(MatrixStack matrices, int x, int y, int width, int height, Color color) {
-		RenderUtil.drawRectangle(matrices, x, y, x + width, y + height, color.toInt());
-	}
-
 	public static void outlineRect(MatrixStack matrices, Rectangle rectangle, Color color) {
 		outlineRect(matrices, rectangle.x, rectangle.y, rectangle.width, rectangle.height, color.toInt());
 	}
@@ -78,11 +74,11 @@ public class DrawUtil extends DrawableHelper {
 		drawString(matrices, text, (float) (x - renderer.getWidth(text) / 2), (float) y, color, shadow);
 	}
 
-	public static void drawString(MatrixStack matrices, String text, float x, float y, int color, boolean shadow) {
+	public static int drawString(MatrixStack matrices, String text, float x, float y, int color, boolean shadow) {
 		if (shadow) {
-			MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, text, x, y, color);
+			return MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, text, x, y, color);
 		} else {
-			MinecraftClient.getInstance().textRenderer.draw(matrices, text, x, y, color);
+			return MinecraftClient.getInstance().textRenderer.draw(matrices, text, x, y, color);
 		}
 	}
 
@@ -96,11 +92,6 @@ public class DrawUtil extends DrawableHelper {
 
 	public static void drawString(MatrixStack matrices, String text, float x, float y, Color color, boolean shadow) {
 		drawString(matrices, text, x, y, color.toInt(), shadow);
-	}
-
-	public static void drawString(MatrixStack matrices, TextRenderer textRenderer, String text, float x, float y,
-								  int color, boolean shadow) {
-		drawString(matrices, text, x, y, color, shadow);
 	}
 
 	public static void drawScrollableText(MatrixStack matrices, TextRenderer textRenderer, Text text, int left, int top, int right, int bottom, int color) {
@@ -131,15 +122,30 @@ public class DrawUtil extends DrawableHelper {
 
 	public sealed interface GuiSpriteScaling {
 	}
-	public record Stretch() implements GuiSpriteScaling{
+
+	public record Stretch() implements GuiSpriteScaling {
 
 	}
-	public record Tile(int width, int height) implements GuiSpriteScaling{
+
+	public record Tile(int width, int height) implements GuiSpriteScaling {
 
 	}
+
 	public record NineSlice(int width, int height, Border border, boolean stretchInner) implements GuiSpriteScaling {
+		public NineSlice(int width, int height, Border border) {
+			this(width, height, border, false);
+		}
+
+		public NineSlice(int width, int height, int borderSize) {
+			this(width, height, new Border(borderSize));
+		}
 	}
-	public record Border(int left, int right, int top, int bottom){}
+
+	public record Border(int left, int right, int top, int bottom) {
+		public Border(int size) {
+			this(size, size, size, size);
+		}
+	}
 
 	public static void blitSprite(Identifier texture, int i, int j, int k, int l, GuiSpriteScaling guiSpriteScaling) {
 		blitSprite(texture, i, j, k, l, -1, guiSpriteScaling);
@@ -195,7 +201,7 @@ public class DrawUtil extends DrawableHelper {
 				m + o,
 				n,
 				n + p,
-				(float) k /i, (float) (k + o) /i, (float) l /j, (float) (l + p) /j,
+				(float) k / i, (float) (k + o) / i, (float) l / j, (float) (l + p) / j,
 				q
 			);
 		}
@@ -331,7 +337,7 @@ public class DrawUtil extends DrawableHelper {
 					i + k,
 					j,
 					j + l,
-					(float) m /q, (float) (m + o) /q, (float) n /r, (float) (n + p) /r,
+					(float) m / q, (float) (m + o) / q, (float) n / r, (float) (n + p) / r,
 					s
 				);
 			} else {

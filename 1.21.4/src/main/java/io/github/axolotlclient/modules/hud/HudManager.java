@@ -109,8 +109,8 @@ public class HudManager extends AbstractModule {
 
 		entries.values().forEach(HudEntry::init);
 
-		((ReachHud)get(ReachHud.ID)).getEnabled().setForceOff(true, "feature.broken");
-		((ComboHud)get(ComboHud.ID)).getEnabled().setForceOff(true, "feature.broken");
+		((ReachHud) get(ReachHud.ID)).getEnabled().setForceOff(true, "feature.broken");
+		((ComboHud) get(ComboHud.ID)).getEnabled().setForceOff(true, "feature.broken");
 
 		refreshAllBounds();
 	}

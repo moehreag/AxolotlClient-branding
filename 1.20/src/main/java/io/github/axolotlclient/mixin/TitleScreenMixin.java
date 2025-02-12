@@ -87,12 +87,19 @@ public abstract class TitleScreenMixin extends Screen {
 			buttons.add(addDrawableChild(new AuthWidget(10, leftButtonY)));
 			leftButtonY += 25;
 		}
-		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
-			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends"),
-				w -> client.setScreen(new FriendsScreen(this))).positionAndSize(10, leftButtonY, 50, 20).build()));
-			leftButtonY += 25;
-			buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.chats"),
-				w -> client.setScreen(new ChatListScreen(this))).positionAndSize(10, leftButtonY, 50, 20).build()));
+		if (APIOptions.getInstance().addShortcutButtons.get()) {
+			int shortcutButtonY = leftButtonY;
+			Runnable addApiButtons = () -> client.execute(() -> {
+				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends"),
+					w -> client.setScreen(new FriendsScreen(this))).positionAndSize(10, shortcutButtonY, 50, 20).build()));
+				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.chats"),
+					w -> client.setScreen(new ChatListScreen(this))).positionAndSize(10, shortcutButtonY+25, 50, 20).build()));
+			});
+			if (API.getInstance().isSocketConnected()) {
+				addApiButtons.run();
+			} else {
+				API.addStartupListener(addApiButtons, API.ListenerType.ONCE);
+			}
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;

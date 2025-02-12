@@ -85,10 +85,9 @@ public class BedwarsPlayerStats {
 
 	public static BedwarsPlayerStats fromAPI(String uuid) {
 		BedwarsData data = HypixelAbstractionLayer.getBedwarsData(uuid);
-		return new BedwarsPlayerStats(data.finalKills(), data.finalDeaths(), data.bedsBroken(),
+		return new BedwarsPlayerStats(data.losses(), data.wins(), data.winstreak(), HypixelAbstractionLayer.getBedwarsLevel(uuid), data.finalKills(), data.finalDeaths(), data.bedsBroken(),
 			data.deaths(), data.kills(), 0, 0, 0,
-			0, 0, data.losses(), data.wins(), data.winstreak(),
-			HypixelAbstractionLayer.getBedwarsLevel(uuid));
+			0, 0);
 	}
 
 	public void addDeath() {

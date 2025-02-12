@@ -40,7 +40,7 @@ dependencies {
 
 	implementation(include(project(path = ":common", configuration = "shadow"))!!)
 
-	modImplementation(include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")!!)
+	modApi(include("io.github.moehreag:search-in-resources:1.0.6+1.8.9")!!)
 
 	val lwjglVersion = "3.3.5"
 	api("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
@@ -57,6 +57,8 @@ dependencies {
 	}
 	implementation(include("org.slf4j:slf4j-api:1.7.36")!!)
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
+
+	compileOnly("org.lwjgl:lwjgl-glfw:${lwjglVersion}")
 
 	modCompileOnly("io.github.moehreag:legacy-lwjgl3:${project.property("legacy_lwgjl3")}") {
 		exclude(group = "org.lwjgl", module = "lwjgl-glfw")
@@ -75,7 +77,7 @@ dependencies {
 		exclude(group = "org.javassist")
 	}
 
-	implementation("org.lwjgl", "lwjgl-tinyfd", "3.3.5")
+	include(implementation("org.lwjgl", "lwjgl-tinyfd", "3.3.5"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-linux"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos"))
@@ -83,8 +85,8 @@ dependencies {
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-windows-arm64"))
 	include(runtimeOnly("org.lwjgl", "lwjgl-tinyfd", "3.3.5", classifier = "natives-macos-arm64"))
 
-	implementation("net.hypixel:mod-api:1.0.1")
-	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.2+mc1.8.9")!!)
+	api("net.hypixel:mod-api:1.0.1")
+	include(modImplementation("io.github.moehreag.hypixel:mod-api-fabric:1.0.1+build.4+mc1.8.9")!!)
 }
 
 configurations.configureEach {
@@ -105,7 +107,10 @@ tasks.processResources {
 }
 
 tasks.runClient {
-	jvmArgs("-Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient")
+	if (project.property("native_glfw") == "true") {
+		val glfwPath = project.properties.getOrDefault("native_glfw_path", "/usr/lib/libglfw.so")
+		jvmArgs("-Dorg.lwjgl.glfw.libname=$glfwPath")
+	}
 	classpath(sourceSets.getByName("test").runtimeClasspath)
 }
 
@@ -126,7 +131,7 @@ java {
 publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
-			artifactId = project.name
+			artifactId = base.archivesName.get()
 			from(components["java"])
 		}
 	}

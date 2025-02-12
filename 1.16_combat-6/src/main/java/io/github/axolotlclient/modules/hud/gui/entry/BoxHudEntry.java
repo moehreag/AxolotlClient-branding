@@ -94,7 +94,6 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 	public void renderPlaceholder(MatrixStack matrices, float delta) {
 		matrices.push();
 		renderPlaceholderBackground(matrices);
-		outlineRect(matrices, getTrueBounds(), ClientColors.BLACK);
 		scale(matrices);
 		renderPlaceholderComponent(matrices, delta);
 		matrices.pop();
@@ -102,9 +101,4 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 	}
 
 	public abstract void renderPlaceholderComponent(MatrixStack matrices, float delta);
-
-	@Override
-	public boolean movable() {
-		return true;
-	}
 }

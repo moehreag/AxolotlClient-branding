@@ -94,7 +94,6 @@ public abstract class BoxHudEntry extends AbstractHudEntry {
 	public void renderPlaceholder(float delta) {
 		GlStateManager.pushMatrix();
 		renderPlaceholderBackground();
-		outlineRect(getTrueBounds(), ClientColors.BLACK);
 		scale();
 		GlStateManager.enableTexture();
 		renderPlaceholderComponent(delta);

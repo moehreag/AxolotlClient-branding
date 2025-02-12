@@ -22,6 +22,7 @@
 
 package io.github.axolotlclient.api.requests;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -90,12 +91,19 @@ public class FriendRequest {
 	}
 
 	@SuppressWarnings("unchecked")
-	public CompletableFuture<List<User>> getFriends() {
+	public CompletableFuture<List<String>> getFriendUuids() {
 		return api.get(Request.Route.ACCOUNT_RELATIONS_FRIENDS.builder().build())
 			.thenApply(r -> {
-				List<String> uuids = (List<String>) r.getBody();
-				return uuids.stream().map(UserRequest::get).map(CompletableFuture::join).map(Optional::orElseThrow).toList();
+				if (!r.isError()) {
+					return (List<String>) r.getBody();
+				}
+				return new ArrayList<>();
 			});
+	}
+
+	public CompletableFuture<List<User>> getFriends() {
+		return getFriendUuids()
+			.thenApply(r -> r.stream().map(UserRequest::get).map(CompletableFuture::join).map(Optional::orElseThrow).toList());
 	}
 
 	public CompletableFuture<BiContainer<List<User>, List<User>>> getFriendRequests() {

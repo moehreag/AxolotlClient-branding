@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.PotionsHud;
@@ -36,7 +35,6 @@ import io.github.axolotlclient.util.events.impl.ScoreboardRenderEvent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.RenderList;
 import net.minecraft.client.gui.hud.in_game.InGameHud;
 import net.minecraft.client.render.DeltaTracker;
 import net.minecraft.entity.Entity;
@@ -59,13 +57,11 @@ public abstract class InGameHudMixin {
 	@Shadow
 	private int overlayRemaining;
 
-	@Inject(method = "<init>", at = @At(value = "TAIL"))
-	private void onHudRender(MinecraftClient client, CallbackInfo ci, @Local(ordinal = 1) RenderList list) {
-		list.add((guiGraphics, deltaTracker) -> {
-			if (!MinecraftClient.getInstance().options.hudHidden) {
-				HudManager.getInstance().render(guiGraphics, deltaTracker);
-			}
-		});
+	@Inject(method = "render", at = @At(value = "TAIL"))
+	private void onHudRender(GuiGraphics graphics, DeltaTracker tracker, CallbackInfo ci) {
+		if (!MinecraftClient.getInstance().options.hudHidden) {
+			HudManager.getInstance().render(graphics, tracker);
+		}
 	}
 
 	@Inject(method = "renderStatusEffectOverlay", at = @At(value = "HEAD"))
@@ -138,9 +134,9 @@ public abstract class InGameHudMixin {
 		HotbarHUD hud = (HotbarHUD) HudManager.getInstance().get(HotbarHUD.ID);
 		if (hud.isEnabled()) {
 			args.set(2, hud.getX() + (int) ((hud.getWidth() * hud.getScale())
-											- MinecraftClient.getInstance().textRenderer.getWidth((StringVisitable) args.get(1))) / 2);
+				- MinecraftClient.getInstance().textRenderer.getWidth((StringVisitable) args.get(1))) / 2);
 			args.set(3, hud.getY() - 36
-						+ (!MinecraftClient.getInstance().interactionManager.hasStatusBars() ? 14 : 0));
+				+ (!MinecraftClient.getInstance().interactionManager.hasStatusBars() ? 14 : 0));
 		}
 	}
 
@@ -216,8 +212,8 @@ public abstract class InGameHudMixin {
 	)
 	public int axolotlclient$displayHardcoreHearts(int v) {
 		boolean hardcore = BedwarsMod.getInstance().isEnabled() &&
-						   BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().hardcoreHearts.get() &&
-						   !BedwarsMod.getInstance().getGame().get().getSelf().isBed();
+			BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().hardcoreHearts.get() &&
+			!BedwarsMod.getInstance().getGame().get().getSelf().isBed();
 		return hardcore ? 9 * 5 : v;
 	}
 

@@ -32,6 +32,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tessellator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.mixin.TextureManagerAccessor;
 import io.github.axolotlclient.mixin.WorldRendererAccessor;
 import io.github.axolotlclient.util.Util;
 import net.minecraft.client.Minecraft;
@@ -341,6 +342,7 @@ public abstract class SkyboxInstance {
 		for (Identifier id : textures) {
 			try {
 				Minecraft.getInstance().getTextureManager().close(id);
+				((TextureManagerAccessor)Minecraft.getInstance().getTextureManager()).getTextures().remove(id);
 			} catch (Exception ignored) {
 			}
 		}

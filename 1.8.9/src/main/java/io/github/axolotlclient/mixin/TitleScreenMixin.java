@@ -24,7 +24,11 @@ package io.github.axolotlclient.mixin;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.llamalad7.mixinextras.sugar.Local;
@@ -56,7 +60,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
@@ -64,22 +67,25 @@ public abstract class TitleScreenMixin extends Screen {
 	@Shadow
 	public abstract void render(int par1, int par2, float par3);
 
-	@ModifyArgs(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;<init>(IIILjava/lang/String;)V", ordinal = 2))
-	private void axolotlclient$replaceRealmsButton(Args args) {
-		if (!axolotlclient$alternateLayout()) {
-
-			args.set(0, 192);
-			args.set(3, I18n.translate("config") + "...");
-		}
+	@Inject(method = "initWidgetsNormal", at = @At("TAIL"))
+	private void axolotlclient$replaceRealmsButton(int i, int j, CallbackInfo ci) {
+		List<ButtonWidget> buttons = new ArrayList<>();
 		int leftButtonY = 10;
 		if (Auth.getInstance().showButton.get()) {
 			buttons.add(new AuthWidget(10, leftButtonY));
 			leftButtonY += 25;
 		}
-		if (APIOptions.getInstance().addShortcutButtons.get() && API.getInstance().isAuthenticated()) {
-			buttons.add(new ButtonWidget(142, 10, leftButtonY, 50, 20, I18n.translate("api.friends")));
-			leftButtonY += 25;
-			buttons.add(new ButtonWidget(42, 10, leftButtonY, 50, 20, I18n.translate("api.chats")));
+		if (APIOptions.getInstance().addShortcutButtons.get()) {
+			int y = leftButtonY;
+			Runnable addApiButtons = () -> minecraft.submit(() -> {
+				buttons.add(new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends")));
+				buttons.add(new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats")));
+			});
+			if (API.getInstance().isSocketConnected()) {
+				addApiButtons.run();
+			} else {
+				API.addStartupListener(addApiButtons, API.ListenerType.ONCE);
+			}
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
 			int buttonY = 10;
@@ -95,11 +101,33 @@ public abstract class TitleScreenMixin extends Screen {
 					I18n.translate("api.notes")));
 			}
 		});
+		this.buttons.addAll(buttons);
+
+		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+			try {
+				Class<?> booleanConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.BooleanConfigOption");
+				Class<?> enumConfigOpt = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.option.EnumConfigOption");
+				Class<?> titleMenuButtonStyle = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig$TitleMenuButtonStyle");
+				Class<?> modmenuConfig = MethodHandles.lookup().findClass("com.terraformersmc.modmenu.config.ModMenuConfig");
+				MethodHandle modifyTitleScreenHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODIFY_TITLE_SCREEN", booleanConfigOpt);
+				MethodHandle getValueB = MethodHandles.lookup().findVirtual(booleanConfigOpt, "getValue", MethodType.methodType(boolean.class));
+				MethodHandle getValueE = MethodHandles.lookup().findVirtual(enumConfigOpt, "getValue", MethodType.methodType(Enum.class));
+				var modifyTitleScreen = modifyTitleScreenHandle.invoke();
+				boolean isModifyTitleScreen = (boolean) getValueB.invoke(modifyTitleScreen);
+				MethodHandle modsButtonStyleHandle = MethodHandles.lookup().findStaticGetter(modmenuConfig, "MODS_BUTTON_STYLE", enumConfigOpt);
+				var modsButtonStyle = getValueE.invoke(modsButtonStyleHandle.invoke());
+				var classic = titleMenuButtonStyle.getEnumConstants()[0];
+				if (isModifyTitleScreen && modsButtonStyle == classic) {
+					buttons.forEach(r -> r.y -= 24 / 2);
+				}
+			} catch (Throwable ignored) {
+			}
+		}
 	}
 
 	@Unique
 	private boolean axolotlclient$alternateLayout() {
-		return FabricLoader.getInstance().isModLoaded("modmenu") && !FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
+		return !FabricLoader.getInstance().isModLoaded("modmenu") || FabricLoader.getInstance().isModLoaded("axolotlclient-modmenu");
 	}
 
 	@Inject(method = "initWidgetsNormal", at = @At("TAIL"))

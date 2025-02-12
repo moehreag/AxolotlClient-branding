@@ -24,11 +24,13 @@ package io.github.axolotlclient.modules.auth;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
-import io.github.axolotlclient.util.ThreadExecuter;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 public class Account {
 
@@ -37,16 +39,22 @@ public class Account {
 	@Getter
 	private final String uuid;
 	@Getter
-	private final String name;
+	@Setter(AccessLevel.PACKAGE)
+	private String name;
 
 	@Getter(AccessLevel.PACKAGE)
-	private final String msaToken;
+	@Setter(AccessLevel.PACKAGE)
+	private String msaToken;
 
 	@Getter
-	private final String authToken;
+	@Setter(AccessLevel.PACKAGE)
+	private String authToken;
 	@Getter(AccessLevel.PACKAGE)
-	private final String refreshToken;
-	private final Instant expiration;
+	@Setter(AccessLevel.PACKAGE)
+	private String refreshToken;
+	@Setter(AccessLevel.PACKAGE)
+	@Getter
+	private Instant expiration;
 
 	public Account(String name, String uuid, String accessToken, Instant expiration, String refreshToken, String msaToken) {
 		this.name = name;
@@ -59,10 +67,6 @@ public class Account {
 
 	public Account(String name, String uuid, String accessToken) {
 		this(name, uuid.replace("-", ""), accessToken, Instant.EPOCH, "", "");
-	}
-
-	public Account(JsonObject profile, String authToken, String msaToken, String refreshToken) {
-		this(profile.get("name").getAsString(), profile.get("id").getAsString(), authToken, Instant.now().plus(1, ChronoUnit.DAYS), refreshToken, msaToken);
 	}
 
 	private Account(String uuid, String name, String authToken, String msaToken, String refreshToken, long expiration) {
@@ -79,8 +83,8 @@ public class Account {
 		return new Account(uuid, name, authToken, msaToken, refreshToken, expiration);
 	}
 
-	public void refresh(MSAuth auth, Runnable runAfter) {
-		ThreadExecuter.scheduleTask(() -> auth.refreshToken(refreshToken, this, runAfter));
+	public CompletableFuture<Optional<Account>> refresh(MSAuth auth) {
+		return auth.refreshToken(refreshToken, this);
 	}
 
 	public boolean isOffline() {
@@ -103,14 +107,13 @@ public class Account {
 	}
 
 	public boolean needsRefresh() {
-		return Instant.now().isAfter(expiration.minus(6, ChronoUnit.HOURS));
+		return Instant.now().isAfter(expiration.minus(2, ChronoUnit.HOURS));
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Account other) {
-			return name.equals(other.name) &&
-				uuid.equals(other.uuid);
+			return uuid.equals(other.uuid);
 		}
 		return false;
 	}

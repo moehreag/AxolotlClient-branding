@@ -26,20 +26,15 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.*;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.api.handlers.*;
 import io.github.axolotlclient.api.requests.AccountSettingsRequest;
 import io.github.axolotlclient.api.requests.GlobalDataRequest;
 import io.github.axolotlclient.api.types.*;
-import io.github.axolotlclient.api.util.MojangAuth;
-import io.github.axolotlclient.api.util.SocketMessageHandler;
-import io.github.axolotlclient.api.util.StatusUpdateProvider;
-import io.github.axolotlclient.api.util.TimestampParser;
+import io.github.axolotlclient.api.util.*;
 import io.github.axolotlclient.modules.auth.Account;
 import io.github.axolotlclient.util.GsonHelper;
 import io.github.axolotlclient.util.Logger;
@@ -74,15 +69,17 @@ public class API {
 	private AccountSettings settings;
 	private HttpClient client;
 	private CompletableFuture<?> restartingFuture;
-	private static final List<Runnable> afterStartupListeners = new ArrayList<>();
+	private Future<?> statusUpdateFuture;
+	private final ScheduledExecutorService statusUpdateExecutor;
+	private static final List<BiContainer<Runnable, ListenerType>> afterStartupListeners = new ArrayList<>();
 
-	public API(Logger logger, NotificationProvider notificationProvider, TranslationProvider translationProvider,
+	public API(Logger logger, TranslationProvider translationProvider,
 			   StatusUpdateProvider statusUpdateProvider, Options apiOptions) {
 		if (Instance != null) {
 			throw new IllegalStateException("API may only be instantiated once!");
 		}
 		this.logger = logger;
-		this.notificationProvider = notificationProvider;
+		this.notificationProvider = AxolotlClientCommon.getInstance().getNotificationProvider();
 		this.translationProvider = translationProvider;
 		this.statusUpdateProvider = statusUpdateProvider;
 		this.apiOptions = apiOptions;
@@ -93,18 +90,27 @@ public class API {
 		handlers.add(new StatusUpdateHandler());
 		handlers.add(new ChannelInviteHandler());
 		Instance = this;
+		statusUpdateExecutor = Executors.newSingleThreadScheduledExecutor();
 		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 	}
 
 	public static void addStartupListener(Runnable listener) {
-		afterStartupListeners.add(listener);
+		afterStartupListeners.add(BiContainer.of(listener, ListenerType.REPEATING));
 	}
 
+	public static void addStartupListener(Runnable listener, ListenerType type) {
+		afterStartupListeners.add(BiContainer.of(listener, type));
+	}
+
+	public enum ListenerType {
+		ONCE, REPEATING
+	}
 
 	public void onOpen(WebSocket channel) {
-		this.socket = channel;
 		logger.debug("API connected!");
-		afterStartupListeners.forEach(Runnable::run);
+		afterStartupListeners.forEach(p -> p.getLeft().run());
+		afterStartupListeners.removeIf(p -> p.getRight() == ListenerType.ONCE);
+		this.socket = channel;
 	}
 
 	private void authenticate() {
@@ -168,10 +174,11 @@ public class API {
 						logDetailed("Created self user!");
 					}),
 				AccountSettingsRequest.get().thenAccept(r -> {
-					apiOptions.retainUsernames.set(r.isRetainUsernames());
-					apiOptions.showActivity.set(r.isShowActivity());
-					apiOptions.showLastOnline.set(r.isShowLastOnline());
-					apiOptions.showRegistered.set(r.isShowRegistered());
+					apiOptions.retainUsernames.set(r.retainUsernames());
+					apiOptions.showActivity.set(r.showActivity());
+					apiOptions.showLastOnline.set(r.showLastOnline());
+					apiOptions.showRegistered.set(r.showRegistered());
+					apiOptions.allowFriendsImageAccess.set(r.allowFriendsImageAccess());
 				})).thenRun(() -> logDetailed("completed data requests")).join();
 			createSession();
 			startStatusUpdateThread();
@@ -287,6 +294,10 @@ public class API {
 		if (restartingFuture != null) {
 			restartingFuture.cancel(true);
 			restartingFuture = null;
+		}
+		if (statusUpdateFuture != null) {
+			statusUpdateFuture.cancel(true);
+			statusUpdateFuture = null;
 		}
 		if (isAuthenticated()) {
 			logger.debug("Shutting down API");
@@ -438,27 +449,15 @@ public class API {
 
 	private void startStatusUpdateThread() {
 		statusUpdateProvider.initialize();
-		new Thread("Status Update Thread") {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException ignored) {
-				}
-				while (API.getInstance().isAuthenticated()) {
-					Request request = statusUpdateProvider.getStatus();
-					if (request != null) {
-						post(request);
-					}
-					try {
-						//noinspection BusyWait
-						Thread.sleep(Constants.STATUS_UPDATE_DELAY * 1000);
-					} catch (InterruptedException ignored) {
-
-					}
-				}
+		if (statusUpdateFuture != null) {
+			statusUpdateFuture.cancel(true);
+		}
+		statusUpdateFuture = statusUpdateExecutor.scheduleAtFixedRate(() -> {
+			Request request = statusUpdateProvider.getStatus();
+			if (request != null) {
+				post(request);
 			}
-		}.start();
+		}, 50, Constants.STATUS_UPDATE_DELAY * 1000, TimeUnit.MILLISECONDS);
 	}
 
 	public String sanitizeUUID(String uuid) {

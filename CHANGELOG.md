@@ -1,5 +1,17 @@
 ## Changelog:
 
+### 3.1.1
+
+- Add screenshot gallery
+- Fix various bugs & crashes
+- Skip Celestial sky packs while scanning for custom skies
+- (1.8.9, 1.16) Enable texture nine-slicing for all ButtonWidgets
+- Update bedwars module
+- add secondary keybinding for freelook
+- add options to display durability numbers for ArmorHuds
+- Add option to display the current biome on the CoordHuds
+- (1.21.1) remove custom sky module, please just use fabricskyboxes or celestial instead (it was broken anyway)
+
 ### 3.1.0
 
 - Add a new Backend (made with help from `@Astralchroma`)

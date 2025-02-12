@@ -32,7 +32,7 @@ dependencies {
 		officialMojangMappings {
 			nameSyntheticMembers = true
 		}
-		parchment("org.parchmentmc.data:parchment-1.21.4:2024.12.22@zip")
+		parchment("org.parchmentmc.data:parchment-1.21.4:2024.12.29@zip")
 	})
 
 	modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader")}")
@@ -100,7 +100,7 @@ tasks.runClient {
 publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
-			artifactId = project.name
+			artifactId = base.archivesName.get()
 			from(components["java"])
 		}
 	}

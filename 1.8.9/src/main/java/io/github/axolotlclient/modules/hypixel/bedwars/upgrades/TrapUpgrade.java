@@ -49,6 +49,7 @@ public class TrapUpgrade extends TeamUpgrade {
 	private final static Pattern[] REGEX = {
 		Pattern.compile("^\\b[A-Za-z0-9_§]{3,16}\\b purchased (.+) Trap.?\\s*$"),
 		Pattern.compile("Trap was set (off)!"),
+		Pattern.compile("Removed (.+) Trap from the (queue)!\\s*$")
 	};
 
 	private final List<TrapType> traps = new ArrayList<>(3);
@@ -64,7 +65,12 @@ public class TrapUpgrade extends TeamUpgrade {
 			traps.remove(0);
 			return;
 		}
-		traps.add(TrapType.getFuzzy(matcher.group(1)));
+		TrapType type = TrapType.getFuzzy(matcher.group(1));
+		if (matcher.groupCount() >= 2 && matcher.group(2).equals("queue")) {
+			traps.remove(type);
+			return;
+		}
+		traps.add(type);
 	}
 
 	public boolean canPurchase() {
@@ -73,25 +79,22 @@ public class TrapUpgrade extends TeamUpgrade {
 
 	@Override
 	public int getPrice(BedwarsMode mode) {
-		switch (traps.size()) {
-			case 0:
-				return 1;
-			case 1:
-				return 2;
-			case 2:
-				return 4;
-		}
-		return 0;
+		return switch (traps.size()) {
+			case 0 -> 1;
+			case 1 -> 2;
+			case 2 -> 4;
+			default -> 0;
+		};
 	}
 
 	@Override
 	public boolean isPurchased() {
-		return traps.size() > 0;
+		return !traps.isEmpty();
 	}
 
 	@Override
 	public void draw(int x, int y, int width, int height) {
-		if (traps.size() == 0) {
+		if (traps.isEmpty()) {
 			Color color = ClientColors.DARK_GRAY;
 			GlStateManager.color4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
 			Minecraft.getInstance().getTextureManager().bind(new Identifier("textures/items/barrier.png"));

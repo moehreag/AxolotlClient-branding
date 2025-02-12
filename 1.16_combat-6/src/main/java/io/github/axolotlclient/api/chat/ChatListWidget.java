@@ -69,7 +69,7 @@ public class ChatListWidget extends ElementListWidget<ChatListWidget.ChatListEnt
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return super.getScrollbarPositionX() - 6;
+		return getRowLeft() + width - 6;
 	}
 
 	public ChatListWidget(ContextMenuScreen screen, int screenWidth, int screenHeight, int x, int y, int width, int height) {

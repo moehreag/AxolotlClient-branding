@@ -27,8 +27,12 @@ import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.OptionCategoryImpl;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.BooleanWidget;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.CategoryWidget;
+import io.github.axolotlclient.modules.hud.util.DrawUtil;
+import io.github.axolotlclient.util.ButtonWidgetTextures;
+import io.github.axolotlclient.util.options.ForceableBooleanOption;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.TextRenderer;
+import net.minecraft.resource.Identifier;
 
 public class QuickToggleCategoryWidget extends CategoryWidget {
 	private BooleanWidget enabledButton;
@@ -39,7 +43,18 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 			.filter(o -> o instanceof BooleanOption)
 			.map(o -> (BooleanOption) o)
 			.filter(o -> "enabled".equals(o.getName())).findFirst()
-			.ifPresent(booleanOption -> enabledButton = new BooleanWidget(x + (width - 33), y + 3, 30, height - 5, booleanOption));
+			.ifPresent(booleanOption -> {
+				enabledButton = new BooleanWidget(x + (width - 33), y + 3, 30, height - 5, booleanOption) {
+					@Override
+					protected void drawWidget(int mouseX, int mouseY, float delta) {
+						Identifier tex = ButtonWidgetTextures.get(!this.active ? 0 : (this.isHovered() ? 2 : 1));
+						DrawUtil.blitSprite(tex, this.getX(), this.getY(), this.getWidth(), this.getHeight(), new DrawUtil.NineSlice(200, 20, 3));
+
+						DrawUtil.drawScrollableText(client.textRenderer, getMessage(), getX() + 2, getY(), getX() + getWidth() - 2, getY() + getHeight(), !this.active ? 10526880 : (this.hovered ? 16777120 : 14737632));
+					}
+				};
+				enabledButton.active = !(booleanOption instanceof ForceableBooleanOption o && o.isForceOff());
+			});
 	}
 
 	@Override

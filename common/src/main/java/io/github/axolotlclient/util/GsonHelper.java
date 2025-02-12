@@ -30,10 +30,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 
 public class GsonHelper {
@@ -41,6 +40,9 @@ public class GsonHelper {
 	public static final Gson GSON = new GsonBuilder().create();
 
 	public static JsonObject fromJson(String s) {
+		if (s == null || s.isEmpty()) {
+			return new JsonObject();
+		}
 		return GSON.fromJson(s, JsonObject.class);
 	}
 
@@ -105,5 +107,11 @@ public class GsonHelper {
 			default:
 				throw new IllegalStateException();
 		}
+	}
+
+	public static Stream<JsonElement> jsonArrayToStream(JsonArray array) {
+		List<JsonElement> elements = new ArrayList<>(array.size());
+		array.forEach(elements::add);
+		return elements.stream();
 	}
 }

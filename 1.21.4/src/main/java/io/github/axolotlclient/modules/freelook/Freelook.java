@@ -22,6 +22,9 @@
 
 package io.github.axolotlclient.modules.freelook;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
@@ -39,72 +42,75 @@ import net.minecraft.world.entity.Entity;
 
 public class Freelook extends AbstractModule {
 
-	private static final Freelook Instance = new Freelook();
-	private static final KeyMapping KEY =
-		KeyBinds.getInstance().register(new KeyMapping("key.freelook", InputConstants.KEY_V, "category.axolotlclient"));
+	private static final Freelook INSTANCE = new Freelook();
+	private static final KeyMapping KEY = KeyBinds.getInstance().register(new KeyMapping("key.freelook", InputConstants.KEY_V, "category.axolotlclient"));
+	private static final KeyMapping KEY_ALT = KeyBinds.getInstance().register(new KeyMapping("key.freelook.alt", InputConstants.UNKNOWN.getValue(), "category.axolotlclient"));
 	public final ForceableBooleanOption enabled = new ForceableBooleanOption("enabled", false);
 	private final Minecraft client = Minecraft.getInstance();
 	private final OptionCategory category = OptionCategory.create("freelook");
 	private final StringArrayOption mode =
 		new StringArrayOption("mode", new String[]{"snap_perspective", "freelook"}, "freelook",
-							  value -> FeatureDisabler.update()
+			value -> FeatureDisabler.update()
 		);
+	private final BooleanOption invert = new BooleanOption("invert", false);
 	private final EnumOption<CameraType> perspective =
 		new EnumOption<CameraType>("perspective", CameraType.class, CameraType.THIRD_PERSON_BACK);
-	private final BooleanOption invert = new BooleanOption("invert", false);
 	private final BooleanOption toggle = new BooleanOption("toggle", false);
-	public boolean active;
+	private final EnumOption<CameraType> perspectiveAlt = new EnumOption<>("perspective.alt", CameraType.class,
+		CameraType.THIRD_PERSON_FRONT);
+	private final BooleanOption toggleAlt = new BooleanOption("toggle.alt", false);
+	private final WrappedValue active = new WrappedValue(), activeAlt = new WrappedValue();
 	private float yaw, pitch;
-	private CameraType previousPerspective;
-
-	public Freelook() {
-	}
+	private final Deque<CameraType> previousPerspectives = new ArrayDeque<>();
 
 	public static Freelook getInstance() {
-		return Instance;
+		return INSTANCE;
 	}
 
 	@Override
 	public void init() {
 		category.add(enabled, mode, perspective, invert, toggle);
+		category.add(perspectiveAlt, toggleAlt);
 		AxolotlClient.CONFIG.addCategory(category);
 	}
 
 	@Override
 	public void tick() {
-		if (!enabled.get()) return;
+		if (!enabled.get() || client.screen != null) return;
+		tickSet(toggle, KEY, perspective, active);
+		tickSet(toggleAlt, KEY_ALT, perspectiveAlt, activeAlt);
+	}
 
+	private void tickSet(BooleanOption toggle, KeyMapping key, EnumOption<CameraType> perspective, WrappedValue active) {
 		if (toggle.get()) {
-			if (KEY.consumeClick()) {
-				if (active) {
-					stop();
+			if (key.consumeClick()) {
+				if (active.val) {
+					stop(active);
 				} else {
-					start();
+					start(perspective.get(), active);
 				}
 			}
 		} else {
-			if (KEY.isDown()) {
-				if (!active) {
-					start();
+			if (key.isDown()) {
+				if (!active.val) {
+					start(perspective.get(), active);
 				}
-			} else if (active) {
-				stop();
+			} else if (active.val) {
+				stop(active);
 			}
 		}
 	}
 
-	private void stop() {
-		active = false;
+	private void stop(WrappedValue active) {
+		active.val = false;
 		client.levelRenderer.needsUpdate();
-		setPerspective(previousPerspective);
+		setPerspective(previousPerspectives.pop());
 	}
 
-	private void start() {
-		active = true;
-
-
-		previousPerspective = client.options.getCameraType();
-		setPerspective(perspective.get());
+	private void start(CameraType perspective, WrappedValue active) {
+		previousPerspectives.push(client.options.getCameraType());
+		active.val = true;
+		setPerspective(perspective);
 
 		Entity camera = client.getCameraEntity();
 
@@ -120,7 +126,7 @@ public class Freelook extends AbstractModule {
 	}
 
 	public boolean consumeRotation(double dx, double dy) {
-		if (!active || !enabled.get() || !mode.get().equals("freelook")) return false;
+		if (!(active.val || activeAlt.val) || !enabled.get() || !mode.get().equals("freelook")) return false;
 
 		if (!invert.get()) dy = -dy;
 
@@ -141,18 +147,26 @@ public class Freelook extends AbstractModule {
 	}
 
 	public float yaw(float defaultValue) {
-		if (!active || !enabled.get() || !mode.get().equals("freelook")) return defaultValue;
+		if (!(active.val || activeAlt.val) || !enabled.get() || !mode.get().equals("freelook")) return defaultValue;
 
 		return yaw;
 	}
 
 	public float pitch(float defaultValue) {
-		if (!active || !enabled.get() || !mode.get().equals("freelook")) return defaultValue;
+		if (!(active.val || activeAlt.val) || !enabled.get() || !mode.get().equals("freelook")) return defaultValue;
 
 		return pitch;
 	}
 
 	public boolean needsDisabling() {
 		return mode.get().equals("freelook");
+	}
+
+	public boolean isActive(){
+		return active.val || activeAlt.val;
+	}
+
+	private static class WrappedValue {
+		boolean val;
 	}
 }

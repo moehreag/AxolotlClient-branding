@@ -69,10 +69,11 @@ public class Auth extends Accounts implements Module {
 		if (isContained(client.getSession().getSessionId())) {
 			current = getAccounts().stream().filter(account -> account.getUuid()
 				.equals(UndashedUuid.toString(client.getSession().getPlayerUuid()))).toList().getFirst();
-			if (current.needsRefresh()) {
-				current.refresh(auth, () -> {
-				});
-			}
+			current.setAuthToken(client.getSession().getAccessToken());
+			current.setName(client.getSession().getUsername());
+			/*if (current.needsRefresh()) {
+				current.refresh(auth).thenRun(this::save);
+			}*/
 		} else {
 			current = new Account(client.getSession().getUsername(), UndashedUuid.toString(client.getSession().getPlayerUuid()), client.getSession().getAccessToken());
 		}
@@ -97,9 +98,11 @@ public class Auth extends Accounts implements Module {
 			if (account.isExpired()) {
 				Notifications.getInstance().addStatus(Text.translatable("auth.notif.title"), Text.translatable("auth.notif.refreshing", account.getName()));
 			}
-			account.refresh(auth, () -> {
-				getAccounts().stream().filter(a -> account.getUuid().equals(a.getUuid())).findFirst().ifPresent(this::login);
-			});
+			account.refresh(auth).thenAccept(res -> res.ifPresent(a -> {
+				if (!a.isExpired()) {
+					login(a);
+				}
+			})).thenRun(this::save);
 		} else {
 			try {
 				API.getInstance().shutdown();
@@ -138,16 +141,14 @@ public class Auth extends Accounts implements Module {
 		client.execute(() -> client.setScreen(new ConfirmScreen((bl) -> {
 			client.setScreen(current);
 			if (bl) {
-				auth.startDeviceAuth(() -> {
-				});
+				auth.startDeviceAuth();
 			}
 		}, Text.translatable("auth"), Text.translatable("auth.accountExpiredNotice", account.getName()))));
 	}
 
 	@Override
 	void displayDeviceCode(DeviceFlowData data) {
-		Screen display = new DeviceCodeDisplayScreen(client.currentScreen, data);
-		client.setScreen(display);
+		client.execute(() -> client.setScreen(new DeviceCodeDisplayScreen(client.currentScreen, data)));
 	}
 
 	private void loadTexture(String uuid) {

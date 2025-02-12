@@ -42,7 +42,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.Objective;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -54,16 +53,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class InGameHudMixin {
 
 	@Shadow
-	private @Nullable Component overlayMessageString;
-
-	@Shadow
-	private int overlayMessageTime;
-
-	@Shadow
 	@Final
 	private Minecraft minecraft;
 
-	@Inject(method = "render", at = @At(value = "HEAD"))
+	@Inject(method = "render", at = @At(value = "TAIL"))
 	private void onHudRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (!minecraft.options.hideGui) {
 			HudManager.getInstance().render(guiGraphics, deltaTracker);

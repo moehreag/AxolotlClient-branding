@@ -22,22 +22,23 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.AxolotlClient;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Axis;
 import net.minecraft.util.random.RandomGenerator;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -72,35 +73,20 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 				matrixStack.multiply(Axis.Y_POSITIVE.rotationDegrees(itemEntity.getPitch()).get(matrix));
 				matrixStack.multiply(Axis.Z_POSITIVE.rotationDegrees(itemEntity.getPitch()).get(matrix));
 			}
-			float o = bakedModel.getTransformation().ground.scale.x();
-			float p = bakedModel.getTransformation().ground.scale.y();
-			float q = bakedModel.getTransformation().ground.scale.z();
-			for (int u = 0; u < k; ++u) {
-				matrixStack.push();
-				if (u > 0) {
-					if (bl) {
-						float s = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
-						float t = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
-						float v = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
-						matrixStack.translate(s, t, v);
-					} else {
-						float s = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
-						float t = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
-						matrixStack.translate(s, t, 0.0F);
-					}
-				}
+		}
+	}
 
-				this.itemRenderer
-					.renderItem(itemStack, ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i, OverlayTexture.DEFAULT_UV, bakedModel);
-				matrixStack.pop();
-				if (!bl) {
-					matrixStack.translate(0.0F * o, 0.0F * p, 0.09375F * q);
-				}
-			}
+	@WrapOperation(method = "render(Lnet/minecraft/entity/ItemEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V"))
+	private void removeTranslationIfPhysicsOn(MatrixStack instance, float x, float y, float z, Operation<Void> original) {
+		if (!AxolotlClient.CONFIG.flatItems.get()) {
+			original.call(instance, x, y, z);
+		}
+	}
 
-			matrixStack.pop();
-			super.render(itemEntity, f, g, matrixStack, vertexConsumerProvider, i);
-			ci.cancel();
+	@WrapOperation(method = "render(Lnet/minecraft/entity/ItemEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;rotate(Lorg/joml/Quaternionf;)V"))
+	private void removeRotationIfPhysicsOn(MatrixStack instance, Quaternionf quaternionf, Operation<Void> original) {
+		if (!AxolotlClient.CONFIG.flatItems.get()) {
+			original.call(instance, quaternionf);
 		}
 	}
 }

@@ -49,9 +49,9 @@ public abstract class CameraMixin {
 	private void axolotlclient$perspectiveUpdatePitchYaw(BlockView area, Entity focusedEntity, boolean thirdPerson,
 														 boolean inverseView, float tickDelta, CallbackInfo ci) {
 		this.pitch = Freelook.getInstance().pitch(pitch)
-					 * (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().active ? -1 : 1);
+					 * (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive() ? -1 : 1);
 		this.yaw = Freelook.getInstance().yaw(yaw)
-				   + (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().active ? 180 : 0);
+				   + (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive() ? 180 : 0);
 	}
 
 	@ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "net/minecraft/client/render/Camera.setRotation(FF)V", ordinal = 0))
@@ -62,7 +62,7 @@ public abstract class CameraMixin {
 
 	@ModifyArg(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;moveBy(DDD)V", ordinal = 0), index = 0)
 	private double axolotlclient$correctDistance(double x) {
-		if (Freelook.getInstance().enabled.get() && Freelook.getInstance().active
+		if (Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive()
 			&& MinecraftClient.getInstance().options.getPerspective().isFrontView()) {
 			return -clipToSpace(4);
 		}

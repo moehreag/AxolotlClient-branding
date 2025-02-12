@@ -67,7 +67,9 @@ public class BedwarsMessages {
 		"{killed} had a small brain moment while fighting {player}.",
 		"{killed} was too shy to meet {player}.",
 		"{killed} was yelled at by {player}.",
-		"{killed} was killed by {player}."
+		"{killed} was killed by {player}.",
+		"{killed} was distorted by {player}.",
+		"{killed} was sent to limbo by {player}."
 	);
 
 	public final static Pattern[] VOID_KILL = convert(
@@ -100,7 +102,9 @@ public class BedwarsMessages {
 		"{killed} was not able to block clutch against {player}.",
 		"{killed} didn't distance themselves properly from {player}.",
 		"{killed} was thrown off the lawn by {player}.",
-		"{killed} was turned to dust by {player}."
+		"{killed} was turned to dust by {player}.",
+		"{killed} was thrown into the singularity by {player}.",
+		"{killed} was pushed into limbo by {player}."
 	);
 
 	public final static Pattern[] PROJECTILE_KILL = convert(
@@ -132,7 +136,9 @@ public class BedwarsMessages {
 		"{killed} was shot by {player}.",
 		"{killed} got 360 no-scoped by {player}.",
 		"{killed} was coughed at by {player}.",
-		"{killed} was accidentally spit on by {player}."
+		"{killed} was accidentally spit on by {player}.",
+		"{killed} was shot into another dimension by {player}.",
+		"{killed} was shot into limbo by {player}"
 	);
 
 	public final static Pattern[] FALL_KILL = convert(
@@ -166,7 +172,8 @@ public class BedwarsMessages {
 		"{killed} forgot how many blocks they had left while fighting {player}.",
 		"{killed} tripped while trying to run away from {player}.",
 		"{killed} slipped on the fake teeth of {player}.",
-		"{killed} was knocked into the void by {player}."
+		"{killed} was thrown into a black hole by {player}.",
+		"{killed} was pushed into limbo by {killed}."
 	);
 
 	public final static Pattern[] GOLEM_KILL = convert(
@@ -198,7 +205,9 @@ public class BedwarsMessages {
 		"{killed} was bested by {player}'s Golem.",
 		"{killed} got absolutely destroyed by {player}'s Golem.",
 		"{killed} got too close to {player}'s Golem.",
-		"{killed} was chased away by {player}'s Golem."
+		"{killed} was chased away by {player}'s Golem.",
+		"{killed} was launched into a wormhole by {player}'s Golem.",
+		"{killed} was launched into limbo by {player}'s Golem."
 	);
 
 	public final static Pattern[] BED_BREAK = Arrays.stream(new String[]{
@@ -234,7 +243,9 @@ public class BedwarsMessages {
 		"Bed was spooked by {player}",
 		"Bed was contaminated by {player}",
 		"Bed was sold in a garage sale by {player}",
-		"Bed was destroyed by {player}"
+		"Bed was destroyed by {player}",
+		"Bed was sent to limbo by {player}",
+		"Bed was sucked into a black hole by {player}"
 	}).map(BedwarsMessages::formatPlaceholder).map(Pattern::compile).toArray(Pattern[]::new);
 
 	public final static Pattern DISCONNECT = Pattern.compile("(\\b[A-Za-z0-9_§]{3,16}\\b) disconnected\\.$");
@@ -243,10 +254,10 @@ public class BedwarsMessages {
 	public final static Pattern BED_DESTROY = Pattern.compile("^\\s*?BED DESTRUCTION > (\\w+) Bed");
 	public final static Pattern TEAM_ELIMINATED = Pattern.compile("^\\s*?TEAM ELIMINATED > (\\w+) Team");
 
-	public final static Pattern GAME_END = Pattern.compile("^ +1st Killer - ?\\[?\\w*\\+*\\]? \\w+ - \\d+(?: Kills?)?$");
+	public final static Pattern GAME_END = Pattern.compile("^ +1st Killer - ?\\[?\\w*\\+*]? \\w+ - \\d+(?: Kills?)?$");
 
-	public final static Pattern SELF_VOID = Pattern.compile(formatPlaceholder("^{killed} fell into the void.(?: FINAL KILL!)?\\s*?"));
-	public final static Pattern SELF_UNKNOWN = Pattern.compile(formatPlaceholder("^{killed} died.(?: FINAL KILL!)?\\s*?"));
+	public final static Pattern SELF_VOID = Pattern.compile(formatPlaceholder("^{killed} fell into the void\\.(?: FINAL KILL!)?\\s*?"));
+	public final static Pattern SELF_UNKNOWN = Pattern.compile(formatPlaceholder("^{killed} died\\.(?: FINAL KILL!)?\\s*?"));
 
 	public final static Pattern[] ANNOYING_MESSAGES = Arrays.stream(new String[]{
 		"^You will respawn in \\d* seconds!$",
@@ -259,10 +270,13 @@ public class BedwarsMessages {
 		"^\\+\\d+ Bed Wars Experience",
 		"^You have respawned",
 		"^If you get disconnected use /rejoin to join back in the game\\.$",
+		"^\nYOU GOT LUCKY!\nYou will receive DOUBLE EXP this game!\n$"
 	}).map(Pattern::compile).toArray(Pattern[]::new);
 
 	private static Pattern[] convert(String... input) {
-		return Arrays.stream(input).map(str -> Pattern.compile("^" + formatPlaceholder(str) + "(?: FINAL KILL!)?\\s*?")).toArray(Pattern[]::new);
+		return Arrays.stream(input)
+			.map(str -> str.replace(".", "\\."))
+			.map(str -> Pattern.compile("^" + formatPlaceholder(str) + "(?: FINAL KILL!)?\\s*?")).toArray(Pattern[]::new);
 	}
 
 	private static String formatPlaceholder(String input) {
@@ -274,7 +288,7 @@ public class BedwarsMessages {
 
 	public static boolean matched(Pattern pattern, String input, Consumer<Matcher> consumer) {
 		Optional<Matcher> matcher = matched(pattern, input);
-		if (!matcher.isPresent()) {
+		if (matcher.isEmpty()) {
 			return false;
 		}
 		consumer.accept(matcher.get());
@@ -283,7 +297,7 @@ public class BedwarsMessages {
 
 	public static boolean matched(Pattern[] pattern, String input, Consumer<Matcher> consumer) {
 		Optional<Matcher> matcher = matched(pattern, input);
-		if (!matcher.isPresent()) {
+		if (matcher.isEmpty()) {
 			return false;
 		}
 		consumer.accept(matcher.get());

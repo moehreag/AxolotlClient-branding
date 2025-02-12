@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 moehreag <moehreag@gmail.com> & Contributors
+ * Copyright © 2025 moehreag <moehreag@gmail.com> & Contributors
  *
  * This file is part of AxolotlClient.
  *
@@ -20,25 +20,23 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.util;
+package io.github.axolotlclient.mixin;
 
-public record UnsupportedMod(String name, io.github.axolotlclient.util.UnsupportedMod.UnsupportedReason... reason) {
+import io.github.axolotlclient.AxolotlClientConfig.api.ui.screen.ConfigScreen;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-	public enum UnsupportedReason {
+@Mixin(SharedConstants.class)
+public class SharedConstantsMixin {
 
-		BAN_REASON("be bannable on lots of servers"), CRASH("crash your game"),
-		MIGHT_CRASH("have effects that could crash your game"),
-		UNKNOWN_CONSEQUENSES("have unknown consequences in combination with this mod");
-
-		private final String description;
-
-		UnsupportedReason(String desc) {
-			description = desc;
-		}
-
-		@Override
-		public String toString() {
-			return description;
+	@Inject(method = "isValidChatChar", at = @At("HEAD"), cancellable = true)
+	private static void allowColorCodeInput(char c, CallbackInfoReturnable<Boolean> cir){
+		if (Minecraft.getInstance().screen instanceof ConfigScreen && c == '§') {
+			cir.setReturnValue(true);
 		}
 	}
 }

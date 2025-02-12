@@ -23,14 +23,17 @@
 package io.github.axolotlclient.modules.screenshotUtils;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import io.github.axolotlclient.util.Util;
 import lombok.Getter;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.*;
 
@@ -42,7 +45,7 @@ public class ImageShare extends ImageNetworking {
 	private ImageShare() {
 	}
 
-	public void uploadImage(File file) {
+	public void uploadImage(Path file) {
 		Util.sendChatMessage(new TranslatableText("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {
@@ -53,10 +56,10 @@ public class ImageShare extends ImageNetworking {
 						.setStyle(new Style()
 							.setUnderlined(true)
 							.setColor(Formatting.DARK_PURPLE)
-							.setClickEvent(new ScreenshotUtils.CustomClickEvent(null) {
+							.setClickEvent(new ScreenshotUtils.CustomClickEvent(null, null) {
 											   @Override
 											   public void doAction() {
-												   Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(downloadUrl), null);
+												   Screen.setClipboard(downloadUrl);
 											   }
 										   }
 							)
@@ -65,14 +68,24 @@ public class ImageShare extends ImageNetworking {
 		});
 	}
 
-	public ImageInstance downloadImage(String url) {
-		ImageData data = download(url);
-		if (data != ImageData.EMPTY) {
-			try {
-				return new ImageInstance(ImageIO.read(new ByteArrayInputStream(data.data())), data.name());
-			} catch (IOException ignored) {
+	public CompletableFuture<ImageInstance> downloadImage(String url) {
+		return download(url).thenApply(data -> {
+			if (data != ImageData.EMPTY) {
+				try (var in = new ByteArrayInputStream(data.data())) {
+					ImageInstance.Remote remote = new ImageInstance.RemoteImpl(ImageIO.read(in), data.name(), data.uploader(), data.sharedAt(), ensureUrl(url).orElseThrow());
+					try {
+						Path local = GalleryScreen.SCREENSHOTS_DIR.resolve(remote.filename());
+						HashFunction hash = Hashing.goodFastHash(32);
+						if (Files.exists(local) && hash.hashBytes(data.data()).equals(hash.hashBytes(Files.readAllBytes(local)))) {
+							return remote.toShared(local);
+						}
+					} catch (IOException ignored) {
+					}
+					return remote;
+				} catch (IOException ignored) {
+				}
 			}
-		}
-		return null;
+			return null;
+		});
 	}
 }

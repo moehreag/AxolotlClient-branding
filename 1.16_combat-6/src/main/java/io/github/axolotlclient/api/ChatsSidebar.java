@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.Selectable;
 import io.github.axolotlclient.AxolotlClientConfig.impl.util.DrawUtil;
 import io.github.axolotlclient.api.chat.ChatWidget;
@@ -79,6 +80,8 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 		graphics.translate(0, 0, 1000);
 		fill(graphics, sidebarAnimX, 0, sidebarWidth + sidebarAnimX, height, 0x99000000);
 
+		RenderSystem.color3f(1, 1, 1);
+
 		textRenderer.drawWithShadow(graphics, I18n.translate("api.chats"), 10 + sidebarAnimX, 10, -1);
 
 		if (hasChat) {
@@ -89,6 +92,10 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 					sidebarAnimX + 80, 30, 8421504);
 			}
 			chatWidget.render(graphics, mouseX, mouseY, delta);
+		}
+
+		if (list != null) {
+			list.render(graphics, mouseX, mouseY, delta);
 		}
 
 		super.render(graphics, mouseX, mouseY, delta);

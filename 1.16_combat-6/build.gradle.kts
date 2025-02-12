@@ -55,9 +55,9 @@ dependencies {
 	localRuntime("org.slf4j:slf4j-jdk14:1.7.36")
 
 	api("org.lwjgl:lwjgl-nanovg:3.3.2")
-	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.2.2:natives-linux")
-	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.2.2:natives-windows")
-	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.2.2:natives-macos")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.2:natives-linux")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.2:natives-windows")
+	runtimeOnly("org.lwjgl:lwjgl-nanovg:3.3.2:natives-macos")
 }
 
 tasks.processResources {
@@ -89,7 +89,7 @@ java {
 publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
-			artifactId = project.name
+			artifactId = base.archivesName.get()
 			from(components["java"])
 		}
 	}

@@ -75,12 +75,22 @@ public class MojangAuth {
 				return result.status(Status.SUCCESS).build();
 			} else {
 				JsonObject element = GsonHelper.fromJson(response.body());
+
+				if (!element.has("error")) {
+					API.getInstance().logDetailed("Don't know how to handle response: "+element);
+				}
+
+				String error = element.get("error").getAsString();
+				/*if ("ForbiddenOperationException".equals(error) && "INVALID_SIGNATURE".equals(element.get("errorMessage").getAsString())) {
+					return account.refresh(MSAuth.INSTANCE).thenApply(MojangAuth::authenticate).join();
+				}*/
+
 				API.getInstance().logDetailed("Response code: "+response.statusCode());
 				API.getInstance().logDetailed(element.toString());
 
-				if (element.get("error").getAsString().equals("InsufficientPrivilegesException")) {
+				if (error.equals("InsufficientPrivilegesException")) {
 					return result.status(Status.MULTIPLAYER_DISABLED).build();
-				} else if (element.get("error").getAsString().equals("UserBannedException")) {
+				} else if (error.equals("UserBannedException")) {
 					return result.status(Status.USER_BANNED).build();
 				}
 			}

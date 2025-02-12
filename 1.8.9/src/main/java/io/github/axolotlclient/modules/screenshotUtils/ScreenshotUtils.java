@@ -24,19 +24,25 @@ package io.github.axolotlclient.modules.screenshotUtils;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringArrayOption;
+import io.github.axolotlclient.api.API;
 import io.github.axolotlclient.modules.AbstractModule;
 import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.Util;
 import io.github.axolotlclient.util.options.GenericOption;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.*;
@@ -44,68 +50,59 @@ import org.jetbrains.annotations.Nullable;
 
 public class ScreenshotUtils extends AbstractModule {
 
+	@Getter
 	private static final ScreenshotUtils Instance = new ScreenshotUtils();
 	private final OptionCategory category = OptionCategory.create("screenshotUtils");
 	private final BooleanOption enabled = new BooleanOption("enabled", false);
 	private final GenericOption openViewer = new GenericOption("imageViewer", "openViewer", () -> {
-		Minecraft.getInstance().openScreen(new ImageViewerScreen(Minecraft.getInstance().screen));
+		Minecraft.getInstance().openScreen(new GalleryScreen(Minecraft.getInstance().screen));
 	});
 
-	private final List<Action> actions = new ArrayList<>();
+	private final Map<BooleanSupplier, Action> actions = new LinkedHashMap<>();
 
 	private StringArrayOption autoExec;
-
-	public static ScreenshotUtils getInstance() {
-		return Instance;
-	}
 
 	@Override
 	public void init() {
 
-		actions.add(new Action("copyAction",
-			Formatting.AQUA,
+		actions.put(() -> true, new Action("copyAction", Formatting.AQUA,
 			"copy_image",
-			new CustomClickEvent(ScreenshotCopying::copy)
-		));
+			ScreenshotCopying::copy));
 
-		actions.add(new Action("deleteAction",
-			Formatting.LIGHT_PURPLE,
+		actions.put(() -> true, new Action("deleteAction", Formatting.LIGHT_PURPLE,
 			"delete_image",
-			new CustomClickEvent((file) -> {
+			(file) -> {
 				try {
-					Files.delete(file.toPath());
-					Util.sendChatMessage(
-						new LiteralText(I18n.translate("screenshot_deleted")
-							.replace("<name>", file.getName())));
+					Files.delete(file);
+					io.github.axolotlclient.util.Util.sendChatMessage(
+						new LiteralText(I18n.translate("screenshot_deleted").replace("<name>", file.getFileName().toString())));
 				} catch (Exception e) {
-					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getName());
+					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getFileName().toString());
 				}
-			})
-		));
+			}));
 
-		actions.add(new Action("openAction",
-			Formatting.WHITE,
+		actions.put(() -> true, new Action("openAction", Formatting.WHITE,
 			"open_image",
-			new CustomClickEvent((file) -> OSUtil.getOS().open(file.toURI()))
-		));
+			(file) -> OSUtil.getOS().open(file.toUri())));
 
-		actions.add(new Action("uploadAction", Formatting.LIGHT_PURPLE,
+		actions.put(() -> true, new Action("viewInGalleryAction", Formatting.LIGHT_PURPLE, "view_in_gallery",
+			file -> {
+				try {
+					ImageInstance instance = new ImageInstance.LocalImpl(file);
+					Minecraft.getInstance().submit(() -> Minecraft.getInstance().openScreen(ImageScreen.create(null, CompletableFuture.completedFuture(instance), true)));
+				} catch (Exception ignored) {
+					io.github.axolotlclient.util.Util.sendChatMessage(new TranslatableText("screenshot.gallery.view.error"));
+				}
+			}));
+
+		actions.put(() -> API.getInstance().isAuthenticated(), new Action("uploadAction", Formatting.AQUA,
 			"upload_image",
-			new CustomClickEvent(file -> {
-				new Thread("Image Uploader") {
-					@Override
-					public void run() {
-						ImageShare.getInstance().uploadImage(file);
-					}
-				}.start();
-			})));
-
-		// If you have further ideas to what actions could be added here, please let us know!
+			ImageShare.getInstance()::uploadImage));
 
 		autoExec = new StringArrayOption("autoExec", Util.make(() -> {
 			List<String> names = new ArrayList<>();
 			names.add("off");
-			actions.forEach(action -> names.add(action.getName()));
+			actions.forEach((condition, action) -> names.add(action.getName()));
 			return names.toArray(new String[0]);
 
 		}), "off");
@@ -117,7 +114,7 @@ public class ScreenshotUtils extends AbstractModule {
 
 	public Text onScreenshotTaken(Text text, File shot) {
 		if (enabled.get()) {
-			Text t = getUtilsText(shot);
+			Text t = getUtilsText(shot.toPath());
 			if (t != null) {
 				return text.append("\n").append(t);
 			}
@@ -125,25 +122,28 @@ public class ScreenshotUtils extends AbstractModule {
 		return text;
 	}
 
-	private @Nullable Text getUtilsText(File file) {
-
+	private @Nullable Text getUtilsText(Path file) {
 		if (!autoExec.get().equals("off")) {
-
-			actions.parallelStream().filter(action -> autoExec.get().equals(action.getName())).collect(Collectors.toList()).get(0).clickEvent.setFile(file).doAction();
+			actions.forEach((condition, action) -> {
+				if (condition.getAsBoolean() && autoExec.get().equals(action.getName())) {
+					action.getClickEvent(file).doAction();
+				}
+			});
 			return null;
 		}
 
 		Text message = new LiteralText("");
-		actions.parallelStream().map(action -> action.getText(file)).iterator().forEachRemaining(text -> {
-			message.append(text);
-			message.append(" ");
+		actions.forEach((condition, action) -> {
+			if (condition.getAsBoolean()) {
+				message.append(action.getText(file)).append(" ");
+			}
 		});
 		return message;
 	}
 
 	public interface OnActionCall {
 
-		void doAction(File file);
+		void doAction(Path file);
 	}
 
 	@AllArgsConstructor
@@ -152,29 +152,34 @@ public class ScreenshotUtils extends AbstractModule {
 		private final String translationKey;
 		private final Formatting formatting;
 		private final String hoverTextKey;
-		private final CustomClickEvent clickEvent;
+		private final OnActionCall clickEvent;
 
-		public Text getText(File file) {
+		public Text getText(Path file) {
 			return new LiteralText(I18n.translate(translationKey))
 				.setStyle(new Style()
 					.setColor(formatting)
-					.setClickEvent(clickEvent.setFile(file))
+					.setClickEvent(getClickEvent(file))
 					.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(I18n.translate(hoverTextKey)))));
 		}
 
 		public String getName() {
 			return translationKey;
 		}
+
+		public CustomClickEvent getClickEvent(Path file) {
+			return new CustomClickEvent(clickEvent, file);
+		}
 	}
 
 	public static class CustomClickEvent extends ClickEvent {
 
 		private final OnActionCall action;
-		private File file;
+		private final Path file;
 
-		public CustomClickEvent(OnActionCall action) {
+		public CustomClickEvent(OnActionCall action, Path file) {
 			super(Action.byKey(""), "");
 			this.action = action;
+			this.file = file;
 		}
 
 		public void doAction() {
@@ -182,13 +187,8 @@ public class ScreenshotUtils extends AbstractModule {
 				action.doAction(file);
 			} else {
 				AxolotlClient.LOGGER.warn("How'd you manage to do this? " +
-										  "Now there's a screenshot ClickEvent without a File attached to it!");
+					"Now there's a screenshot ClickEvent without a File attached to it!");
 			}
-		}
-
-		public CustomClickEvent setFile(File file) {
-			this.file = file;
-			return this;
 		}
 	}
 }

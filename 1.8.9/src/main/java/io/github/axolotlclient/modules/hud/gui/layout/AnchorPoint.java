@@ -52,46 +52,34 @@ public enum AnchorPoint {
 	private final int yComponent;
 
 	public int getX(int anchorX, int width) {
-		switch (xComponent) {
-			case 0:
-				return anchorX - (width / 2);
-			case 1:
-				return anchorX - width;
-			default:
-				return anchorX;
-		}
+		return switch (xComponent) {
+			case 0 -> anchorX - (width / 2);
+			case 1 -> anchorX - width;
+			default -> anchorX;
+		};
 	}
 
 	public int getY(int anchorY, int height) {
-		switch (yComponent) {
-			case 0:
-				return anchorY - (height / 2);
-			case 1:
-				return anchorY - height;
-			default:
-				return anchorY;
-		}
+		return switch (yComponent) {
+			case 0 -> anchorY - (height / 2);
+			case 1 -> anchorY - height;
+			default -> anchorY;
+		};
 	}
 
 	public int offsetWidth(int width) {
-		switch (xComponent) {
-			case 0:
-				return width / 2;
-			case 1:
-				return width;
-			default:
-				return 0;
-		}
+		return switch (xComponent) {
+			case 0 -> width / 2;
+			case 1 -> width;
+			default -> 0;
+		};
 	}
 
 	public int offsetHeight(int height) {
-		switch (yComponent) {
-			case 0:
-				return (height / 2);
-			case 1:
-				return 0;
-			default:
-				return height;
-		}
+		return switch (yComponent) {
+			case 0 -> (height / 2);
+			case 1 -> 0;
+			default -> height;
+		};
 	}
 }

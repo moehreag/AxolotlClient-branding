@@ -24,6 +24,7 @@ package io.github.axolotlclient.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.axolotlclient.AxolotlClient;
@@ -32,6 +33,7 @@ import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.ConfigUI;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.*;
+import io.github.axolotlclient.CommonOptions;
 import io.github.axolotlclient.config.screen.CreditsScreen;
 import io.github.axolotlclient.mixin.OverlayTextureAccessor;
 import io.github.axolotlclient.util.options.ForceableBooleanOption;
@@ -88,6 +90,7 @@ public class AxolotlClientConfig {
 	public final BooleanOption minimalViewBob = new BooleanOption("minimalViewBob", false);
 	public final BooleanOption noHurtCam = new BooleanOption("noHurtCam", false);
 	public final BooleanOption flatItems = new BooleanOption("flatItems", false);
+	public final BooleanOption inventoryPotionEffectOffset = new BooleanOption("inventory.potion_effect_offset", true);
 
 	public final ColorOption loadingScreenColor = new ColorOption("loadingBgColor", new Color(239, 50, 61, 255));
 	public final BooleanOption nightMode = new BooleanOption("nightMode", false);
@@ -144,17 +147,23 @@ public class AxolotlClientConfig {
 		general.add(customWindowTitle);
 		general.add(openCredits);
 		general.add(debugLogOutput);
+		general.add(CommonOptions.datetimeFormat);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
-			StringArrayOption configStyle;
-			general.add(configStyle = new StringArrayOption("configStyle",
-				ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
-					.toArray(String[]::new),
-				"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
-				ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
-				MinecraftClient.getInstance().openScreen(null);
-			}));
-			AxolotlClient.configManager.load();
-			ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
+			general.getOptions().removeIf(o -> "configStyle".equals(o.getName()));
+			boolean isPojavLauncher = Objects.requireNonNullElse(System.getenv("TMPDIR"), "").contains("/Android/data/net.kdt.pojavlaunch/");
+			String[] themes = ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
+				.filter(s -> !isPojavLauncher || !s.startsWith("rounded"))
+				.toArray(String[]::new);
+			if (themes.length > 1) {
+				StringArrayOption configStyle;
+				general.add(configStyle = new StringArrayOption("configStyle", themes,
+					"configStyle." + ConfigUI.getInstance().getCurrentStyle().getName(), s -> {
+					ConfigUI.getInstance().setStyle(s.split("\\.")[1]);
+					MinecraftClient.getInstance().openScreen(null);
+				}));
+				AxolotlClient.configManager.load();
+				ConfigUI.getInstance().setStyle(configStyle.get().split("\\.")[1]);
+			}
 		});
 
 		rendering.add(customSky,
@@ -166,7 +175,8 @@ public class AxolotlClientConfig {
 			hitColor,
 			minimalViewBob,
 			flatItems,
-			noHurtCam);
+			noHurtCam,
+			inventoryPotionEffectOffset);
 
 		timeChanger.add(timeChangerEnabled);
 		timeChanger.add(customTime);

@@ -27,6 +27,7 @@ import java.util.List;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.BooleanOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.EnumOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.modules.hud.gui.component.DynamicallyPositionable;
@@ -34,6 +35,7 @@ import io.github.axolotlclient.modules.hud.gui.layout.AnchorPoint;
 import io.github.axolotlclient.modules.hud.gui.layout.Justification;
 import io.github.axolotlclient.modules.hud.util.DefaultOptions;
 import io.github.axolotlclient.modules.hud.util.DrawPosition;
+import net.minecraft.client.resource.language.I18n;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -48,6 +50,7 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 	protected final EnumOption<Justification> justification = new EnumOption<>("justification", Justification.class,
 		Justification.CENTER);
 	protected final EnumOption<AnchorPoint> anchor = DefaultOptions.getAnchorPoint();
+	protected final BooleanOption showBrackets = new BooleanOption("show_brackets", false);
 
 	private final IntegerOption minWidth;
 
@@ -71,7 +74,7 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 			GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GlStateManager.disableTexture();
 		DrawPosition pos = getPos();
-		String value = getValue();
+		String value = wrapWithBrackets(getValue());
 
 		int valueWidth = client.textRenderer.getWidth(value);
 		int elementWidth = valueWidth + 4;
@@ -96,14 +99,16 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 	@Override
 	public void renderPlaceholderComponent(float delta) {
 		DrawPosition pos = getPos();
-		String value = getPlaceholder();
+		String value = wrapWithBrackets(getPlaceholder());
 		drawString(value, pos.x() + justification.get().getXOffset(value, getWidth() - 4) + 2,
 			pos.y() + (Math.round((float) getHeight() / 2)) - 4, getTextColor().toInt(), shadow.get());
 	}
 
-	@Override
-	public boolean movable() {
-		return true;
+	protected String wrapWithBrackets(String value) {
+		if (showBrackets.get()) {
+			return I18n.translate("bracket_format", value);
+		}
+		return value;
 	}
 
 	public abstract String getPlaceholder();
@@ -120,6 +125,7 @@ public abstract class SimpleTextHudEntry extends TextHudEntry implements Dynamic
 		options.add(justification);
 		options.add(anchor);
 		options.add(minWidth);
+		options.add(showBrackets);
 		return options;
 	}
 

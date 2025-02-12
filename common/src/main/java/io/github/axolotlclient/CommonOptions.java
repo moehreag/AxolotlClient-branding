@@ -20,25 +20,13 @@
  * For more information, see the LICENSE file.
  */
 
-package io.github.axolotlclient.util;
+package io.github.axolotlclient;
 
-public record UnsupportedMod(String name, io.github.axolotlclient.util.UnsupportedMod.UnsupportedReason... reason) {
+import java.time.format.DateTimeFormatter;
 
-	public enum UnsupportedReason {
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.StringOption;
 
-		BAN_REASON("be bannable on lots of servers"), CRASH("crash your game"),
-		MIGHT_CRASH("have effects that could crash your game"),
-		UNKNOWN_CONSEQUENSES("have unknown consequences in combination with this mod");
+public class CommonOptions {
+	public static final StringOption datetimeFormat = new StringOption("datetime_format", "yyyy/MM/dd HH:mm:ss", s -> AxolotlClientCommon.getInstance().formatter = DateTimeFormatter.ofPattern(s));
 
-		private final String description;
-
-		UnsupportedReason(String desc) {
-			description = desc;
-		}
-
-		@Override
-		public String toString() {
-			return description;
-		}
-	}
 }

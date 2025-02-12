@@ -22,14 +22,20 @@
 
 package io.github.axolotlclient.util;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
 public class ThreadExecuter {
-	private static final Executor POOL = new ForkJoinPool(5, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
+	private static final ExecutorService POOL = new ForkJoinPool(5, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
 
 	public static void scheduleTask(Runnable runnable) {
 		POOL.execute(runnable);
+	}
+
+	public static void scheduleTask(Callable<?> runnable) {
+		POOL.submit(runnable);
 	}
 
 	public static Executor service() {
