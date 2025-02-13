@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(InputUtil.Type.class)
 public class InputUtilTypeMixin {
 
-	@Inject(method = "method_27450", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwGetKeyName(II)Ljava/lang/String;"), cancellable = true)
+	@Inject(method = "method_27450", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwGetKeyName(II)Ljava/lang/String;", remap = false), cancellable = true)
 	private static void fixScancodeError(Integer i, String string, CallbackInfoReturnable<Text> cir) {
 		if (i == -1) {
 			cir.setReturnValue(new TranslatableText(string));

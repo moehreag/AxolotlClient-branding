@@ -674,6 +674,7 @@
 	"keystrokes.stroke.key": "Selected Key: %s",
 	"keystrokes.stroke.label.synchronize_with_key": "Synchronize with Key Name: %s",
 	"keystrokes.stroke.add.special": "Add Special Stroke",
-	"mousemovementhud": "Mouse Movement HUD"
-
+	"mousemovementhud": "Mouse Movement HUD",
+	"iphud.show_icon": "Show Server Icon",
+	"iphud.height": "HUD Height"
 }
