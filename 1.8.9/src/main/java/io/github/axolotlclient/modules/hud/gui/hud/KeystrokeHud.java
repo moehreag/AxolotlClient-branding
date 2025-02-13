@@ -311,7 +311,7 @@ public class KeystrokeHud extends TextHudEntry {
 	@SuppressWarnings("unchecked")
 	private Keystroke deserializeKey(Map<String, ?> json) {
 		if ("option".equals(json.get("type"))) {
-			KeyBinding key = KeyBindAccessor.getAllKeyBinds().get((int) (long) json.get("option"));
+			KeyBinding key = KeyBindAccessor.getAllKeyBinds().stream().filter(k -> k.getName().equals(json.get("option"))).findFirst().orElseThrow();
 			if (json.containsKey("editable_label")) {
 				String label = (String) json.get("label");
 				return new LabelKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key,
@@ -320,7 +320,7 @@ public class KeystrokeHud extends TextHudEntry {
 				return new CustomRenderKeystroke(SpecialKeystroke.valueOf((String) json.get("special_name")), getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key);
 			}
 		} else {
-			var key = KeyBindAccessor.getAllKeyBinds().get((int) (long) json.get("key_name"));
+			KeyBinding key = KeyBindAccessor.getAllKeyBinds().stream().filter(k -> k.getName().equals(json.get("key_name"))).findFirst().orElseThrow();
 			return new LabelKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key, (String) json.get("label"), (boolean) json.get("synchronize_label"));
 		}
 	}
@@ -348,7 +348,7 @@ public class KeystrokeHud extends TextHudEntry {
 		public Map<String, Object> serialize() {
 			Map<String, Object> json = super.serialize();
 			json.put("type", "option");
-			json.put("option", key.getKeyCode());
+			json.put("option", key.getName());
 			json.put("special_name", parent.name());
 			return json;
 		}
@@ -407,7 +407,7 @@ public class KeystrokeHud extends TextHudEntry {
 		public Map<String, Object> serialize() {
 			Map<String, Object> json = super.serialize();
 			json.put("type", "custom");
-			json.put("key_name", key.getKeyCode());
+			json.put("key_name", key.getName());
 			json.put("label", label);
 			json.put("synchronize_label", synchronizeLabel);
 			return json;

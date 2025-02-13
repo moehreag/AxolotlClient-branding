@@ -15,10 +15,12 @@
 	],
 	"contact": {
 		"homepage": "https://axolotlclient.github.io/",
-		"sources": "https://github.com/AxolotlClient/AxolotlClient-mod/tree/1.8.9"
+		"sources": "https://github.com/AxolotlClient/AxolotlClient-mod/",
+		"issues": "https://github.com/AxolotlClient/AxolotlClient-mod/issues"
 	},
 	"license": "LGPL-3.0-or-later",
 	"icon": "assets/axolotlclient/icon.png",
+	"accessWidener": "axolotlclient.accesswidener",
 	"environment": "client",
 	"entrypoints": {
 		"client": [

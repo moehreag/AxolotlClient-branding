@@ -87,7 +87,7 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 
 		AbstractButtonWidget currentKey = addDrawableChild(textWidget(0, rightColY, super.width, 9, LiteralText.EMPTY, textRenderer));
 		if (stroke.getKey() != null) {
-			currentKey.setMessage(new TranslatableText("keystrokes.stroke.key", stroke.getKey().getBoundKeyLocalizedText()));
+			currentKey.setMessage(new TranslatableText("keystrokes.stroke.key", stroke.getKey().getBoundKeyLocalizedText(), new TranslatableText(stroke.getKey().getTranslationKey())));
 		} else {
 			currentKey.setMessage(LiteralText.EMPTY);
 		}

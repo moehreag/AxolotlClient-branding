@@ -375,6 +375,7 @@ public class ItemUtil {
 
 		Lighting.turnOff();
 		GlStateManager.popMatrix();
+		GlStateManager.color4f(1, 1, 1, 1);
 	}
 
 	private static void renderGuiQuad(BufferBuilder buffer, int x, int y, int width, int height, int red, int green,

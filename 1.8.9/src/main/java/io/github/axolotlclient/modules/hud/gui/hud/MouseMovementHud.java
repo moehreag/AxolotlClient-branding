@@ -84,6 +84,7 @@ public class MouseMovementHud extends BoxHudEntry {
 
 	@Override
 	public void renderComponent(float delta) {
+		GlStateManager.color4f(1, 1, 1, 1);
 		int spaceY = getRawY();
 		int spaceX = getRawX();
 

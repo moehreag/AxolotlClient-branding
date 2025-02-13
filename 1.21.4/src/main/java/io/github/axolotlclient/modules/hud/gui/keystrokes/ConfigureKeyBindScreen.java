@@ -172,7 +172,7 @@ public class ConfigureKeyBindScreen extends Screen {
 		}
 		currentKey.setWidth(super.width);
 		if (stroke.getKey() != null) {
-			currentKey.setMessage(Component.translatable("keystrokes.stroke.key", stroke.getKey().getTranslatedKeyMessage()));
+			currentKey.setMessage(Component.translatable("keystrokes.stroke.key", stroke.getKey().getTranslatedKeyMessage(), Component.translatable(stroke.getKey().getName())));
 		} else {
 			currentKey.setMessage(Component.empty());
 		}

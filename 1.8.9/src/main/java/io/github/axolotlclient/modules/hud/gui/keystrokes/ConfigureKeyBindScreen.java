@@ -85,7 +85,7 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 
 		ClickableWidget currentKey = addDrawable(textWidget(0, rightColY, super.width, 9, "", textRenderer));
 		if (stroke.getKey() != null) {
-			currentKey.setMessage(I18n.translate("keystrokes.stroke.key", GameOptions.getKeyName(stroke.getKey().getKeyCode())));
+			currentKey.setMessage(I18n.translate("keystrokes.stroke.key", GameOptions.getKeyName(stroke.getKey().getKeyCode()), I18n.translate(stroke.getKey().getName())));
 		} else {
 			currentKey.setMessage("");
 		}

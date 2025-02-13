@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.api.API;
@@ -221,6 +222,7 @@ public class ImageScreen extends Screen {
 
 		@Override
 		public void render(Minecraft client, int mouseX, int mouseY) {
+			GlStateManager.color4f(1, 1, 1, 1);
 			client.getTextureManager().bind(image.id());
 			drawTexture(x, y, 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
 		}

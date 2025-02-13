@@ -90,7 +90,7 @@ public class ConfigureKeyBindScreen extends Screen {
 
 		TextWidget currentKey = addDrawable(new TextWidget(0, rightColY, super.width, 9, Text.empty(), textRenderer));
 		if (stroke.getKey() != null) {
-			currentKey.setMessage(Text.translatable("keystrokes.stroke.key", stroke.getKey().getKeyName()));
+			currentKey.setMessage(Text.translatable("keystrokes.stroke.key", stroke.getKey().getKeyName(), Text.translatable(stroke.getKey().getTranslationKey())));
 		} else {
 			currentKey.setMessage(Text.empty());
 		}

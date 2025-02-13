@@ -22,16 +22,17 @@
 
 package io.github.axolotlclient.mixin;
 
+import java.util.List;
+
 import net.minecraft.client.options.KeyBinding;
-import net.minecraft.util.Int2ObjectHashMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(KeyBinding.class)
 public interface KeyBindAccessor {
 
-	@Accessor("BY_KEY_CODE")
-	static Int2ObjectHashMap<KeyBinding> getAllKeyBinds() {
+	@Accessor("ALL")
+	static List<KeyBinding> getAllKeyBinds() {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -670,7 +670,7 @@
 	"keystrokes.stroke.configure_position": "Configure Position",
 	"keystrokes.positions": "Keystroke Positions",
 	"keystrokes.positions.configure": "Configure Keystroke Positions",
-	"keystrokes.stroke.key": "Selected Key: %s",
+	"keystrokes.stroke.key": "Selected Key: %s (%s)",
 	"keystrokes.stroke.label.synchronize_with_key": "Synchronize with Key Name: %s",
 	"keystrokes.stroke.add.special": "Add Special Stroke",
 	"mousemovementhud": "Mouse Movement HUD",
@@ -678,5 +678,6 @@
 	"iphud.height": "HUD Height",
 	"coordshud.delimiter": "Delimiter (Minimal Mode)",
 	"coordshud.separator": "Separator (Minimal Mode)",
-	"coordshud.separator.color": "Separator Color (Minimal Mode)"
+	"coordshud.separator.color": "Separator Color (Minimal Mode)",
+	"debugcountershud": "Debug Counters Hud"
 }
