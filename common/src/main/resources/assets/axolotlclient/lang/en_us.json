@@ -650,7 +650,6 @@
 	"custom_hud": "Custom Hud",
 	"custom_hud.remove": "Remove Custom Hud",
 	"custom_hud.remove.label": "Remove Hud",
-	"iphud.show_icon": "Show Icon",
 	"keystrokes.key.select": "Select Key",
 	"keystrokes.strokes.keys.select": "Select Key",
 	"keystrokes.stroke.configure": "Configure",
@@ -676,5 +675,8 @@
 	"keystrokes.stroke.add.special": "Add Special Stroke",
 	"mousemovementhud": "Mouse Movement HUD",
 	"iphud.show_icon": "Show Server Icon",
-	"iphud.height": "HUD Height"
+	"iphud.height": "HUD Height",
+	"coordshud.delimiter": "Delimiter (Minimal Mode)",
+	"coordshud.separator": "Separator (Minimal Mode)",
+	"coordshud.separator.color": "Separator Color (Minimal Mode)"
 }
