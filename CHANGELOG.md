@@ -5,6 +5,7 @@
 - Customizable keystrokes
   - Mouse movement is now its own HUD element
 - Custom text-based HUD elements
+- Add DebugCountersHud, displaying Counters from the F3 screen
 
 ### 3.1.1
 

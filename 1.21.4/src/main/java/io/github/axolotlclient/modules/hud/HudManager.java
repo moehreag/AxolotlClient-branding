@@ -40,10 +40,7 @@ import io.github.axolotlclient.modules.hud.gui.hud.item.ArmorHud;
 import io.github.axolotlclient.modules.hud.gui.hud.item.ArrowHud;
 import io.github.axolotlclient.modules.hud.gui.hud.item.ItemUpdateHud;
 import io.github.axolotlclient.modules.hud.gui.hud.simple.*;
-import io.github.axolotlclient.modules.hud.gui.hud.vanilla.ActionBarHud;
-import io.github.axolotlclient.modules.hud.gui.hud.vanilla.BossBarHud;
-import io.github.axolotlclient.modules.hud.gui.hud.vanilla.CrosshairHud;
-import io.github.axolotlclient.modules.hud.gui.hud.vanilla.ScoreboardHud;
+import io.github.axolotlclient.modules.hud.gui.hud.vanilla.*;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.modules.hypixel.bedwars.BedwarsMod;
 import io.github.axolotlclient.util.GsonHelper;
@@ -115,6 +112,7 @@ public class HudManager extends AbstractModule {
 		add(new ComboHud()); // TODO
 		add(new PlayerHud());
 		add(new MouseMovementHud());
+		add(new DebugCountersHud());
 		entries.put(BedwarsMod.getInstance().getUpgradesOverlay().getId(), BedwarsMod.getInstance().getUpgradesOverlay());
 
 		entries.values().forEach(HudEntry::init);
