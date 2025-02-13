@@ -58,12 +58,8 @@ public class ConfigureKeyBindScreen extends Screen {
         this.hud = hud;
         this.stroke = stroke;
 
-		width = new IntegerOption("", stroke.getBounds().width(), v -> {
-			stroke.getBounds().width(v);
-		}, 1, 100);
-		height = new IntegerOption("", stroke.getBounds().height(), v -> {
-			stroke.getBounds().height(v);
-		}, 1, 100);
+		width = new IntegerOption("", stroke.getBounds().width(), v -> stroke.getBounds().width(v), 10, 100);
+		height = new IntegerOption("", stroke.getBounds().height(), v -> stroke.getBounds().height(v), 10, 100);
         this.isAddScreen = isAddScreen;
     }
 
@@ -81,7 +77,7 @@ public class ConfigureKeyBindScreen extends Screen {
 				var rect = stroke.getRenderPosition();
 				guiGraphics.pose().pushPose();
 				guiGraphics.pose().translate(getX(), getY(), 0);
-				float scale = Math.min( (float) getHeight() / rect.height(), (float) getWidth() / rect.width());
+				float scale = Math.min((float) getHeight() / rect.height(), (float) getWidth() / rect.width());
 				guiGraphics.pose().translate(getWidth()/2f - (rect.width()*scale) /2f, 0, 0);
 				guiGraphics.pose().scale(scale, scale, 1);
 				guiGraphics.pose().translate(-rect.x(), -rect.y(), 0);

@@ -158,7 +158,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		this.drawTexture(x, y, m % 8 * 18, 198 + m / 8 * 18, 18, 18);
 		if (!iconsOnly.get()) {
 			if (showEffectName.get()) {
-				String string = I18n.translate(effect.getName()) + " " + Util.toRoman(effect.getAmplifier());
+				String string = I18n.translate(effect.getName()) + " " + Util.toRoman(effect.getAmplifier()+1);
 
 				drawString(string, (float) (x + 19), (float) (y + 1), textColor.get().toInt(), shadow.get());
 				String duration = StatusEffect.getDurationString(effect);

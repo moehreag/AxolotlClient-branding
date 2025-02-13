@@ -45,8 +45,6 @@ public class ConfigureKeyBindScreen extends Screen {
 	private final IntegerOption width;
 	private final IntegerOption height;
 	private final boolean isAddScreen;
-	private ButtonWidget addButton, synchronizeButton;
-	private TextWidget currentKey;
 
 	public ConfigureKeyBindScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke stroke, boolean isAddScreen) {
 		super(Text.translatable("keystrokes.stroke.configure_stroke"));
@@ -54,12 +52,8 @@ public class ConfigureKeyBindScreen extends Screen {
 		this.hud = hud;
 		this.stroke = stroke;
 
-		width = new IntegerOption("", stroke.getBounds().width(), v -> {
-			stroke.getBounds().width(v);
-		}, 1, 100);
-		height = new IntegerOption("", stroke.getBounds().height(), v -> {
-			stroke.getBounds().height(v);
-		}, 1, 100);
+		width = new IntegerOption("", stroke.getBounds().width(), v -> stroke.getBounds().width(v), 10, 100);
+		height = new IntegerOption("", stroke.getBounds().height(), v -> stroke.getBounds().height(v), 10, 100);
 		this.isAddScreen = isAddScreen;
 	}
 
@@ -94,7 +88,7 @@ public class ConfigureKeyBindScreen extends Screen {
 		leftColY += 48;
 		rightColY += 48;
 
-		currentKey = addDrawable(new TextWidget(0, rightColY, super.width, 9, Text.empty(), textRenderer));
+		TextWidget currentKey = addDrawable(new TextWidget(0, rightColY, super.width, 9, Text.empty(), textRenderer));
 		if (stroke.getKey() != null) {
 			currentKey.setMessage(Text.translatable("keystrokes.stroke.key", stroke.getKey().getKeyName()));
 		} else {
@@ -114,7 +108,7 @@ public class ConfigureKeyBindScreen extends Screen {
 			label.setChangedListener(stroke::setLabel);
 			if (supportsSynchronization) {
 				var s = (KeystrokeHud.LabelKeystroke) stroke;
-				synchronizeButton = addDrawableChild(ButtonWidget.builder(Text.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonTexts.ON : CommonTexts.OFF), b -> {
+				ButtonWidget synchronizeButton = addDrawableChild(ButtonWidget.builder(Text.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonTexts.ON : CommonTexts.OFF), b -> {
 					s.setSynchronizeLabel(!s.isSynchronizeLabel());
 					b.setMessage(Text.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonTexts.ON : CommonTexts.OFF));
 					label.setEditable(!s.isSynchronizeLabel());
@@ -146,7 +140,7 @@ public class ConfigureKeyBindScreen extends Screen {
 
 
 		if (isAddScreen) {
-			addButton = addDrawableChild(ButtonWidget.builder(Text.translatable("keystrokes.stroke.add"), b -> {
+			ButtonWidget addButton = addDrawableChild(ButtonWidget.builder(Text.translatable("keystrokes.stroke.add"), b -> {
 				hud.keystrokes.add(stroke);
 				closeScreen();
 			}).positionAndSize(super.width / 2 - 150 - 4, super.height - 33 / 2 - 10, 150, 20).build());

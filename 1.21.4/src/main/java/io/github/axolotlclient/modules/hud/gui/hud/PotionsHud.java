@@ -41,6 +41,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
@@ -106,7 +107,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			if (direction.isXAxis()) {
 				renderPotion(graphics, effect, x + lastPos + 1, y + 1, tickDelta);
 				lastPos += (iconsOnly.get() ? 20 : (showEffectName.get() ? 20 + client.font.width(
-					Component.translatable(effect.getDescriptionId()).append(" ")
+					effect.getEffect().value().getDisplayName().copy().append(CommonComponents.SPACE)
 						.append(Util.toRoman(effect.getAmplifier() + 1))) : 50));
 			} else {
 				renderPotion(graphics, effect, x + 1, y + 1 + lastPos, tickDelta);
@@ -154,8 +155,8 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		if (!iconsOnly.get()) {
 			float tickrate = client.level != null ? client.level.tickRateManager().tickrate() : 1;
 			if (showEffectName.get()) {
-				Component string = Component.translatable(effect.getDescriptionId()).append(" ")
-					.append(Util.toRoman(effect.getAmplifier()));
+				Component string = effect.getEffect().value().getDisplayName().copy().append(CommonComponents.SPACE)
+					.append(Util.toRoman(effect.getAmplifier()+1));
 
 				graphics.drawString(client.font, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
 				Component duration = MobEffectUtil.formatDuration(effect, 1, tickrate);

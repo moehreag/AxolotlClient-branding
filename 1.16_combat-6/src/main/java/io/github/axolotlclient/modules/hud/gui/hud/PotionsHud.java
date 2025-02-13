@@ -158,7 +158,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		DrawableHelper.drawSprite(matrices, x, y, 0, 18, 18, sprite);
 		if (!iconsOnly.get()) {
 			if (showEffectName.get()) {
-				Text string = new TranslatableText(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()));
+				Text string = new TranslatableText(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()+1));
 
 				drawText(matrices, string, (float) (x + 19), (float) (y + 1), textColor.get().toInt(), shadow.get());
 				String duration = StatusEffectUtil.durationToString(effect, 1);

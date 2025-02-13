@@ -173,8 +173,6 @@ public class UnfocusedFpsLimiter extends AbstractModule {
 	 * force minecraft to idle because otherwise we'll be busy checking for render again and again
 	 */
 	private void idle(long waitMillis) {
-		// cap at 30 ms before we check again so user doesn't have to wait long after tabbing back in
-		waitMillis = Math.min(waitMillis, 30);
 		LockSupport.parkNanos("waiting to render", waitMillis * 1_000_000);
 	}
 

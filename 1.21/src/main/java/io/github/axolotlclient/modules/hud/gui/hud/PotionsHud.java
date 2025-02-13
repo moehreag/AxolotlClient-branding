@@ -156,7 +156,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		if (!iconsOnly.get()) {
 			float tickrate = client.world != null ? client.world.getTickManager().getTickRate() : 1;
 			if (showEffectName.get()) {
-				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()));
+				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()+1));
 
 				graphics.drawText(client.textRenderer, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
 				Text duration = StatusEffectUtil.durationToString(effect, 1, tickrate);

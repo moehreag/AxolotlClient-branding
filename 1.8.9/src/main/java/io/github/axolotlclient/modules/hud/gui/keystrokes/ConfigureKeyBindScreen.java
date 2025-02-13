@@ -45,8 +45,6 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 	private final IntegerOption width;
 	private final IntegerOption height;
 	private final boolean isAddScreen;
-	private ButtonWidget addButton, synchronizeButton;
-	private ClickableWidget currentKey;
 
 	public ConfigureKeyBindScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke stroke, boolean isAddScreen) {
 		super(I18n.translate("keystrokes.stroke.configure_stroke"));
@@ -54,12 +52,8 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 		this.hud = hud;
 		this.stroke = stroke;
 
-		width = new IntegerOption("", stroke.getBounds().width(), v -> {
-			stroke.getBounds().width(v);
-		}, 1, 100);
-		height = new IntegerOption("", stroke.getBounds().height(), v -> {
-			stroke.getBounds().height(v);
-		}, 1, 100);
+		width = new IntegerOption("", stroke.getBounds().width(), v -> stroke.getBounds().width(v), 10, 100);
+		height = new IntegerOption("", stroke.getBounds().height(), v -> stroke.getBounds().height(v), 10, 100);
 		this.isAddScreen = isAddScreen;
 	}
 
@@ -89,7 +83,7 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 		leftColY += 48;
 		rightColY += 48;
 
-		currentKey = addDrawable(textWidget(0, rightColY, super.width, 9, "", textRenderer));
+		ClickableWidget currentKey = addDrawable(textWidget(0, rightColY, super.width, 9, "", textRenderer));
 		if (stroke.getKey() != null) {
 			currentKey.setMessage(I18n.translate("keystrokes.stroke.key", GameOptions.getKeyName(stroke.getKey().getKeyCode())));
 		} else {
@@ -109,7 +103,7 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 			label.setChangedListener(stroke::setLabel);
 			if (supportsSynchronization) {
 				var s = (KeystrokeHud.LabelKeystroke) stroke;
-				synchronizeButton = addDrawableChild(new VanillaButtonWidget(rightColX + 75 + 2, rightColY, 73, 20, I18n.translate("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? I18n.translate("options.on") : I18n.translate("options.off")), b -> {
+				ButtonWidget synchronizeButton = addDrawableChild(new VanillaButtonWidget(rightColX + 75 + 2, rightColY, 73, 20, I18n.translate("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? I18n.translate("options.on") : I18n.translate("options.off")), b -> {
 					s.setSynchronizeLabel(!s.isSynchronizeLabel());
 					b.setMessage(I18n.translate("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? I18n.translate("options.on") : I18n.translate("options.off")));
 					label.setEditable(!s.isSynchronizeLabel());
@@ -141,7 +135,7 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 
 
 		if (isAddScreen) {
-			addButton = addDrawableChild(new VanillaButtonWidget(super.width / 2 - 150 - 4, super.height - 33 / 2 - 10, 150, 20, I18n.translate("keystrokes.stroke.add"), b -> {
+			ButtonWidget addButton = addDrawableChild(new VanillaButtonWidget(super.width / 2 - 150 - 4, super.height - 33 / 2 - 10, 150, 20, I18n.translate("keystrokes.stroke.add"), b -> {
 				hud.keystrokes.add(stroke);
 				closeScreen();
 			}));
