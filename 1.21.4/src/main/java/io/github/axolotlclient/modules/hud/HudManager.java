@@ -158,7 +158,7 @@ public class HudManager extends AbstractModule {
 				});
 			}
 		} catch (IOException e) {
-//TODO notify
+			AxolotlClient.LOGGER.warn("Failed to load custom hud modules!", e);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class HudManager extends AbstractModule {
 			json.endArray();
 			json.close();
 		} catch (IOException e) {
-//TODO notify
+			AxolotlClient.LOGGER.warn("Failed to save custom hud modules!", e);
 		}
 	}
 

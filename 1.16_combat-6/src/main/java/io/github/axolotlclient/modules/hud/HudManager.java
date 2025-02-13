@@ -158,8 +158,8 @@ public class HudManager extends AbstractModule {
 					entry.onBoundsUpdate();
 				});
 			}
-		} catch (IOException e) {
-//TODO notify
+		} catch (Exception e) {
+			AxolotlClient.LOGGER.warn("Failed to load custom hud modules!", e);
 		}
 	}
 
@@ -183,7 +183,7 @@ public class HudManager extends AbstractModule {
 			json.endArray();
 			json.close();
 		} catch (IOException e) {
-//TODO notify
+			AxolotlClient.LOGGER.warn("Failed to save custom hud modules!", e);
 		}
 	}
 
@@ -245,7 +245,7 @@ public class HudManager extends AbstractModule {
 	}
 
 	public List<HudEntry> getMoveableEntries() {
-		if (entries.size() > 0) {
+		if (!entries.isEmpty()) {
 			return entries.values().stream().filter((entry) -> entry.isEnabled() && entry.movable())
 				.collect(Collectors.toList());
 		}

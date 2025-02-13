@@ -1,7 +1,6 @@
 package io.github.axolotlclient.modules.hud.gui.keystrokes;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.ButtonWidget;
@@ -138,7 +137,7 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 
 	public void closeScreen() {
 		minecraft.openScreen(parent);
-		AxolotlClientCommon.getInstance().saveConfig();
+		hud.saveKeystrokes();
 	}
 
 	private static ClickableWidget textWidget(int x, int y, int width, int height, String message, TextRenderer textRenderer) {

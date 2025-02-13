@@ -70,7 +70,7 @@ public class KeystrokeHud extends TextHudEntry {
 	private final ColorOption pressedBackgroundColor = new ColorOption("heldbackgroundcolor", new Color(0x64FFFFFF));
 	private final ColorOption pressedOutlineColor = new ColorOption("heldoutlinecolor", ClientColors.BLACK);
 
-	private final KeystrokesGenericOption keystrokesOption = new KeystrokesGenericOption("keystrokes", "keystrokes.configure");
+	private final GenericOption keystrokesOption = new GenericOption("keystrokes", "keystrokes.configure", () -> client.setScreen(new KeystrokesScreen(KeystrokeHud.this, client.screen)));
 	private final GenericOption configurePositions = new GenericOption("keystrokes.positions", "keystrokes.positions.configure",
 		() -> client.setScreen(new KeystrokePositioningScreen(client.screen, this)));
 	public ArrayList<Keystroke> keystrokes;
@@ -127,7 +127,7 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 		keystrokes = new ArrayList<>();
 		setDefaultKeystrokes();
-		keystrokesOption.load();
+		loadKeystrokes();
 		KeyMapping.releaseAll();
 		KeyMapping.setAll();
 	}
@@ -443,40 +443,25 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 	}
 
-	public class KeystrokesGenericOption extends GenericOption {
-
-		public KeystrokesGenericOption(String name, String label) {
-			super(name, label, () -> client.submit(() -> client.setScreen(new KeystrokesScreen(KeystrokeHud.this, client.screen))));
+	public void saveKeystrokes() {
+		try {
+			Files.writeString(KEYSTROKE_SAVE_FILE, GsonHelper.GSON.toJson(keystrokes.stream().map(Keystroke::serialize).toList()));
+		} catch (Exception e) {
+			AxolotlClient.LOGGER.warn("Failed to save keystroke configuration!", e);
 		}
+	}
 
-		@Override
-		public String toSerializedValue() {
-			try {
-				Files.writeString(KEYSTROKE_SAVE_FILE, GsonHelper.GSON.toJson(keystrokes.stream().map(Keystroke::serialize).toList()));
-			} catch (Exception e) {
-				// TODO failed to save keystrokes.
-			}
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		public void load() {
-			try {
-				List<?> entries = (List<?>) GsonHelper.read(Files.readString(KEYSTROKE_SAVE_FILE));
-				var loaded = entries.stream().map(e -> (Map<String, Object>) e)
-					.map(KeystrokeHud.this::deserializeKey)
-					.toList();
-				keystrokes.clear();
-				keystrokes.addAll(loaded);
-			} catch (Exception e) {
-				// TODO failed to load keystrokes, defaults are used.
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public String getWidgetIdentifier() {
-			return "generic-keystrokes";
+	@SuppressWarnings("unchecked")
+	public void loadKeystrokes() {
+		try {
+			List<?> entries = (List<?>) GsonHelper.read(Files.readString(KEYSTROKE_SAVE_FILE));
+			var loaded = entries.stream().map(e -> (Map<String, Object>) e)
+				.map(KeystrokeHud.this::deserializeKey)
+				.toList();
+			keystrokes.clear();
+			keystrokes.addAll(loaded);
+		} catch (Exception e) {
+			AxolotlClient.LOGGER.warn("Failed to load keystroke configuration, using defaults!", e);
 		}
 	}
 

@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.VanillaButtonWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
@@ -134,13 +133,13 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 
 	public void closeScreen() {
 		minecraft.openScreen(parent);
-		AxolotlClientCommon.getInstance().saveConfig();
+		hud.saveKeystrokes();
 	}
 
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		if (focused != null) {
-			AxolotlClientCommon.getInstance().saveConfig();
+			hud.saveKeystrokes();
 		}
 		snap = null;
 		mouseDown = false;

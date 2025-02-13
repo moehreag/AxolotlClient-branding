@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import io.github.axolotlclient.AxolotlClient;
-import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hud.HudManager;
@@ -133,13 +132,13 @@ public class KeystrokePositioningScreen extends Screen {
 	@Override
 	public void closeScreen() {
 		client.setScreen(parent);
-		AxolotlClientCommon.getInstance().saveConfig();
+		hud.saveKeystrokes();
 	}
 
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		if (focused != null) {
-			AxolotlClientCommon.getInstance().saveConfig();
+			hud.saveKeystrokes();
 		}
 		snap = null;
 		mouseDown = false;

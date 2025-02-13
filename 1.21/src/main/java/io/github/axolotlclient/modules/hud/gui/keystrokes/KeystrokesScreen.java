@@ -2,7 +2,6 @@ package io.github.axolotlclient.modules.hud.gui.keystrokes;
 
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.modules.hud.gui.hud.KeystrokeHud;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
@@ -37,7 +36,7 @@ public class KeystrokesScreen extends Screen {
 			keys.clear();
 			hud.setDefaultKeystrokes();
 			keyBindsList.reload(keys);
-			AxolotlClientCommon.getInstance().saveConfig();
+			hud.saveKeystrokes();
 		}).build();
 		LinearLayoutWidget linearLayout = this.layout.addToFooter(LinearLayoutWidget.createHorizontal().setSpacing(8));
 		linearLayout.add(this.resetButton);
@@ -56,7 +55,7 @@ public class KeystrokesScreen extends Screen {
 	@Override
 	public void closeScreen() {
 		this.client.setScreen(this.screen);
-		AxolotlClientCommon.getInstance().saveConfig();
+		hud.saveKeystrokes();
 	}
 
 	public void removeKey(KeystrokeHud.Keystroke key) {

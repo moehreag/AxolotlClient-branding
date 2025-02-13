@@ -136,7 +136,7 @@ public class HudManager extends AbstractModule {
 				var obj = (List<Object>) GsonHelper.read(Files.readString(CUSTOM_MODULE_SAVE_PATH));
 				obj.forEach(o -> {
 					CustomHudEntry entry = new CustomHudEntry();
-					var values = (Map<String, Object>)o;
+					var values = (Map<String, Object>) o;
 					entry.getAllOptions().getOptions().forEach(opt -> {
 						if (values.containsKey(opt.getName())) {
 							opt.fromSerializedValue((String) values.get(opt.getName()));
@@ -149,7 +149,7 @@ public class HudManager extends AbstractModule {
 				});
 			}
 		} catch (IOException e) {
-//TODO notify
+			AxolotlClient.LOGGER.warn("Failed to load custom hud modules!", e);
 		}
 	}
 
@@ -173,7 +173,7 @@ public class HudManager extends AbstractModule {
 			json.endArray();
 			json.close();
 		} catch (IOException e) {
-//TODO notify
+			AxolotlClient.LOGGER.warn("Failed to save custom hud modules!", e);
 		}
 	}
 
@@ -237,7 +237,7 @@ public class HudManager extends AbstractModule {
 	}
 
 	public List<HudEntry> getMoveableEntries() {
-		if (entries.size() > 0) {
+		if (!entries.isEmpty()) {
 			return entries.values().stream().filter((entry) -> entry.isEnabled() && entry.movable())
 				.collect(Collectors.toList());
 		}

@@ -131,7 +131,6 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 		}
 	}
 
-	// TODO check whether this works
 	private void renderBossBar(GuiGraphics graphics, int x, int y, BossEvent bossBar) {
 		if (bar.get()) {
 			this.drawBar(graphics, x, y, bossBar, 182, BAR_BACKGROUND_SPRITES, OVERLAY_BACKGROUND_SPRITES);

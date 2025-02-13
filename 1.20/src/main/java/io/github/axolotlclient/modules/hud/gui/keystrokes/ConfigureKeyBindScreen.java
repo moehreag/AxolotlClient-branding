@@ -1,6 +1,5 @@
 package io.github.axolotlclient.modules.hud.gui.keystrokes;
 
-import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.IntegerWidget;
@@ -145,6 +144,6 @@ public class ConfigureKeyBindScreen extends Screen {
 	@Override
 	public void closeScreen() {
 		client.setScreen(parent);
-		AxolotlClientCommon.getInstance().saveConfig();
+		hud.saveKeystrokes();
 	}
 }

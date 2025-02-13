@@ -1,5 +1,11 @@
 ## Changelog:
 
+### 3.1.2
+
+- Customizable keystrokes
+  - Mouse movement is now its own HUD element
+- Custom text-based HUD elements
+
 ### 3.1.1
 
 - Add screenshot gallery
