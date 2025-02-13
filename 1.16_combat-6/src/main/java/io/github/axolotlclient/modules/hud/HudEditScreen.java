@@ -22,7 +22,6 @@
 
 package io.github.axolotlclient.modules.hud;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,8 +96,8 @@ public class HudEditScreen extends Screen {
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (MinecraftClient.getInstance().world != null)
-			fillGradient(matrices, 0, 0, width, height, new Color(0xB0100E0E, true).hashCode(),
-				new Color(0x46212020, true).hashCode());
+			fillGradient(matrices, 0, 0, width, height, 0xB0100E0E,
+				0x46212020);
 		else {
 			renderBackgroundTexture(0);
 		}

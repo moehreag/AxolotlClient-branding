@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Colors;
-import io.github.axolotlclient.AxolotlClientConfig.impl.ui.vanilla.widgets.VanillaButtonWidget;
 import io.github.axolotlclient.modules.hud.HudEditScreen;
 import io.github.axolotlclient.modules.hud.HudManager;
 import io.github.axolotlclient.modules.hud.gui.hud.KeystrokeHud;
@@ -39,16 +38,18 @@ import io.github.axolotlclient.modules.hud.util.DrawUtil;
 import io.github.axolotlclient.modules.hud.util.Rectangle;
 import io.github.axolotlclient.util.ClientColors;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 
-public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlClientConfig.impl.ui.Screen {
+public class KeystrokePositioningScreen extends Screen {
+	private static final String title = I18n.translate("keystrokes.stroke.move");
 	private final Screen parent;
 	private final KeystrokeHud hud;
 	private KeystrokeHud.Keystroke focused;
 	private final KeystrokeHud.Keystroke editing;
 
 	public KeystrokePositioningScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke focused) {
-		super(I18n.translate("keystrokes.stroke.move"));
+		super();
 		this.parent = parent;
 		this.hud = hud;
 		this.editing = focused;
@@ -64,19 +65,26 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 	private SnappingHelper snap;
 
 	@Override
+	protected void buttonClicked(ButtonWidget buttonWidget) {
+		if (buttonWidget.id == 0) {
+			closeScreen();
+		} else if (buttonWidget.id == 1) {
+			HudEditScreen.toggleSnapping();
+			buttonWidget.message = I18n.translate("hud.snapping") + ": " +
+				I18n.translate(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off");
+			AxolotlClient.configManager.save();
+		}
+	}
+
+	@Override
 	public void init() {
-		addDrawableChild(new VanillaButtonWidget(width / 2 - 75, height - 50 + 22, 150, 20, I18n.translate("gui.back"), b -> closeScreen()));
-		this.addDrawableChild(new VanillaButtonWidget(width / 2 - 50, height - 50, 100, 20, I18n.translate("hud.snapping") + ": "
-			+ (I18n.translate(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off")),
-			buttonWidget -> {
-				HudEditScreen.toggleSnapping();
-				buttonWidget.setMessage(I18n.translate("hud.snapping") + ": " +
-					I18n.translate(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off"));
-				AxolotlClient.configManager.save();
-			}));
+		buttons.add(new ButtonWidget(0, width / 2 - 75, height - 50 + 22, 150, 20, I18n.translate("gui.back")));
+		buttons.add(new ButtonWidget(1, width / 2 - 50, height - 50, 100, 20, I18n.translate("hud.snapping") + ": "
+			+ (I18n.translate(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off"))));
 	}
 
 	private float partialTick;
+
 	@Override
 	public void renderBackground() {
 		GlStateManager.pushMatrix();
@@ -90,6 +98,7 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 	@Override
 	public void render(int mouseX, int mouseY, float partialTick) {
 		this.partialTick = partialTick;
+		renderBackground();
 		super.render(mouseX, mouseY, partialTick);
 		if (editing != null) {
 			var rect = editing.getRenderPosition();
@@ -118,8 +127,8 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		var value = super.mouseClicked(mouseX, mouseY, button);
+	public void mouseClicked(int mouseX, int mouseY, int button) {
+		super.mouseClicked(mouseX, mouseY, button);
 		if (button == 0) {
 			Optional<KeystrokeHud.Keystroke> entry = Optional.empty();
 			Optional<Rectangle> pos = Optional.empty();
@@ -141,15 +150,13 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 				focused = entry.get();
 				mouseDown = true;
 				var rect = pos.get();
-				offset = new DrawPosition((int) Math.round(mouseX - rect.x()),
-					(int) Math.round(mouseY - rect.y()));
+				offset = new DrawPosition(mouseX - rect.x(),
+					mouseY - rect.y());
 				updateSnapState();
-				return true;
 			} else {
 				focused = null;
 			}
 		}
-		return value;
 	}
 
 
@@ -159,21 +166,21 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public void mouseReleased(int mouseX, int mouseY, int button) {
 		if (focused != null) {
 			hud.saveKeystrokes();
 		}
 		snap = null;
 		mouseDown = false;
 		focused = null;
-		return super.mouseReleased(mouseX, mouseY, button);
+		super.mouseReleased(mouseX, mouseY, button);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+	public void mouseDragged(int mouseX, int mouseY, int button, long mouseLastClicked) {
 		if (focused != null && mouseDown) {
-			focused.setX((int) mouseX - offset.x());
-			focused.setY((int) mouseY - offset.y());
+			focused.setX(mouseX - offset.x());
+			focused.setY(mouseY - offset.y());
 			if (snap != null) {
 				Integer snapX, snapY;
 				var rect = focused.getRenderPosition();
@@ -185,9 +192,7 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 					focused.setY(snapY);
 				}
 			}
-			return true;
 		}
-		return false;
 	}
 
 	private List<Rectangle> getAllBounds() {
