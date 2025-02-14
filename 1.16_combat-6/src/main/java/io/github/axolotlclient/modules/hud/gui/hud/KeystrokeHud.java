@@ -469,6 +469,8 @@ public class KeystrokeHud extends TextHudEntry {
 					.toList();
 				keystrokes.clear();
 				keystrokes.addAll(loaded);
+			} else {
+				saveKeystrokes();
 			}
 		} catch (Exception e) {
 			AxolotlClient.LOGGER.warn("Failed to load keystroke configuration, using defaults!", e);

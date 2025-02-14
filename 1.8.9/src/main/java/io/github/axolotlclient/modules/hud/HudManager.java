@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.gson.stream.JsonWriter;
 import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
@@ -158,7 +159,7 @@ public class HudManager extends AbstractModule {
 		try {
 			Files.createDirectories(CUSTOM_MODULE_SAVE_PATH.getParent());
 			var writer = Files.newBufferedWriter(CUSTOM_MODULE_SAVE_PATH);
-			var json = GsonHelper.GSON.newJsonWriter(writer);
+			var json = new JsonWriter(writer);
 			json.beginArray();
 			for (Map.Entry<Identifier, HudEntry> entry : entries.entrySet()) {
 				HudEntry hudEntry = entry.getValue();

@@ -43,6 +43,9 @@ public class KeystrokesScreen extends Screen {
 
 	public KeystrokesScreen(KeystrokeHud hud, Screen screen) {
 		super(Component.translatable("keystrokes.keys"));
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 		this.keys = hud.keystrokes;
 		this.hud = hud;
         this.screen = screen;
@@ -51,7 +54,6 @@ public class KeystrokesScreen extends Screen {
 
 	@Override
 	protected void init() {
-
 		layout.addTitleHeader(getTitle(), font);
 		layout.addToContents(keyBindsList);
 		this.resetButton = Button.builder(Component.translatable("controls.resetAll"), button -> {

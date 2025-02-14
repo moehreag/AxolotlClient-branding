@@ -59,6 +59,9 @@ public class ConfigureKeyBindScreen extends io.github.axolotlclient.AxolotlClien
 
 	@Override
 	public void init() {
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 
 		int leftColX = super.width / 2 - 4 - 150;
 		int leftColY = 36 + 5;

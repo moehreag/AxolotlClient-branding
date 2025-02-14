@@ -451,6 +451,7 @@ public class KeystrokeHud extends TextHudEntry {
 
 	public void saveKeystrokes() {
 		try {
+			Files.createDirectories(KEYSTROKE_SAVE_FILE.getParent());
 			Files.writeString(KEYSTROKE_SAVE_FILE, GsonHelper.GSON.toJson(keystrokes.stream().map(Keystroke::serialize).toList()));
 		} catch (Exception e) {
 			AxolotlClient.LOGGER.warn("Failed to save keystroke configuration!", e);
@@ -460,12 +461,16 @@ public class KeystrokeHud extends TextHudEntry {
 	@SuppressWarnings("unchecked")
 	public void loadKeystrokes() {
 		try {
-			List<?> entries = (List<?>) GsonHelper.read(Files.readString(KEYSTROKE_SAVE_FILE));
-			var loaded = entries.stream().map(e -> (Map<String, Object>) e)
+			if (Files.exists(KEYSTROKE_SAVE_FILE)) {
+				List<?> entries = (List<?>) GsonHelper.read(Files.readString(KEYSTROKE_SAVE_FILE));
+				var loaded = entries.stream().map(e -> (Map<String, Object>) e)
 					.map(KeystrokeHud.this::deserializeKey)
 					.toList();
-			keystrokes.clear();
-			keystrokes.addAll(loaded);
+				keystrokes.clear();
+				keystrokes.addAll(loaded);
+			} else {
+				saveKeystrokes();
+			}
 		} catch (Exception e) {
 			AxolotlClient.LOGGER.warn("Failed to load keystroke configuration, using defaults!", e);
 		}

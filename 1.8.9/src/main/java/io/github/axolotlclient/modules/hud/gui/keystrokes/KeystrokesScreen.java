@@ -37,6 +37,9 @@ public class KeystrokesScreen extends io.github.axolotlclient.AxolotlClientConfi
 
 	public KeystrokesScreen(KeystrokeHud hud, Screen screen) {
 		super(I18n.translate("keystrokes.keys"));
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 		this.keys = hud.keystrokes;
 		this.hud = hud;
 		this.screen = screen;

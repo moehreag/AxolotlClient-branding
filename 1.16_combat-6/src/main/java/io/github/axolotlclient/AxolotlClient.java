@@ -136,7 +136,7 @@ public class AxolotlClient implements ClientModInitializer {
 					var keystrokes = json.get("hud").getAsJsonObject().get("keystrokehud")
 						.getAsJsonObject();
 					var mousemovement = new JsonObject();
-					mousemovement.addProperty("enabled", keystrokes.get("mousemovement").getAsBoolean());
+					mousemovement.addProperty("enabled", keystrokes.get("enabled").getAsBoolean() && keystrokes.get("mousemovement").getAsBoolean());
 					mousemovement.addProperty("mouseMovementIndicator", keystrokes.get("mouseMovementIndicator").getAsString());
 					mousemovement.addProperty("mouseMovementIndicatorOuter", keystrokes.get("mouseMovementIndicatorOuter").getAsString());
 					json.get("hud").getAsJsonObject().add("mousemovementhud", mousemovement);

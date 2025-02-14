@@ -78,6 +78,9 @@ public class KeystrokePositioningScreen extends Screen {
 
 	@Override
 	public void init() {
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 		buttons.add(new ButtonWidget(0, width / 2 - 75, height - 50 + 22, 150, 20, I18n.translate("gui.back")));
 		buttons.add(new ButtonWidget(1, width / 2 - 50, height - 50, 100, 20, I18n.translate("hud.snapping") + ": "
 			+ (I18n.translate(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off"))));

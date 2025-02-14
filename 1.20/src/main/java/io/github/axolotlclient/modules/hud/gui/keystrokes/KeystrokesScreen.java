@@ -39,6 +39,9 @@ public class KeystrokesScreen extends Screen {
 
 	public KeystrokesScreen(KeystrokeHud hud, Screen screen) {
 		super(Text.translatable("keystrokes.keys"));
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 		this.keys = hud.keystrokes;
 		this.hud = hud;
 		this.screen = screen;
@@ -53,7 +56,6 @@ public class KeystrokesScreen extends Screen {
 
 	@Override
 	protected void init() {
-
 		var keyBindsList = addDrawableChild(new KeyBindsList(this, keys));
 		addDrawableChild(ButtonWidget.builder(Text.translatable("controls.resetAll"), button -> {
 			keys.clear();
