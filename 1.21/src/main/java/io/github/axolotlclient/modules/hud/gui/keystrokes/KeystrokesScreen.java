@@ -49,7 +49,7 @@ public class KeystrokesScreen extends Screen {
 		this.keys = hud.keystrokes;
 		this.hud = hud;
 		this.screen = screen;
-		this.keyBindsList = new KeyBindsList(this, keys);
+		this.keyBindsList = new KeyBindsList(this);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class KeystrokesScreen extends Screen {
 		this.resetButton = ButtonWidget.builder(Text.translatable("controls.resetAll"), button -> {
 			keys.clear();
 			hud.setDefaultKeystrokes();
-			keyBindsList.reload(keys);
+			keyBindsList.reload();
 			hud.saveKeystrokes();
 		}).build();
 		LinearLayoutWidget linearLayout = this.layout.addToFooter(LinearLayoutWidget.createHorizontal().setSpacing(8));
@@ -73,7 +73,7 @@ public class KeystrokesScreen extends Screen {
 	protected void repositionElements() {
 		this.layout.arrangeElements();
 		this.keyBindsList.setDimensionsWithLayout(this.width, this.layout);
-		keyBindsList.reload(keys);
+		keyBindsList.reload();
 	}
 
 	@Override

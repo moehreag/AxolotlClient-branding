@@ -400,7 +400,7 @@ public class KeystrokeHud extends TextHudEntry {
 
 				drawString(getLabel(), (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
 			};
-			this.synchronizeLabel = synchronizeLabel;
+			setSynchronizeLabel(synchronizeLabel);
 		}
 
 		@Override

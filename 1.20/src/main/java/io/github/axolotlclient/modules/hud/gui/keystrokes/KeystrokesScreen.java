@@ -56,11 +56,11 @@ public class KeystrokesScreen extends Screen {
 
 	@Override
 	protected void init() {
-		var keyBindsList = addDrawableChild(new KeyBindsList(this, keys));
+		var keyBindsList = addDrawableChild(new KeyBindsList(this));
 		addDrawableChild(ButtonWidget.builder(Text.translatable("controls.resetAll"), button -> {
 			keys.clear();
 			hud.setDefaultKeystrokes();
-			keyBindsList.reload(keys);
+			keyBindsList.reload();
 			hud.saveKeystrokes();
 		}).positionAndSize(width / 2 - 150 - 4, height - 33 / 2 - 10, 150, 20).build());
 		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, button -> this.closeScreen())

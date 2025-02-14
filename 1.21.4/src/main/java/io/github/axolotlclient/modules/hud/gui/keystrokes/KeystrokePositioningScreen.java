@@ -91,29 +91,27 @@ public class KeystrokePositioningScreen extends Screen {
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		if (editing != null) {
-			var rect = editing.getRenderPosition();
-			if (rect.isMouseOver(mouseX, mouseY)) {
-				DrawUtil.fillRect(guiGraphics, rect, ClientColors.SELECTOR_BLUE.withAlpha(100));
-			} else {
-				DrawUtil.fillRect(guiGraphics, rect, ClientColors.WHITE.withAlpha(50));
-			}
-			editing.render(guiGraphics);
-			DrawUtil.outlineRect(guiGraphics, rect, Colors.BLACK);
+			drawStroke(guiGraphics, mouseX, mouseY, editing);
 		} else {
-			hud.keystrokes.forEach(s -> {
-				var rect = s.getRenderPosition();
-				if (rect.isMouseOver(mouseX, mouseY)) {
-					DrawUtil.fillRect(guiGraphics, rect, ClientColors.SELECTOR_BLUE.withAlpha(100));
-				} else {
-					DrawUtil.fillRect(guiGraphics, rect, ClientColors.WHITE.withAlpha(50));
-				}
-				s.render(guiGraphics);
-				DrawUtil.outlineRect(guiGraphics, rect, Colors.BLACK);
-			});
+			hud.keystrokes.forEach(s -> drawStroke(guiGraphics, mouseX, mouseY, s));
 		}
 		if (mouseDown && snap != null) {
 			snap.renderSnaps(guiGraphics);
 		}
+	}
+
+	private void drawStroke(GuiGraphics guiGraphics, int mouseX, int mouseY, KeystrokeHud.Keystroke s) {
+		var rect = getScaledRenderPos(s);
+		if (rect.isMouseOver(mouseX, mouseY)) {
+			DrawUtil.fillRect(guiGraphics, rect, ClientColors.SELECTOR_BLUE.withAlpha(100));
+		} else {
+			DrawUtil.fillRect(guiGraphics, rect, ClientColors.WHITE.withAlpha(50));
+		}
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().scale(hud.getScale(), hud.getScale(), 1);
+		s.render(guiGraphics);
+		guiGraphics.pose().popPose();
+		DrawUtil.outlineRect(guiGraphics, rect, Colors.BLACK);
 	}
 
 	@Override
@@ -124,14 +122,14 @@ public class KeystrokePositioningScreen extends Screen {
 			Optional<Rectangle> pos = Optional.empty();
 			if (editing == null) {
 				for (KeystrokeHud.Keystroke k : hud.keystrokes) {
-					pos = Optional.of(k.getRenderPosition());
+					pos = Optional.of(getScaledRenderPos(k));
 					if (pos.get().isMouseOver(mouseX, mouseY)) {
 						entry = Optional.of(k);
 						break;
 					}
 				}
 			} else {
-				pos = Optional.of(editing.getRenderPosition());
+				pos = Optional.of(getScaledRenderPos(editing));
 				if (pos.get().isMouseOver(mouseX, mouseY)) {
 					entry = Optional.of(editing);
 				}
@@ -171,17 +169,17 @@ public class KeystrokePositioningScreen extends Screen {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (focused != null && mouseDown) {
-			focused.setX((int) mouseX - offset.x());
-			focused.setY((int) mouseY - offset.y());
+			focused.setX((int) Math.round((mouseX - offset.x())/hud.getScale()));
+			focused.setY((int) Math.round((mouseY - offset.y())/hud.getScale()));
 			if (snap != null) {
 				Integer snapX, snapY;
-				var rect = focused.getRenderPosition();
+				var rect = getScaledRenderPos(focused);
 				snap.setCurrent(rect);
 				if ((snapX = snap.getCurrentXSnap()) != null) {
-					focused.setX(snapX);
+					focused.setX(Math.round(snapX/hud.getScale()));
 				}
 				if ((snapY = snap.getCurrentYSnap()) != null) {
-					focused.setY(snapY);
+					focused.setY(Math.round(snapY/hud.getScale()));
 				}
 			}
 			return true;
@@ -189,13 +187,17 @@ public class KeystrokePositioningScreen extends Screen {
 		return false;
 	}
 
+	private Rectangle getScaledRenderPos(KeystrokeHud.Keystroke stroke) {
+		return stroke.getRenderPosition().scale(hud.getScale());
+	}
+
 	private List<Rectangle> getAllBounds() {
-		return Stream.concat(HudManager.getInstance().getAllBounds().stream(), hud.keystrokes.stream().map(KeystrokeHud.Keystroke::getRenderPosition)).toList();
+		return Stream.concat(HudManager.getInstance().getAllBounds().stream(), hud.keystrokes.stream().map(this::getScaledRenderPos)).toList();
 	}
 
 	private void updateSnapState() {
 		if (HudEditScreen.isSnappingEnabled() && focused != null) {
-			snap = new SnappingHelper(getAllBounds(), focused.getRenderPosition());
+			snap = new SnappingHelper(getAllBounds(), getScaledRenderPos(focused));
 		} else if (snap != null) {
 			snap = null;
 		}

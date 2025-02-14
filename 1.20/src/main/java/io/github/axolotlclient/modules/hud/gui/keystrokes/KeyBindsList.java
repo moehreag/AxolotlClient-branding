@@ -45,16 +45,16 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 	final KeystrokesScreen keyBindsScreen;
 	private int maxNameWidth;
 
-	public KeyBindsList(KeystrokesScreen keyBindsScreen, List<KeystrokeHud.Keystroke> keys) {
+	public KeyBindsList(KeystrokesScreen keyBindsScreen) {
 		super(MinecraftClient.getInstance(), keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height-33, 24);
 		this.keyBindsScreen = keyBindsScreen;
 
-		reload(keys);
+		reload();
 	}
 
-	public void reload(List<KeystrokeHud.Keystroke> keys) {
+	public void reload() {
 		clearEntries();
-		for (KeystrokeHud.Keystroke keyMapping : keys) {
+		for (KeystrokeHud.Keystroke keyMapping : keyBindsScreen.hud.keystrokes) {
 
 			Text component = Text.translatable(keyMapping.getKey().getTranslationKey());
 			int i = client.textRenderer.getWidth(component);

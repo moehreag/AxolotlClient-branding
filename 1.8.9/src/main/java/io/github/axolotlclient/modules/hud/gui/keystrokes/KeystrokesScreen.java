@@ -54,11 +54,11 @@ public class KeystrokesScreen extends io.github.axolotlclient.AxolotlClientConfi
 	@Override
 	public void init() {
 
-		var keyBindsList = addDrawableChild(new KeyBindsList(this, keys));
+		var keyBindsList = addDrawableChild(new KeyBindsList(this));
 		addDrawableChild(new VanillaButtonWidget(width / 2 - 150 - 4, height - 33 / 2 - 10, 150, 20, I18n.translate("controls.resetAll"), button -> {
 			keys.clear();
 			hud.setDefaultKeystrokes();
-			keyBindsList.reload(keys);
+			keyBindsList.reload();
 			hud.saveKeystrokes();
 		}));
 		addDrawableChild(new VanillaButtonWidget(width / 2 + 4, height - 33 / 2 - 10, 150, 20, I18n.translate("gui.done"), button -> this.closeScreen()));

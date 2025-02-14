@@ -45,16 +45,16 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 	final KeystrokesScreen keyBindsScreen;
 	private int maxNameWidth;
 
-	public KeyBindsList(KeystrokesScreen keyBindsScreen, List<KeystrokeHud.Keystroke> keys) {
+	public KeyBindsList(KeystrokesScreen keyBindsScreen) {
 		super(Minecraft.getInstance(), keyBindsScreen.width, keyBindsScreen.layout.getContentHeight(), keyBindsScreen.layout.getHeaderHeight(), 24);
 		this.keyBindsScreen = keyBindsScreen;
 
-		reload(keys);
+		reload();
 	}
 
-	public void reload(List<KeystrokeHud.Keystroke> keys) {
+	public void reload() {
 		clearEntries();
-		for (KeystrokeHud.Keystroke keyMapping : keys) {
+		for (KeystrokeHud.Keystroke keyMapping : keyBindsScreen.hud.keystrokes) {
 
 			Component component = Component.translatable(keyMapping.getKey().getName());
 			int i = minecraft.font.width(component);

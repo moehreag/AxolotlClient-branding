@@ -679,5 +679,8 @@
 	"coordshud.delimiter": "Delimiter (Minimal Mode)",
 	"coordshud.separator": "Separator (Minimal Mode)",
 	"coordshud.separator.color": "Separator Color (Minimal Mode)",
-	"debugcountershud": "Debug Counters Hud"
+	"debugcountershud": "Debug Counters Hud",
+	"debugcounters.ccount": "Chunk Debug Info",
+	"debugcounters.ecount": "Entity Debug Info",
+	"debugcounters.pcount": "Particle Debug Info"
 }

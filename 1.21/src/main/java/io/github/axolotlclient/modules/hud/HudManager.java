@@ -169,8 +169,11 @@ public class HudManager extends AbstractModule {
 				if (hudEntry instanceof CustomHudEntry hud) {
 					json.beginObject();
 					for (Option<?> opt : hud.getCategory().getOptions()) {
-						json.name(opt.getName());
-						json.value(opt.toSerializedValue());
+						var value = opt.toSerializedValue();
+						if (value != null) {
+							json.name(opt.getName());
+							json.value(value);
+						}
 					}
 					json.endObject();
 				}
