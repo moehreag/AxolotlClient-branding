@@ -48,12 +48,12 @@ public class ImageShare extends ImageNetworking {
 	}
 
 	public void uploadImage(Path file) {
-		Util.sendChatMessage(Component.translatable("imageUploadStarted"));
+		Util.addMessageToChatHud(Component.translatable("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {
-				Util.sendChatMessage(Component.translatable("imageUploadFailure"));
+				Util.addMessageToChatHud(Component.translatable("imageUploadFailure"));
 			} else {
-				Util.sendChatMessage(Component.translatable("imageUploadSuccess").append(" ").append(
+				Util.addMessageToChatHud(Component.translatable("imageUploadSuccess").append(" ").append(
 					Component.literal(downloadUrl).setStyle(
 						Style.EMPTY.withColor(ChatFormatting.DARK_PURPLE).withUnderlined(true)
 							.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, downloadUrl))

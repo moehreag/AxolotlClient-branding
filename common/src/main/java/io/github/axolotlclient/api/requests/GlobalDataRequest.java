@@ -34,39 +34,42 @@ import io.github.axolotlclient.api.types.SemVer;
 public class GlobalDataRequest {
 	private static GlobalData cachedData = null;
 	private static Instant nextRequest = null;
-	private static Semaphore lock = new Semaphore(1);
+	private static final Semaphore lock = new Semaphore(1);
 
 	public static CompletableFuture<GlobalData> get() {
 		return get(false);
 	}
 
 	public static CompletableFuture<GlobalData> get(boolean forceRequest) {
-		if (API.getInstance().getApiOptions().enabled.get()) {
-			try {
-				lock.acquire();
-			} catch (InterruptedException ignored) {}
-			if (cachedData != null) {
-				var now = Instant.now();
-				if (!forceRequest && nextRequest.isAfter(now)) {
-					lock.release();
-					return CompletableFuture.completedFuture(cachedData);
+		return CompletableFuture.supplyAsync(() -> {
+			if (API.getInstance().getApiOptions().enabled.get()) {
+				try {
+					lock.acquire();
+				} catch (InterruptedException ignored) {
 				}
-			}
-			return API.getInstance().get(Request.Route.GLOBAL_DATA.create())
-				.thenApply(res -> {
-					if (res.isError()) {
-						return GlobalData.EMPTY;
+				if (cachedData != null) {
+					var now = Instant.now();
+					if (!forceRequest && nextRequest.isAfter(now)) {
+						lock.release();
+						return cachedData;
 					}
-					return new GlobalData(true, res.getBody("total_players"),
-						res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", ""));
-				})
-				.thenApply(d -> {
-					nextRequest = Instant.now().plusSeconds(300);
-					cachedData = d;
-					lock.release();
-					return d;
-				});
-		}
-		return CompletableFuture.completedFuture(GlobalData.EMPTY);
+				}
+				return API.getInstance().get(Request.Route.GLOBAL_DATA.create())
+					.thenApply(res -> {
+						if (res.isError()) {
+							return GlobalData.EMPTY;
+						}
+						return new GlobalData(true, res.getBody("total_players"),
+							res.getBody("online_players"), SemVer.parse(res.getBody("latest_version")), res.getBodyOrElse("notes", ""));
+					})
+					.thenApply(d -> {
+						nextRequest = Instant.now().plusSeconds(300);
+						cachedData = d;
+						lock.release();
+						return d;
+					}).join();
+			}
+			return GlobalData.EMPTY;
+		});
 	}
 }

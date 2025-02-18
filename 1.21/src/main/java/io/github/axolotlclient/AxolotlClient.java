@@ -136,7 +136,6 @@ public class AxolotlClient implements ClientModInitializer {
 					mousemovement.addProperty("mouseMovementIndicatorOuter", keystrokes.get("mouseMovementIndicatorOuter").getAsString());
 					json.get("hud").getAsJsonObject().add("mousemovementhud", mousemovement);
 				}
-				// convert changed Options between versions here
 				return json;
 			}));
 		configManager.load();

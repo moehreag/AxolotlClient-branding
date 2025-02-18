@@ -195,6 +195,6 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;<init>()V"))
 	private void onGameLoad(CallbackInfo ci) {
-		Events.GAME_LOAD_EVENT.invoker().invoke((Minecraft) (Object)this);
+		Events.GAME_LOAD_EVENT.invoker().invoke((Minecraft) (Object) this);
 	}
 }

@@ -23,15 +23,20 @@
 package io.github.axolotlclient;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.github.axolotlclient.AxolotlClientConfig.api.manager.ConfigManager;
 import io.github.axolotlclient.util.Logger;
+import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.notifications.NotificationProvider;
 import lombok.Getter;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class AxolotlClientCommon {
+
+	public static final boolean NVG_SUPPORTED = OSUtil.getOS() != OSUtil.OperatingSystem.OTHER && !Objects.requireNonNullElse(System.getenv("TMPDIR"), "").contains("/Android/data/net.kdt.pojavlaunch/");
+
 	@Getter
 	private static AxolotlClientCommon instance;
 	@Getter

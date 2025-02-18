@@ -26,7 +26,6 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -47,7 +46,6 @@ import net.minecraft.scoreboard.ScoreboardScore;
 import net.minecraft.scoreboard.team.Team;
 import net.minecraft.text.Formatting;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.ApiStatus;
 
 public class Util {
@@ -116,7 +114,7 @@ public class Util {
 		Minecraft.getInstance().player.sendChat(msg);
 	}
 
-	public static void sendChatMessage(Text msg) {
+	public static void addMessageToChatHud(Text msg) {
 		Minecraft.getInstance().gui.getChat().addMessage(msg);
 	}
 
@@ -220,21 +218,8 @@ public class Util {
 			: null;
 	}
 
-	public static double calculateDistance(Vec3d pos1, Vec3d pos2) {
-		return calculateDistance(pos1.x, pos2.x, pos1.y, pos2.y, pos1.z, pos2.z);
-	}
-
-	public static double calculateDistance(double x1, double x2, double y1, double y2, double z1, double z2) {
-		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
-	}
-
 	public static <T> T make(Supplier<T> factory) {
 		return factory.get();
-	}
-
-	public static <T> T make(T object, Consumer<T> initializer) {
-		initializer.accept(object);
-		return object;
 	}
 
 	public static boolean currentServerAddressContains(String address) {

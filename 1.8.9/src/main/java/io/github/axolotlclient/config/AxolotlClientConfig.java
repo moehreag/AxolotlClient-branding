@@ -24,9 +24,9 @@ package io.github.axolotlclient.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import io.github.axolotlclient.AxolotlClient;
+import io.github.axolotlclient.AxolotlClientCommon;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.OptionCategory;
 import io.github.axolotlclient.AxolotlClientConfig.api.ui.ConfigUI;
@@ -120,23 +120,13 @@ public class AxolotlClientConfig {
 		general.add(nightMode);
 		general.add(customWindowTitle);
 		general.add(rawMouseInput);
-		AxolotlClient.modules.add(new Module() {
-			@Override
-			public void lateInit() {
-				if (System.getProperty("org.lwjgl.input.Mouse.disableRawInput") == null) {
-					System.setProperty("org.lwjgl.input.Mouse.disableRawInput", "true");
-				}
-				GLFWUtil.runUsingGlfwHandle(h -> GLFW.glfwSetInputMode(h, GLFW.GLFW_RAW_MOUSE_MOTION, rawMouseInput.get() ? 1 : 0));
-			}
-		});
 		general.add(openCredits);
 		general.add(debugLogOutput);
 		general.add(CommonOptions.datetimeFormat);
 		ConfigUI.getInstance().runWhenLoaded(() -> {
 			general.getOptions().removeIf(o -> "configStyle".equals(o.getName()));
-			boolean isPojavLauncher = Objects.requireNonNullElse(System.getenv("TMPDIR"), "").contains("/Android/data/net.kdt.pojavlaunch/");
 			String[] themes = ConfigUI.getInstance().getStyleNames().stream().map(s -> "configStyle." + s)
-				.filter(s -> !isPojavLauncher || !s.startsWith("rounded"))
+				.filter(s -> AxolotlClientCommon.NVG_SUPPORTED || !s.startsWith("rounded"))
 				.toArray(String[]::new);
 			if (themes.length > 1) {
 				StringArrayOption configStyle;
@@ -174,5 +164,15 @@ public class AxolotlClientConfig {
 		rendering.add(noRain);
 
 		AxolotlClient.config.add(creditsBGM);
+
+		AxolotlClient.modules.add(new Module() {
+			@Override
+			public void lateInit() {
+				if (System.getProperty("org.lwjgl.input.Mouse.disableRawInput") == null) {
+					System.setProperty("org.lwjgl.input.Mouse.disableRawInput", "true");
+				}
+				GLFWUtil.runUsingGlfwHandle(h -> GLFW.glfwSetInputMode(h, GLFW.GLFW_RAW_MOUSE_MOTION, rawMouseInput.get() ? 1 : 0));
+			}
+		});
 	}
 }

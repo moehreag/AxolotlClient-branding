@@ -65,7 +65,7 @@ public class ScreenshotUtils extends AbstractModule {
 			(file) -> {
 				try {
 					Files.delete(file);
-					io.github.axolotlclient.util.Util.sendChatMessage(
+					io.github.axolotlclient.util.Util.addMessageToChatHud(
 						new LiteralText(I18n.translate("screenshot_deleted").replace("<name>", file.getFileName().toString())));
 				} catch (Exception e) {
 					AxolotlClient.LOGGER.warn("Couldn't delete Screenshot " + file.getFileName().toString());
@@ -82,7 +82,7 @@ public class ScreenshotUtils extends AbstractModule {
 					ImageInstance instance = new ImageInstance.LocalImpl(file);
 					MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().openScreen(ImageScreen.create(null, CompletableFuture.completedFuture(instance), true)));
 				} catch (Exception ignored) {
-					io.github.axolotlclient.util.Util.sendChatMessage(new TranslatableText("screenshot.gallery.view.error"));
+					io.github.axolotlclient.util.Util.addMessageToChatHud(new TranslatableText("screenshot.gallery.view.error"));
 				}
 			}));
 

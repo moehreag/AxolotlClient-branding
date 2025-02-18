@@ -75,21 +75,21 @@ public abstract class TitleScreenMixin extends Screen {
 			buttons.add(new AuthWidget(10, leftButtonY));
 			leftButtonY += 25;
 		}
+		this.buttons.addAll(buttons);
 		if (APIOptions.getInstance().addShortcutButtons.get()) {
 			int y = leftButtonY;
-			List<ButtonWidget> shortcutButtons = new ArrayList<>();
 			Runnable addApiButtons = () -> {
-				shortcutButtons.add(new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends")));
-				shortcutButtons.add(new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats")));
+				ButtonWidget friends = new ButtonWidget(142, 10, y, 50, 20, I18n.translate("api.friends"));
+				this.buttons.add(friends);
+				buttons.add(friends);
+				ButtonWidget chats = new ButtonWidget(42, 10, y + 25, 50, 20, I18n.translate("api.chats"));
+				this.buttons.add(chats);
+				buttons.add(chats);
 			};
 			if (API.getInstance().isSocketConnected()) {
 				addApiButtons.run();
-				buttons.addAll(shortcutButtons);
 			} else {
-				API.addStartupListener(() -> minecraft.submit(() -> {
-					addApiButtons.run();
-					this.buttons.addAll(shortcutButtons);
-				}), API.ListenerType.ONCE);
+				API.addStartupListener(() -> minecraft.submit(addApiButtons), API.ListenerType.ONCE);
 			}
 		}
 		GlobalDataRequest.get().thenAccept(data -> {
@@ -97,16 +97,19 @@ public abstract class TitleScreenMixin extends Screen {
 			if (APIOptions.getInstance().updateNotifications.get() &&
 				data.success() &&
 				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
-				buttons.add(new ButtonWidget(182, width - 90, buttonY, 80, 20, I18n.translate("api.new_version_available")));
+				ButtonWidget newVersion = new ButtonWidget(182, width - 90, buttonY, 80, 20, I18n.translate("api.new_version_available"));
+				this.buttons.add(newVersion);
+				buttons.add(newVersion);
 				buttonY += 22;
 			}
 			if (APIOptions.getInstance().displayNotes.get() &&
 				data.success() && !data.notes().isEmpty()) {
-				buttons.add(new ButtonWidget(253, width - 90, buttonY, 80, 20,
-					I18n.translate("api.notes")));
+				ButtonWidget notes = new ButtonWidget(253, width - 90, buttonY, 80, 20,
+					I18n.translate("api.notes"));
+				this.buttons.add(notes);
+				buttons.add(notes);
 			}
 		});
-		this.buttons.addAll(buttons);
 
 		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
 			try {

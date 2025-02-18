@@ -43,7 +43,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ChatUtil;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
 
 public class Util {
@@ -163,14 +162,6 @@ public class Util {
 		return text;
 	}
 
-	public static double calculateDistance(Vec3d pos1, Vec3d pos2) {
-		return calculateDistance(pos1.x, pos2.x, pos1.y, pos2.y, pos1.z, pos2.z);
-	}
-
-	public static double calculateDistance(double x1, double x2, double y1, double y2, double z1, double z2) {
-		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
-	}
-
 	public static void sendChatMessage(String msg) {
 		msg = ChatUtil.cutString(StringUtils.normalizeSpace(msg.trim()));
 		assert MinecraftClient.getInstance().player != null;
@@ -181,7 +172,7 @@ public class Util {
 		}
 	}
 
-	public static void sendChatMessage(Text msg) {
+	public static void addMessageToChatHud(Text msg) {
 		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(msg);
 	}
 

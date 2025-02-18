@@ -40,25 +40,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ChatUtil;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
 
 public class Util {
 	public static String lastgame;
 	public static String game;
-
-	/**
-	 * Gets the amount of ticks in between start and end, on a 24000 tick system.
-	 *
-	 * @param start The start of the time you wish to measure
-	 * @param end   The end of the time you wish to measure
-	 * @return The amount of ticks in between start and end
-	 */
-	public static int getTicksBetween(int start, int end) {
-		if (end < start)
-			end += 24000;
-		return end - start;
-	}
 
 	public static String getGame() {
 		List<String> sidebar = getSidebar();
@@ -66,10 +52,10 @@ public class Util {
 		if (sidebar.isEmpty())
 			game = "";
 		else if (MinecraftClient.getInstance().getCurrentServerEntry() != null
-				 && MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
-					 .contains(sidebar.getFirst().toLowerCase())) {
+			&& MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase()
+			.contains(sidebar.getFirst().toLowerCase())) {
 			if (sidebar.getLast().toLowerCase(Locale.ROOT)
-					.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
+				.contains(MinecraftClient.getInstance().getCurrentServerEntry().address.toLowerCase(Locale.ROOT))
 				|| sidebar.getLast().contains("Playtime")) {
 				game = "In Lobby";
 			} else {
@@ -160,14 +146,6 @@ public class Util {
 		return text;
 	}
 
-	public static double calculateDistance(Vec3d pos1, Vec3d pos2) {
-		return calculateDistance(pos1.x, pos2.x, pos1.y, pos2.y, pos1.z, pos2.z);
-	}
-
-	public static double calculateDistance(double x1, double x2, double y1, double y2, double z1, double z2) {
-		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
-	}
-
 	public static void sendChatMessage(String msg) {
 		msg = ChatUtil.cutString(StringUtils.normalizeSpace(msg.trim()));
 		assert MinecraftClient.getInstance().player != null;
@@ -178,7 +156,7 @@ public class Util {
 		}
 	}
 
-	public static void sendChatMessage(Text msg) {
+	public static void addMessageToChatHud(Text msg) {
 		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(msg);
 	}
 
@@ -187,7 +165,7 @@ public class Util {
 	}
 
 	public static Identifier getTexture(Graphics graphics, String name) {
-		Identifier id = Identifier.of("axolotlclient", "graphics_"+ name.toLowerCase(Locale.ROOT));
+		Identifier id = Identifier.of("axolotlclient", "graphics_" + name.toLowerCase(Locale.ROOT));
 		try {
 			NativeImageBackedTexture texture;
 			if (MinecraftClient.getInstance().getTextureManager().getOrDefault(id, null) == null) {

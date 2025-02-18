@@ -47,19 +47,6 @@ public class Util {
 	public static String lastgame;
 	public static String game;
 
-	/**
-	 * Gets the amount of ticks in between start and end, on a 24000 tick system.
-	 *
-	 * @param start The start of the time you wish to measure
-	 * @param end   The end of the time you wish to measure
-	 * @return The amount of ticks in between start and end
-	 */
-	public static int getTicksBetween(int start, int end) {
-		if (end < start)
-			end += 24000;
-		return end - start;
-	}
-
 	public static String getGame() {
 		List<String> sidebar = getSidebar();
 
@@ -168,7 +155,7 @@ public class Util {
 		}
 	}
 
-	public static void sendChatMessage(Component msg) {
+	public static void addMessageToChatHud(Component msg) {
 		Minecraft.getInstance().gui.getChat().addMessage(msg);
 	}
 

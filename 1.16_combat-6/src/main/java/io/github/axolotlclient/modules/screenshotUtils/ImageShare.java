@@ -45,12 +45,12 @@ public class ImageShare extends ImageNetworking {
 	}
 
 	public void uploadImage(Path file) {
-		Util.sendChatMessage(new TranslatableText("imageUploadStarted"));
+		Util.addMessageToChatHud(new TranslatableText("imageUploadStarted"));
 		upload(file).whenCompleteAsync((downloadUrl, throwable) -> {
 			if (downloadUrl.isEmpty()) {
-				Util.sendChatMessage(new TranslatableText("imageUploadFailure"));
+				Util.addMessageToChatHud(new TranslatableText("imageUploadFailure"));
 			} else {
-				Util.sendChatMessage(new TranslatableText("imageUploadSuccess").append(" ")
+				Util.addMessageToChatHud(new TranslatableText("imageUploadSuccess").append(" ")
 					.append(new LiteralText(downloadUrl)
 						.setStyle(Style.EMPTY
 							.withFormatting(Formatting.UNDERLINE, Formatting.DARK_PURPLE)
