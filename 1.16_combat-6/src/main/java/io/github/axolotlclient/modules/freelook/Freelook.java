@@ -170,7 +170,7 @@ public class Freelook extends AbstractModule {
 		return mode.get().equals("freelook");
 	}
 
-	public boolean isActive(){
+	public boolean isActive() {
 		return active.val || activeAlt.val;
 	}
 

@@ -64,7 +64,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 	@Inject(method = "createPauseMenu", at = @At("TAIL"))
 	private void axolotlclient$addButtons(CallbackInfo ci, @Local GridLayout widget) {
 		if (API.getInstance().isAuthenticated()) {
-			int buttonY = height-30;
+			int buttonY = height - 30;
 			if (APIOptions.getInstance().addShortcutButtons.get()) {
 				addRenderableWidget(Button.builder(Component.translatable("api.friends"),
 						button -> minecraft.setScreen(new FriendsScreen(this)))
@@ -72,7 +72,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 				buttonY -= 25;
 			}
 			addRenderableWidget(Button.builder(Component.translatable("api.chats"),
-				button -> minecraft.setScreen(new ChatsSidebar(this)))
+					button -> minecraft.setScreen(new ChatsSidebar(this)))
 				.bounds(10, buttonY, 75, 20).build());
 		}
 		if (!axolotlclient$hasModMenu()) {

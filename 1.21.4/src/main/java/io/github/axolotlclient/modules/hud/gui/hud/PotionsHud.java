@@ -135,7 +135,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			}
 			return effects.stream().map(effect -> Component.translatable(effect.getDescriptionId()).append(" ")
 				.append(Util.toRoman(effect.getAmplifier()))).map(client.font::width).max(Integer::compare).orElse(38) +
-				   22;
+				22;
 		}
 	}
 
@@ -156,15 +156,15 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 			float tickrate = client.level != null ? client.level.tickRateManager().tickrate() : 1;
 			if (showEffectName.get()) {
 				Component string = effect.getEffect().value().getDisplayName().copy().append(CommonComponents.SPACE)
-					.append(Util.toRoman(effect.getAmplifier()+1));
+					.append(Util.toRoman(effect.getAmplifier() + 1));
 
 				graphics.drawString(client.font, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
 				Component duration = MobEffectUtil.formatDuration(effect, 1, tickrate);
 				graphics.drawString(client.font, duration, x + 19, y + 1 + 10, timerTextColor.get().toInt(), shadow.get());
 			} else {
 				graphics.drawString(client.font, MobEffectUtil.formatDuration(effect, 1, tickrate), x + 19, y + 5,
-									timerTextColor.get().toInt(), shadow.get()
-								   );
+					timerTextColor.get().toInt(), shadow.get()
+				);
 			}
 		}
 	}

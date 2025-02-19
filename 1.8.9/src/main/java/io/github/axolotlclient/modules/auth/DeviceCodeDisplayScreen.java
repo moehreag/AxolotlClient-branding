@@ -25,7 +25,6 @@ package io.github.axolotlclient.modules.auth;
 import java.net.URI;
 import java.util.List;
 
-import io.github.axolotlclient.AxolotlClientConfig.api.util.Graphics;
 import io.github.axolotlclient.util.OSUtil;
 import io.github.axolotlclient.util.Util;
 import net.minecraft.client.Minecraft;
@@ -52,7 +51,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 		this.verificationUri = data.getVerificationUri();
 		this.userCode = data.getUserCode();
 		this.ticksLeft = data.getExpiresIn() * 20;
-		this.qrCode = Util.getTexture(data.getQrCode(), "device_auth_"+ data.getUserCode());
+		this.qrCode = Util.getTexture(data.getQrCode(), "device_auth_" + data.getUserCode());
 		this.status = I18n.translate("auth.time_left",
 			((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s");
 		data.setStatusConsumer(s -> {
@@ -88,11 +87,11 @@ public class DeviceCodeDisplayScreen extends Screen {
 			width / 2, y + 10, -1);
 
 
-		y = height/2+30;
-		if (height-y > 40) {
+		y = height / 2 + 30;
+		if (height - y > 40) {
 			int qrImageSize = height - y - 20;
 			minecraft.getTextureManager().bind(qrCode);
-			drawTexture(width/2 - qrImageSize/2, y, 0, 0, qrImageSize, qrImageSize, qrImageSize, qrImageSize);
+			drawTexture(width / 2 - qrImageSize / 2, y, 0, 0, qrImageSize, qrImageSize, qrImageSize, qrImageSize);
 		}
 	}
 

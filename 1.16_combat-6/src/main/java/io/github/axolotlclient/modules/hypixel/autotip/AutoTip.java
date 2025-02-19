@@ -85,6 +85,6 @@ public class AutoTip implements AbstractHypixelMod {
 
 	public void onChatMessage(ReceiveChatMessageEvent event) {
 		event.setCancelled(enabled.get() && hideMessages.get() && (messagePattern.matcher(event.getOriginalMessage()).matches()
-																   || tippedPattern.matcher(event.getOriginalMessage()).matches()));
+			|| tippedPattern.matcher(event.getOriginalMessage()).matches()));
 	}
 }

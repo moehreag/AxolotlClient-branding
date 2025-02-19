@@ -100,7 +100,7 @@ public class ImageScreen extends Screen {
 		int imageHeight = (int) (imageWidth / imgAspectRatio);
 
 		var contents = layout.addToContents(LinearLayout.horizontal().spacing(4));
-		if (width/2 > (imageWidth / 2) + buttonWidth+4) {
+		if (width / 2 > (imageWidth / 2) + buttonWidth + 4) {
 			contents.addChild(new SpacerElement(buttonWidth + 4, imageHeight));
 		}
 		var footer = layout.addToFooter(LinearLayout.horizontal().spacing(4));

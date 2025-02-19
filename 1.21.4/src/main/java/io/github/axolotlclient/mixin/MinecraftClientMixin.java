@@ -72,6 +72,6 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "onGameLoadFinished", at = @At(value = "INVOKE", target = "Ljava/lang/Runnable;run()V", remap = false))
 	private void onGameLoad(Minecraft.GameLoadCookie gameLoadCookie, CallbackInfo ci) {
-		Events.GAME_LOAD_EVENT.invoker().invoke((Minecraft)(Object)this);
+		Events.GAME_LOAD_EVENT.invoker().invoke((Minecraft) (Object) this);
 	}
 }

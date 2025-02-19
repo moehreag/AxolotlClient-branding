@@ -76,7 +76,7 @@ public class PkSystem {
 
 	public void updateAutoproxyMember(String value) {
 		this.autoproxyMember = members.stream().filter(m -> value.toLowerCase(Locale.ROOT).equals(m.getDisplayName()) ||
-															value.toLowerCase(Locale.ROOT).equals(m.getId()))
+				value.toLowerCase(Locale.ROOT).equals(m.getId()))
 			.findFirst().orElse(null);
 	}
 
@@ -303,7 +303,7 @@ public class PkSystem {
 
 				remaining = Integer.parseInt(response.headers().firstValue("X-RateLimit-Remaining").orElseThrow());
 				long resetsInMillisHeader = (response.headers().firstValueAsLong("X-RateLimit-Reset")
-												 .orElseThrow() * 1000) - System.currentTimeMillis();
+					.orElseThrow() * 1000) - System.currentTimeMillis();
 				// If the header value is bogus just reset in 0.5 seconds
 				this.resetsInMillis = resetsInMillisHeader < 0 ? 500 : resetsInMillisHeader;
 				limit = Integer.parseInt(response.headers().firstValue("X-RateLimit-Limit").orElseThrow());

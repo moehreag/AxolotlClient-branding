@@ -84,9 +84,9 @@ public class UsernameManagementScreen extends Screen {
 
 		public UsernameListWidget(List<User.OldUsername> names) {
 			super(UsernameManagementScreen.this.minecraft, UsernameManagementScreen.this.width,
-				  UsernameManagementScreen.this.layout.getContentHeight(),
-				  UsernameManagementScreen.this.layout.getHeaderHeight(), 20
-				 );
+				UsernameManagementScreen.this.layout.getContentHeight(),
+				UsernameManagementScreen.this.layout.getHeaderHeight(), 20
+			);
 
 			names.forEach(n -> addEntry(new UsernameListEntry(n)));
 		}
@@ -109,17 +109,17 @@ public class UsernameManagementScreen extends Screen {
 					AccountUsernameRequest.post(name.getName(), name.isPub());
 				}).width(100).build();
 				delete = Button.builder(Component.translatable("api.account.usernames.delete"),
-										w -> minecraft.setScreen(new ConfirmScreen(b -> {
-											if (b) {
-												AccountUsernameRequest.delete(name.getName())
-													.thenRun(() -> UsernameListWidget.this.removeEntry(this));
-											}
-											minecraft.setScreen(UsernameManagementScreen.this);
-										}, Component.translatable("api.account.confirm_deletion"),
-																				   Component.translatable(
-																					   "api.account.usernames.delete.desc")
-										))
-									   ).width(100).build();
+					w -> minecraft.setScreen(new ConfirmScreen(b -> {
+						if (b) {
+							AccountUsernameRequest.delete(name.getName())
+								.thenRun(() -> UsernameListWidget.this.removeEntry(this));
+						}
+						minecraft.setScreen(UsernameManagementScreen.this);
+					}, Component.translatable("api.account.confirm_deletion"),
+						Component.translatable(
+							"api.account.usernames.delete.desc")
+					))
+				).width(100).build();
 				this.name = name.getName();
 			}
 

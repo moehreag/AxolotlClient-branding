@@ -43,25 +43,25 @@ import net.minecraft.text.Text;
 public class ConfigureKeyBindScreen extends Screen {
 
 	private final HeaderFooterLayoutWidget layout = new HeaderFooterLayoutWidget(this);
-    private final Screen parent;
-    private final KeystrokeHud hud;
-    public final KeystrokeHud.Keystroke stroke;
+	private final Screen parent;
+	private final KeystrokeHud hud;
+	public final KeystrokeHud.Keystroke stroke;
 	private final IntegerOption width;
-    private final IntegerOption height;
-    private final boolean isAddScreen;
+	private final IntegerOption height;
+	private final boolean isAddScreen;
 	private ButtonWidget addButton, synchronizeButton;
 	private TextWidget currentKey;
 
-    public ConfigureKeyBindScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke stroke, boolean isAddScreen) {
+	public ConfigureKeyBindScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke stroke, boolean isAddScreen) {
 		super(Text.translatable("keystrokes.stroke.configure_stroke"));
-        this.parent = parent;
-        this.hud = hud;
-        this.stroke = stroke;
+		this.parent = parent;
+		this.hud = hud;
+		this.stroke = stroke;
 
 		width = new IntegerOption("", stroke.getBounds().width(), v -> stroke.getBounds().width(v), 10, 100);
 		height = new IntegerOption("", stroke.getBounds().height(), v -> stroke.getBounds().height(v), 10, 100);
-        this.isAddScreen = isAddScreen;
-    }
+		this.isAddScreen = isAddScreen;
+	}
 
 	@Override
 	protected void init() {
@@ -77,8 +77,8 @@ public class ConfigureKeyBindScreen extends Screen {
 				var rect = stroke.getRenderPosition();
 				guiGraphics.getMatrices().push();
 				guiGraphics.getMatrices().translate(getX(), getY(), 0);
-				float scale = Math.min( (float) getHeight() / rect.height(), (float) getWidth() / rect.width());
-				guiGraphics.getMatrices().translate(getWidth()/2f - (rect.width()*scale) /2f, 0, 0);
+				float scale = Math.min((float) getHeight() / rect.height(), (float) getWidth() / rect.width());
+				guiGraphics.getMatrices().translate(getWidth() / 2f - (rect.width() * scale) / 2f, 0, 0);
 				guiGraphics.getMatrices().scale(scale, scale, 1);
 				guiGraphics.getMatrices().translate(-rect.x(), -rect.y(), 0);
 				DrawUtil.fillRect(guiGraphics, rect, Colors.WHITE.withAlpha(128));
@@ -117,7 +117,7 @@ public class ConfigureKeyBindScreen extends Screen {
 				synchronizeButton = labelLayout.add(ButtonWidget.builder(Text.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonTexts.ON : CommonTexts.OFF), b -> {
 					s.setSynchronizeLabel(!s.isSynchronizeLabel());
 					b.setMessage(Text.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonTexts.ON : CommonTexts.OFF));
-                    label.setEditable(!s.isSynchronizeLabel());
+					label.setEditable(!s.isSynchronizeLabel());
 					if (s.isSynchronizeLabel()) {
 						label.setText(stroke.getLabel());
 					}

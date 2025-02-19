@@ -40,8 +40,7 @@ public enum MccIslandGameType {
 	ROCKET_SPLEEF_RUSH("Rocket Spleef Rush", "rocket-spleef", "rocket_spleef"),
 	DYNABALL("Dynaball", "dynaball", "dynaball"),
 	SKY_BATTLE("Sky Battle", "sky-battle", "sky_battle"),
-	BATTLE_BOX("Battle Box", "battle-box", "battle_box")
-	;
+	BATTLE_BOX("Battle Box", "battle-box", "battle_box");
 	private final String name;
 	private final String serverType;
 	private final String gameName;

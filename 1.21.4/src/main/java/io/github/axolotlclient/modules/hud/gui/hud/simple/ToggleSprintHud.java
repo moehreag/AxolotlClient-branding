@@ -56,8 +56,10 @@ public class ToggleSprintHud extends SimpleTextHudEntry {
 	private final BooleanOption toggleSprint = new BooleanOption("toggleSprint", false);
 	private final BooleanOption randomPlaceholder = new BooleanOption("randomPlaceholder", false);
 	private final StringOption placeholder = new StringOption("placeholder", "No keys pressed");
-	@Getter private final BooleanOption sprintToggled = new BooleanOption("sprintToggled", false);
-	@Getter private final BooleanOption sneakToggled = new BooleanOption("sneakToggled", false);
+	@Getter
+	private final BooleanOption sprintToggled = new BooleanOption("sprintToggled", false);
+	@Getter
+	private final BooleanOption sneakToggled = new BooleanOption("sneakToggled", false);
 	private final List<String> texts = new ArrayList<>();
 	private final KeyMapping sprintToggle = KeyBinds.getInstance()
 		.register(new KeyMapping("key.toggleSprint", InputConstants.KEY_K, "category.axolotlclient"));

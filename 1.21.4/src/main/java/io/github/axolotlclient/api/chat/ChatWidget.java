@@ -59,7 +59,9 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 	private final Channel channel;
 	private final Minecraft client;
 	private final ContextMenuScreen screen;
-	@Setter @Getter private int x, y, width, height;
+	@Setter
+	@Getter
+	private int x, y, width, height;
 
 	public ChatWidget(Channel channel, int x, int y, int width, int height, ContextMenuScreen screen) {
 		super(Minecraft.getInstance(), width, height, y, 13);
@@ -99,7 +101,7 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 		if (!messages.isEmpty()) {
 			ChatMessage prev = messages.getLast();
 			if (!(prev.sender().equals(message.sender()) &&
-				  prev.senderDisplayName().equals(message.senderDisplayName()))) {
+				prev.senderDisplayName().equals(message.senderDisplayName()))) {
 				addEntry(new NameChatLine(message));
 			} else {
 				if (prev.timestamp().getEpochSecond() - message.timestamp().getEpochSecond() > 150) {
@@ -158,8 +160,10 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 
 	public class ChatLine extends Entry<ChatLine> {
 		protected final Minecraft client = ChatWidget.this.client;
-		@Getter private final FormattedCharSequence content;
-		@Getter private final ChatMessage origin;
+		@Getter
+		private final FormattedCharSequence content;
+		@Getter
+		private final ChatMessage origin;
 
 		public ChatLine(FormattedCharSequence content, ChatMessage origin) {
 			super();
@@ -217,8 +221,8 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 				graphics.fill(x - 2 - 22, y - 2, x + entryWidth + 20, y + entryHeight - 1, 0x33FFFFFF);
 				if (index < children().size() - 1 && children().get(index + 1).getOrigin().equals(origin)) {
 					graphics.fill(x - 2 - 22, y + entryHeight - 1, x + entryWidth + 20, y + entryHeight + 2,
-								  0x33FFFFFF
-								 );
+						0x33FFFFFF
+					);
 				}
 				if ((index < children().size() - 1 && !children().get(index + 1).getOrigin().equals(origin)) ||
 					index == children().size() - 1) {
@@ -241,7 +245,7 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 
 		public NameChatLine(ChatMessage message) {
 			super(Component.literal(message.senderDisplayName()).setStyle(Style.EMPTY.withBold(true))
-					  .getVisualOrderText(), message);
+				.getVisualOrderText(), message);
 
 			DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d/M/yyyy H:mm");
 			formattedTime = DATE_FORMAT.format(message.timestamp().atZone(ZoneId.systemDefault()));
@@ -254,11 +258,11 @@ public class ChatWidget extends ObjectSelectionList<ChatWidget.ChatLine> {
 			RenderSystem.disableBlend();
 			ResourceLocation texture =
 				Auth.getInstance().getSkinTexture(getOrigin().sender().getUuid(), getOrigin().sender().getName());
-			PlayerFaceRenderer.draw(graphics, texture, x-22, y, 18, true, false, -1);
+			PlayerFaceRenderer.draw(graphics, texture, x - 22, y, 18, true, false, -1);
 			RenderSystem.enableBlend();
 			graphics.drawString(client.font, formattedTime, client.font.width(getContent()) + x + 5, y,
-								ClientColors.GRAY.toInt(), false
-							   );
+				ClientColors.GRAY.toInt(), false
+			);
 			graphics.pose().popPose();
 		}
 	}

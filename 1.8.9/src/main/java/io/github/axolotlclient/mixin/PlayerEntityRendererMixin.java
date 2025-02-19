@@ -50,7 +50,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Cli
 				&& NickHider.getInstance().hideOwnName.get()) {
 				args.set(4, NickHider.getInstance().hiddenNameSelf.get());
 			} else if (player.getUuid() != Minecraft.getInstance().player.getUuid()
-					   && NickHider.getInstance().hideOtherNames.get()) {
+				&& NickHider.getInstance().hideOtherNames.get()) {
 				args.set(4, NickHider.getInstance().hiddenNameOthers.get());
 			}
 		}

@@ -78,7 +78,7 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 						.lines().collect(Collectors.joining("\n")),
 					JsonObject.class);
 				if (!json.has("type") || !json.get("type").getAsString().equals("square-textured")) {
-					AxolotlClient.LOGGER.debug("Skipping "+entry+" as we currently cannot load it!");
+					AxolotlClient.LOGGER.debug("Skipping " + entry + " as we currently cannot load it!");
 					continue;
 				}
 				SkyboxManager.getInstance().addSkybox(new FSBSkyboxInstance(json));
@@ -128,13 +128,13 @@ public class SkyResourceManager extends AbstractModule implements SimpleSynchron
 								}
 								if (id.getPath().contains("world")) {
 									option[1] = loader + "/sky/world" + id.getPath().split("world")[1].split("/")[0]
-												+ "/" + option[1].replace("./", "");
+										+ "/" + option[1].replace("./", "");
 								}
 							}
 							try {
 								MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(option[1]));
 							} catch (FileNotFoundException e) {
-								AxolotlClient.LOGGER.warn("Sky "+id+" does not have a valid texture attached to it: ", option[1]);
+								AxolotlClient.LOGGER.warn("Sky " + id + " does not have a valid texture attached to it: ", option[1]);
 								AxolotlClient.LOGGER.warn("Please fix your packs.");
 								return;
 							}

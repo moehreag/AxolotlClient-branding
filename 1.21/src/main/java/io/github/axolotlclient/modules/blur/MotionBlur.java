@@ -102,18 +102,18 @@ public class MotionBlur extends AbstractModule {
 
 		public MotionBlurShader() {
 			super(MinecraftClient.getInstance().getDefaultResourcePack(), () -> IOUtils.toInputStream(String.format(
-				"{" + "    \"targets\": [" + "        \"swap\","
-					+ "        \"previous\"" + "    ]," + "    \"passes\": [" + "        {"
-					+ "            \"name\": \"motion_blur\"," + "            \"intarget\": \"minecraft:main\","
-					+ "            \"outtarget\": \"swap\"," + "            \"auxtargets\": [" + "                {"
-					+ "                    \"name\": \"PrevSampler\"," + "                    \"id\": \"previous\""
-					+ "                }" + "            ]," + "            \"uniforms\": [" + "                {"
-					+ "                    \"name\": \"BlendFactor\"," + "                    \"values\": [ %s ]"
-					+ "                }" + "            ]" + "        }," + "        {"
-					+ "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
-					+ "            \"outtarget\": \"previous\"" + "        }," + "        {"
-					+ "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
-					+ "            \"outtarget\": \"minecraft:main\"" + "        }" + "    ]" + "}", getBlur()),
+					"{" + "    \"targets\": [" + "        \"swap\","
+						+ "        \"previous\"" + "    ]," + "    \"passes\": [" + "        {"
+						+ "            \"name\": \"motion_blur\"," + "            \"intarget\": \"minecraft:main\","
+						+ "            \"outtarget\": \"swap\"," + "            \"auxtargets\": [" + "                {"
+						+ "                    \"name\": \"PrevSampler\"," + "                    \"id\": \"previous\""
+						+ "                }" + "            ]," + "            \"uniforms\": [" + "                {"
+						+ "                    \"name\": \"BlendFactor\"," + "                    \"values\": [ %s ]"
+						+ "                }" + "            ]" + "        }," + "        {"
+						+ "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
+						+ "            \"outtarget\": \"previous\"" + "        }," + "        {"
+						+ "            \"name\": \"blit\"," + "            \"intarget\": \"swap\","
+						+ "            \"outtarget\": \"minecraft:main\"" + "        }" + "    ]" + "}", getBlur()),
 				"utf-8"));
 		}
 	}

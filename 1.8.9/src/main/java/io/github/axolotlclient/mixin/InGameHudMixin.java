@@ -109,9 +109,9 @@ public abstract class InGameHudMixin {
 		HotbarHUD hud = (HotbarHUD) HudManager.getInstance().get(HotbarHUD.ID);
 		if (hud.isEnabled()) {
 			args.set(1, ((Integer) hud.getX()).floatValue() + (hud.getWidth() * hud.getScale()
-															   - Minecraft.getInstance().textRenderer.getWidth(args.get(0))) / 2);
+				- Minecraft.getInstance().textRenderer.getWidth(args.get(0))) / 2);
 			args.set(2, ((Integer) hud.getY()).floatValue() - 36
-						+ (!Minecraft.getInstance().interactionManager.hasStatusBars() ? 14 : 0));
+				+ (!Minecraft.getInstance().interactionManager.hasStatusBars() ? 14 : 0));
 		}
 	}
 
@@ -178,8 +178,8 @@ public abstract class InGameHudMixin {
 	)
 	public int axolotlclient$displayHardcoreHearts(int offset) {
 		boolean hardcore = BedwarsMod.getInstance().isEnabled() &&
-						   BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().hardcoreHearts.get() &&
-						   !BedwarsMod.getInstance().getGame().get().getSelf().isBed();
+			BedwarsMod.getInstance().inGame() && BedwarsMod.getInstance().hardcoreHearts.get() &&
+			!BedwarsMod.getInstance().getGame().get().getSelf().isBed();
 		return hardcore ? 5 : offset;
 	}
 

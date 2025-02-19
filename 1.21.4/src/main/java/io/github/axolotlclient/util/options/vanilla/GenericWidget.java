@@ -29,7 +29,7 @@ import net.minecraft.network.chat.Component;
 public class GenericWidget extends Button {
 	public GenericWidget(int x, int y, int width, int height, GenericOption option) {
 		super(x, y, width, height, Component.translatable(option.getLabel()), w -> option.get().onClick(),
-			  DEFAULT_NARRATION
-			 );
+			DEFAULT_NARRATION
+		);
 	}
 }

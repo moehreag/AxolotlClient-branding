@@ -433,7 +433,7 @@ public class GalleryScreen extends Screen {
 
 		@Override
 		protected int getScrollbarPositionX() {
-			return getRowRight() + 6 +2;
+			return getRowRight() + 6 + 2;
 		}
 
 		public boolean isInListContent(int x, int y) {

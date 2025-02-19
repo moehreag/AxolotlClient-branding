@@ -166,17 +166,17 @@ public class KeystrokePositioningScreen extends io.github.axolotlclient.AxolotlC
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (focused != null && mouseDown) {
-			focused.setX((int) Math.round((mouseX - offset.x())/hud.getScale()));
-			focused.setY((int) Math.round((mouseY - offset.y())/hud.getScale()));
+			focused.setX((int) Math.round((mouseX - offset.x()) / hud.getScale()));
+			focused.setY((int) Math.round((mouseY - offset.y()) / hud.getScale()));
 			if (snap != null) {
 				Integer snapX, snapY;
 				var rect = getScaledRenderPos(focused);
 				snap.setCurrent(rect);
 				if ((snapX = snap.getCurrentXSnap()) != null) {
-					focused.setX((int) (snapX/hud.getScale()));
+					focused.setX((int) (snapX / hud.getScale()));
 				}
 				if ((snapY = snap.getCurrentYSnap()) != null) {
-					focused.setY(Math.round(snapY/hud.getScale()));
+					focused.setY(Math.round(snapY / hud.getScale()));
 				}
 			}
 			return true;

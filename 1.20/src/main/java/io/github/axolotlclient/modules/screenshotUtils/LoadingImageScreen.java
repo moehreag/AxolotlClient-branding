@@ -59,7 +59,7 @@ public class LoadingImageScreen extends Screen {
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredShadowedText(textRenderer, getTitle(), width/2, 33/2 - textRenderer.fontHeight/2, -1);
+		graphics.drawCenteredShadowedText(textRenderer, getTitle(), width / 2, 33 / 2 - textRenderer.fontHeight / 2, -1);
 	}
 
 	@Override
@@ -67,13 +67,13 @@ public class LoadingImageScreen extends Screen {
 
 		int buttonWidth = 75;
 		int imageWidth = width - 20 - buttonWidth - 4;
-		int imageHeight = height - 33*2;
+		int imageHeight = height - 33 * 2;
 
 		addDrawableChild(new LoadingWidget(imageWidth, imageHeight)).setPosition(10, 36);
 		addDrawableChild(new LoadingWidget(buttonWidth, 20)).setPosition(10 + imageWidth + 4, 36);
-		addDrawableChild(new LoadingWidget(buttonWidth, 20)).setPosition(10 + imageWidth + 4, 36 +20 + 4);
+		addDrawableChild(new LoadingWidget(buttonWidth, 20)).setPosition(10 + imageWidth + 4, 36 + 20 + 4);
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).positionAndSize(width/2-75, height-33/2 - 10, 150, 20).build());
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).positionAndSize(width / 2 - 75, height - 33 / 2 - 10, 150, 20).build());
 	}
 
 	@Override

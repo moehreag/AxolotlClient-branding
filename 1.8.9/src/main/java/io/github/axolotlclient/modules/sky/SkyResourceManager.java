@@ -104,7 +104,7 @@ public class SkyResourceManager extends AbstractModule {
 		String string;
 		String[] option;
 		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(resourceManager.getResource(id).asStream(), StandardCharsets.UTF_8))) {
+			new InputStreamReader(resourceManager.getResource(id).asStream(), StandardCharsets.UTF_8))) {
 			while ((string = reader.readLine()) != null) {
 				try {
 					if (!string.startsWith("#")) {
@@ -122,7 +122,7 @@ public class SkyResourceManager extends AbstractModule {
 							try {
 								resourceManager.getResource(new Identifier(option[1]));
 							} catch (FileNotFoundException e) {
-								AxolotlClient.LOGGER.warn("Sky "+id+" does not have a valid texture attached to it: ", option[1]);
+								AxolotlClient.LOGGER.warn("Sky " + id + " does not have a valid texture attached to it: ", option[1]);
 								AxolotlClient.LOGGER.warn("Please fix your packs.");
 								return;
 							}

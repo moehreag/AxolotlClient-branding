@@ -34,7 +34,9 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(TrackingEmitter.class)
 public abstract class EmitterParticleMixin {
 
-	@Shadow @Final private ParticleOptions particleType;
+	@Shadow
+	@Final
+	private ParticleOptions particleType;
 
 	@ModifyConstant(method = "tick", constant = @Constant(intValue = 16))
 	public int axolotlclient$multiplyParticles(int constant) {

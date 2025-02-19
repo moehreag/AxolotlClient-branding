@@ -119,6 +119,7 @@ public class DrawUtil extends GuiElement {
 		public NineSlice(int width, int height, Border border) {
 			this(width, height, border, false);
 		}
+
 		public NineSlice(int width, int height, int borderSize) {
 			this(width, height, new Border(borderSize));
 		}

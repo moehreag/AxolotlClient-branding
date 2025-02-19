@@ -55,13 +55,13 @@ public class DeviceFlowData {
 	}
 
 	public Graphics getQrCode() {
-		QrCode qr = QrCode.encodeText(getVerificationUri()+"?code="+getUserCode(), QrCode.Ecc.MEDIUM);
+		QrCode qr = QrCode.encodeText(getVerificationUri() + "?code=" + getUserCode(), QrCode.Ecc.MEDIUM);
 		int size = qr.size;
 		int borderWidth = 1;
-		Graphics gr = new GraphicsImpl(size+borderWidth*2, size+borderWidth*2);
-		for (int x = 0;x<gr.getWidth();x++) {
-			for (int y = 0;y<gr.getHeight();y++) {
-				gr.setPixelColor(x, y, qr.getModule(x-borderWidth, y-borderWidth) ? Colors.BLACK : Colors.WHITE);
+		Graphics gr = new GraphicsImpl(size + borderWidth * 2, size + borderWidth * 2);
+		for (int x = 0; x < gr.getWidth(); x++) {
+			for (int y = 0; y < gr.getHeight(); y++) {
+				gr.setPixelColor(x, y, qr.getModule(x - borderWidth, y - borderWidth) ? Colors.BLACK : Colors.WHITE);
 			}
 		}
 		return gr;

@@ -63,8 +63,8 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		Scoreboard placeScore = new Scoreboard();
 		Objective objective =
 			placeScore.addObjective("placeholder", ObjectiveCriteria.DUMMY, Component.literal("Scoreboard"),
-									ObjectiveCriteria.RenderType.INTEGER, false, StyledFormat.SIDEBAR_DEFAULT
-								   );
+				ObjectiveCriteria.RenderType.INTEGER, false, StyledFormat.SIDEBAR_DEFAULT
+			);
 		ScoreAccess dark = placeScore.getOrCreatePlayerScore(ScoreHolder.forNameOnly("DarkKronicle"), objective);
 		dark.set(8780);
 
@@ -181,11 +181,11 @@ public class ScoreboardHud extends TextHudEntry implements DynamicallyPositionab
 		Rectangle bounds = getBounds();
 
 		int yEnd = bounds.y() + bounds.height();
-		int textX = bounds.x()+3;
-		int xEnd = bounds.x() + bounds.width()-1;
+		int textX = bounds.x() + 3;
+		int xEnd = bounds.x() + bounds.width() - 1;
 		int titleEnd = yEnd - mainHeight;
 		if (background.get()) {
-			guiGraphics.fill(textX - 2, titleEnd - 9 - 1 - topPadding.get()*2, xEnd, titleEnd - 1, topColor.get().toInt());
+			guiGraphics.fill(textX - 2, titleEnd - 9 - 1 - topPadding.get() * 2, xEnd, titleEnd - 1, topColor.get().toInt());
 			guiGraphics.fill(textX - 2, titleEnd - 1, xEnd, yEnd, backgroundColor.get().toInt());
 		}
 		guiGraphics.drawString(font, title, textX + maxWidth / 2 - titleWidth / 2, titleEnd - 9 - topPadding.get(), ARGB.color(textAlpha.get(), -1), shadow.get());

@@ -44,7 +44,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ParticleEngine.class)
 public abstract class ParticleManagerMixin {
 
-	@Unique private ParticleType<?> cachedType;
+	@Unique
+	private ParticleType<?> cachedType;
 
 	@Inject(
 		method = "makeParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)Lnet/minecraft/client/particle/Particle;",

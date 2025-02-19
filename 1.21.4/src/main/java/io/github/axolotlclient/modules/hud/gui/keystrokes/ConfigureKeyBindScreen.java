@@ -43,25 +43,25 @@ import net.minecraft.network.chat.Component;
 public class ConfigureKeyBindScreen extends Screen {
 
 	private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
-    private final Screen parent;
-    private final KeystrokeHud hud;
-    public final KeystrokeHud.Keystroke stroke;
+	private final Screen parent;
+	private final KeystrokeHud hud;
+	public final KeystrokeHud.Keystroke stroke;
 	private final IntegerOption width;
-    private final IntegerOption height;
-    private final boolean isAddScreen;
+	private final IntegerOption height;
+	private final boolean isAddScreen;
 	private Button addButton, synchronizeButton;
 	private StringWidget currentKey;
 
-    public ConfigureKeyBindScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke stroke, boolean isAddScreen) {
+	public ConfigureKeyBindScreen(Screen parent, KeystrokeHud hud, KeystrokeHud.Keystroke stroke, boolean isAddScreen) {
 		super(Component.translatable("keystrokes.stroke.configure_stroke"));
-        this.parent = parent;
-        this.hud = hud;
-        this.stroke = stroke;
+		this.parent = parent;
+		this.hud = hud;
+		this.stroke = stroke;
 
 		width = new IntegerOption("", stroke.getBounds().width(), v -> stroke.getBounds().width(v), 10, 100);
 		height = new IntegerOption("", stroke.getBounds().height(), v -> stroke.getBounds().height(v), 10, 100);
-        this.isAddScreen = isAddScreen;
-    }
+		this.isAddScreen = isAddScreen;
+	}
 
 	@Override
 	protected void init() {
@@ -78,7 +78,7 @@ public class ConfigureKeyBindScreen extends Screen {
 				guiGraphics.pose().pushPose();
 				guiGraphics.pose().translate(getX(), getY(), 0);
 				float scale = Math.min((float) getHeight() / rect.height(), (float) getWidth() / rect.width());
-				guiGraphics.pose().translate(getWidth()/2f - (rect.width()*scale) /2f, 0, 0);
+				guiGraphics.pose().translate(getWidth() / 2f - (rect.width() * scale) / 2f, 0, 0);
 				guiGraphics.pose().scale(scale, scale, 1);
 				guiGraphics.pose().translate(-rect.x(), -rect.y(), 0);
 				DrawUtil.fillRect(guiGraphics, rect, Colors.WHITE.withAlpha(128));
@@ -117,7 +117,7 @@ public class ConfigureKeyBindScreen extends Screen {
 				synchronizeButton = labelLayout.addChild(Button.builder(Component.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF), b -> {
 					s.setSynchronizeLabel(!s.isSynchronizeLabel());
 					b.setMessage(Component.translatable("keystrokes.stroke.label.synchronize_with_key", s.isSynchronizeLabel() ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF));
-                    label.setEditable(!s.isSynchronizeLabel());
+					label.setEditable(!s.isSynchronizeLabel());
 					if (s.isSynchronizeLabel()) {
 						label.setValue(stroke.getLabel());
 					}

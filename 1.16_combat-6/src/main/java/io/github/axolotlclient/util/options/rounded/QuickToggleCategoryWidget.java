@@ -33,73 +33,73 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class QuickToggleCategoryWidget extends CategoryWidget {
-    private PillBooleanWidget enabledButton;
+	private PillBooleanWidget enabledButton;
 
-    public QuickToggleCategoryWidget(int x, int y, int width, int height, OptionCategoryImpl category) {
-        super(x, y, width, height, category);
-        category.getOptions().stream()
-                .filter(o -> o instanceof BooleanOption)
-                .map(o -> (BooleanOption) o)
-                .filter(o -> "enabled".equals(o.getName())).findFirst()
-                .ifPresent(booleanOption -> {
-					enabledButton = new PillBooleanWidget(x + (width - 43), y + 3, 40, height - 5, booleanOption);
-					enabledButton.active = !(booleanOption instanceof ForceableBooleanOption o && o.isForceOff());
-				});
-    }
+	public QuickToggleCategoryWidget(int x, int y, int width, int height, OptionCategoryImpl category) {
+		super(x, y, width, height, category);
+		category.getOptions().stream()
+			.filter(o -> o instanceof BooleanOption)
+			.map(o -> (BooleanOption) o)
+			.filter(o -> "enabled".equals(o.getName())).findFirst()
+			.ifPresent(booleanOption -> {
+				enabledButton = new PillBooleanWidget(x + (width - 43), y + 3, 40, height - 5, booleanOption);
+				enabledButton.active = !(booleanOption instanceof ForceableBooleanOption o && o.isForceOff());
+			});
+	}
 
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) {
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
 
-        if (enabledButton != null && enabledButton.isMouseOver(mouseX, mouseY)) {
-            this.hovered = false;
-            return true;
-        }
-        return super.isMouseOver(mouseX, mouseY);
-    }
+		if (enabledButton != null && enabledButton.isMouseOver(mouseX, mouseY)) {
+			this.hovered = false;
+			return true;
+		}
+		return super.isMouseOver(mouseX, mouseY);
+	}
 
-    @Override
-    public void renderButton(MatrixStack graphics, int mouseX, int mouseY, float delta) {
-        super.renderButton(graphics, mouseX, mouseY, delta);
+	@Override
+	public void renderButton(MatrixStack graphics, int mouseX, int mouseY, float delta) {
+		super.renderButton(graphics, mouseX, mouseY, delta);
 
-        if (enabledButton != null) {
-            enabledButton.y = (getY() + 2);
-            enabledButton.update();
-            enabledButton.render(graphics, mouseX, mouseY, delta);
-        }
-    }
+		if (enabledButton != null) {
+			enabledButton.y = (getY() + 2);
+			enabledButton.update();
+			enabledButton.render(graphics, mouseX, mouseY, delta);
+		}
+	}
 
-    @Override
-    protected void drawScrollingText(NVGFont font, int offset, Color color) {
-        int k = this.getX() + offset;
-        int l = this.getX() + this.getWidth() - offset;
-        if (enabledButton != null) {
-            l -= enabledButton.getWidth() + 4;
-        }
-        drawScrollingText(this, font, this.getMessage(), k, this.getY(), l, this.getY() + this.getHeight(), color);
-    }
+	@Override
+	protected void drawScrollingText(NVGFont font, int offset, Color color) {
+		int k = this.getX() + offset;
+		int l = this.getX() + this.getWidth() - offset;
+		if (enabledButton != null) {
+			l -= enabledButton.getWidth() + 4;
+		}
+		drawScrollingText(this, font, this.getMessage(), k, this.getY(), l, this.getY() + this.getHeight(), color);
+	}
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 
-        if (enabledButton != null &&
-                enabledButton.isHovered()) {
-            playDownSound(MinecraftClient.getInstance().getSoundManager());
-            enabledButton.onPress();
-            return true;
-        }
-        return this.hovered && super.mouseClicked(mouseX, mouseY, button);
-    }
+		if (enabledButton != null &&
+			enabledButton.isHovered()) {
+			playDownSound(MinecraftClient.getInstance().getSoundManager());
+			enabledButton.onPress();
+			return true;
+		}
+		return this.hovered && super.mouseClicked(mouseX, mouseY, button);
+	}
 
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (!this.active || !this.visible) {
-            return false;
-        } else if (keyCode != 257 && keyCode != 32 && keyCode != 335) {
-            return false;
-        } else {
-            this.playDownSound(MinecraftClient.getInstance().getSoundManager());
-            mouseClicked(0, 0, 0);
-            return true;
-        }
-    }
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (!this.active || !this.visible) {
+			return false;
+		} else if (keyCode != 257 && keyCode != 32 && keyCode != 335) {
+			return false;
+		} else {
+			this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+			mouseClicked(0, 0, 0);
+			return true;
+		}
+	}
 }

@@ -57,7 +57,7 @@ public abstract class TntEntityRendererMixin extends EntityRenderer<PrimedTnt, T
 				tntRenderState.nameTagAttachment = new Vec3(0, 1, 0);
 			}
 			renderNameTag(tntRenderState, TntTime.getInstance().getFuseTime(tntRenderState.fuseRemainingInTicks),
-								matrices, vertexConsumers, i);
+				matrices, vertexConsumers, i);
 			tntRenderState.nameTagAttachment = prevAttachment;
 			matrices.popPose();
 		}

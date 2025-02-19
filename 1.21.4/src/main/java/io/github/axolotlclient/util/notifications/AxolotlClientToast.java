@@ -55,7 +55,7 @@ public class AxolotlClientToast implements Toast {
 		this(
 			title,
 			nullToEmpty(message),
-			Math.max(DEFAULT_WIDTH, 2*MARGIN + 15 + Math.max(Minecraft.getInstance().font.width(title), message == null ? 0 : Minecraft.getInstance().font.width(message)))
+			Math.max(DEFAULT_WIDTH, 2 * MARGIN + 15 + Math.max(Minecraft.getInstance().font.width(title), message == null ? 0 : Minecraft.getInstance().font.width(message)))
 		);
 	}
 
@@ -63,7 +63,7 @@ public class AxolotlClientToast implements Toast {
 		Font font = minecraft.font;
 		List<FormattedCharSequence> list = font.split(message, MAX_LINE_SIZE);
 		int i = Math.min(MAX_LINE_SIZE, Math.max(font.width(title), list.stream().mapToInt(font::width).max().orElse(MAX_LINE_SIZE)));
-		return new AxolotlClientToast(title, list, i + 2*MARGIN+15);
+		return new AxolotlClientToast(title, list, i + 2 * MARGIN + 15);
 	}
 
 	private AxolotlClientToast(Component title, List<FormattedCharSequence> messageLines, int width) {
@@ -83,7 +83,7 @@ public class AxolotlClientToast implements Toast {
 
 	@Override
 	public int height() {
-		return 2*MARGIN + Math.max(this.messageLines.size(), 1) * LINE_SPACING;
+		return 2 * MARGIN + Math.max(this.messageLines.size(), 1) * LINE_SPACING;
 	}
 
 	@Override

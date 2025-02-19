@@ -82,11 +82,11 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 			ResourceLocation.withDefaultNamespace("boss_bar/notched_12_progress"),
 			ResourceLocation.withDefaultNamespace("boss_bar/notched_20_progress")};
 	private final BossEvent placeholder = new CustomBossBar(Component.literal("Boss bar"), BossEvent.BossBarColor.WHITE,
-															BossEvent.BossBarOverlay.PROGRESS
+		BossEvent.BossBarOverlay.PROGRESS
 	);
 	private final BossEvent placeholder2 = Util.make(() -> {
 		BossEvent boss = new CustomBossBar(Component.literal("More boss bars..."), BossEvent.BossBarColor.PURPLE,
-										   BossEvent.BossBarOverlay.PROGRESS
+			BossEvent.BossBarOverlay.PROGRESS
 		);
 		boss.setProgress(0.45F);
 		return boss;
@@ -151,8 +151,8 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 		graphics.blitSprite(RenderType::guiTextured, textures[bar.getColor().ordinal()], 182, 5, 0, 0, x, y, width, 5);
 		if (bar.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
 			graphics.blitSprite(RenderType::guiTextured, alternativeTextures[bar.getOverlay().ordinal() - 1], 182, 5, 0,
-								0, x, y, width, 5
-							   );
+				0, x, y, width, 5
+			);
 		}
 	}
 

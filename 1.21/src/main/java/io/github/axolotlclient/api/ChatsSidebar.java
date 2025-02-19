@@ -81,7 +81,7 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 			graphics.fill(70 + sidebarAnimX, 0, 70 + sidebarAnimX + 1, height, 0xFF000000);
 			graphics.drawShadowedText(client.textRenderer, channel.getName(), sidebarAnimX + 75, 20, -1);
 			if (channel.isDM() && ((Channel.DM) channel).getReceiver().getStatus().isOnline()) {
-				graphics.drawShadowedText(client.textRenderer, Formatting.ITALIC +((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
+				graphics.drawShadowedText(client.textRenderer, Formatting.ITALIC + ((Channel.DM) channel).getReceiver().getStatus().getTitle() + ": " + ((Channel.DM) channel).getReceiver().getStatus().getDescription(),
 					sidebarAnimX + 80, 30, 8421504);
 			}
 		}
@@ -208,7 +208,7 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 		} else {
 			w = client.textRenderer.getWidth(channel.getName());
 		}
-		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width/2);
+		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width / 2);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
 		addDrawableSelectableElement(chatWidget);
 		addDrawableSelectableElement(input = new TextFieldWidget(textRenderer, 75, height - 30, sidebarWidth - 80, 20, Text.translatable("api.friends.chat.input")) {

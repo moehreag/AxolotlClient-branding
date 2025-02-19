@@ -107,7 +107,7 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		boolean scrollToBottom = getScrollAmount() == getMaxScroll();
 
 		if (!messages.isEmpty()) {
-			ChatMessage prev = messages.get(messages.size()-1);
+			ChatMessage prev = messages.get(messages.size() - 1);
 			if (!(prev.sender().equals(message.sender()) && prev.senderDisplayName().equals(message.senderDisplayName()))) {
 				addEntry(new NameChatLine(message));
 			} else {
@@ -192,30 +192,30 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 			tessellator.draw();
 		}
 		int k = this.getRowLeft();
-		int l = this.top + 4 - (int)this.getScrollAmount();
+		int l = this.top + 4 - (int) this.getScrollAmount();
 
 		this.renderList(matrices, k, l, mouseX, mouseY, delta);
 		this.client.getTextureManager().bindTexture(DrawableHelper.OPTIONS_BACKGROUND_TEXTURE);
 		RenderSystem.enableDepthTest();
 		RenderSystem.depthFunc(519);
 		bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferBuilder.vertex(this.left, this.top, -100.0).texture(0.0F, (float)this.top / 32.0F).color(64, 64, 64, 255).next();
+		bufferBuilder.vertex(this.left, this.top, -100.0).texture(0.0F, (float) this.top / 32.0F).color(64, 64, 64, 255).next();
 		bufferBuilder.vertex(this.left + this.width, this.top, -100.0)
-			.texture((float)this.width / 32.0F, (float)this.top / 32.0F)
+			.texture((float) this.width / 32.0F, (float) this.top / 32.0F)
 			.color(64, 64, 64, 255)
 			.next();
-		bufferBuilder.vertex(this.left + this.width, 0.0, -100.0).texture((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).next();
+		bufferBuilder.vertex(this.left + this.width, 0.0, -100.0).texture((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).next();
 		bufferBuilder.vertex(this.left, 0.0, -100.0).texture(0.0F, 0.0F).color(64, 64, 64, 255).next();
-		bufferBuilder.vertex(this.left, this.height, -100.0).texture(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).next();
+		bufferBuilder.vertex(this.left, this.height, -100.0).texture(0.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).next();
 		bufferBuilder.vertex(this.left + this.width, this.height, -100.0)
-			.texture((float)this.width / 32.0F, (float)this.height / 32.0F)
+			.texture((float) this.width / 32.0F, (float) this.height / 32.0F)
 			.color(64, 64, 64, 255)
 			.next();
 		bufferBuilder.vertex(this.left + this.width, this.bottom, -100.0)
-			.texture((float)this.width / 32.0F, (float)this.bottom / 32.0F)
+			.texture((float) this.width / 32.0F, (float) this.bottom / 32.0F)
 			.color(64, 64, 64, 255)
 			.next();
-		bufferBuilder.vertex(this.left, this.bottom, -100.0).texture(0.0F, (float)this.bottom / 32.0F).color(64, 64, 64, 255).next();
+		bufferBuilder.vertex(this.left, this.bottom, -100.0).texture(0.0F, (float) this.bottom / 32.0F).color(64, 64, 64, 255).next();
 		tessellator.draw();
 		RenderSystem.depthFunc(515);
 		RenderSystem.disableDepthTest();
@@ -239,9 +239,9 @@ public class ChatWidget extends AlwaysSelectedEntryListWidget<ChatWidget.ChatLin
 		tessellator.draw();
 		int o = this.getMaxScroll();
 		if (o > 0) {
-			int p = (int)((float)((this.bottom - this.top) * (this.bottom - this.top)) / (float)this.getMaxPosition());
+			int p = (int) ((float) ((this.bottom - this.top) * (this.bottom - this.top)) / (float) this.getMaxPosition());
 			p = MathHelper.clamp(p, 32, this.bottom - this.top - 8);
-			int q = (int)this.getScrollAmount() * (this.bottom - this.top - p) / o + this.top;
+			int q = (int) this.getScrollAmount() * (this.bottom - this.top - p) / o + this.top;
 			if (q < this.top) {
 				q = this.top;
 			}

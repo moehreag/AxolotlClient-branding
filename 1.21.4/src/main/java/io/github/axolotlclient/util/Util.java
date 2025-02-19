@@ -53,10 +53,10 @@ public class Util {
 		if (sidebar.isEmpty())
 			game = "";
 		else if (Minecraft.getInstance().getCurrentServer() != null
-				 && Minecraft.getInstance().getCurrentServer().ip.toLowerCase()
-					 .contains(sidebar.getFirst().toLowerCase())) {
+			&& Minecraft.getInstance().getCurrentServer().ip.toLowerCase()
+			.contains(sidebar.getFirst().toLowerCase())) {
 			if (sidebar.getLast().toLowerCase(Locale.ROOT)
-					.contains(Minecraft.getInstance().getCurrentServer().ip.toLowerCase(Locale.ROOT))
+				.contains(Minecraft.getInstance().getCurrentServer().ip.toLowerCase(Locale.ROOT))
 				|| sidebar.getLast().contains("Playtime")) {
 				game = "In Lobby";
 			} else {
@@ -164,7 +164,7 @@ public class Util {
 	}
 
 	public static ResourceLocation getTexture(Graphics graphics, String name) {
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath("axolotlclient", "graphics_"+ name.toLowerCase(Locale.ROOT));
+		ResourceLocation id = ResourceLocation.fromNamespaceAndPath("axolotlclient", "graphics_" + name.toLowerCase(Locale.ROOT));
 		try {
 			DynamicTexture texture;
 			if (!textures.containsKey(id)) {

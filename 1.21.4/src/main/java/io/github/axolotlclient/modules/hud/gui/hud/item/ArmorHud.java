@@ -73,8 +73,8 @@ public class ArmorHud extends TextHudEntry implements DynamicallyPositionable {
 		boolean showDurability = showDurabilityNumber.get();
 		boolean showMaxDurability = showMaxDurabilityNumber.get();
 		int labelWidth = showDurability || showMaxDurability ? Stream.concat(Stream.of(client.player.getInventory().getSelected()), client.player.getInventory().armor.stream())
-			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage())))
-			.mapToInt(text -> client.font.width(text)+2).max().orElse(0) : 0;
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue()) + "/" + stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage())))
+			.mapToInt(text -> client.font.width(text) + 2).max().orElse(0) : 0;
 		width += labelWidth;
 		if (width != getWidth()) {
 			setWidth(width);
@@ -120,8 +120,9 @@ public class ArmorHud extends TextHudEntry implements DynamicallyPositionable {
 		if (!(showMaxDurability || showDurability) || stack.isEmpty() || stack.getMaxDamage() == 0) {
 			return;
 		}
-		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage()));;
-		int textY = y + 10 - client.font.lineHeight/2;
+		String text = showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue()) + "/" + stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage()));
+		;
+		int textY = y + 10 - client.font.lineHeight / 2;
 		graphics.drawString(client.font, text, x, textY, stack.getBarColor());
 	}
 
@@ -131,8 +132,8 @@ public class ArmorHud extends TextHudEntry implements DynamicallyPositionable {
 		boolean showDurability = showDurabilityNumber.get();
 		boolean showMaxDurability = showMaxDurabilityNumber.get();
 		int labelWidth = showDurability || showMaxDurability ? Arrays.stream(placeholderStacks)
-			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue())+"/"+stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage())))
-			.mapToInt(text -> client.font.width(text)+2).max().orElse(0) : 0;
+			.map(stack -> showDurability && showMaxDurability ? (stack.getMaxDamage() - stack.getDamageValue()) + "/" + stack.getMaxDamage() : String.valueOf((showDurability ? stack.getMaxDamage() - stack.getDamageValue() : stack.getMaxDamage())))
+			.mapToInt(text -> client.font.width(text) + 2).max().orElse(0) : 0;
 		width += labelWidth;
 		if (width != getWidth()) {
 			setWidth(width);

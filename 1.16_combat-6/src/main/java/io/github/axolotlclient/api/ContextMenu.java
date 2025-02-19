@@ -158,7 +158,7 @@ public class ContextMenu implements ParentElement, Drawable {
 		}
 
 		public Builder spacer() {
-			elements.add(new ContextMenuEntry(new LiteralText("-----")){
+			elements.add(new ContextMenuEntry(new LiteralText("-----")) {
 				@Override
 				protected MutableText getNarrationMessage() {
 					return LiteralText.EMPTY.copy();

@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SharedConstantsMixin {
 
 	@Inject(method = "isValidChatChar", at = @At("HEAD"), cancellable = true)
-	private static void allowColorCodeInput(char c, CallbackInfoReturnable<Boolean> cir){
+	private static void allowColorCodeInput(char c, CallbackInfoReturnable<Boolean> cir) {
 		if (Minecraft.getInstance().screen instanceof ConfigScreen && c == '§') {
 			cir.setReturnValue(true);
 		}

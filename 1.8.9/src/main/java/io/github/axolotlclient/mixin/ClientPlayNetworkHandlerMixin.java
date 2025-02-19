@@ -58,14 +58,14 @@ public abstract class ClientPlayNetworkHandlerMixin {
 	}
 
 	@Inject(method = "handleTeam", at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;removeTeam(Lnet/minecraft/scoreboard/team/Team;)V"), cancellable = true)
-	private void noStackTraceOnNullTeam(TeamS2CPacket teamS2CPacket, CallbackInfo ci, @Local Team team){
+	private void noStackTraceOnNullTeam(TeamS2CPacket teamS2CPacket, CallbackInfo ci, @Local Team team) {
 		if (team == null) {
 			ci.cancel();
 		}
 	}
 
 	@WrapOperation(method = "handleTeam", at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;addTeam(Ljava/lang/String;)Lnet/minecraft/scoreboard/team/Team;"))
-	private Team noStackTraceOnAlreadyExistingTeam(Scoreboard instance, String s, Operation<Team> original, @Local Scoreboard scoreboard){
+	private Team noStackTraceOnAlreadyExistingTeam(Scoreboard instance, String s, Operation<Team> original, @Local Scoreboard scoreboard) {
 		Team team = scoreboard.getTeam(s);
 		if (team == null) {
 			return original.call(instance, s);
@@ -74,7 +74,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
 	}
 
 	@Inject(method = "handleScoreboardObjective", at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;removeObjective(Lnet/minecraft/scoreboard/ScoreboardObjective;)V"), cancellable = true)
-	private void noStackTraceOnNullScoreboardObjective(ScoreboardObjectiveS2CPacket scoreboardObjectiveS2CPacket, CallbackInfo ci, @Local ScoreboardObjective objective){
+	private void noStackTraceOnNullScoreboardObjective(ScoreboardObjectiveS2CPacket scoreboardObjectiveS2CPacket, CallbackInfo ci, @Local ScoreboardObjective objective) {
 		if (objective == null) {
 			ci.cancel();
 		}

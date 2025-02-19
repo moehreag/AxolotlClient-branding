@@ -64,7 +64,7 @@ public abstract class MouseMixin {
 	}
 
 	@WrapOperation(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;applyMousePressScrollNarratorDelay()V"))
-	private void wrapNarratorDelay(Screen instance, Operation<Void> original){
+	private void wrapNarratorDelay(Screen instance, Operation<Void> original) {
 		if (instance != null) {
 			original.call(instance);
 		}

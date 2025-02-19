@@ -147,9 +147,10 @@ public class CreateChannelScreen extends Screen {
 		addButton(new ButtonWidget(width / 2 - 150 - 4, footerY, 150, 20, ScreenTexts.CANCEL, widget -> client.openScreen(parent)));
 		addButton(new ButtonWidget(width / 2 + 4, footerY, 150, 20, ScreenTexts.DONE, widget -> {
 			ChannelRequest.createChannel(nameField.getText(),
-				Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
-				Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new))
-				.thenRun(() -> client.execute(() -> client.openScreen(parent)));;
+					Persistence.of(persistence.getValue(), count.get().get(), duration.get().get()),
+					Arrays.stream(namesInput.getText().split(",")).filter(s -> !s.isEmpty()).map(UUIDHelper::ensureUuid).toArray(String[]::new))
+				.thenRun(() -> client.execute(() -> client.openScreen(parent)));
+			;
 		}));
 	}
 

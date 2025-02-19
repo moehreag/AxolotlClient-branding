@@ -103,14 +103,14 @@ public abstract class Options implements Module {
 
 	public enum PrivacyPolicyState {
 		UNSET,
-		ACCEPTED(){
+		ACCEPTED() {
 			@Override
 			public boolean isAccepted() {
 				return true;
 			}
 		},
-		DENIED
-		;
+		DENIED;
+
 		public boolean isAccepted() {
 			return false;
 		}

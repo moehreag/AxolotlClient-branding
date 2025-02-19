@@ -54,13 +54,13 @@ public abstract class CameraMixin {
 		ordinal = 0))
 	private void axolotlclient$perspectiveUpdatePitchYaw(BlockGetter area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
 		this.xRot = Freelook.getInstance().pitch(xRot)
-					* (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive() ? -1 : 1);
+			* (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive() ? -1 : 1);
 		this.yRot = Freelook.getInstance().yaw(yRot)
-					+ (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive() ? 180 : 0);
+			+ (inverseView && Freelook.getInstance().enabled.get() && Freelook.getInstance().isActive() ? 180 : 0);
 	}
 
 	@WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation" +
-																		 "(FF)V", ordinal = 0))
+		"(FF)V", ordinal = 0))
 	private void axolotlclient$perspectiveFixRotation(Camera instance, float yaw, float pitch, Operation<Void> original) {
 		yaw = Freelook.getInstance().yaw(yaw);
 		pitch = Freelook.getInstance().pitch(pitch);
@@ -68,7 +68,7 @@ public abstract class CameraMixin {
 	}
 
 	@WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation" +
-																		 "(FF)V", ordinal = 1))
+		"(FF)V", ordinal = 1))
 	private void axolotlclient$perspectiveFixRotation2(Camera instance, float yaw, float pitch,
 													   Operation<Void> original) {
 		axolotlclient$perspectiveFixRotation(instance, yaw, pitch, original);

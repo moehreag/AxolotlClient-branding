@@ -36,8 +36,8 @@ public class KeystrokesScreen extends Screen {
 
 	private final List<KeystrokeHud.Keystroke> keys;
 	public final KeystrokeHud hud;
-    private final Screen screen;
-    public final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
+	private final Screen screen;
+	public final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 	private final KeyBindsList keyBindsList;
 	private Button resetButton;
 
@@ -48,8 +48,8 @@ public class KeystrokesScreen extends Screen {
 		}
 		this.keys = hud.keystrokes;
 		this.hud = hud;
-        this.screen = screen;
-        this.keyBindsList = new KeyBindsList(this);
+		this.screen = screen;
+		this.keyBindsList = new KeyBindsList(this);
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public abstract class KeyBindingMixin {
 			|| keyCode == Minecraft.getInstance().options.jumpKey.getKeyCode()
 			|| keyCode == Minecraft.getInstance().options.sprintKey.getKeyCode()) {
 			this.pressed = (keyCode < 0 ? Mouse.isButtonDown(keyCode + 100) : Keyboard.isKeyDown(keyCode)) &&
-						   (Minecraft.getInstance().screen == null);
+				(Minecraft.getInstance().screen == null);
 		}
 	}
 

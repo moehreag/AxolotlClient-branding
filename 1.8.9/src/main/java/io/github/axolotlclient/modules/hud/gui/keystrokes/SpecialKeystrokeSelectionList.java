@@ -106,7 +106,7 @@ public class SpecialKeystrokeSelectionList extends ElementListWidget<SpecialKeys
 			GlStateManager.translatef(-rect.x(), -rect.y(), 0);
 			keystroke.render();
 			GlStateManager.popMatrix();
-			client.textRenderer.drawWithShadow(boundKey, left + 110 + (k - left - 110) /3f, top + height / 2f - 9 / 2f, Colors.GRAY.toInt());
+			client.textRenderer.drawWithShadow(boundKey, left + 110 + (k - left - 110) / 3f, top + height / 2f - 9 / 2f, Colors.GRAY.toInt());
 		}
 
 		@Override

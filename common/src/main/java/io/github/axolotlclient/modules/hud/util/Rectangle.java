@@ -76,6 +76,6 @@ public class Rectangle {
 	}
 
 	public Rectangle scale(double scale) {
-		return new Rectangle((int) (x()*scale), (int) (y()*scale), (int) (width()*scale), (int) (height()*scale));
+		return new Rectangle((int) (x() * scale), (int) (y() * scale), (int) (width() * scale), (int) (height() * scale));
 	}
 }

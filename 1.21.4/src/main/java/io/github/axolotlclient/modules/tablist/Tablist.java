@@ -35,7 +35,8 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 
 public class Tablist extends AbstractModule {
 
-	@Getter private static final Tablist Instance = new Tablist();
+	@Getter
+	private static final Tablist Instance = new Tablist();
 	public final BooleanOption showPlayerHeads = new BooleanOption("showPlayerHeads", true);
 	public final BooleanOption showHeader = new BooleanOption("showHeader", true);
 	public final BooleanOption showFooter = new BooleanOption("showFooter", true);
@@ -76,9 +77,9 @@ public class Tablist extends AbstractModule {
 			}
 
 			DrawUtil.drawString(graphics, String.valueOf(entry.getLatency()),
-								x + width - 1 - client.font.width(String.valueOf(entry.getLatency())), y, current,
-								shadow.get()
-							   );
+				x + width - 1 - client.font.width(String.valueOf(entry.getLatency())), y, current,
+				shadow.get()
+			);
 			return true;
 		}
 		return false;

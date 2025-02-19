@@ -42,8 +42,8 @@ public class IconHud extends BoxHudEntry {
 		DrawPosition pos = getPos();
 
 		graphics.blit(RenderType::guiTextured, AxolotlClient.badgeIcon, pos.x(), pos.y(), 0, 0, width, height, width,
-					  height
-					 );
+			height
+		);
 	}
 
 	@Override

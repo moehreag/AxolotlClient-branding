@@ -63,7 +63,7 @@ public class ArrowHud extends TextHudEntry {
 		if (dynamic.get()) {
 			ClientPlayerEntity player = client.player;
 			if (!(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof RangedWeaponItem
-				  || player.getStackInHand(Hand.OFF_HAND).getItem() instanceof RangedWeaponItem)) {
+				|| player.getStackInHand(Hand.OFF_HAND).getItem() instanceof RangedWeaponItem)) {
 				return;
 			}
 		}
@@ -100,7 +100,7 @@ public class ArrowHud extends TextHudEntry {
 	public void tick() {
 		if (allArrowTypes.get()) {
 			arrows = ItemUtil.getTotal(client, arrowTypes[0]) + ItemUtil.getTotal(client, arrowTypes[1])
-					 + ItemUtil.getTotal(client, arrowTypes[2]);
+				+ ItemUtil.getTotal(client, arrowTypes[2]);
 		} else {
 			arrows = ItemUtil.getTotal(client, currentArrow);
 		}

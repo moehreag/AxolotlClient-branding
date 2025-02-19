@@ -52,7 +52,7 @@ public abstract class ScreenMixin {
 		if (ScrollableTooltips.getInstance().enabled.get()) {
 			if ((Minecraft.getInstance().screen instanceof CreativeInventoryScreen)
 				&& ((CreativeInventoryScreen) Minecraft.getInstance().screen)
-					   .getSelectedTab() != CreativeModeTab.INVENTORY.getId()) {
+				.getSelectedTab() != CreativeModeTab.INVENTORY.getId()) {
 				return;
 			}
 

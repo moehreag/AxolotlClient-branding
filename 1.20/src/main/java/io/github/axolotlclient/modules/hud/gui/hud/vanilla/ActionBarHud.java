@@ -71,7 +71,7 @@ public class ActionBarHud extends TextHudEntry {
 		if (this.actionBar != null) {
 			graphics.drawText(client.textRenderer, actionBar,
 				(int) ((float) getPos().x() + Math.round((float) getWidth() / 2)
-					   - (float) client.textRenderer.getWidth(actionBar) / 2),
+					- (float) client.textRenderer.getWidth(actionBar) / 2),
 				(int) ((float) getPos().y() + 3),
 				customTextColor.get()
 					? (textColor.get().getAlpha() == 255
@@ -88,7 +88,7 @@ public class ActionBarHud extends TextHudEntry {
 	@Override
 	public void renderPlaceholderComponent(GuiGraphics graphics, float delta) {
 		graphics.drawText(client.textRenderer, placeholder, (int) ((float) getPos().x() + Math.round((float) getWidth() / 2)
-																   - (float) client.textRenderer.getWidth(placeholder) / 2), (int) ((float) getPos().y() + 3), -1, false);
+			- (float) client.textRenderer.getWidth(placeholder) / 2), (int) ((float) getPos().y() + 3), -1, false);
 	}
 
 	@Override

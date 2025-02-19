@@ -123,8 +123,8 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 				return 50 * effects.size() + 2;
 			}
 			return effects.stream()
-					   .map(effect -> Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier())))
-					   .mapToInt(client.textRenderer::getWidth).map(i -> i + 20).sum() + 2;
+				.map(effect -> Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier())))
+				.mapToInt(client.textRenderer::getWidth).map(i -> i + 20).sum() + 2;
 		} else {
 			if (iconsOnly.get()) {
 				return 20;
@@ -133,8 +133,8 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 				return 50;
 			}
 			return effects.stream()
-					   .map(effect -> Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier())))
-					   .map(client.textRenderer::getWidth).max(Integer::compare).orElse(38) + 22;
+				.map(effect -> Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier())))
+				.map(client.textRenderer::getWidth).max(Integer::compare).orElse(38) + 22;
 		}
 	}
 
@@ -156,7 +156,7 @@ public class PotionsHud extends TextHudEntry implements DynamicallyPositionable 
 		if (!iconsOnly.get()) {
 			float tickrate = client.world != null ? client.world.getTickManager().getTickRate() : 1;
 			if (showEffectName.get()) {
-				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier()+1));
+				Text string = Text.translatable(effect.getTranslationKey()).append(" ").append(Util.toRoman(effect.getAmplifier() + 1));
 
 				graphics.drawText(client.textRenderer, string, x + 19, y + 1, textColor.get().toInt(), shadow.get());
 				Text duration = StatusEffectUtil.durationToString(effect, 1, tickrate);

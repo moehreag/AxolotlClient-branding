@@ -80,7 +80,8 @@ public class PingHud extends SimpleTextHudEntry {
 	private void getRealTimeServerPing(ServerData server) {
 		ThreadExecuter.scheduleTask(() -> {
 			try {
-				pinger.pingServer(server, () -> {}, () -> currentServerPing = server.ping);
+				pinger.pingServer(server, () -> {
+				}, () -> currentServerPing = server.ping);
 			} catch (Exception ignored) {
 			}
 		});

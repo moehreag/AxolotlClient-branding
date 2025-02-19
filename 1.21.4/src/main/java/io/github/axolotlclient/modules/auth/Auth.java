@@ -108,7 +108,7 @@ public class Auth extends Accounts implements Module {
 		} else {
 			try {
 				API.getInstance().shutdown();
-				var mcAccessor = (MinecraftClientAccessor)mc;
+				var mcAccessor = (MinecraftClientAccessor) mc;
 				mcAccessor.axolotlclient$setSession(new User(account.getName(), UndashedUuid.fromString(account.getUuid()), account.getAuthToken(), Optional.empty(), Optional.empty(), User.Type.MSA));
 				UserApiService service;
 				if (account.isOffline()) {
@@ -118,14 +118,14 @@ public class Auth extends Accounts implements Module {
 					service = mcAccessor.getAuthService().createUserApiService(mc.getUser().getAccessToken());
 				}
 				mcAccessor.axolotlclient$setUserApiService(service);
-				var sourceAccessor = (DownloadedPackSourceAccessor)mc.getDownloadedPackSource();
+				var sourceAccessor = (DownloadedPackSourceAccessor) mc.getDownloadedPackSource();
 				((ServerPackManagerAccessor) sourceAccessor.axolotlclient$getManager())
 					.axolotlclient$setDownloader(sourceAccessor.axolotlclient$createDownloader(sourceAccessor.axolotlcleint$getDownloadQueue(), mc::schedule, mc.getUser(), mc.getProxy()));
 				mcAccessor.axolotlclient$setSocialInteractionsManager(new PlayerSocialManager(mc, service));
 				mcAccessor.axolotlclient$setPlayerKeyPairManager(ProfileKeyPairManager.create(service, mc.getUser(), mc.gameDirectory.toPath()));
 				mcAccessor.axolotlclient$setChatReportingContext(ReportingContext.create(ReportEnvironment.local(), service));
 				mcAccessor.axolotlclient$setProfileFuture(CompletableFuture.supplyAsync(() -> mc.getMinecraftSessionService().fetchProfile(mc.getUser().getProfileId(), true), Util.nonCriticalIoPool()));
-				((SplashManagerAccessor)mc.getSplashManager()).setUser(mc.getUser());
+				((SplashManagerAccessor) mc.getSplashManager()).setUser(mc.getUser());
 				save();
 				current = account;
 				Notifications.getInstance().addStatus(Component.translatable("auth.notif.title"), Component.translatable("auth.notif.login.successful", current.getName()));

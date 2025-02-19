@@ -41,13 +41,13 @@ public class BadgeRenderer {
 				Minecraft.getInstance().getTextureManager().bind(AxolotlClient.badgeIcon);
 
 				int x = -(Minecraft.getInstance().textRenderer
-							  .getWidth(entity.getUuid() == Minecraft.getInstance().player.getUuid()
-								  ? (NickHider.getInstance().hideOwnName.get() ? NickHider.getInstance().hiddenNameSelf.get()
-								  : entity.getDisplayName().getFormattedString())
-								  : (NickHider.getInstance().hideOtherNames.get() ? NickHider.getInstance().hiddenNameOthers.get()
-								  : entity.getDisplayName().getFormattedString()))
-						  / 2
-						  + (AxolotlClient.CONFIG.customBadge.get() ? Minecraft.getInstance().textRenderer
+					.getWidth(entity.getUuid() == Minecraft.getInstance().player.getUuid()
+						? (NickHider.getInstance().hideOwnName.get() ? NickHider.getInstance().hiddenNameSelf.get()
+						: entity.getDisplayName().getFormattedString())
+						: (NickHider.getInstance().hideOtherNames.get() ? NickHider.getInstance().hiddenNameOthers.get()
+						: entity.getDisplayName().getFormattedString()))
+					/ 2
+					+ (AxolotlClient.CONFIG.customBadge.get() ? Minecraft.getInstance().textRenderer
 					.getWidth(" " + AxolotlClient.CONFIG.badgeText.get()) : 10));
 
 				GlStateManager.color4f(1, 1, 1, 1);

@@ -64,7 +64,7 @@ public class MojangAuth {
 
 			result.serverId(serverId);
 			body.addProperty("serverId", serverId);
-			builder.header("Authorization", "Bearer "+account.getAuthToken());
+			builder.header("Authorization", "Bearer " + account.getAuthToken());
 
 			builder.POST(HttpRequest.BodyPublishers.ofByteArray(body.toString().getBytes(StandardCharsets.UTF_8)));
 			builder.uri(URI.create("https://sessionserver.mojang.com/session/minecraft/join"));
@@ -77,7 +77,7 @@ public class MojangAuth {
 				JsonObject element = GsonHelper.fromJson(response.body());
 
 				if (!element.has("error")) {
-					API.getInstance().logDetailed("Don't know how to handle response: "+element);
+					API.getInstance().logDetailed("Don't know how to handle response: " + element);
 				}
 
 				String error = element.get("error").getAsString();
@@ -85,7 +85,7 @@ public class MojangAuth {
 					return account.refresh(MSAuth.INSTANCE).thenApply(MojangAuth::authenticate).join();
 				}*/
 
-				API.getInstance().logDetailed("Response code: "+response.statusCode());
+				API.getInstance().logDetailed("Response code: " + response.statusCode());
 				API.getInstance().logDetailed(element.toString());
 
 				if (error.equals("InsufficientPrivilegesException")) {

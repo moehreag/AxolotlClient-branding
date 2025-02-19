@@ -168,7 +168,7 @@ public class ContextMenu implements ParentElement, Drawable, Selectable {
 		}
 
 		public Builder spacer() {
-			elements.add(new ContextMenuEntry(Text.literal("-----")){
+			elements.add(new ContextMenuEntry(Text.literal("-----")) {
 				@Override
 				protected void updateNarration(NarrationMessageBuilder builder) {
 				}

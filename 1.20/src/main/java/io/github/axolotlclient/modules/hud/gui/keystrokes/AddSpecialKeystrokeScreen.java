@@ -44,14 +44,14 @@ public class AddSpecialKeystrokeScreen extends Screen {
 	public void init() {
 		addDrawableChild(new SpecialKeystrokeSelectionList(this, this.client));
 
-		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, button -> this.closeScreen()).positionAndSize(width/2-75, height-33/2 - 10, 150, 20).build());
+		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, button -> this.closeScreen()).positionAndSize(width / 2 - 75, height - 33 / 2 - 10, 150, 20).build());
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredShadowedText(textRenderer, getTitle(), width/2, 33/2 - textRenderer.fontHeight/2, -1);
+		graphics.drawCenteredShadowedText(textRenderer, getTitle(), width / 2, 33 / 2 - textRenderer.fontHeight / 2, -1);
 	}
 
 	@Override

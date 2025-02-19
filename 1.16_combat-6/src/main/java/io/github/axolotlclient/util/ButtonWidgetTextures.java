@@ -80,8 +80,8 @@ public class ButtonWidgetTextures {
 		var id = new Identifier("axolotlclient", "minecraft/buttonwidget/" + name);
 		NativeImage img;
 		try (var out = new ByteArrayOutputStream()) {
-			int scale = atlas.getHeight()/256;
-			ImageIO.write(atlas.getSubimage(0, imageY*scale, 200*scale, 20*scale), "png", out);
+			int scale = atlas.getHeight() / 256;
+			ImageIO.write(atlas.getSubimage(0, imageY * scale, 200 * scale, 20 * scale), "png", out);
 			var in = new ByteArrayInputStream(out.toByteArray());
 			img = NativeImage.read(in);
 			in.close();

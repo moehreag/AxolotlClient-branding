@@ -63,7 +63,7 @@ public class ChannelSettingsScreen extends Screen {
 		renderBackground(graphics);
 		drawCenteredText(graphics, textRenderer, title, width / 2, 36 / 2 - textRenderer.fontHeight / 2, -1);
 		super.render(graphics, mouseX, mouseY, delta);
-		hoveredElement(mouseX, mouseY).filter(e -> e instanceof ButtonWidget).map(b -> (ButtonWidget)b).ifPresent(b -> b.renderToolTip(graphics, mouseX, mouseY));
+		hoveredElement(mouseX, mouseY).filter(e -> e instanceof ButtonWidget).map(b -> (ButtonWidget) b).ifPresent(b -> b.renderToolTip(graphics, mouseX, mouseY));
 	}
 
 	@Override

@@ -96,13 +96,13 @@ public class SpecialKeystrokeSelectionList extends ElementListWidget<SpecialKeys
 			this.addButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			guiGraphics.getMatrices().push();
 			var rect = keystroke.getRenderPosition();
-			float scale = Math.min( (float) height / rect.height(), (float) 100 / rect.width());
+			float scale = Math.min((float) height / rect.height(), (float) 100 / rect.width());
 			guiGraphics.getMatrices().translate(left, top, 0);
 			guiGraphics.getMatrices().scale(scale, scale, 1);
 			guiGraphics.getMatrices().translate(-rect.x(), -rect.y(), 0);
 			keystroke.render(guiGraphics);
 			guiGraphics.getMatrices().pop();
-			guiGraphics.drawShadowedText(client.textRenderer, boundKey, left+110+(k-left-110)/3, top+height/2 - 9/2, Colors.GRAY.toInt());
+			guiGraphics.drawShadowedText(client.textRenderer, boundKey, left + 110 + (k - left - 110) / 3, top + height / 2 - 9 / 2, Colors.GRAY.toInt());
 		}
 
 		@Override

@@ -123,7 +123,7 @@ public class ChatListWidget extends ContainerObjectSelectionList<ChatListWidget.
 							if (bl) {
 								ChannelRequest.leaveOrDeleteChannel(channel).whenComplete((o, throwable) -> minecraft.execute(() -> minecraft.setScreen(screen.getSelf())));
 							}
-							}, Component.translatable("api.channels.delete.confirm"), Component.translatable("api.channels.delete.confirm.desc", channel.getName()))));
+						}, Component.translatable("api.channels.delete.confirm"), Component.translatable("api.channels.delete.confirm.desc", channel.getName()))));
 					} else {
 						builder.entry(Component.translatable("api.channel.leave"), w -> minecraft.setScreen(new ConfirmScreen(bl -> {
 							if (bl) {

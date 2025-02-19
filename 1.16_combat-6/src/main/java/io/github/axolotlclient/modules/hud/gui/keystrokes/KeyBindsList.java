@@ -43,7 +43,7 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 	private int maxNameWidth;
 
 	public KeyBindsList(KeystrokesScreen keyBindsScreen) {
-		super(MinecraftClient.getInstance(), keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height-33, 24);
+		super(MinecraftClient.getInstance(), keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height - 33, 24);
 		this.keyBindsScreen = keyBindsScreen;
 
 		reload();
@@ -68,7 +68,7 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return getRowLeft()+getRowWidth()+10;
+		return getRowLeft() + getRowWidth() + 10;
 	}
 
 	@Override
@@ -107,9 +107,9 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 			this.name = key.getKey().getBoundKeyLocalizedText();
 			this.configureButton = new ButtonWidget(0, 0, 75, 20, CONFIGURE_BUTTON_TITLE, button -> client.openScreen(new ConfigureKeyBindScreen(keyBindsScreen, keyBindsScreen.hud, key, false)));
 			this.removeButton = new ButtonWidget(0, 0, 50, 20, REMOVE_BUTTON_TITLE, b -> {
-					removeEntry(this);
-					keyBindsScreen.removeKey(key);
-				});
+				removeEntry(this);
+				keyBindsScreen.removeKey(key);
+			});
 		}
 
 		@Override
@@ -148,7 +148,7 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 		public NewEntry() {
 			this.addButton = new ButtonWidget(0, 0, 150, 20, new TranslatableText("keystrokes.stroke.add"), button -> client.openScreen(new ConfigureKeyBindScreen(keyBindsScreen, keyBindsScreen.hud, key, true)));
 			this.addSpecialButton = new ButtonWidget(0, 0, 150, 20, new TranslatableText("keystrokes.stroke.add.special"),
-					button -> client.openScreen(new AddSpecialKeystrokeScreen(keyBindsScreen, keyBindsScreen.hud)));
+				button -> client.openScreen(new AddSpecialKeystrokeScreen(keyBindsScreen, keyBindsScreen.hud)));
 		}
 
 		@Override

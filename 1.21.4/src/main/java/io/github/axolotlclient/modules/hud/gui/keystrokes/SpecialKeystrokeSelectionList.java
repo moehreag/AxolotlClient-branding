@@ -66,6 +66,7 @@ public class SpecialKeystrokeSelectionList extends ContainerObjectSelectionList<
 	public int getRowWidth() {
 		return 340;
 	}
+
 	@Environment(EnvType.CLIENT)
 	public abstract static class Entry extends ContainerObjectSelectionList.Entry<Entry> {
 
@@ -95,13 +96,13 @@ public class SpecialKeystrokeSelectionList extends ContainerObjectSelectionList<
 			this.addButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			guiGraphics.pose().pushPose();
 			var rect = keystroke.getRenderPosition();
-			float scale = Math.min( (float) height / rect.height(), (float) 100 / rect.width());
+			float scale = Math.min((float) height / rect.height(), (float) 100 / rect.width());
 			guiGraphics.pose().translate(left, top, 0);
 			guiGraphics.pose().scale(scale, scale, 1);
 			guiGraphics.pose().translate(-rect.x(), -rect.y(), 0);
 			keystroke.render(guiGraphics);
 			guiGraphics.pose().popPose();
-			guiGraphics.drawString(minecraft.font, boundKey, left+110+(k-left-110)/3, top+height/2 - 9/2, Colors.GRAY.toInt());
+			guiGraphics.drawString(minecraft.font, boundKey, left + 110 + (k - left - 110) / 3, top + height / 2 - 9 / 2, Colors.GRAY.toInt());
 		}
 
 		@Override

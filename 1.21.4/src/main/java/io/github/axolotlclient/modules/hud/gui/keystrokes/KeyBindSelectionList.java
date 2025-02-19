@@ -155,7 +155,7 @@ public class KeyBindSelectionList extends ContainerObjectSelectionList<KeyBindSe
 			this.changeButton.setPosition(k, j);
 			this.changeButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			guiGraphics.drawString(minecraft.font, this.name, left, top + height / 2 - 9 / 2, -1);
-			guiGraphics.drawString(minecraft.font, boundKey, left+width/2-minecraft.font.width(boundKey)/2, top+height/2 - 9/2, Colors.GRAY.toInt());
+			guiGraphics.drawString(minecraft.font, boundKey, left + width / 2 - minecraft.font.width(boundKey) / 2, top + height / 2 - 9 / 2, Colors.GRAY.toInt());
 		}
 
 		@Override

@@ -68,7 +68,7 @@ public class AxolotlClientCommon {
 	}
 
 	public static String getUAVersionString() {
-		return "AxolotlClient/"+VERSION+" (Minecraft "+GAME_VERSION+")";
+		return "AxolotlClient/" + VERSION + " (Minecraft " + GAME_VERSION + ")";
 	}
 
 	public void saveConfig() {

@@ -43,7 +43,8 @@ import net.minecraft.network.chat.Component;
 
 public class AutoGG implements AbstractHypixelMod {
 
-	@Getter private final static AutoGG Instance = new AutoGG();
+	@Getter
+	private final static AutoGG Instance = new AutoGG();
 	public final BooleanOption gg = new BooleanOption("printGG", false);
 	public final StringOption ggString = new StringOption("ggString", "gg");
 	public final BooleanOption gf = new BooleanOption("printGF", false);
@@ -94,12 +95,12 @@ public class AutoGG implements AbstractHypixelMod {
 
 	private void populateGGStrings() {
 		ggStrings.put("hypixel.net",
-					  addToList("1st Killer -", "1st Place -", "Winner:", " - Damage Dealt -", "Winning Team -",
-								"1st -", "Winners:", "Winner:", "Winning Team:", " won the game!", "Top Seeker:",
-								"1st Place:", "Last team standing!", "Winner #1 (", "Top Survivors", "Winners -",
-								"Sumo Duel -", "Most Wool Placed -", "Your Overall Winstreak:"
-							   )
-					 );
+			addToList("1st Killer -", "1st Place -", "Winner:", " - Damage Dealt -", "Winning Team -",
+				"1st -", "Winners:", "Winner:", "Winning Team:", " won the game!", "Top Seeker:",
+				"1st Place:", "Last team standing!", "Winner #1 (", "Top Survivors", "Winners -",
+				"Sumo Duel -", "Most Wool Placed -", "Your Overall Winstreak:"
+			)
+		);
 
 		ggStrings.put("bedwarspractice.club", addToList("Winners -", "Game Won!", "Game Lost!", "The winning team is"));
 

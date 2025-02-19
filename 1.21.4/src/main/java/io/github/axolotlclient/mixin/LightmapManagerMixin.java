@@ -34,7 +34,8 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LightTexture.class)
 public abstract class LightmapManagerMixin {
 	private static final OptionInstance<Double> fullBright = new OptionInstance<>("options.gamma", OptionInstance.noTooltip(), (optionText, value) -> optionText,
-		OptionInstance.UnitDouble.INSTANCE, 15D, value -> {}
+		OptionInstance.UnitDouble.INSTANCE, 15D, value -> {
+	}
 	);
 
 	@WrapOperation(method = "updateLightTexture", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;gamma()Lnet/minecraft/client/OptionInstance;"))

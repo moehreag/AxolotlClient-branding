@@ -112,7 +112,7 @@ public class ImageScreen extends Screen {
 		if (width / 2 > (imageWidth / 2) + buttonWidth + 4) {
 			element.setPosition(width / 2 - imageWidth / 2, 36);
 		} else {
-			element.setPosition(width/2 - imageWidth/2 - buttonWidth/2 - 2, 36);
+			element.setPosition(width / 2 - imageWidth / 2 - buttonWidth / 2 - 2, 36);
 		}
 		int actionX = element.x + imageWidth + 4;
 		var actions = new ArrayList<ButtonWidget>();

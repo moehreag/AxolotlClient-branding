@@ -78,6 +78,6 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "onGameLoaded", at = @At(value = "TAIL"))
 	private void onGameLoad(CallbackInfo ci) {
-		Events.GAME_LOAD_EVENT.invoker().invoke((MinecraftClient) (Object)this);
+		Events.GAME_LOAD_EVENT.invoker().invoke((MinecraftClient) (Object) this);
 	}
 }

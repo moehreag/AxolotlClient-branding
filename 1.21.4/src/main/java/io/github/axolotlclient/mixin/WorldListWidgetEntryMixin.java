@@ -35,7 +35,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(WorldSelectionList.WorldListEntry.class)
 public abstract class WorldListWidgetEntryMixin {
 
-	@Shadow @Final LevelSummary summary;
+	@Shadow
+	@Final
+	LevelSummary summary;
 
 	@Inject(method = "joinWorld", at = @At("HEAD"))
 	private void axolotlclient$onSPWorldJoin(CallbackInfo ci) {

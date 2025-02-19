@@ -35,7 +35,8 @@ import net.minecraft.network.chat.Component;
 
 public class NickHider implements AbstractHypixelMod {
 
-	@Getter private final static NickHider Instance = new NickHider();
+	@Getter
+	private final static NickHider Instance = new NickHider();
 	public final StringOption hiddenNameSelf = new StringOption("hiddenNameSelf", "You");
 	public final StringOption hiddenNameOthers = new StringOption("hiddenNameOthers", "Player");
 	public final BooleanOption hideOwnName = new BooleanOption("hideOwnName", false);

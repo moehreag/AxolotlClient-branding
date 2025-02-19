@@ -97,7 +97,7 @@ public class HypixelAbstractionLayer {
 		Map<RequestDataType, CompletableFuture<Optional<Object>>> requests = cachedRequests.computeIfAbsent(uuid, s -> new HashMap<>());
 		if (map.containsKey(type)) {
 			return (T) map.get(type);
-		} else  {
+		} else {
 			if (requests.containsKey(type)) {
 				var request = requests.get(type);
 				if (request.isDone()) {

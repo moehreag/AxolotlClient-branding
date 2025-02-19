@@ -96,7 +96,7 @@ public class MenuBlur extends AbstractModule {
 	public void updateBlur() {
 		if (enabled.get() && MinecraftClient.getInstance().currentScreen != null && !(MinecraftClient.getInstance().currentScreen instanceof ChatScreen)) {
 			if ((shader == null || MinecraftClient.getInstance().getFramebuffer().textureWidth != lastWidth
-				 || MinecraftClient.getInstance().getFramebuffer().textureHeight != lastHeight)
+				|| MinecraftClient.getInstance().getFramebuffer().textureHeight != lastHeight)
 				&& MinecraftClient.getInstance().getFramebuffer().textureWidth > 0
 				&& MinecraftClient.getInstance().getFramebuffer().textureHeight > 0) {
 				try {

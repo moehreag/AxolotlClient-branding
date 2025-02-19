@@ -136,15 +136,15 @@ public class ItemUpdateHud extends TextHudEntry {
 			ComponentCollector message = new ComponentCollector();
 			message.append(Component.literal("+ "));
 			message.append(Component.literal("[")
-							   .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
+				.setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.append(Component.literal(item.times + "").setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
 			message.append(Component.literal("] ")
-							   .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
+				.setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.append(item.stack.getItemName());
 			FormattedCharSequence text = Language.getInstance().getVisualOrder(message.getResult());
 			graphics.drawString(client.font, text, pos.x(), pos.y() + lastY, ClientColors.SELECTOR_GREEN.toInt(),
-								shadow.get()
-							   );
+				shadow.get()
+			);
 
 			lastY = lastY + client.font.lineHeight + 2;
 			i++;
@@ -156,15 +156,15 @@ public class ItemUpdateHud extends TextHudEntry {
 			ComponentCollector message = new ComponentCollector();
 			message.append(Component.literal("- "));
 			message.append(Component.literal("[")
-							   .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
+				.setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.append(Component.literal(item.times + "").setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
 			message.append(Component.literal("] ")
-							   .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
+				.setStyle(Style.EMPTY.withColor(TextColor.fromRgb(ClientColors.DARK_GRAY.toInt()))));
 			message.append(item.stack.getItemName());
 			FormattedCharSequence text = Language.getInstance().getVisualOrder(message.getResult());
 			graphics.drawString(client.font, text, pos.x(), pos.y() + lastY, ChatFormatting.RED.getColor(),
-								shadow.get()
-							   );
+				shadow.get()
+			);
 			lastY = lastY + client.font.lineHeight + 2;
 			i++;
 		}
@@ -193,8 +193,8 @@ public class ItemUpdateHud extends TextHudEntry {
 		removeM.append(new ItemStack(Items.SHORT_GRASS).getItemName());
 		FormattedCharSequence removeText = Language.getInstance().getVisualOrder(removeM.getResult());
 		graphics.drawString(client.font, removeText, pos.x(), pos.y() + client.font.lineHeight + 2,
-							ChatFormatting.RED.getColor(), shadow.get()
-						   );
+			ChatFormatting.RED.getColor(), shadow.get()
+		);
 	}
 
 	@Override

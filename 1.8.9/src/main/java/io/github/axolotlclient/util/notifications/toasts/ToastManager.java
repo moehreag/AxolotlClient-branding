@@ -113,13 +113,13 @@ public class ToastManager {
 	public <T extends Toast> T getToast(Class<? extends T> class_, Object object) {
 		for (ToastInstance<?> toastInstance : this.visibleToasts) {
 			if (toastInstance != null && class_.isAssignableFrom(toastInstance.getToast().getClass()) && toastInstance.getToast().getToken().equals(object)) {
-				return (T)toastInstance.getToast();
+				return (T) toastInstance.getToast();
 			}
 		}
 
 		for (Toast toast : this.queued) {
 			if (class_.isAssignableFrom(toast.getClass()) && toast.getToken().equals(object)) {
-				return (T)toast;
+				return (T) toast;
 			}
 		}
 
@@ -165,7 +165,7 @@ public class ToastManager {
 		}
 
 		private void calculateVisiblePortion(long l) {
-			float f = MathHelper.clamp((float)(l - this.animationStartTime) / SLIDE_ANIMATION_DURATION_MS, 0.0F, 1.0F);
+			float f = MathHelper.clamp((float) (l - this.animationStartTime) / SLIDE_ANIMATION_DURATION_MS, 0.0F, 1.0F);
 			f *= f;
 			if (this.visibility == Toast.Visibility.HIDE) {
 				this.visiblePortion = 1.0F - f;
@@ -190,7 +190,7 @@ public class ToastManager {
 			this.toast.update(ToastManager.this, this.fullyVisibleFor);
 			Toast.Visibility visibility = this.toast.getWantedVisibility();
 			if (visibility != this.visibility) {
-				this.animationStartTime = l - (long)((int)((1.0F - this.visiblePortion) * SLIDE_ANIMATION_DURATION_MS));
+				this.animationStartTime = l - (long) ((int) ((1.0F - this.visiblePortion) * SLIDE_ANIMATION_DURATION_MS));
 				this.visibility = visibility;
 				this.visibility.playSound(ToastManager.this.minecraft.getSoundManager());
 			}
@@ -200,7 +200,7 @@ public class ToastManager {
 
 		public void render(int i) {
 			GlStateManager.pushMatrix();
-			GlStateManager.translatef((float)i - (float)this.toast.width() * this.visiblePortion, (float)(this.firstSlotIndex * Toast.SLOT_HEIGHT), 1000.0F);
+			GlStateManager.translatef((float) i - (float) this.toast.width() * this.visiblePortion, (float) (this.firstSlotIndex * Toast.SLOT_HEIGHT), 1000.0F);
 			this.toast.render(ToastManager.this.minecraft.textRenderer, this.fullyVisibleFor);
 			GlStateManager.popMatrix();
 		}

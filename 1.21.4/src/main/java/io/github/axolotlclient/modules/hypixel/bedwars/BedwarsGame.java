@@ -54,14 +54,16 @@ public class BedwarsGame {
 	private final Map<UUID, BedwarsPlayer> playersById = new HashMap<>();
 	private final Minecraft mc;
 	private final BedwarsMod mod;
-	@Getter private final BedwarsTeamUpgrades upgrades = new BedwarsTeamUpgrades();
+	@Getter
+	private final BedwarsTeamUpgrades upgrades = new BedwarsTeamUpgrades();
 	private BedwarsTeam won = null;
 	private int wonTick = -1;
 	private int seconds = 0;
 	private Component topBarText = Component.empty();
 	private Component bottomBarText = Component.empty();
 	private BedwarsPlayer me = null;
-	@Getter private boolean started = false;
+	@Getter
+	private boolean started = false;
 	private BedwarsPlayer lastKill;
 	private BedwarsPlayer lastKiller;
 
@@ -123,15 +125,15 @@ public class BedwarsGame {
 		String topBar = getFormattedTime();
 		if (me.getStats() != null) {
 			topBar += "\n" + "K: " + me.getStats().getGameKills() + " D: " + me.getStats().getGameDeaths() + " B: " +
-					  me.getStats().getGameBedsBroken();
+				me.getStats().getGameBedsBroken();
 		}
 		return topBar;
 	}
 
 	private String calculateBottomBarText() {
 		return ChatFormatting.DARK_AQUA + "Last Kill: " + ChatFormatting.RESET +
-			   (lastKill == null ? "N/A" : lastKill.getColoredName()) + ChatFormatting.DARK_AQUA + " Last Killed By: " +
-			   ChatFormatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
+			(lastKill == null ? "N/A" : lastKill.getColoredName()) + ChatFormatting.DARK_AQUA + " Last Killed By: " +
+			ChatFormatting.RESET + (lastKiller == null ? "N/A" : lastKiller.getColoredName());
 		// left in here because it'll be useful later on
 		/*Comparator<BedwarsPlayer> comparator = Comparator.comparingInt(o -> o.getStats().getGameKills());
 		return "Top 3 Killers: \n" + players.values().stream().filter(Objects::nonNull)
@@ -209,9 +211,9 @@ public class BedwarsGame {
 	private String formatBed(BedwarsTeam team, BedwarsPlayer breaker) {
 		String playerFormatted = getPlayerFormatted(breaker);
 		return "§6§l§oBED BROKEN §8§l> " + team.getColorSection() + team.getName() + " Bed §7/broken/ " +
-			   playerFormatted + (breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" +
-																										 breaker.getStats()
-																											 .getBedsBroken());
+			playerFormatted + (breaker.getStats() == null || breaker.getTeam() != me.getTeam() ? "" : " §6" +
+			breaker.getStats()
+				.getBedsBroken());
 	}
 
 	private String formatDeath(BedwarsPlayer player, @Nullable BedwarsPlayer killer, BedwarsDeathType type, boolean finalDeath) {
@@ -255,7 +257,7 @@ public class BedwarsGame {
 			if (BedwarsMessages.matched(BedwarsMessages.BED_DESTROY, rawMessage, m -> {
 				Optional<BedwarsPlayer> player = BedwarsMessages.matched(BedwarsMessages.BED_BREAK, rawMessage).flatMap(m1 -> getPlayer(m1.group(1)));
 				if (player.isEmpty()) {
-					AxolotlClient.LOGGER.warn("Unknown bed break message: "+rawMessage);
+					AxolotlClient.LOGGER.warn("Unknown bed break message: " + rawMessage);
 					Notifications.getInstance().addStatus("bedwars.unknown_bed_break", "bedwars.unknown_message");
 					return;
 				}
@@ -265,13 +267,13 @@ public class BedwarsGame {
 				return;
 			}
 			if (BedwarsMessages.matched(BedwarsMessages.DISCONNECT, rawMessage,
-										m -> getPlayer(m.group(1)).ifPresent(p -> disconnected(event, p))
-									   )) {
+				m -> getPlayer(m.group(1)).ifPresent(p -> disconnected(event, p))
+			)) {
 				return;
 			}
 			if (BedwarsMessages.matched(BedwarsMessages.RECONNECT, rawMessage,
-										m -> getPlayer(m.group(1)).ifPresent(p -> reconnected(event, p))
-									   )) {
+				m -> getPlayer(m.group(1)).ifPresent(p -> reconnected(event, p))
+			)) {
 				return;
 			}
 			if (BedwarsMessages.matched(BedwarsMessages.GAME_END, rawMessage, m -> {
@@ -284,8 +286,8 @@ public class BedwarsGame {
 				return;
 			}
 			if (BedwarsMessages.matched(BedwarsMessages.TEAM_ELIMINATED, rawMessage,
-										m -> BedwarsTeam.fromName(m.group(1)).ifPresent(t -> teamEliminated(event, t))
-									   )) {
+				m -> BedwarsTeam.fromName(m.group(1)).ifPresent(t -> teamEliminated(event, t))
+			)) {
 				return;
 			}
 			upgrades.onMessage(rawMessage);

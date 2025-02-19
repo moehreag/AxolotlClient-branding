@@ -54,7 +54,7 @@ public class DeviceCodeDisplayScreen extends Screen {
 		this.ticksLeft = data.getExpiresIn() * 20;
 		this.status = Component.translatable("auth.time_left",
 			((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s");
-		this.qrCode = Util.getTexture(data.getQrCode(), "device_auth_"+ data.getUserCode());
+		this.qrCode = Util.getTexture(data.getQrCode(), "device_auth_" + data.getUserCode());
 		data.setStatusConsumer(s -> {
 			if (s.equals("auth.finished")) {
 				minecraft.execute(() -> minecraft.setScreen(parent));
@@ -89,10 +89,10 @@ public class DeviceCodeDisplayScreen extends Screen {
 				((ticksLeft / 20) / 60) + "m" + ((ticksLeft / 20) % 60) + "s"),
 			width / 2, y + 10, -1);
 
-		y = height/2+30;
-		if (height-y > 40) {
+		y = height / 2 + 30;
+		if (height - y > 40) {
 			int qrImageSize = height - y - 20;
-			graphics.blit(RenderType::guiTextured, qrCode, width/2 - qrImageSize/2, y, 0, 0, qrImageSize, qrImageSize, qrImageSize, qrImageSize);
+			graphics.blit(RenderType::guiTextured, qrCode, width / 2 - qrImageSize / 2, y, 0, 0, qrImageSize, qrImageSize, qrImageSize, qrImageSize);
 		}
 	}
 

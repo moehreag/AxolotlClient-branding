@@ -67,7 +67,7 @@ public class ScrollableTooltips extends AbstractModule {
 				.getSelectedItemGroup() != BuiltInRegistries.CREATIVE_MODE_TAB.getValue(CreativeModeTabs.INVENTORY)) {
 				return false;
 			}
-			Slot hovered = ((AbstractContainerScreenAccessor)screen).getHoveredSlot();
+			Slot hovered = ((AbstractContainerScreenAccessor) screen).getHoveredSlot();
 			if (hovered == null || hovered.hasItem() && hovered.getItem().is(Items.BUNDLE) && !Screen.hasControlDown()) {
 				return false;
 			}

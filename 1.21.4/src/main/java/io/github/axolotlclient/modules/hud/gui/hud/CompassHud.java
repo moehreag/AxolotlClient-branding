@@ -139,12 +139,12 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 		int y = pos.y() + 1;
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		graphics.fill(pos.x() + (int) halfWidth - 1, pos.y() + 1, pos.x() + (int) halfWidth - 1 + 3, pos.y() + 10,
-					  lookingBox.get().toInt()
-					 );
+			lookingBox.get().toInt()
+		);
 		if (showDegrees.get()) {
 			DrawUtil.drawCenteredString(graphics, client.font, String.valueOf((int) degrees),
-										x + (int) halfWidth, y + 20, degreesColor.get(), shadow.get()
-									   );
+				x + (int) halfWidth, y + 20, degreesColor.get(), shadow.get()
+			);
 		}
 		float shift = (startIndicator - start) / 15f * dist;
 		if (invert.get()) {
@@ -178,16 +178,16 @@ public class CompassHud extends TextHudEntry implements DynamicallyPositionable 
 				color = color.withAlpha((int) (color.getAlpha() * targetOpacity));
 				if (color.getAlpha() > 0) {
 					DrawUtil.drawCenteredString(graphics, client.font, getCardString(indicator, d), innerX + 1,
-												y + 10, color, shadow.get()
-											   );
+						y + 10, color, shadow.get()
+					);
 				}
 			} else if (indicator == Indicator.SEMI_CARDINAL) {
 				Color color = semiCardinalColor.get();
 				color = color.withAlpha((int) (color.getAlpha() * targetOpacity));
 				if (color.getAlpha() > 0) {
 					DrawUtil.drawCenteredString(graphics, client.font, getCardString(indicator, d), innerX + 1,
-												y + 1, color, shadow.get()
-											   );
+						y + 1, color, shadow.get()
+					);
 				}
 			} else {
 				// We have to call .color() here so that transparency stays

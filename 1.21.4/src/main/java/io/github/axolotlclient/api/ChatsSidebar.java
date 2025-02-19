@@ -209,7 +209,7 @@ public class ChatsSidebar extends Screen implements ContextMenuScreen {
 		} else {
 			w = font.width(channel.getName());
 		}
-		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width/2);
+		sidebarWidth = Math.min(Math.max(width * 5 / 12, w + 5), width / 2);
 		chatWidget = new ChatWidget(channel, 75, 50, sidebarWidth - 80, height - 100, this);
 		addRenderableWidget(chatWidget);
 		addRenderableWidget(input = new EditBox(font, 75, height - 30, sidebarWidth - 80, 20, Component.translatable("api.friends.chat.input")) {

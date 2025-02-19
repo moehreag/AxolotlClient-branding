@@ -66,7 +66,7 @@ public class KeystrokePositioningScreen extends Screen {
 
 	@Override
 	protected void init() {
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).position(width/2-75, height-50+22).width(150).build());
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, b -> closeScreen()).position(width / 2 - 75, height - 50 + 22).width(150).build());
 		this.addDrawableChild(ButtonWidget.builder(Text.translatable("hud.snapping").append(": ")
 				.append(Text.translatable(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off")),
 			buttonWidget -> {
@@ -74,7 +74,7 @@ public class KeystrokePositioningScreen extends Screen {
 				buttonWidget.setMessage(Text.translatable("hud.snapping").append(": ")
 					.append(Text.translatable(HudEditScreen.isSnappingEnabled() ? "options.on" : "options.off")));
 				AxolotlClient.configManager.save();
-			}).positionAndSize(width / 2 - 50, height -50, 100, 20).build());
+			}).positionAndSize(width / 2 - 50, height - 50, 100, 20).build());
 	}
 
 	@Override
@@ -165,17 +165,17 @@ public class KeystrokePositioningScreen extends Screen {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		if (focused != null && mouseDown) {
-			focused.setX((int) Math.round((mouseX - offset.x())/hud.getScale()));
-			focused.setY((int) Math.round((mouseY - offset.y())/hud.getScale()));
+			focused.setX((int) Math.round((mouseX - offset.x()) / hud.getScale()));
+			focused.setY((int) Math.round((mouseY - offset.y()) / hud.getScale()));
 			if (snap != null) {
 				Integer snapX, snapY;
 				var rect = getScaledRenderPos(focused);
 				snap.setCurrent(rect);
 				if ((snapX = snap.getCurrentXSnap()) != null) {
-					focused.setX((int) (snapX/hud.getScale()));
+					focused.setX((int) (snapX / hud.getScale()));
 				}
 				if ((snapY = snap.getCurrentYSnap()) != null) {
-					focused.setY(Math.round(snapY/hud.getScale()));
+					focused.setY(Math.round(snapY / hud.getScale()));
 				}
 			}
 			return true;

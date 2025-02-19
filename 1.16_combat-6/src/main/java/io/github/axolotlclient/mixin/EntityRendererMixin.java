@@ -63,18 +63,18 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
 					assert MinecraftClient.getInstance().player != null;
 					int x = -(MinecraftClient.getInstance().textRenderer
-								  .getWidth(
-									  entity.getUuid() == MinecraftClient.getInstance().player.getUuid()
-										  ? (NickHider.getInstance().hideOwnName.get()
-										  ? NickHider.getInstance().hiddenNameSelf.get()
-										  : Team.modifyText(entity.getScoreboardTeam(), entity.getName())
-										  .getString())
-										  : (NickHider.getInstance().hideOtherNames.get()
-										  ? NickHider.getInstance().hiddenNameOthers.get()
-										  : Team.modifyText(entity.getScoreboardTeam(), entity.getName())
-										  .getString()))
-							  / 2
-							  + (AxolotlClient.CONFIG.customBadge.get() ? MinecraftClient.getInstance().textRenderer
+						.getWidth(
+							entity.getUuid() == MinecraftClient.getInstance().player.getUuid()
+								? (NickHider.getInstance().hideOwnName.get()
+								? NickHider.getInstance().hiddenNameSelf.get()
+								: Team.modifyText(entity.getScoreboardTeam(), entity.getName())
+								.getString())
+								: (NickHider.getInstance().hideOtherNames.get()
+								? NickHider.getInstance().hiddenNameOthers.get()
+								: Team.modifyText(entity.getScoreboardTeam(), entity.getName())
+								.getString()))
+						/ 2
+						+ (AxolotlClient.CONFIG.customBadge.get() ? MinecraftClient.getInstance().textRenderer
 						.getWidth(" " + Formatting.strip(AxolotlClient.CONFIG.badgeText.get())) : 10));
 
 					RenderSystem.color4f(1, 1, 1, 1);
@@ -82,9 +82,9 @@ public abstract class EntityRendererMixin<T extends Entity> {
 					if (AxolotlClient.CONFIG.customBadge.get()) {
 						Text badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
 						if (AxolotlClient.CONFIG.useShadows.get()) {
-							MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, badgeText, x+6, 0, -1);
+							MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, badgeText, x + 6, 0, -1);
 						} else {
-							MinecraftClient.getInstance().textRenderer.draw(matrices, badgeText, x+6, 0, -1);
+							MinecraftClient.getInstance().textRenderer.draw(matrices, badgeText, x + 6, 0, -1);
 						}
 					} else {
 						DrawableHelper.drawTexture(matrices, x, 0, 0, 0, 8, 8, 8, 8);

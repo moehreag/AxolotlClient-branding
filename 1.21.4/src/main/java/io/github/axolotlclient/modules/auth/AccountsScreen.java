@@ -89,8 +89,8 @@ public class AccountsScreen extends Screen {
 						minecraft.setScreen(new AddOfflineScreen(this));
 					}
 				}, Component.translatable("auth.add.choose"), Component.empty(),
-													  Component.translatable("auth.add.offline"),
-													  Component.translatable("auth.add.ms")
+					Component.translatable("auth.add.offline"),
+					Component.translatable("auth.add.ms")
 				));
 			}
 		}).bounds(this.width / 2 + 4, this.height - 52, 150, 20).build());
@@ -107,11 +107,11 @@ public class AccountsScreen extends Screen {
 
 
 		this.addRenderableWidget(refreshButton =
-									 Button.builder(Component.translatable("auth.refresh"), button -> refreshAccount())
-										 .bounds(this.width / 2 - 154, this.height - 28, 100, 20).build());
+			Button.builder(Component.translatable("auth.refresh"), button -> refreshAccount())
+				.bounds(this.width / 2 - 154, this.height - 28, 100, 20).build());
 
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, button -> this.minecraft.setScreen(this.parent))
-									 .bounds(this.width / 2 + 4 + 50, this.height - 28, 100, 20).build());
+			.bounds(this.width / 2 + 4 + 50, this.height - 28, 100, 20).build());
 		updateButtonActivationStates();
 	}
 

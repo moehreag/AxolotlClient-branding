@@ -72,7 +72,7 @@ public class KeystrokeHud extends TextHudEntry {
 
 	private final GenericOption keystrokesOption = new GenericOption("keystrokes", "keystrokes.configure", () -> client.openScreen(new KeystrokesScreen(KeystrokeHud.this, client.screen)));
 	private final GenericOption configurePositions = new GenericOption("keystrokes.positions", "keystrokes.positions.configure",
-			() -> client.openScreen(new KeystrokePositioningScreen(client.screen, this)));
+		() -> client.openScreen(new KeystrokePositioningScreen(client.screen, this)));
 	public ArrayList<Keystroke> keystrokes;
 
 
@@ -131,7 +131,7 @@ public class KeystrokeHud extends TextHudEntry {
 
 	public Keystroke createFromKey(Rectangle bounds, DrawPosition offset, KeyBinding key) {
 		String name = getMouseKeyBindName(key)
-				.orElse(GameOptions.getKeyName(key.getKeyCode()).toUpperCase());
+			.orElse(GameOptions.getKeyName(key.getKeyCode()).toUpperCase());
 		if (name.length() > 4) {
 			name = name.substring(0, 2);
 		}
@@ -250,7 +250,7 @@ public class KeystrokeHud extends TextHudEntry {
 
 		public Color getFGColor() {
 			return isKeyDown() ? ClientColors.blend(textColor.get(), pressedTextColor.get(), getPercentPressed())
-					: ClientColors.blend(pressedTextColor.get(), textColor.get(), getPercentPressed());
+				: ClientColors.blend(pressedTextColor.get(), textColor.get(), getPercentPressed());
 		}
 
 		private float getPercentPressed() {
@@ -285,13 +285,13 @@ public class KeystrokeHud extends TextHudEntry {
 
 		public Color getColor() {
 			return isKeyDown()
-					? ClientColors.blend(backgroundColor.get(), pressedBackgroundColor.get(), getPercentPressed())
-					: ClientColors.blend(pressedBackgroundColor.get(), backgroundColor.get(), getPercentPressed());
+				? ClientColors.blend(backgroundColor.get(), pressedBackgroundColor.get(), getPercentPressed())
+				: ClientColors.blend(pressedBackgroundColor.get(), backgroundColor.get(), getPercentPressed());
 		}
 
 		public Color getOutlineColor() {
 			return isKeyDown() ? ClientColors.blend(outlineColor.get(), pressedOutlineColor.get(), getPercentPressed())
-					: ClientColors.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
+				: ClientColors.blend(pressedOutlineColor.get(), outlineColor.get(), getPercentPressed());
 		}
 
 		public Map<String, Object> serialize() {
@@ -315,7 +315,7 @@ public class KeystrokeHud extends TextHudEntry {
 			if (json.containsKey("editable_label")) {
 				String label = (String) json.get("label");
 				return new LabelKeystroke(getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key,
-						label);
+					label);
 			} else {
 				return new CustomRenderKeystroke(SpecialKeystroke.valueOf((String) json.get("special_name")), getRectangle((Map<String, ?>) json.get("bounds")), getPos(), key);
 			}
@@ -395,7 +395,7 @@ public class KeystrokeHud extends TextHudEntry {
 			this.render = (stroke) -> {
 				Rectangle strokeBounds = stroke.bounds;
 				float x = (strokeBounds.x() + stroke.offset.x() + ((float) strokeBounds.width() / 2))
-						- ((float) client.textRenderer.getWidth(getLabel()) / 2);
+					- ((float) client.textRenderer.getWidth(getLabel()) / 2);
 				float y = strokeBounds.y() + stroke.offset.y() + ((float) strokeBounds.height() / 2) - 4;
 
 				drawString(getLabel(), (int) x, (int) y, stroke.getFGColor().toInt(), shadow.get());
@@ -416,7 +416,7 @@ public class KeystrokeHud extends TextHudEntry {
 		public void setSynchronizeLabel(boolean synchronizeLabel) {
 			if (synchronizeLabel) {
 				String name = getMouseKeyBindName(key)
-						.orElse(GameOptions.getKeyName(key.getKeyCode()).toUpperCase());
+					.orElse(GameOptions.getKeyName(key.getKeyCode()).toUpperCase());
 				if (name.length() > 4) {
 					name = name.substring(0, 2);
 				}
@@ -429,7 +429,7 @@ public class KeystrokeHud extends TextHudEntry {
 		public void setKey(KeyBinding key) {
 			if (synchronizeLabel) {
 				String name = getMouseKeyBindName(key)
-						.orElse(GameOptions.getKeyName(key.getKeyCode()).toUpperCase());
+					.orElse(GameOptions.getKeyName(key.getKeyCode()).toUpperCase());
 				if (name.length() > 4) {
 					name = name.substring(0, 2);
 				}
@@ -482,11 +482,11 @@ public class KeystrokeHud extends TextHudEntry {
 		SPACE(new Rectangle(0, 54, 53, 7), Minecraft.getInstance().options.jumpKey, (hud, stroke) -> {
 			Rectangle bounds = stroke.bounds;
 			Rectangle spaceBounds = new Rectangle(bounds.x() + stroke.offset.x() + 4,
-					bounds.y() + stroke.offset.y() + bounds.height() / 2 - 1, bounds.width() - 8, 1);
+				bounds.y() + stroke.offset.y() + bounds.height() / 2 - 1, bounds.width() - 8, 1);
 			fillRect(spaceBounds, stroke.getFGColor());
 			if (hud.shadow.get()) {
 				fillRect(spaceBounds.offset(1, 1), new Color(
-						(stroke.getFGColor().toInt() & 16579836) >> 2 | stroke.getFGColor().toInt() & -16777216));
+					(stroke.getFGColor().toInt() & 16579836) >> 2 | stroke.getFGColor().toInt() & -16777216));
 			}
 		});
 

@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 public record MccIslandLocationData(String server, String proxy) {
 
 	private static final Pattern PATTERN = Pattern.compile("^Server: ([^\n]+)\nProxy: ([^\n]+)\n.*$");
+
 	public static MccIslandLocationData parse(String location) {
 		Matcher matcher = PATTERN.matcher(location);
 		if (!matcher.find()) {

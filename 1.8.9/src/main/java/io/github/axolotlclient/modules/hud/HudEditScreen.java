@@ -171,7 +171,7 @@ public class HudEditScreen extends Screen {
 			case 3:
 				snapping.toggle();
 				button.message = I18n.translate("hud.snapping") + ": "
-								 + I18n.translate(snapping.get() ? "options.on" : "options.off");
+					+ I18n.translate(snapping.get() ? "options.on" : "options.off");
 				AxolotlClient.configManager.save();
 				break;
 			case 1:

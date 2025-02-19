@@ -34,7 +34,8 @@ import net.minecraft.network.chat.Component;
 
 public class AutoTip implements AbstractHypixelMod {
 
-	@Getter private final static AutoTip Instance = new AutoTip();
+	@Getter
+	private final static AutoTip Instance = new AutoTip();
 
 	private final OptionCategory category = OptionCategory.create("autotip");
 
@@ -79,6 +80,6 @@ public class AutoTip implements AbstractHypixelMod {
 
 	public boolean onChatMessage(Component text) {
 		return enabled.get() && hideMessages.get() && (messagePattern.matcher(text.getString()).matches() ||
-													   tippedPattern.matcher(text.getString()).matches());
+			tippedPattern.matcher(text.getString()).matches());
 	}
 }

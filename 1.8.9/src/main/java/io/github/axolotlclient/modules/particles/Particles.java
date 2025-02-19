@@ -115,8 +115,8 @@ public class Particles extends AbstractModule {
 
 	public boolean getAlwaysOn(ParticleType type) {
 		return enabled.get() && particleOptions.containsKey(type)
-			   && ((BooleanOption) Particles.getInstance().particleOptions.get(type).get("alwaysCrit"))
-				   .get();
+			&& ((BooleanOption) Particles.getInstance().particleOptions.get(type).get("alwaysCrit"))
+			.get();
 	}
 
 	public boolean getShowParticle(ParticleType type) {

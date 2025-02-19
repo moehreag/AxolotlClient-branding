@@ -342,7 +342,7 @@ public abstract class SkyboxInstance {
 		for (Identifier id : textures) {
 			try {
 				Minecraft.getInstance().getTextureManager().close(id);
-				((TextureManagerAccessor)Minecraft.getInstance().getTextureManager()).getTextures().remove(id);
+				((TextureManagerAccessor) Minecraft.getInstance().getTextureManager()).getTextures().remove(id);
 			} catch (Exception ignored) {
 			}
 		}

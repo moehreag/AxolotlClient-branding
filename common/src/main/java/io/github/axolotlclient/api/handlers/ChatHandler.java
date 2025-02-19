@@ -81,7 +81,7 @@ public class ChatHandler implements SocketMessageHandler {
 		String displayName = API.getInstance().getSelf().getDisplayName(message);
 
 		API.getInstance().post(Request.Route.CHANNEL.builder().path(channel.getId()).field("content", message)
-			.field("display_name", displayName).build())
+				.field("display_name", displayName).build())
 			.whenComplete((res, th) -> {
 				ChatMessage msg = new ChatMessage(res.getPlainBody(), channel.getId(), API.getInstance().getSelf(), displayName, message, Instant.now());
 				messageConsumer.accept(msg);

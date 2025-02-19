@@ -193,7 +193,7 @@ public class CreditsScreen extends Screen {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
-			   || creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+			|| creditsList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 	}
 
 	@Override

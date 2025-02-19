@@ -67,6 +67,7 @@ public interface MinecraftClientAccessor {
 	@Accessor("authenticationService")
 	YggdrasilAuthenticationService getAuthService();
 
-	@Accessor("profileFuture") @Mutable
+	@Accessor("profileFuture")
+	@Mutable
 	void axolotlclient$setProfileFuture(CompletableFuture<ProfileResult> future);
 }

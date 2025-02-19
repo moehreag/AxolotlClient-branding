@@ -54,7 +54,7 @@ public class KeyBindSelectionList extends ElementListWidget<KeyBindSelectionList
 	private int maxNameWidth;
 
 	public KeyBindSelectionList(KeyBindSelectionScreen keyBindsScreen, MinecraftClient minecraft, Consumer<KeyBind> selectionConsumer) {
-		super(minecraft, keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height-33, ITEM_HEIGHT);
+		super(minecraft, keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height - 33, ITEM_HEIGHT);
 		this.keyBindsScreen = keyBindsScreen;
 		this.selectionConsumer = selectionConsumer;
 		KeyBind[] keyMappings = ArrayUtils.clone(minecraft.options.allKeys);
@@ -85,7 +85,7 @@ public class KeyBindSelectionList extends ElementListWidget<KeyBindSelectionList
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return getRowLeft()+getRowWidth()+10;
+		return getRowLeft() + getRowWidth() + 10;
 	}
 
 	@Environment(EnvType.CLIENT)

@@ -31,15 +31,15 @@ import net.ornithemc.osl.networking.api.client.ClientConnectionEvents;
 
 
 public class HypixelModApi {
-    private ClientboundLocationPacket current;
+	private ClientboundLocationPacket current;
 
-    public void init() {
-        HypixelModAPI.getInstance().createHandler(ClientboundLocationPacket.class, packet -> current = packet);
-        ClientConnectionEvents.PLAY_READY.register(mc -> HypixelModAPI.getInstance().subscribeToEventPacket(ClientboundLocationPacket.class));
-    }
+	public void init() {
+		HypixelModAPI.getInstance().createHandler(ClientboundLocationPacket.class, packet -> current = packet);
+		ClientConnectionEvents.PLAY_READY.register(mc -> HypixelModAPI.getInstance().subscribeToEventPacket(ClientboundLocationPacket.class));
+	}
 
-    public Request getStatus() {
+	public Request getStatus() {
 		if (current == null) return null;
-        return StatusUpdate.inGame(StatusUpdate.SupportedServer.HYPIXEL, current.getServerType().map(ServerType::getName).orElse(""), current.getMode().orElse(""), current.getMap().orElse(""));
-    }
+		return StatusUpdate.inGame(StatusUpdate.SupportedServer.HYPIXEL, current.getServerType().map(ServerType::getName).orElse(""), current.getMode().orElse(""), current.getMap().orElse(""));
+	}
 }

@@ -58,8 +58,8 @@ public class PrivacyNoticeScreen extends Screen {
 	@Override
 	public Component getNarrationMessage() {
 		return CommonComponents.joinForNarration(super.getNarrationMessage(),
-												 Component.translatable("api.privacyNotice.description")
-												);
+			Component.translatable("api.privacyNotice.description")
+		);
 	}
 
 	@Override

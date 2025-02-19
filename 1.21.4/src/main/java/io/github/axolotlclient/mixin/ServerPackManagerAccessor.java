@@ -32,6 +32,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ServerPackManager.class)
 public interface ServerPackManagerAccessor {
 
-	@Accessor("downloader") @Mutable
+	@Accessor("downloader")
+	@Mutable
 	void axolotlclient$setDownloader(PackDownloader downloader);
 }

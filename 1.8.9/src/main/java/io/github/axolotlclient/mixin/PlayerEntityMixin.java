@@ -101,7 +101,7 @@ public abstract class PlayerEntityMixin extends Entity {
 	}
 
 	@Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/state/BlockState;"), cancellable = true)
-	private void removeErrorOnAirBlock(BlockPos blockPos, CallbackInfoReturnable<PlayerEntity.SleepAllowedStatus> cir){
+	private void removeErrorOnAirBlock(BlockPos blockPos, CallbackInfoReturnable<PlayerEntity.SleepAllowedStatus> cir) {
 		if (world.getBlockState(blockPos).getBlock().is(Blocks.AIR)) {
 			cir.setReturnValue(PlayerEntity.SleepAllowedStatus.OTHER_PROBLEM);
 		}

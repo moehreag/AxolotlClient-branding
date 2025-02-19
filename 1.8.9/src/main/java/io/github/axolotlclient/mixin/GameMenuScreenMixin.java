@@ -54,7 +54,7 @@ public abstract class GameMenuScreenMixin extends Screen {
 	@Inject(method = "init", at = @At("RETURN"))
 	public void axolotlclient$addConfigButton(CallbackInfo ci) {
 		if (API.getInstance().isAuthenticated()) {
-			int buttonY = height-30;
+			int buttonY = height - 30;
 			if (APIOptions.getInstance().addShortcutButtons.get()) {
 				buttons.add(new ButtonWidget(134, 10, buttonY, 75, 20, I18n.translate("api.friends")));
 				buttonY -= 25;
@@ -90,8 +90,8 @@ public abstract class GameMenuScreenMixin extends Screen {
 			return;
 
 		if (!minecraft.isInSingleplayer() && ((minecraft.getServer() != null
-															 && minecraft.getServer().isPublished())
-															|| minecraft.getCurrentServerEntry() != null)) {
+			&& minecraft.getServer().isPublished())
+			|| minecraft.getCurrentServerEntry() != null)) {
 			args.set(0, 20);
 			args.set(5, I18n.translate("title_short"));
 		}

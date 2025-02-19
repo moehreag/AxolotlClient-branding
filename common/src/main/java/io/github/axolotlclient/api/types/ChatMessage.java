@@ -24,6 +24,7 @@ package io.github.axolotlclient.api.types;
 
 import java.time.Instant;
 
-public record ChatMessage(String id, String channelId, User sender, String senderDisplayName, String content, Instant timestamp) {
+public record ChatMessage(String id, String channelId, User sender, String senderDisplayName, String content,
+						  Instant timestamp) {
 
 }

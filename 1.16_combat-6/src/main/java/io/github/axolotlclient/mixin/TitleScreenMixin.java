@@ -83,7 +83,7 @@ public abstract class TitleScreenMixin extends Screen {
 			Runnable addApiButtons = () -> client.execute(() -> {
 				buttons.add(addButton(new ButtonWidget(10, shortcutButtonY, 50, 20, new TranslatableText("api.friends"),
 					w -> client.openScreen(new FriendsScreen(this)))));
-				buttons.add(addButton(new ButtonWidget(10, shortcutButtonY+25, 50, 20, new TranslatableText("api.chats"),
+				buttons.add(addButton(new ButtonWidget(10, shortcutButtonY + 25, 50, 20, new TranslatableText("api.chats"),
 					w -> client.openScreen(new ChatListScreen(this)))));
 			});
 			if (API.getInstance().isSocketConnected()) {

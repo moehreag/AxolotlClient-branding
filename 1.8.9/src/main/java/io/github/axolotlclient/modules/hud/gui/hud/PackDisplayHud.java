@@ -152,7 +152,7 @@ public class PackDisplayHud extends TextHudEntry {
 				this.texture = new DynamicTexture(pack.getIcon()).getGlId();
 			} catch (Exception e) {
 				AxolotlClient.LOGGER.warn("Pack " + pack.getName()
-										  + " somehow threw an error! Please investigate... Does it have an icon?");
+					+ " somehow threw an error! Please investigate... Does it have an icon?");
 			}
 		}
 

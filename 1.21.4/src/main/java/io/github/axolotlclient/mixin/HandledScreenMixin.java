@@ -36,7 +36,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractContainerScreen.class)
 public abstract class HandledScreenMixin {
 
-	@Unique private ItemStack cachedStack;
+	@Unique
+	private ItemStack cachedStack;
 
 	@Inject(method = "renderTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;renderTooltip(Lnet/minecraft/client/gui/Font;Ljava/util/List;Ljava/util/Optional;IILnet/minecraft/resources/ResourceLocation;)V"))
 	public void axolotlclient$resetScrollOnChange(GuiGraphics graphics, int x, int y, CallbackInfo ci, @Local ItemStack stack) {

@@ -137,7 +137,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		if (minimal.get()) {
 			int currPos = pos.x() + 1;
 			String separator = this.separator.get();
-			currPos = drawString(matrices, "XYZ"+delimiter.get(), currPos, pos.y() + 2, firstColor.get().toInt(), shadow.get());
+			currPos = drawString(matrices, "XYZ" + delimiter.get(), currPos, pos.y() + 2, firstColor.get().toInt(), shadow.get());
 			currPos = drawString(matrices, df.format(x), currPos, pos.y() + 2, secondColor.get().toInt(),
 				shadow.get());
 			currPos = drawString(matrices, separator, currPos, pos.y() + 2, separatorColor.get().toInt(), shadow.get());
@@ -209,7 +209,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		}
 		String path = biome.getPath();
 		if (!biome.getNamespace().equals("minecraft")) {
-			path += "("+biome.getNamespace()+")";
+			path += "(" + biome.getNamespace() + ")";
 		}
 		final String str = path.replace("_", " ");
 		if (str.isEmpty()) {
@@ -266,7 +266,7 @@ public class CoordsHud extends TextHudEntry implements DynamicallyPositionable {
 		if (minimal.get()) {
 			int currPos = pos.x() + 1;
 			String separator = this.separator.get();
-			currPos = drawString(matrices, "XYZ"+delimiter.get(), currPos, pos.y() + 2, firstColor.get().toInt(), shadow.get());
+			currPos = drawString(matrices, "XYZ" + delimiter.get(), currPos, pos.y() + 2, firstColor.get().toInt(), shadow.get());
 			currPos = drawString(matrices, df.format(x), currPos, pos.y() + 2, secondColor.get().toInt(),
 				shadow.get());
 			currPos = drawString(matrices, separator, currPos, pos.y() + 2, separatorColor.get().toInt(), shadow.get());

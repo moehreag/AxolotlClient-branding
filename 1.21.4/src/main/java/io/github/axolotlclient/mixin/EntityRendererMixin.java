@@ -68,7 +68,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 
 						if (AxolotlClient.CONFIG.customBadge.get()) {
 							Component badgeText = Util.formatFromCodes(AxolotlClient.CONFIG.badgeText.get());
-							Minecraft.getInstance().font.drawInBatch(badgeText, x+6, 0, -1, AxolotlClient.CONFIG.useShadows.get(), matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 15728880);
+							Minecraft.getInstance().font.drawInBatch(badgeText, x + 6, 0, -1, AxolotlClient.CONFIG.useShadows.get(), matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, 0, 15728880);
 						} else {
 							var type = RenderType.guiTextured(AxolotlClient.badgeIcon);
 							var builder = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(type);

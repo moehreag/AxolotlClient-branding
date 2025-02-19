@@ -50,9 +50,9 @@ public class ChannelInvitesScreen extends Screen {
 	@Override
 	protected void init() {
 
-		addDrawableChild(new TextWidget(width/2, 33/2, 0, 0,  title, textRenderer));
+		addDrawableChild(new TextWidget(width / 2, 33 / 2, 0, 0, title, textRenderer));
 
-		invites = addDrawableChild(new InvitesListWidget(client, height, 33, width, height-88, 25));
+		invites = addDrawableChild(new InvitesListWidget(client, height, 33, width, height - 88, 25));
 
 
 		acceptButton = addDrawableChild(ButtonWidget.builder(Text.translatable("api.channels.invite.accept"), w -> {
@@ -60,14 +60,14 @@ public class ChannelInvitesScreen extends Screen {
 				w.active = false;
 				ChannelRequest.acceptChannelInvite(invites.getSelectedOrNull().invite).thenRun(() -> client.submit(this::clearAndInit));
 			}
-		}).positionAndSize(width/2-75, height-55/2 - 2 - 20, 73, 20).build());
+		}).positionAndSize(width / 2 - 75, height - 55 / 2 - 2 - 20, 73, 20).build());
 		denyButton = addDrawableChild(ButtonWidget.builder(Text.translatable("api.channels.invite.ignore"), w -> {
 			if (invites.getSelectedOrNull() != null) {
 				w.active = false;
 				ChannelRequest.ignoreChannelInvite(invites.getSelectedOrNull().invite).thenRun(() -> client.submit(this::clearAndInit));
 			}
-		}).positionAndSize(width/2 + 2, height-55/2 - 2 - 20, 73, 20).build());
-		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, w -> closeScreen()).positionAndSize(width/2-75, height-55/2 + 2, 150, 20).build());
+		}).positionAndSize(width / 2 + 2, height - 55 / 2 - 2 - 20, 73, 20).build());
+		addDrawableChild(ButtonWidget.builder(CommonTexts.BACK, w -> closeScreen()).positionAndSize(width / 2 - 75, height - 55 / 2 + 2, 150, 20).build());
 
 		updateButtons();
 	}
@@ -84,7 +84,7 @@ public class ChannelInvitesScreen extends Screen {
 	private class InvitesListWidget extends AlwaysSelectedEntryListWidget<InvitesListWidget.InvitesListEntry> {
 
 		public InvitesListWidget(MinecraftClient client, int screenHeight, int y, int width, int height, int entryHeight) {
-			super(client, width, screenHeight, y, y+height, entryHeight);
+			super(client, width, screenHeight, y, y + height, entryHeight);
 			ChannelRequest.getChannelInvites().thenAccept(list ->
 				list.stream().map(InvitesListEntry::new).forEach(this::addEntry));
 		}

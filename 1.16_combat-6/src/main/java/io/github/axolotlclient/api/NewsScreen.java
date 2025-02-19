@@ -123,7 +123,7 @@ public class NewsScreen extends Screen {
 			boolean bl2 = keyCode == 264;
 			if (bl || bl2) {
 				double d = this.scrollAmount();
-				this.setScrollAmount(this.scrollAmount() + (double)(bl ? -1 : 1) * this.scrollRate());
+				this.setScrollAmount(this.scrollAmount() + (double) (bl ? -1 : 1) * this.scrollRate());
 				if (d != this.scrollAmount()) {
 					return true;
 				}
@@ -162,10 +162,10 @@ public class NewsScreen extends Screen {
 		public boolean isMouseOver(double mouseX, double mouseY) {
 			return this.active
 				&& this.visible
-				&& mouseX >= (double)this.getX()
-				&& mouseY >= (double)this.getY()
-				&& mouseX < (double)(this.getXEnd() + 6)
-				&& mouseY < (double)this.getYEnd();
+				&& mouseX >= (double) this.getX()
+				&& mouseY >= (double) this.getY()
+				&& mouseX < (double) (this.getXEnd() + 6)
+				&& mouseY < (double) this.getYEnd();
 		}
 
 		@Override
@@ -185,11 +185,11 @@ public class NewsScreen extends Screen {
 		protected void renderBorder(MatrixStack guiGraphics, int x, int y, int width, int height) {
 			int i = this.isFocused() ? -1 : -6250336;
 			fill(guiGraphics, this.getX(), this.getY(), this.getXEnd(), this.getYEnd(), i);
-			fill(guiGraphics, this.getX()+1, this.getY()+1, this.getXEnd()-1, this.getYEnd()-1, -16777216);
+			fill(guiGraphics, this.getX() + 1, this.getY() + 1, this.getXEnd() - 1, this.getYEnd() - 1, -16777216);
 		}
 
 		protected boolean withinContentAreaTopBottom(int top, int bottom) {
-			return (double)bottom - this.scrollAmount() >= (double)this.getY() && (double)top - this.scrollAmount() <= (double)(this.getY() + this.height);
+			return (double) bottom - this.scrollAmount() >= (double) this.getY() && (double) top - this.scrollAmount() <= (double) (this.getY() + this.height);
 		}
 
 		protected abstract int getInnerHeight();
@@ -231,14 +231,14 @@ public class NewsScreen extends Screen {
 		@Override
 		public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 			if (this.scrolling) {
-				if (mouseY < (double)this.getY()) {
+				if (mouseY < (double) this.getY()) {
 					this.setScrollAmount(0.0);
-				} else if (mouseY > (double)this.getYEnd()) {
+				} else if (mouseY > (double) this.getYEnd()) {
 					this.setScrollAmount(this.maxScrollAmount());
 				} else {
 					double d = Math.max(1, this.maxScrollAmount());
 					int i = this.scrollerHeight();
-					double e = Math.max(1.0, d / (double)(this.height - i));
+					double e = Math.max(1.0, d / (double) (this.height - i));
 					this.setScrollAmount(this.scrollAmount() + dragY * e);
 				}
 
@@ -264,10 +264,10 @@ public class NewsScreen extends Screen {
 		public boolean updateScrolling(double mouseX, double mouseY, int button) {
 			this.scrolling = this.scrollbarVisible()
 				&& this.isValidClickButton(button)
-				&& mouseX >= (double)this.scrollBarX()
-				&& mouseX <= (double)(this.scrollBarX() + 6)
-				&& mouseY >= (double)this.getY()
-				&& mouseY < (double)this.getYEnd();
+				&& mouseX >= (double) this.scrollBarX()
+				&& mouseX <= (double) (this.scrollBarX() + 6)
+				&& mouseY >= (double) this.getY()
+				&& mouseY < (double) this.getYEnd();
 			return this.scrolling;
 		}
 
@@ -284,7 +284,7 @@ public class NewsScreen extends Screen {
 		}
 
 		protected int scrollerHeight() {
-			return MathHelper.clamp((int)((float)(this.height * this.height) / (float)this.contentHeight()), 32, this.height - 8);
+			return MathHelper.clamp((int) ((float) (this.height * this.height) / (float) this.contentHeight()), 32, this.height - 8);
 		}
 
 		protected int scrollBarX() {
@@ -292,7 +292,7 @@ public class NewsScreen extends Screen {
 		}
 
 		protected int scrollBarY() {
-			return Math.max(this.getY(), (int)this.scrollAmount * (this.height - this.scrollerHeight()) / this.maxScrollAmount() + this.getY());
+			return Math.max(this.getY(), (int) this.scrollAmount * (this.height - this.scrollerHeight()) / this.maxScrollAmount() + this.getY());
 		}
 
 		protected void renderScrollbar(MatrixStack guiGraphics) {
@@ -300,14 +300,14 @@ public class NewsScreen extends Screen {
 				int i = this.scrollBarX();
 				int j = this.scrollerHeight();
 				int k = this.scrollBarY();
-				fill(guiGraphics, i, getY(), i+SCROLLBAR_WIDTH, getYEnd(), -16777216);
-				fill(guiGraphics, i, k, i+SCROLLBAR_WIDTH, k+j, -8355712);
-				fill(guiGraphics, i, k, i+SCROLLBAR_WIDTH-1, k+j-1, -4144960);
+				fill(guiGraphics, i, getY(), i + SCROLLBAR_WIDTH, getYEnd(), -16777216);
+				fill(guiGraphics, i, k, i + SCROLLBAR_WIDTH, k + j, -8355712);
+				fill(guiGraphics, i, k, i + SCROLLBAR_WIDTH - 1, k + j - 1, -4144960);
 			}
 		}
 
 		protected int getYEnd() {
-			return getY()+getHeight();
+			return getY() + getHeight();
 		}
 
 		protected abstract int contentHeight();
@@ -323,7 +323,7 @@ public class NewsScreen extends Screen {
 		}
 
 		protected int getXEnd() {
-			return getX()+getWidth();
+			return getX() + getWidth();
 		}
 	}
 }

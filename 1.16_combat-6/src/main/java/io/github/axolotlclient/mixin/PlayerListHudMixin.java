@@ -82,7 +82,7 @@ public abstract class PlayerListHudMixin {
 			&& NickHider.getInstance().hideOwnName.get()) {
 			cir.setReturnValue(this.method_27538(playerEntry, new LiteralText(NickHider.getInstance().hiddenNameSelf.get())));
 		} else if (!playerEntry.getProfile().equals(MinecraftClient.getInstance().player.getGameProfile())
-				   && NickHider.getInstance().hideOtherNames.get()) {
+			&& NickHider.getInstance().hideOtherNames.get()) {
 			cir.setReturnValue(this.method_27538(playerEntry, new LiteralText(NickHider.getInstance().hiddenNameOthers.get())));
 		}
 	}

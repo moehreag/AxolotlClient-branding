@@ -86,7 +86,7 @@ public class QuickToggleCategoryWidget extends CategoryWidget {
 	protected void drawScrollableText(MatrixStack matrices, TextRenderer textRenderer, int xOffset, int color) {
 		int i = this.getX() + xOffset;
 		int j = this.getX() + this.getWidth() - xOffset;
-		int center = this.getX() + this.getWidth()/2;
+		int center = this.getX() + this.getWidth() / 2;
 		if (enabledButton != null) {
 			j -= enabledButton.getWidth() + 4;
 			center -= enabledButton.getWidth() / 2 + 2;

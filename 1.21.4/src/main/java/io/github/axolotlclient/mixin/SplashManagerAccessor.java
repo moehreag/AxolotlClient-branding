@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(SplashManager.class)
 public interface SplashManagerAccessor {
 
-	@Accessor("user") @Mutable
+	@Accessor("user")
+	@Mutable
 	void setUser(User user);
 }

@@ -44,7 +44,7 @@ public abstract class PlayerListEntryMixin {
 			&& NickHider.getInstance().hideOwnSkin.get()) {
 			cir.setReturnValue(() -> DefaultSkinHelper.getSkin(gameProfile.getId()));
 		} else if (!gameProfile.equals(MinecraftClient.getInstance().player.getGameProfile())
-				   && NickHider.getInstance().hideOtherSkins.get()) {
+			&& NickHider.getInstance().hideOtherSkins.get()) {
 			cir.setReturnValue(() -> DefaultSkinHelper.getSkin(gameProfile.getId()));
 		}
 	}

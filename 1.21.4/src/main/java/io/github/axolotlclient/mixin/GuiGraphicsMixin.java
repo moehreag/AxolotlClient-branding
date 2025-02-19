@@ -41,22 +41,22 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(GuiGraphics.class)
 public class GuiGraphicsMixin {
 
-    @Unique
-    private int recursionDepth;
+	@Unique
+	private int recursionDepth;
 
-    @WrapMethod(method = "renderTooltipInternal")
-    private void axolotlclient$scrollableTooltipsX(Font font, List<ClientTooltipComponent> list, int x, int y, ClientTooltipPositioner clientTooltipPositioner, @Nullable ResourceLocation resourceLocation, Operation<Void> original) {
-        if (ScrollableTooltips.getInstance().enabled.get()) {
-            Minecraft mc = Minecraft.getInstance();
-            if ((!(mc.screen instanceof CreativeModeInventoryScreen c)) || c.isInventoryOpen()) {
-                if (recursionDepth == 0) {
-                    x += ScrollableTooltips.getInstance().tooltipOffsetX;
-                    y += ScrollableTooltips.getInstance().tooltipOffsetY;
-                }
-            }
-        }
-        recursionDepth++;
-        original.call(font, list, x, y, clientTooltipPositioner, resourceLocation);
-        recursionDepth--;
-    }
+	@WrapMethod(method = "renderTooltipInternal")
+	private void axolotlclient$scrollableTooltipsX(Font font, List<ClientTooltipComponent> list, int x, int y, ClientTooltipPositioner clientTooltipPositioner, @Nullable ResourceLocation resourceLocation, Operation<Void> original) {
+		if (ScrollableTooltips.getInstance().enabled.get()) {
+			Minecraft mc = Minecraft.getInstance();
+			if ((!(mc.screen instanceof CreativeModeInventoryScreen c)) || c.isInventoryOpen()) {
+				if (recursionDepth == 0) {
+					x += ScrollableTooltips.getInstance().tooltipOffsetX;
+					y += ScrollableTooltips.getInstance().tooltipOffsetY;
+				}
+			}
+		}
+		recursionDepth++;
+		original.call(font, list, x, y, clientTooltipPositioner, resourceLocation);
+		recursionDepth--;
+	}
 }

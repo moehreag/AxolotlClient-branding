@@ -108,10 +108,10 @@ public class ChatScreen extends Screen implements ContextMenuScreen {
 		input.setMaxLength(1024);
 
 		if (channel.getOwner().equals(API.getInstance().getSelf())) {
-			buttons.add(new ButtonWidget(2, width - 60, 5, 50, 20, I18n.translate("api.channel.configure")){
+			buttons.add(new ButtonWidget(2, width - 60, 5, 50, 20, I18n.translate("api.channel.configure")) {
 				@Override
 				public void drawCenteredString(TextRenderer textRenderer, String string, int i, int j, int k) {
-					DrawUtil.drawScrollableText(textRenderer, string, x+2, y, x+width-2, y+height, k);
+					DrawUtil.drawScrollableText(textRenderer, string, x + 2, y, x + width - 2, y + height, k);
 				}
 			});
 		}

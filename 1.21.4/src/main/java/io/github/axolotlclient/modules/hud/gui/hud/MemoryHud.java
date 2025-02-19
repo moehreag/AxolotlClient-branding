@@ -71,11 +71,11 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 			graph.setData(pos.x() + 5, pos.y() + 5, getBounds().width - 10, getBounds().height - 10);
 
 			graphics.fill(graph.x, graph.y, (int) (graph.x + graph.width * (getUsage())), graph.y + graph.height,
-						  graphUsedColor.get().toInt()
-						 );
+				graphUsedColor.get().toInt()
+			);
 			graphics.fill((int) (graph.x + graph.width * (getUsage())), graph.y, graph.x + graph.width,
-						  graph.y + graph.height, graphFreeColor.get().toInt()
-						 );
+				graph.y + graph.height, graphFreeColor.get().toInt()
+			);
 
 			outlineRect(graphics, graph, ClientColors.BLACK);
 		}
@@ -83,17 +83,17 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 		if (showText.get()) {
 			String mem = getMemoryLine();
 			drawString(graphics, mem,
-					   pos.x() + (justification.get()).getXOffset(client.font.width(mem), getWidth() - 4) + 2,
-					   pos.y() + (Math.round((float) height / 2) - 4) - (showAllocated.get() ? 4 : 0),
-					   textColor.get().toInt(), shadow.get()
-					  );
+				pos.x() + (justification.get()).getXOffset(client.font.width(mem), getWidth() - 4) + 2,
+				pos.y() + (Math.round((float) height / 2) - 4) - (showAllocated.get() ? 4 : 0),
+				textColor.get().toInt(), shadow.get()
+			);
 
 			if (showAllocated.get()) {
 				String alloc = getAllocationLine();
 				drawString(graphics, alloc,
-						   pos.x() + (justification.get()).getXOffset(client.font.width(alloc), getWidth() - 4) + 2,
-						   pos.y() + (Math.round((float) height / 2) - 4) + 4, textColor.get().toInt(), shadow.get()
-						  );
+					pos.x() + (justification.get()).getXOffset(client.font.width(alloc), getWidth() - 4) + 2,
+					pos.y() + (Math.round((float) height / 2) - 4) + 4, textColor.get().toInt(), shadow.get()
+				);
 			}
 		}
 	}
@@ -106,11 +106,11 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 			graph.setData(pos.x() + 5, pos.y() + 5, getBounds().width - 10, getBounds().height - 10);
 
 			graphics.fill(graph.x, graph.y, (int) (graph.x + graph.width * (0.3)), graph.y + graph.height,
-						  graphUsedColor.get().toInt()
-						 );
+				graphUsedColor.get().toInt()
+			);
 			graphics.fill((int) (graph.x + graph.width * (0.3)), graph.y, graph.x + graph.width, graph.y + graph.height,
-						  graphFreeColor.get().toInt()
-						 );
+				graphFreeColor.get().toInt()
+			);
 
 			outlineRect(graphics, graph, ClientColors.BLACK);
 		}
@@ -118,27 +118,27 @@ public class MemoryHud extends TextHudEntry implements DynamicallyPositionable {
 		if (showText.get()) {
 			String mem = "300MiB/1024MiB";
 			drawString(graphics, mem,
-					   pos.x() + (justification.get()).getXOffset(client.font.width(mem), getWidth() - 4) + 2,
-					   pos.y() + (Math.round((float) height / 2) - 4) - (showAllocated.get() ? 4 : 0),
-					   ClientColors.WHITE, shadow.get()
-					  );
+				pos.x() + (justification.get()).getXOffset(client.font.width(mem), getWidth() - 4) + 2,
+				pos.y() + (Math.round((float) height / 2) - 4) - (showAllocated.get() ? 4 : 0),
+				ClientColors.WHITE, shadow.get()
+			);
 			if (showAllocated.get()) {
 				String alloc = I18n.get("allocated") + ": 976MiB";
 				drawString(graphics, alloc, pos.x() +
-											(justification.get()).getXOffset(client.font.width(alloc),
-																			 getWidth() - 4
-																			) + 2,
-						   pos.y() + (Math.round((float) height / 2) - 4) + 4, textColor.get(), shadow.get()
-						  );
+						(justification.get()).getXOffset(client.font.width(alloc),
+							getWidth() - 4
+						) + 2,
+					pos.y() + (Math.round((float) height / 2) - 4) + 4, textColor.get(), shadow.get()
+				);
 			}
 		}
 
 		if (!showGraph.get() && !showText.get()) {
 			String value = I18n.get(ID.getPath());
 			drawString(graphics, value,
-					   pos.x() + (justification.get()).getXOffset(client.font.width(value), getWidth() - 4) +
-					   2, pos.y() + (Math.round((float) height / 2) - 4), ClientColors.WHITE, shadow.get()
-					  );
+				pos.x() + (justification.get()).getXOffset(client.font.width(value), getWidth() - 4) +
+					2, pos.y() + (Math.round((float) height / 2) - 4), ClientColors.WHITE, shadow.get()
+			);
 		}
 	}
 

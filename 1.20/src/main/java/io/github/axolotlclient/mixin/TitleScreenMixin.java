@@ -93,7 +93,7 @@ public abstract class TitleScreenMixin extends Screen {
 				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.friends"),
 					w -> client.setScreen(new FriendsScreen(this))).positionAndSize(10, shortcutButtonY, 50, 20).build()));
 				buttons.add(addDrawableChild(ButtonWidget.builder(Text.translatable("api.chats"),
-					w -> client.setScreen(new ChatListScreen(this))).positionAndSize(10, shortcutButtonY+25, 50, 20).build()));
+					w -> client.setScreen(new ChatListScreen(this))).positionAndSize(10, shortcutButtonY + 25, 50, 20).build()));
 			});
 			if (API.getInstance().isSocketConnected()) {
 				addApiButtons.run();

@@ -73,7 +73,7 @@ public class ActionBarHud extends TextHudEntry {
 				client.textRenderer
 					.drawWithShadow(matrices, actionBar,
 						(float) getPos().x() + Math.round((float) getWidth() / 2)
-						- (float) client.textRenderer.getWidth(actionBar) / 2,
+							- (float) client.textRenderer.getWidth(actionBar) / 2,
 						(float) getPos().y() + 3,
 						customTextColor.get()
 							? (textColor.get().getAlpha() == 255
@@ -85,7 +85,7 @@ public class ActionBarHud extends TextHudEntry {
 				client.textRenderer
 					.draw(matrices, actionBar,
 						(float) getPos().x() + Math.round((float) getWidth() / 2)
-						- ((float) client.textRenderer.getWidth(actionBar) / 2),
+							- ((float) client.textRenderer.getWidth(actionBar) / 2),
 						(float) getPos().y() + 3,
 						customTextColor.get()
 							? (textColor.get().getAlpha() == 255
@@ -103,7 +103,7 @@ public class ActionBarHud extends TextHudEntry {
 	@Override
 	public void renderPlaceholderComponent(MatrixStack matrices, float delta) {
 		client.textRenderer.draw(matrices, placeholder, (float) getPos().x() + Math.round((float) getWidth() / 2)
-														- (float) client.textRenderer.getWidth(placeholder) / 2, (float) getPos().y() + 3, -1);
+			- (float) client.textRenderer.getWidth(placeholder) / 2, (float) getPos().y() + 3, -1);
 	}
 
 	@Override

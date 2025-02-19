@@ -51,7 +51,7 @@ public class KeystrokesScreen extends Screen {
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredShadowedText(textRenderer, getTitle(), width/2, 33/2-textRenderer.fontHeight/2, -1);
+		graphics.drawCenteredShadowedText(textRenderer, getTitle(), width / 2, 33 / 2 - textRenderer.fontHeight / 2, -1);
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class KeystrokesScreen extends Screen {
 			hud.saveKeystrokes();
 		}).positionAndSize(width / 2 - 150 - 4, height - 33 / 2 - 10, 150, 20).build());
 		addDrawableChild(ButtonWidget.builder(CommonTexts.DONE, button -> this.closeScreen())
-			.positionAndSize(width/2+4, height-33/2-10, 150, 20).build());
+			.positionAndSize(width / 2 + 4, height - 33 / 2 - 10, 150, 20).build());
 
 	}
 

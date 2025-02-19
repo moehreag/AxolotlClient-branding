@@ -49,7 +49,8 @@ public class SnappingHelper {
 	private final HashSet<Integer> x = new HashSet<>();
 	private final HashSet<Integer> y = new HashSet<>();
 	private final Window window;
-	@Setter private Rectangle current;
+	@Setter
+	private Rectangle current;
 
 	public SnappingHelper(List<Rectangle> rects, Rectangle current) {
 		addAllRects(rects);

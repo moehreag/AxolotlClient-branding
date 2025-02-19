@@ -52,7 +52,9 @@ public interface ImageInstance {
 
 	interface Remote extends ImageInstance {
 		String url();
+
 		String uploader();
+
 		Instant sharedAt();
 
 		default ImageInstance toShared(Path saved) {
@@ -76,12 +78,13 @@ public interface ImageInstance {
 		}
 	}
 
-	record SharedImpl(ResourceLocation id, NativeImage image, String filename, Path location, String url, String uploader, Instant sharedAt) implements Local, Remote{
+	record SharedImpl(ResourceLocation id, NativeImage image, String filename, Path location, String url,
+					  String uploader, Instant sharedAt) implements Local, Remote {
 
 	}
 
 	record RemoteImpl(ResourceLocation id, NativeImage image, String filename, String uploader, Instant sharedAt,
-				  String url) implements Remote {
+					  String url) implements Remote {
 		public RemoteImpl(NativeImage image, String filename, String uploader, Instant sharedAt, String url) {
 			this(ResourceLocation.fromNamespaceAndPath("axolotlclient", "gallery_remote_" + Hashing.sha256().hashUnencodedChars(url.toLowerCase(Locale.ROOT).replaceAll("[./]", "_"))),
 				image, filename, uploader, sharedAt, url

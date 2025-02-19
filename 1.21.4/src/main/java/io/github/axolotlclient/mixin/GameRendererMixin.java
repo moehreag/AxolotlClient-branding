@@ -50,9 +50,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-	@Final @Shadow private Minecraft minecraft;
+	@Final
+	@Shadow
+	private Minecraft minecraft;
 
-	@Shadow @Final private CrossFrameResourcePool resourcePool;
+	@Shadow
+	@Final
+	private CrossFrameResourcePool resourcePool;
 
 	@Inject(method = "getFov", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
 	public void axolotlclient$setZoom(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Float> cir) {
@@ -112,8 +116,8 @@ public abstract class GameRendererMixin {
 			g /= 2;
 			h /= 2;
 			matrices.translate(Mth.sin(g * (float) Math.PI) * h * 0.5F,
-							   -Math.abs(Mth.cos(g * (float) Math.PI) * h), 0.0F
-							  );
+				-Math.abs(Mth.cos(g * (float) Math.PI) * h), 0.0F
+			);
 			matrices.mulPose(
 				Axis.ZP.rotationDegrees(Mth.sin(g * (float) Math.PI) * h * 3.0F).get(new Matrix4f()));
 			matrices.mulPose(

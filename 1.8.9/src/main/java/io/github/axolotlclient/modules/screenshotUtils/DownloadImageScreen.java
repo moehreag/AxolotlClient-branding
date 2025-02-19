@@ -37,6 +37,7 @@ public class DownloadImageScreen extends Screen {
 
 	private final String title;
 	private TextFieldWidget urlBox;
+
 	public DownloadImageScreen(Screen parent) {
 		super();
 		this.title = I18n.translate("viewScreenshot");
@@ -53,7 +54,7 @@ public class DownloadImageScreen extends Screen {
 
 	@Override
 	public void init() {
-		urlBox = new TextFieldWidget(0, textRenderer, width / 2 - 100, height / 2 - 10, 200, 20){
+		urlBox = new TextFieldWidget(0, textRenderer, width / 2 - 100, height / 2 - 10, 200, 20) {
 			@Override
 			public void render() {
 				super.render();

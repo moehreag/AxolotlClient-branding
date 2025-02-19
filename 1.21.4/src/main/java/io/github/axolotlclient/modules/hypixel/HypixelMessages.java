@@ -44,9 +44,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class HypixelMessages implements SimpleSynchronousResourceReloadListener {
 
-	@Getter private static final HypixelMessages instance = new HypixelMessages();
+	@Getter
+	private static final HypixelMessages instance = new HypixelMessages();
 
-	@Getter private final Map<String, Map<String, Pattern>> languageMessageMap = new HashMap<>();
+	@Getter
+	private final Map<String, Map<String, Pattern>> languageMessageMap = new HashMap<>();
 	private final Map<String, Map<String, Pattern>> messageLanguageMap = new HashMap<>();
 
 	public void load() {

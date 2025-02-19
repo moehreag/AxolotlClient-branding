@@ -33,7 +33,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EditServerScreen.class)
 public abstract class AddServerScreenMixin {
 
-	@Shadow private EditBox nameEdit;
+	@Shadow
+	private EditBox nameEdit;
 
 	@Inject(method = "init", at = @At(value = "TAIL"))
 	private void axolotlclient$noNameLimit(CallbackInfo ci) {

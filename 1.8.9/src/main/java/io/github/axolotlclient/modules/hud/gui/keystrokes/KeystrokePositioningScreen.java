@@ -177,17 +177,17 @@ public class KeystrokePositioningScreen extends Screen {
 	@Override
 	public void mouseDragged(int mouseX, int mouseY, int button, long mouseLastClicked) {
 		if (focused != null && mouseDown) {
-			focused.setX(Math.round((mouseX - offset.x())/hud.getScale()));
-			focused.setY(Math.round((mouseY - offset.y())/hud.getScale()));
+			focused.setX(Math.round((mouseX - offset.x()) / hud.getScale()));
+			focused.setY(Math.round((mouseY - offset.y()) / hud.getScale()));
 			if (snap != null) {
 				Integer snapX, snapY;
 				var rect = getScaledRenderPos(focused);
 				snap.setCurrent(rect);
 				if ((snapX = snap.getCurrentXSnap()) != null) {
-					focused.setX((int) (snapX/hud.getScale()));
+					focused.setX((int) (snapX / hud.getScale()));
 				}
 				if ((snapY = snap.getCurrentYSnap()) != null) {
-					focused.setY(Math.round(snapY/hud.getScale()));
+					focused.setY(Math.round(snapY / hud.getScale()));
 				}
 			}
 		}

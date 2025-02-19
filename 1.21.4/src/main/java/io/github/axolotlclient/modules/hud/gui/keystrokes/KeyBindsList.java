@@ -104,6 +104,7 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 	}
 
 	private static final Component CONFIGURE_BUTTON_TITLE = Component.translatable("keystrokes.stroke.configure");
+
 	@Environment(EnvType.CLIENT)
 	public class KeyEntry extends Entry {
 		private static final Component REMOVE_BUTTON_TITLE = Component.translatable("keystrokes.stroke.remove");
@@ -118,10 +119,10 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 				.bounds(0, 0, 75, 20)
 				.build();
 			this.removeButton = Button.builder(REMOVE_BUTTON_TITLE, b -> {
-				removeEntry(this);
-				keyBindsScreen.removeKey(key);
-			}).bounds(0, 0, 50, 20)
-					.build();
+					removeEntry(this);
+					keyBindsScreen.removeKey(key);
+				}).bounds(0, 0, 50, 20)
+				.build();
 		}
 
 		@Override
@@ -135,13 +136,13 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 			this.configureButton.render(guiGraphics, mouseX, mouseY, partialTick);
 			guiGraphics.pose().pushPose();
 			var rect = key.getRenderPosition();
-			float scale = Math.min( (float) height / rect.height(), (float) 100 / rect.width());
+			float scale = Math.min((float) height / rect.height(), (float) 100 / rect.width());
 			guiGraphics.pose().translate(left, top, 0);
 			guiGraphics.pose().scale(scale, scale, 1);
 			guiGraphics.pose().translate(-rect.x(), -rect.y(), 0);
 			key.render(guiGraphics);
 			guiGraphics.pose().popPose();
-			guiGraphics.drawString(minecraft.font, name, left+width/2-minecraft.font.width(name)/2, top+height/2 - 9/2, Colors.GRAY.toInt());
+			guiGraphics.drawString(minecraft.font, name, left + width / 2 - minecraft.font.width(name) / 2, top + height / 2 - 9 / 2, Colors.GRAY.toInt());
 		}
 
 		@Override
@@ -166,7 +167,7 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 				.build();
 			this.addSpecialButton = Button.builder(Component.translatable("keystrokes.stroke.add.special"),
 					button -> minecraft.setScreen(new AddSpecialKeystrokeScreen(keyBindsScreen, keyBindsScreen.hud)))
-					.width(150).build();
+				.width(150).build();
 		}
 
 		@Override
@@ -176,7 +177,7 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-			int i = KeyBindsList.this.scrollBarX() - width/2 - 10 + 4;
+			int i = KeyBindsList.this.scrollBarX() - width / 2 - 10 + 4;
 			int j = top - 2;
 			this.addButton.setPosition(i, j);
 			this.addButton.render(guiGraphics, mouseX, mouseY, partialTick);

@@ -143,7 +143,7 @@ public class HudManager extends AbstractModule {
 				var obj = (List<Object>) GsonHelper.read(Files.readString(CUSTOM_MODULE_SAVE_PATH));
 				obj.forEach(o -> {
 					CustomHudEntry entry = new CustomHudEntry();
-					var values = (Map<String, Object>)o;
+					var values = (Map<String, Object>) o;
 					entry.getAllOptions().getOptions().forEach(opt -> {
 						if (values.containsKey(opt.getName())) {
 							opt.fromSerializedValue((String) values.get(opt.getName()));

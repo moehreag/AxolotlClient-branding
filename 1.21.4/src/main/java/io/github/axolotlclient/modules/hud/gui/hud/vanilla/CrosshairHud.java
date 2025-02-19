@@ -156,6 +156,7 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 	@Override
 	public void render(GuiGraphics graphics, float delta) {
 	}
+
 	public void renderCrosshair(GuiGraphics graphics, float delta) {
 		if (!client.options.getCameraType().isFirstPerson() && !showInF5.get()) {
 			return;
@@ -245,9 +246,9 @@ public class CrosshairHud extends AbstractHudEntry implements DynamicallyPositio
 
 	private void fillRenderType(GuiGraphics graphics, boolean blend, int x, int y, int width, int height, Color color) {
 		if (blend) {
-			graphics.fill(CROSSHAIR_NO_TEX, x, y, width+x, height+y, color.toInt());
+			graphics.fill(CROSSHAIR_NO_TEX, x, y, width + x, height + y, color.toInt());
 		} else {
-			graphics.fill(x, y, width+x, height+y, color.toInt());
+			graphics.fill(x, y, width + x, height + y, color.toInt());
 		}
 	}
 

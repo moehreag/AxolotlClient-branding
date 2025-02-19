@@ -46,7 +46,7 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 	private int maxNameWidth;
 
 	public KeyBindsList(KeystrokesScreen keyBindsScreen) {
-		super(MinecraftClient.getInstance(), keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height-33, 24);
+		super(MinecraftClient.getInstance(), keyBindsScreen.width, keyBindsScreen.height, 33, keyBindsScreen.height - 33, 24);
 		this.keyBindsScreen = keyBindsScreen;
 
 		reload();
@@ -71,7 +71,7 @@ public class KeyBindsList extends ElementListWidget<KeyBindsList.Entry> {
 
 	@Override
 	protected int getScrollbarPositionX() {
-		return getRowLeft()+getRowWidth()+10;
+		return getRowLeft() + getRowWidth() + 10;
 	}
 
 	@Override

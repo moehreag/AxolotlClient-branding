@@ -158,11 +158,11 @@ public class Zoom extends AbstractModule {
 		KeyBinds.getInstance().registerWithSimpleAction(
 			new KeyMapping("key.zoom.increase", InputConstants.UNKNOWN.getValue(), "category.axolotlclient"),
 			() -> scroll(zoomSpeed.get() / 2)
-													   );
+		);
 		KeyBinds.getInstance().registerWithSimpleAction(
 			new KeyMapping("key.zoom.decrease", InputConstants.UNKNOWN.getValue(), "category.axolotlclient"),
 			() -> scroll(-zoomSpeed.get() / 2)
-													   );
+		);
 	}
 
 	public void tick() {

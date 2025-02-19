@@ -56,7 +56,7 @@ public abstract class ImageNetworking {
 		return API.getInstance().post(Request.Route.IMAGE.builder().path(name).rawBody(data).build())
 			.thenApply(response -> {
 				if (response.isError()) {
-					AxolotlClientCommon.getInstance().getLogger().error("Failed to upload image, server responded with "+response);
+					AxolotlClientCommon.getInstance().getLogger().error("Failed to upload image, server responded with " + response);
 					return "";
 				}
 				return idToUrl(response.getPlainBody());
