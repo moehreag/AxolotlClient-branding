@@ -81,7 +81,7 @@ public class GalleryScreen extends Screen {
 
 		private static final Tab<Path> LOCAL = of(Text.translatable("gallery.title.local"), () -> {
 			try (Stream<Path> screenshots = Files.list(SCREENSHOTS_DIR)) {
-				return screenshots.sorted(Comparator.<Path>comparingLong(p -> {
+				return screenshots.filter(Files::isRegularFile).sorted(Comparator.<Path>comparingLong(p -> {
 					try {
 						return Files.getLastModifiedTime(p).toMillis();
 					} catch (IOException e) {
@@ -248,7 +248,7 @@ public class GalleryScreen extends Screen {
 						setMessage(Text.literal(instance.filename()));
 						return instance;
 					} catch (Exception e) {
-						row.remove(this);
+						client.execute(() -> row.remove(this));
 						return null;
 					}
 				});
@@ -263,7 +263,7 @@ public class GalleryScreen extends Screen {
 
 		@Override
 		protected void drawWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			if (load().isDone()) {
+			if (load().isDone() && load().join() != null) {
 				guiGraphics.drawTexture(load().join().id(), getX(), getY(), 0, 0, getWidth(), getHeight() - font.fontHeight - 2, getWidth(), getHeight() - font.fontHeight - 2);
 				drawScrollableText(guiGraphics, font, -1);
 			} else {
@@ -292,7 +292,7 @@ public class GalleryScreen extends Screen {
 		}
 
 		private int lerp(float delta, int start, int end) {
-			return (int) MathHelper.clamp(MathHelper.lerp(delta, start, end), start, end);
+			return MathHelper.clamp(MathHelper.lerp(delta, start, end), start, end);
 		}
 
 		@Override
@@ -367,6 +367,7 @@ public class GalleryScreen extends Screen {
 			var entry = buttons.removeFirst();
 			if (buttons.isEmpty()) {
 				list.removeEntry(this);
+				list.refreshScrollAmount();
 			} else if (buttons.size() < size) {
 				list.shiftEntries(this);
 			}

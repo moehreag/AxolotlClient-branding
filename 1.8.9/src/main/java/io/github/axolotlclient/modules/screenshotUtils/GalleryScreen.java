@@ -72,7 +72,7 @@ public class GalleryScreen extends Screen {
 
 		private static final Tab<Path> LOCAL = of(I18n.translate("gallery.title.local"), () -> {
 			try (Stream<Path> screenshots = Files.list(SCREENSHOTS_DIR)) {
-				return screenshots.sorted(Comparator.<Path>comparingLong(p -> {
+				return screenshots.filter(Files::isRegularFile).sorted(Comparator.<Path>comparingLong(p -> {
 					try {
 						return Files.getLastModifiedTime(p).toMillis();
 					} catch (IOException e) {
@@ -272,7 +272,7 @@ public class GalleryScreen extends Screen {
 						message = instance.filename();
 						return instance;
 					} catch (Exception e) {
-						row.remove(this);
+						minecraft.submit(() -> row.remove(this));
 						return null;
 					}
 				});
@@ -288,7 +288,7 @@ public class GalleryScreen extends Screen {
 		@Override
 		public void render(Minecraft client, int mouseX, int mouseY) {
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			if (load().isDone() && client.getTextureManager().get(load().join().id()) != null) {
+			if (load().isDone() && load().join() != null && client.getTextureManager().get(load().join().id()) != null) {
 				client.getTextureManager().bind(load().join().id());
 				GlStateManager.color3f(1, 1, 1);
 				drawTexture(x, y, 0, 0, getWidth(), getHeight() - font.fontHeight - 2, getWidth(), getHeight() - font.fontHeight - 2);
@@ -404,6 +404,7 @@ public class GalleryScreen extends Screen {
 			var entry = buttons.remove(0);
 			if (buttons.isEmpty()) {
 				list.removeEntry(this);
+				list.scroll(0);
 			} else if (buttons.size() < size) {
 				list.shiftEntries(this);
 			}

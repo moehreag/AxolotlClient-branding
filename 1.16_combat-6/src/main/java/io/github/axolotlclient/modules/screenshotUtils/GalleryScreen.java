@@ -77,7 +77,7 @@ public class GalleryScreen extends Screen {
 
 		private static final Tab<Path> LOCAL = of(new TranslatableText("gallery.title.local"), () -> {
 			try (Stream<Path> screenshots = Files.list(SCREENSHOTS_DIR)) {
-				return screenshots.sorted(Comparator.<Path>comparingLong(p -> {
+				return screenshots.filter(Files::isRegularFile).sorted(Comparator.<Path>comparingLong(p -> {
 					try {
 						return Files.getLastModifiedTime(p).toMillis();
 					} catch (IOException e) {
@@ -251,7 +251,7 @@ public class GalleryScreen extends Screen {
 						setMessage(new LiteralText(instance.filename()));
 						return instance;
 					} catch (Exception e) {
-						row.remove(this);
+						client.submit(() -> row.remove(this));
 						return null;
 					}
 				});
@@ -266,7 +266,7 @@ public class GalleryScreen extends Screen {
 
 		@Override
 		public void renderButton(MatrixStack guiGraphics, int mouseX, int mouseY, float partialTick) {
-			if (load().isDone()) {
+			if (load().isDone() && load().join() != null) {
 				client.getTextureManager().bindTexture(load().join().id());
 				drawTexture(guiGraphics, x, y, 0, 0, getWidth(), getHeight() - font.fontHeight - 2, getWidth(), getHeight() - font.fontHeight - 2);
 				drawScrollingText(guiGraphics, font, 2, -1);
@@ -382,6 +382,7 @@ public class GalleryScreen extends Screen {
 			var entry = buttons.remove(0);
 			if (buttons.isEmpty()) {
 				list.removeEntry(this);
+				list.setScrollAmount(list.getScrollAmount());
 			} else if (buttons.size() < size) {
 				list.shiftEntries(this);
 			}

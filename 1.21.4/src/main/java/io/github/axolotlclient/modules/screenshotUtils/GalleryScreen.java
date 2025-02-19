@@ -80,7 +80,7 @@ public class GalleryScreen extends Screen {
 
 		private static final Tab<Path> LOCAL = of(Component.translatable("gallery.title.local"), () -> {
 			try (Stream<Path> screenshots = Files.list(SCREENSHOTS_DIR)) {
-				return screenshots.sorted(Comparator.<Path>comparingLong(p -> {
+				return screenshots.filter(Files::isRegularFile).sorted(Comparator.<Path>comparingLong(p -> {
 					try {
 						return Files.getLastModifiedTime(p).toMillis();
 					} catch (IOException e) {
@@ -247,7 +247,7 @@ public class GalleryScreen extends Screen {
 						setMessage(Component.literal(instance.filename()));
 						return instance;
 					} catch (Exception e) {
-						row.remove(this);
+						minecraft.schedule(() -> row.remove(this));
 						return null;
 					}
 				});
@@ -262,7 +262,7 @@ public class GalleryScreen extends Screen {
 
 		@Override
 		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			if (load().isDone()) {
+			if (load().isDone() && load().join() != null) {
 				guiGraphics.blit(RenderType::guiTextured, load().join().id(), getX(), getY(), 0, 0, getWidth(), getHeight() - font.lineHeight - 2, getWidth(), getHeight() - font.lineHeight - 2);
 				renderString(guiGraphics, font, -1);
 			} else {
@@ -312,6 +312,7 @@ public class GalleryScreen extends Screen {
 		private final List<ImageEntry> buttons;
 		private final int size;
 		private final ImageList list;
+		private final List<ImageEntry> removalQueue = new ArrayList<>(1);
 
 		public ImageListEntry(int size, ImageList list) {
 			this.size = size;
@@ -366,6 +367,7 @@ public class GalleryScreen extends Screen {
 			var entry = buttons.removeFirst();
 			if (buttons.isEmpty()) {
 				list.removeEntry(this);
+				list.refreshScrollAmount();
 			} else if (buttons.size() < size) {
 				list.shiftEntries(this);
 			}
