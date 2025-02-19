@@ -92,5 +92,4 @@ public interface ImageInstance {
 			register(id(), image());
 		}
 	}
-
 }

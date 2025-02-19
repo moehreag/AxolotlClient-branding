@@ -110,7 +110,7 @@ public abstract class TitleScreenMixin extends Screen {
 				data.success() &&
 				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 				buttons.add(addRenderableWidget(Button.builder(Component.translatable("api.new_version_available"),
-						ConfirmLinkScreen.confirmLink(minecraft.screen, "https://modrinth.com/mod/axolotlclient/versions"))
+						ConfirmLinkScreen.confirmLink(this, "https://modrinth.com/mod/axolotlclient/versions"))
 					.bounds(width - 90, y, 80, 20).build()));
 				buttonY += 22;
 			}

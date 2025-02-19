@@ -103,6 +103,7 @@ public abstract class TitleScreenMixin extends Screen {
 						if (r) {
 							OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 						}
+						client.openScreen(this);
 					}, "https://modrinth.com/mod/axolotlclient/versions", true)))));
 				buttonY += 22;
 			}

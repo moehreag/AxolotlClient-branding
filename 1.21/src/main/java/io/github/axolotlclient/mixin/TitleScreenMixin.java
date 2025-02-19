@@ -107,10 +107,11 @@ public abstract class TitleScreenMixin extends Screen {
 				data.success() &&
 				data.latestVersion().isNewerThan(AxolotlClient.VERSION)) {
 				buttons.add(addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.new_version_available"), widget ->
-						MinecraftClient.getInstance().setScreen(new ConfirmLinkScreen(r -> {
+						client.setScreen(new ConfirmLinkScreen(r -> {
 							if (r) {
 								OSUtil.getOS().open(URI.create("https://modrinth.com/mod/axolotlclient/versions"));
 							}
+							client.setScreen(this);
 						}, "https://modrinth.com/mod/axolotlclient/versions", true)))
 					.positionAndSize(width - 90, buttonY, 80, 20).build()));
 				buttonY += 22;
@@ -118,7 +119,7 @@ public abstract class TitleScreenMixin extends Screen {
 			if (APIOptions.getInstance().displayNotes.get() &&
 				data.success() && !data.notes().isEmpty()) {
 				buttons.add(addDrawableSelectableElement(ButtonWidget.builder(Text.translatable("api.notes"), buttonWidget ->
-						MinecraftClient.getInstance().setScreen(new NewsScreen(this)))
+						client.setScreen(new NewsScreen(this)))
 					.positionAndSize(width - 90, buttonY, 80, 20).build()));
 			}
 		});
