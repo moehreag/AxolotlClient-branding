@@ -51,6 +51,12 @@ public class Util {
 	public static String lastgame;
 	public static String game;
 
+	public static int getTicksBetween(int start, int end) {
+		if (end < start)
+			end += 24000;
+		return end - start;
+	}
+
 	public static String getGame() {
 		List<String> sidebar = getSidebar();
 
