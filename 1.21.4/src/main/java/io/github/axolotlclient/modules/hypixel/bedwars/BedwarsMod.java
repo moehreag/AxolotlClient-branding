@@ -72,7 +72,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
 	@Getter
 	private final OptionCategory category = OptionCategory.create("bedwars");
-	private final BooleanOption enabled = new BooleanOption("enabled", false);
+	private final BooleanOption enabled = new BooleanOption("enabled", "bedwars.enabled.tooltip", false);
 	private final BooleanOption tabRenderLatencyIcon =
 		new BooleanOption(getTranslationKey("tabRenderLatencyIcon"), false);
 

@@ -685,5 +685,6 @@
 	"debugcounters.pcount": "Particle Debug Info",
 	"bedwars_resources.renderWhenRelevant": "Only Render When Relevant",
 	"bedwars_resources": "Resources HUD",
-	"levelhead.enabled.tooltip": "Whether this module is enabled or not.<br>This module requires the social features to be enabled<br>in order to communicate with the backend and the Hypixel API."
+	"levelhead.enabled.tooltip": "Whether this module is enabled or not.<br>This module requires the social features to be enabled<br>in order to communicate with the backend and the Hypixel API.",
+	"bedwars.enabled.tooltip": "Whether this module is enabled or not.<br>Some functions of this module require the social features to be enabled<br>in order to communicate with the backend and the Hypixel API."
 }
