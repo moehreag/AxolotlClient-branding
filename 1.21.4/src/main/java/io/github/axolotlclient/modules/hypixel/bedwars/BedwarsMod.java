@@ -65,6 +65,8 @@ public class BedwarsMod implements AbstractHypixelMod {
 		);
 	@Getter
 	protected final TeamUpgradesOverlay upgradesOverlay;
+	@Getter
+	protected final ResourceOverlay resourceOverlay;
 	protected final BooleanOption removeAnnoyingMessages =
 		new BooleanOption(getTranslationKey("removeAnnoyingMessages"), true);
 	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
@@ -81,6 +83,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 
 	public BedwarsMod() {
 		upgradesOverlay = new TeamUpgradesOverlay(this);
+		resourceOverlay = new ResourceOverlay(this);
 	}
 
 
@@ -90,6 +93,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 			removeAnnoyingMessages, tabRenderLatencyIcon, showChatTime, overrideMessages
 		);
 		category.add(upgradesOverlay.getAllOptions());
+		category.add(resourceOverlay.getAllOptions());
 		category.add(BedwarsDeathType.getOptions());
 
 		instance = this;

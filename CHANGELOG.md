@@ -6,6 +6,7 @@
   - Mouse movement is now its own HUD element
 - Custom text-based HUD elements
 - Add DebugCountersHud, displaying Counters from the F3 screen
+- Add Bedwars resources HUD
 
 ### 3.1.1
 

@@ -65,6 +65,8 @@ public class BedwarsMod implements AbstractHypixelMod {
 		BedwarsLevelHeadMode.GAME_KILLS_GAME_DEATHS);
 	@Getter
 	protected final TeamUpgradesOverlay upgradesOverlay;
+	@Getter
+	protected final ResourceOverlay resourceOverlay;
 	protected final BooleanOption removeAnnoyingMessages = new BooleanOption(getTranslationKey("removeAnnoyingMessages"), true);
 	protected final BooleanOption overrideMessages = new BooleanOption(getTranslationKey("overrideMessages"), true);
 	@Getter
@@ -79,6 +81,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 
 	public BedwarsMod() {
 		upgradesOverlay = new TeamUpgradesOverlay(this);
+		resourceOverlay = new ResourceOverlay(this);
 	}
 
 
@@ -87,6 +90,7 @@ public class BedwarsMod implements AbstractHypixelMod {
 		category.add(enabled, hardcoreHearts, showHunger, displayArmor, bedwarsLevelHead, bedwarsLevelHeadMode,
 			removeAnnoyingMessages, tabRenderLatencyIcon, showChatTime, overrideMessages);
 		category.add(upgradesOverlay.getAllOptions());
+		category.add(resourceOverlay.getAllOptions());
 		category.add(BedwarsDeathType.getOptions());
 
 		instance = this;

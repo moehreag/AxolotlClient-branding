@@ -114,6 +114,7 @@ public class HudManager extends AbstractModule {
 		add(new MouseMovementHud());
 		add(new DebugCountersHud());
 		entries.put(BedwarsMod.getInstance().getUpgradesOverlay().getId(), BedwarsMod.getInstance().getUpgradesOverlay());
+		entries.put(BedwarsMod.getInstance().getResourceOverlay().getId(), BedwarsMod.getInstance().getResourceOverlay());
 
 		entries.values().forEach(HudEntry::init);
 

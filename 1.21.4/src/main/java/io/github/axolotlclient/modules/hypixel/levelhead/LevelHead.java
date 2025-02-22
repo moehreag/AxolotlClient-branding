@@ -32,7 +32,7 @@ import io.github.axolotlclient.util.ClientColors;
 public class LevelHead implements AbstractHypixelMod {
 
 	private static final LevelHead Instance = new LevelHead();
-	public final BooleanOption enabled = new BooleanOption("enabled", false);
+	public final BooleanOption enabled = new BooleanOption("enabled", "levelhead.enabled.tooltip", false);
 	public final BooleanOption background = new BooleanOption("background", false);
 	public final ColorOption textColor = new ColorOption("textColor", ClientColors.GOLD);
 	public final EnumOption<LevelHeadMode> mode = new EnumOption<>("levelHeadMode", LevelHeadMode.class, LevelHeadMode.NETWORK);

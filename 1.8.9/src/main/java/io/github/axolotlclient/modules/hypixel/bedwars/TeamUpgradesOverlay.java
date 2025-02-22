@@ -32,7 +32,6 @@ import io.github.axolotlclient.modules.hud.util.DrawPosition;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.BedwarsTeamUpgrades;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.TeamUpgrade;
 import io.github.axolotlclient.modules.hypixel.bedwars.upgrades.TrapUpgrade;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resource.Identifier;
 
 /**
@@ -45,13 +44,11 @@ public class TeamUpgradesOverlay extends BoxHudEntry {
 	private final static TrapUpgrade.TrapType[] trapEdit = {TrapUpgrade.TrapType.MINER_FATIGUE, TrapUpgrade.TrapType.ITS_A_TRAP};
 	private final BooleanOption renderWhenRelevant = new BooleanOption(ID.getPath() + ".renderWhenRelevant", true);
 	private final BedwarsMod mod;
-	private final Minecraft mc;
 	private BedwarsTeamUpgrades upgrades = null;
 
 	public TeamUpgradesOverlay(BedwarsMod mod) {
 		super(60, 40, true);
 		this.mod = mod;
-		this.mc = Minecraft.getInstance();
 	}
 
 	public void onStart(BedwarsTeamUpgrades newUpgrades) {
