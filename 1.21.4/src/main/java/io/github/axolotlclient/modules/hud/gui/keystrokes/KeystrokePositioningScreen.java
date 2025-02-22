@@ -52,6 +52,9 @@ public class KeystrokePositioningScreen extends Screen {
 		super(Component.translatable("keystrokes.stroke.move"));
 		this.parent = parent;
 		this.hud = hud;
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 		this.editing = focused;
 		mouseDown = false;
 	}

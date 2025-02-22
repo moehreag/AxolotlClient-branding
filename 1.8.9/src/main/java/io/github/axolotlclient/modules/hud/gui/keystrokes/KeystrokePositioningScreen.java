@@ -52,6 +52,9 @@ public class KeystrokePositioningScreen extends Screen {
 		super();
 		this.parent = parent;
 		this.hud = hud;
+		if (hud.keystrokes == null) {
+			hud.setKeystrokes();
+		}
 		this.editing = focused;
 		mouseDown = false;
 	}
