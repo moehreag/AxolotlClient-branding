@@ -688,5 +688,6 @@
 	"levelhead.enabled.tooltip": "Whether this module is enabled or not.<br>This module requires the social features to be enabled<br>in order to communicate with the backend and the Hypixel API.",
 	"bedwars.enabled.tooltip": "Whether this module is enabled or not.<br>Some functions of this module require the social features to be enabled<br>in order to communicate with the backend and the Hypixel API.",
 	"daycounterhud": "Day Counter HUD",
-	"daycounterhud.days": "%s Days"
+	"daycounterhud.days": "%s Days",
+	"keystrokes.animation_time": "Animation Time (Milliseconds)"
 }

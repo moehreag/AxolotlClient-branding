@@ -32,6 +32,7 @@ import io.github.axolotlclient.AxolotlClient;
 import io.github.axolotlclient.AxolotlClientConfig.api.options.Option;
 import io.github.axolotlclient.AxolotlClientConfig.api.util.Color;
 import io.github.axolotlclient.AxolotlClientConfig.impl.options.ColorOption;
+import io.github.axolotlclient.AxolotlClientConfig.impl.options.IntegerOption;
 import io.github.axolotlclient.mixin.KeyBindAccessor;
 import io.github.axolotlclient.modules.hud.gui.entry.TextHudEntry;
 import io.github.axolotlclient.modules.hud.gui.keystrokes.KeystrokePositioningScreen;
@@ -73,6 +74,7 @@ public class KeystrokeHud extends TextHudEntry {
 	private final GenericOption keystrokesOption = new GenericOption("keystrokes", "keystrokes.configure", () -> client.openScreen(new KeystrokesScreen(KeystrokeHud.this, client.screen)));
 	private final GenericOption configurePositions = new GenericOption("keystrokes.positions", "keystrokes.positions.configure",
 		() -> client.openScreen(new KeystrokePositioningScreen(client.screen, this)));
+	private final IntegerOption animationTime = new IntegerOption("keystrokes.animation_time", 100, 0, 500);
 	public ArrayList<Keystroke> keystrokes;
 
 
@@ -201,6 +203,7 @@ public class KeystrokeHud extends TextHudEntry {
 		options.add(outline);
 		options.add(outlineColor);
 		options.add(pressedOutlineColor);
+		options.add(animationTime);
 		options.add(keystrokesOption);
 		options.add(configurePositions);
 		return options;
@@ -224,7 +227,6 @@ public class KeystrokeHud extends TextHudEntry {
 		protected KeystrokeRenderer render;
 		@Getter
 		protected final Rectangle bounds;
-		private final int animTime = 100;
 		protected DrawPosition offset;
 		private long start = -1;
 		private boolean wasPressed = false;
@@ -254,7 +256,7 @@ public class KeystrokeHud extends TextHudEntry {
 		}
 
 		private float getPercentPressed() {
-			return start == -1 ? 1 : MathHelper.clamp((float) (System.currentTimeMillis() - start) / animTime, 0, 1);
+			return start == -1 ? 1 : MathHelper.clamp((float) (System.currentTimeMillis() - start) / getAnimTime(), 0, 1);
 		}
 
 		public void render() {
@@ -273,10 +275,14 @@ public class KeystrokeHud extends TextHudEntry {
 			if (outline.get()) {
 				outlineRect(rect, getOutlineColor());
 			}
-			if ((float) (System.currentTimeMillis() - start) / animTime >= 1) {
+			if ((float) (System.currentTimeMillis() - start) / getAnimTime() >= 1) {
 				start = -1;
 			}
 			wasPressed = isKeyDown();
+		}
+
+		private int getAnimTime() {
+			return animationTime.get();
 		}
 
 		private boolean isKeyDown() {
