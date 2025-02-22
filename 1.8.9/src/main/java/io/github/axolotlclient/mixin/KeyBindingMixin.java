@@ -22,15 +22,14 @@
 
 package io.github.axolotlclient.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.axolotlclient.util.events.Events;
 import io.github.axolotlclient.util.events.impl.KeyBindChangeEvent;
 import io.github.axolotlclient.util.events.impl.KeyPressEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.options.KeyBinding;
-import net.minecraft.util.Int2ObjectHashMap;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,17 +41,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class KeyBindingMixin {
 
 	@Shadow
-	@Final
-	private static Int2ObjectHashMap<KeyBinding> BY_KEY_CODE;
-	@Shadow
 	private boolean pressed;
 	@Shadow
 	private int keyCode;
 
 	@Inject(method = "set", at = @At(value = "FIELD", target = "Lnet/minecraft/client/options/KeyBinding;pressed:Z"))
-	private static void axolotlclient$onPress(int keyCode, boolean pressed, CallbackInfo ci) {
+	private static void axolotlclient$onPress(int keyCode, boolean pressed, CallbackInfo ci, @Local KeyBinding key) {
 		if (pressed) {
-			Events.KEY_PRESS.invoker().invoke(new KeyPressEvent(BY_KEY_CODE.get(keyCode)));
+			Events.KEY_PRESS.invoker().invoke(new KeyPressEvent(key));
 		}
 	}
 

@@ -173,7 +173,10 @@ public class UnfocusedFpsLimiter extends AbstractModule {
 	 * force minecraft to idle because otherwise we'll be busy checking for render again and again
 	 */
 	private void idle(long waitMillis) {
-		LockSupport.parkNanos("waiting to render", waitMillis * 1_000_000);
+		long targetMs = System.currentTimeMillis() + waitMillis;
+		while(!Display.isVisible() && !(Mouse.isInsideWindow() && restoreOnHover.get()) && System.currentTimeMillis() <= targetMs) {
+			LockSupport.parkNanos("waiting to render", 30 * 1_000_000);
+		}
 	}
 
 	private void setVolumeMultiplier(float multiplier) {
