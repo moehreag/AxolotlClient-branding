@@ -71,6 +71,7 @@ public class BossBarHud extends TextHudEntry implements DynamicallyPositionable 
 			client.getTextureManager().bind(BARS_TEXTURE);
 			--BossBar.timer;
 			if (bar.get()) {
+				GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 				//GlStateManager.color4f(barColor.get().getRed(), barColor.get().getGreen(), barColor.get().getBlue(), barColor.get().getAlpha());
 				drawTexture(pos.x, pos.y + 12, 0, 74, 182, 5);
 				drawTexture(pos.x, pos.y + 12, 0, 74, 182, 5);

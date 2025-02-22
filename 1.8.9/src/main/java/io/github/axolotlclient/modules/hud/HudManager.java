@@ -111,6 +111,7 @@ public class HudManager extends AbstractModule {
 		add(new ChatHud());
 		add(new MouseMovementHud());
 		add(new DebugCountersHud());
+		add(new DayCounterHud());
 		entries.put(BedwarsMod.getInstance().getUpgradesOverlay().getId(), BedwarsMod.getInstance().getUpgradesOverlay());
 		entries.put(BedwarsMod.getInstance().getResourceOverlay().getId(), BedwarsMod.getInstance().getResourceOverlay());
 
